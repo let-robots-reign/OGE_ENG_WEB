@@ -16,7 +16,8 @@
     "core-js": "^3.6.5",
     "vue": "^3.0.0",
     "vue-router": "^4.0.0-0",
-    "vuex": "^3.6.2"
+    "vuex": "^3.6.2",
+    "vuex-persistedstate": "^4.0.0-beta.3"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",
@@ -41,15 +42,26 @@
       "parser": "babel-eslint"
     },
     "rules": {
-      "semi": ["error", "always"],
-      "indent": ["error", 4],
-      "max-len": ["error", 120, 2, {
-        "ignoreUrls": true,
-        "ignoreComments": true,
-        "ignoreRegExpLiterals": true,
-        "ignoreStrings": false,
-        "ignoreTemplateLiterals": false
-      }]
+      "semi": [
+        "error",
+        "always"
+      ],
+      "indent": [
+        "error",
+        4
+      ],
+      "max-len": [
+        "error",
+        120,
+        2,
+        {
+          "ignoreUrls": true,
+          "ignoreComments": true,
+          "ignoreRegExpLiterals": true,
+          "ignoreStrings": false,
+          "ignoreTemplateLiterals": false
+        }
+      ]
     }
   },
   "browserslist": [
