@@ -43,6 +43,7 @@
 import {useStore} from 'vuex';
 import {computed} from 'vue';
 import {API} from '@/api';
+import {OK_CODE} from '@/api/codes';
 
 export default {
     name: 'Navbar',
@@ -50,8 +51,12 @@ export default {
         const store = useStore();
         const auth = computed(() => store.state.authenticated);
 
-        const logout = async () => {
-            await API.logout();
+        const logout = () => {
+            API.logout().then(async (response) => {
+                if (response.status === OK_CODE) {
+                    await store.dispatch('setAuth', false);
+                }
+            });
         };
 
         return {

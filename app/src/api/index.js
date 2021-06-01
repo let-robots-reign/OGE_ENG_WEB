@@ -8,7 +8,7 @@ class Api {
             method: method,
             credentials: 'include',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(data),
+            body: (data) ? JSON.stringify(data) : null,
         });
 
         const responseData = await response.json();
@@ -28,7 +28,7 @@ class Api {
     }
 
     logout() {
-        return this.asyncRequest(`${this.url}/logout`);
+        return this.asyncRequest(`${this.url}/logout`, 'POST');
     }
 
     getCurrentUser() {
