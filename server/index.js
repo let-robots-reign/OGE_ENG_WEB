@@ -1,8 +1,11 @@
 const express = require('express');
 const mongoose = require('mongoose');
 
-const DB_PATH = 'mongodb://localhost/oge_eng_db';
-mongoose.connect(DB_PATH, {
+require('dotenv').config({
+    path: '../config.env'
+});
+
+mongoose.connect(process.env.DB_PATH, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 }, () => {
