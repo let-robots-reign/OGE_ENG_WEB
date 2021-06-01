@@ -12,7 +12,7 @@
 import {reactive} from 'vue';
 import {API} from '@/api';
 import {useRouter} from 'vue-router';
-import {OK_CODE} from '@/api/codes';
+import {CREATED_CODE} from '@/api/codes';
 import {PATHS} from '@/router/paths';
 
 export default {
@@ -27,7 +27,7 @@ export default {
 
         const signup = () => {
             API.signup(data).then(async (response) => {
-                if (response.status === OK_CODE) {
+                if (response.status === CREATED_CODE) {
                     await router.push(PATHS.main);
                 }
             });

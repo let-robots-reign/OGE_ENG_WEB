@@ -3,9 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
-require('dotenv').config({
-    path: '../config.env'
-});
+require('dotenv').config();
 
 router.post('/signup', async (req, res) => {
     const userData = req.body;
@@ -17,11 +15,12 @@ router.post('/signup', async (req, res) => {
         email: userData.email,
         password: hashedPassword
     });
+    // TODO: check for existing user
     const result = await user.save();
     // eslint-disable-next-line no-unused-vars
     const {password, ...data} = await result.toJSON();
 
-    res.send(data);
+    res.status(201).send(data);
 });
 
 router.post('/login', async (req, res) => {
@@ -46,7 +45,7 @@ router.post('/login', async (req, res) => {
         maxAge: 10 * 24 * 60 * 60 * 1000  // 10 days
     });
 
-    res.send({
+    res.status(200).send({
         message: 'success'
     });
 });
@@ -65,7 +64,7 @@ router.get('/user', async (req, res) => {
         const user = await User.findOne({_id: token._id});
         // eslint-disable-next-line no-unused-vars
         const {password, ...data} = await user.toJSON();
-        res.send(data);
+        res.status(200).send(data);
     } catch (e) {
         return res.status(401).send({
             message: `unauthenticated, ${e}`
@@ -75,7 +74,7 @@ router.get('/user', async (req, res) => {
 
 router.post('/logout', (req, res) => {
     res.cookie('jwt', '', {maxAge: 0});
-    res.send({
+    res.status(200).send({
         message: 'success'
     });
 });

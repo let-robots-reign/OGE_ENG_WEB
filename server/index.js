@@ -1,13 +1,12 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 
-require('dotenv').config({
-    path: '../config.env'
-});
+require('dotenv').config();
 
-mongoose.connect(process.env.DB_URL, {
+mongoose.connect(process.env.DB_CONN, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 }, () => {
@@ -17,6 +16,8 @@ mongoose.connect(process.env.DB_URL, {
 const routes = require('./routes/routes');
 
 const app = express();
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 app.use(cors({
     credentials: true,
