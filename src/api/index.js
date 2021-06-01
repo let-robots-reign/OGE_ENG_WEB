@@ -26,6 +26,14 @@ class Api {
     login(userData) {
         return this.asyncRequest(`${this.url}/login`, 'POST', userData);
     }
+
+    logout() {
+        return this.asyncRequest(`${this.url}/logout`);
+    }
+
+    getCurrentUser() {
+        return this.asyncRequest(`${this.url}/user`);
+    }
 }
 
 export const API = new Api();
