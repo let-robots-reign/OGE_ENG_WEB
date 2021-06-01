@@ -51,4 +51,33 @@ router.post('/login', async (req, res) => {
     });
 });
 
+router.get('/user', async (req, res) => {
+    try {
+        const cookie = req.cookies['jwt'];
+        const token = jwt.verify(cookie, process.env.JWT_SECRET);
+
+        if (!token) {
+            return res.status(401).send({
+                message: 'invalid jwt token'
+            });
+        }
+
+        const user = await User.findOne({_id: token._id});
+        // eslint-disable-next-line no-unused-vars
+        const {password, ...data} = await user.toJSON();
+        res.send(data);
+    } catch (e) {
+        return res.status(401).send({
+            message: `unauthenticated, ${e}`
+        });
+    }
+});
+
+router.post('/logout', (req, res) => {
+    res.cookie('jwt', '', {maxAge: 0});
+    res.send({
+        message: 'success'
+    });
+});
+
 module.exports = router;
