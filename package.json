@@ -41,15 +41,26 @@
       "parser": "babel-eslint"
     },
     "rules": {
-      "semi": ["error", "always"],
-      "indent": ["error", 4],
-      "max-len": ["error", 120, 2, {
-        "ignoreUrls": true,
-        "ignoreComments": true,
-        "ignoreRegExpLiterals": true,
-        "ignoreStrings": false,
-        "ignoreTemplateLiterals": false
-      }]
+      "semi": [
+        "error",
+        "always"
+      ],
+      "indent": [
+        "error",
+        4
+      ],
+      "max-len": [
+        "error",
+        120,
+        2,
+        {
+          "ignoreUrls": true,
+          "ignoreComments": true,
+          "ignoreRegExpLiterals": true,
+          "ignoreStrings": false,
+          "ignoreTemplateLiterals": false
+        }
+      ]
     }
   },
   "browserslist": [
