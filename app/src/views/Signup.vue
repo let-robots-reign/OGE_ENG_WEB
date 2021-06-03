@@ -11,18 +11,6 @@
     </form>
 </template>
 
-<style scoped>
-.form-sign-up {
-    width: 100%;
-    max-width: 330px;
-    margin: 0 auto;
-}
-
-.form-sign-up__password {
-    margin-bottom: 12px;
-}
-</style>
-
 <script>
 import {reactive} from 'vue';
 import {API} from '@/services/api';
@@ -52,3 +40,15 @@ export default {
     }
 };
 </script>
+
+<style scoped>
+.form-sign-up {
+    width: 100%;
+    max-width: 330px;
+    margin: 0 auto;
+}
+
+.form-sign-up__password {
+    margin-bottom: 12px;
+}
+</style>

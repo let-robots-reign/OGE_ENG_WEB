@@ -28,6 +28,31 @@
     </nav>
 </template>
 
+<script>
+import {useStore} from 'vuex';
+import {computed} from 'vue';
+import {API} from '@/services/api';
+
+export default {
+    name: 'Navbar',
+    setup() {
+        const store = useStore();
+        const auth = computed(() => store.state.authenticated);
+
+        const logout = () => {
+            API.logout().then(async () => {
+                await store.dispatch('setAuth', false);
+            });
+        };
+
+        return {
+            auth,
+            logout
+        };
+    }
+};
+</script>
+
 <style scoped>
 .navbar {
     height: var(--navbar-height);
@@ -55,28 +80,3 @@
 }
 
 </style>
-
-<script>
-import {useStore} from 'vuex';
-import {computed} from 'vue';
-import {API} from '@/services/api';
-
-export default {
-    name: 'Navbar',
-    setup() {
-        const store = useStore();
-        const auth = computed(() => store.state.authenticated);
-
-        const logout = () => {
-            API.logout().then(async () => {
-                await store.dispatch('setAuth', false);
-            });
-        };
-
-        return {
-            auth,
-            logout
-        };
-    }
-};
-</script>

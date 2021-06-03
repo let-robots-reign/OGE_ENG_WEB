@@ -1,7 +1,11 @@
 <template>
     <footer class="footer">
         <div class="container">
-            <p class="footer-text">Place sticky footer content here.</p>
+            <ul class="footer-links">
+                <li class="footer-link">ОГЭ Английский (2021) &copy;</li>
+                <li class="footer-link">О проекте</li>
+                <li class="footer-link">Контакты</li>
+            </ul>
         </div>
     </footer>
 </template>
@@ -21,5 +25,14 @@ export default {
     height: var(--footer-height);  /* Fixed height of the footer here */
     line-height: 60px; /* Vertically center the text there */
     background-color: var(--lighter-blue);
+}
+
+.footer-links {
+    list-style-type: none;
+}
+
+.footer-link {
+    display: inline;
+    margin-right: 32px;
 }
 </style>

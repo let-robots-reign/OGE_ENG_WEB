@@ -8,18 +8,6 @@
     </form>
 </template>
 
-<style scoped>
-.form-sign-in {
-    width: 100%;
-    max-width: 330px;
-    margin: 0 auto;
-}
-
-.form-sign-in__password {
-    margin-bottom: 12px;
-}
-</style>
-
 <script>
 import {reactive} from 'vue';
 import {useRouter} from 'vue-router';
@@ -48,3 +36,15 @@ export default {
     }
 };
 </script>
+
+<style scoped>
+.form-sign-in {
+    width: 100%;
+    max-width: 330px;
+    margin: 0 auto;
+}
+
+.form-sign-in__password {
+    margin-bottom: 12px;
+}
+</style>

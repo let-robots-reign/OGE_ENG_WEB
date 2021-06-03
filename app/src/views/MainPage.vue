@@ -4,7 +4,10 @@
             <div class="main-page-section">
                 <p class="section-name">Тренировки</p>
                 <div class="trainings-grid">
-
+                    <TrainingCard title="Аудирование" image="ic_audio.svg" progress="0"/>
+                    <TrainingCard title="Чтение" image="ic_reading.svg" progress="0"/>
+                    <TrainingCard title="Языковой материал" image="ic_use_of_english.svg" progress="0"/>
+                    <TrainingCard title="Письмо" image="ic_writing.svg" progress="0"/>
                 </div>
             </div>
             <div class="main-page-section">
@@ -23,40 +26,15 @@
     </main>
 </template>
 
-<style scoped>
-body {
-    margin-bottom: 60px;
-}
-
-.main {
-    padding: 16px;
-    color: var(--light-blue-shadow);
-}
-
-.main-page-sections {
-    width: 100%;
-    max-width: 500px;
-    margin: 0 auto;
-}
-
-.main-page-section {
-    margin: 32px;
-}
-
-.section-name {
-    font-size: 24px;
-    font-family: 'Comfortaa';
-}
-
-</style>
-
 <script>
 import {API} from '@/services/api';
 import {useStore} from 'vuex';
 import {onMounted, ref} from 'vue';
+import TrainingCard from '@/components/TrainingCard';
 
 export default {
     name: 'MainPage',
+    components: {TrainingCard},
     setup() {
         const message = ref('You are not logged in!');
         const store = useStore();
@@ -77,3 +55,36 @@ export default {
     }
 };
 </script>
+
+<style scoped>
+body {
+    margin-bottom: 60px;
+}
+
+.main {
+    padding: 16px;
+    color: var(--light-blue-shadow);
+}
+
+.main-page-sections {
+    width: 100%;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.main-page-section {
+    margin: 32px;
+}
+
+.section-name {
+    font-size: 24px;
+    font-family: 'Comfortaa';
+}
+
+.trainings-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+</style>
