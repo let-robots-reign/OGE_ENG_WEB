@@ -24,9 +24,11 @@
 </template>
 
 <style scoped>
+body {
+    margin-bottom: 60px;
+}
+
 .main {
-    height: 100vh;
-    background-color: var(--dark-blue);
     padding: 16px;
     color: var(--light-blue-shadow);
 }

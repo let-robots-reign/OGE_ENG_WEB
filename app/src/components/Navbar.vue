@@ -30,6 +30,7 @@
 
 <style scoped>
 .navbar {
+    height: var(--navbar-height);
     background-color: var(--lighter-blue);
 }
 
