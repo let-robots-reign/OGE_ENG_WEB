@@ -28,9 +28,8 @@
 
 <script>
 import {reactive} from 'vue';
-import {API} from '@/api';
+import {API} from '@/services/api';
 import {useRouter} from 'vue-router';
-import {CREATED_CODE} from '@/api/codes';
 import {PATHS} from '@/router/paths';
 
 export default {
@@ -44,10 +43,8 @@ export default {
         const router = useRouter();
 
         const signup = () => {
-            API.signup(data).then(async (response) => {
-                if (response.status === CREATED_CODE) {
-                    await router.push(PATHS.main);
-                }
+            API.signup(data).then(async () => {
+                await router.push(PATHS.main);
             });
         };
 

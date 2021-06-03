@@ -3,8 +3,7 @@
 </template>
 
 <script>
-import {API} from '@/api';
-import {OK_CODE} from '@/api/codes';
+import {API} from '@/services/api';
 import {useStore} from 'vuex';
 import {onMounted, ref} from 'vue';
 
@@ -17,10 +16,8 @@ export default {
         onMounted(async () => {
             API.getCurrentUser()
                 .then(async (response) => {
-                    if (response.status === OK_CODE) {
-                        message.value = `Hi, ${response.data.name}`;
-                        await store.dispatch('setAuth', true);
-                    }
+                    message.value = `Hi, ${response.data.name}`;
+                    await store.dispatch('setAuth', true);
                 })
                 .catch(async () => {
                     await store.dispatch('setAuth', false);

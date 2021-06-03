@@ -26,8 +26,7 @@
 <script>
 import {reactive} from 'vue';
 import {useRouter} from 'vue-router';
-import {API} from '@/api';
-import {OK_CODE} from '@/api/codes';
+import {API} from '@/services/api';
 import {PATHS} from '@/router/paths';
 
 export default {
@@ -40,10 +39,8 @@ export default {
         const router = useRouter();
 
         const login = () => {
-            API.login(data).then(async (response) => {
-                if (response.status === OK_CODE) {
-                    await router.push(PATHS.main);
-                }
+            API.login(data).then(async () => {
+                await router.push(PATHS.main);
             });
         };
 

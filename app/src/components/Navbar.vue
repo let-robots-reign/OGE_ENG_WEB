@@ -31,7 +31,7 @@
                         <router-link to="/" class="nav-link">Профиль</router-link>
                     </li>
                     <li class="nav-item">
-                        <router-link to="/signup" class="nav-link" @click="logout">Выход</router-link>
+                        <router-link to="/login" class="nav-link" @click="logout">Выход</router-link>
                     </li>
                 </ul>
             </div>
@@ -42,8 +42,7 @@
 <script>
 import {useStore} from 'vuex';
 import {computed} from 'vue';
-import {API} from '@/api';
-import {OK_CODE} from '@/api/codes';
+import {API} from '@/services/api';
 
 export default {
     name: 'Navbar',
@@ -52,10 +51,8 @@ export default {
         const auth = computed(() => store.state.authenticated);
 
         const logout = () => {
-            API.logout().then(async (response) => {
-                if (response.status === OK_CODE) {
-                    await store.dispatch('setAuth', false);
-                }
+            API.logout().then(async () => {
+                await store.dispatch('setAuth', false);
             });
         };
 
