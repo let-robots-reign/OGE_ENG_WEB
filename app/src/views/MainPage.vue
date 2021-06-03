@@ -1,6 +1,17 @@
 <template>
-    {{ message }}
+    <main class="main">
+        {{ message }}
+    </main>
 </template>
+
+<style scoped>
+.main {
+    height: 100vh;
+    background-color: var(--dark-blue);
+    padding: 16px;
+    color: var(--light-blue-shadow);
+}
+</style>
 
 <script>
 import {API} from '@/services/api';
@@ -29,7 +40,3 @@ export default {
     }
 };
 </script>
-
-<style scoped>
-
-</style>

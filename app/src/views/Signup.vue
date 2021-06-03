@@ -1,23 +1,20 @@
 <template>
-    <main class="form-sign-up">
-        <form @submit.prevent="signup">
-            <h1 class="h3 mb-3 fw-normal">Создать аккаунт</h1>
-            <input v-model="data.name" type="text" class="form-control form-sign-up__name"
-                   placeholder="Имя пользователя">
-            <input v-model="data.email" type="email" class="form-control form-sign-up__email"
-                   placeholder="Почта">
-            <input v-model="data.password" type="password" class="form-control form-sign-up__password"
-                   placeholder="Пароль">
-            <button class="w-100 btn btn-lg btn-primary" type="submit">Регистрация</button>
-        </form>
-    </main>
+    <form class="form-sign-up" @submit.prevent="signup">
+        <h1 class="h3 mb-3 fw-normal">Создать аккаунт</h1>
+        <input v-model="data.name" type="text" class="form-control form-sign-up__name"
+               placeholder="Имя пользователя">
+        <input v-model="data.email" type="email" class="form-control form-sign-up__email"
+               placeholder="Почта">
+        <input v-model="data.password" type="password" class="form-control form-sign-up__password"
+               placeholder="Пароль">
+        <button class="w-100 btn btn-lg btn-primary" type="submit">Регистрация</button>
+    </form>
 </template>
 
 <style scoped>
 .form-sign-up {
     width: 100%;
     max-width: 330px;
-    padding: 16px;
     margin: 0 auto;
 }
 

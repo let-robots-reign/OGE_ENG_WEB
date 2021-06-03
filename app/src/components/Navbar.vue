@@ -1,7 +1,7 @@
 <template>
-    <nav class="navbar navbar-expand-md navbar-dark bg-dark mb-4 ps-4 pe-4">
+    <nav class="navbar navbar-expand-md ps-4 pe-4">
         <div class="container-fluid">
-            <router-link :to="{ name: 'Main Page' }" class="navbar-brand me-2">ОГЭ English</router-link>
+            <router-link :to="{ name: 'Main Page' }" class="navbar-brand navbar-logo me-2">ОГЭ English</router-link>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse"
                     aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -16,10 +16,10 @@
                     </li>
                 </ul>
                 <ul class="navbar-nav ms-auto mb-2 mb-md-0" v-else>
-                    <li class="nav-item">
+                    <li class="nav-item px-3">
                         <router-link :to="{ name: 'Main Page' }" class="nav-link">Профиль</router-link>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item px-3">
                         <router-link :to="{ name: 'Login' }" class="nav-link" @click="logout">Выход</router-link>
                     </li>
                 </ul>
@@ -27,6 +27,33 @@
         </div>
     </nav>
 </template>
+
+<style scoped>
+.navbar {
+    background-color: var(--lighter-blue);
+}
+
+.navbar-logo {
+    font-size: 28px;
+}
+
+.nav-link {
+    font-size: 20px;
+}
+
+.navbar-logo, .nav-link {
+    color: var(--light-blue-shadow);
+    font-family: 'Comfortaa';
+    padding: 8px;
+}
+
+.navbar-logo:hover, .nav-link:hover {
+    color: var(--light-blue-shadow);
+    background-color: var(--lightest-blue);
+    border-radius: 4px;
+}
+
+</style>
 
 <script>
 import {useStore} from 'vuex';

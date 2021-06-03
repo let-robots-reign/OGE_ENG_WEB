@@ -1,0 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&display=swap');
+
+:root {
+    --dark-blue: #12232E;
+    --lighter-blue: #007CC7;
+    --lightest-blue: #4DA8DA;
+    --dark-blue-shadow: #203647;
+    --light-blue-shadow: #EEFBFB;
+}
