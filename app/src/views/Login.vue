@@ -1,11 +1,27 @@
 <template>
-    <form @submit.prevent="login">
-        <h1 class="h3 mb-3 fw-normal">Войти</h1>
-        <input v-model="data.email" type="email" class="form-control" placeholder="Почта">
-        <input v-model="data.password" type="password" class="form-control" placeholder="Пароль">
-        <button class="w-100 btn btn-lg btn-primary" type="submit">Войти</button>
-    </form>
+    <main class="form-sign-in">
+        <form @submit.prevent="login">
+            <h1 class="h3 mb-3 fw-normal">Войти</h1>
+            <input v-model="data.email" type="email" class="form-control form-sign-in__email" placeholder="Почта">
+            <input v-model="data.password" type="password" class="form-control form-sign-in__password"
+                   placeholder="Пароль">
+            <button class="w-100 btn btn-lg btn-primary" type="submit">Войти</button>
+        </form>
+    </main>
 </template>
+
+<style scoped>
+.form-sign-in {
+    width: 100%;
+    max-width: 330px;
+    padding: 16px;
+    margin: 0 auto;
+}
+
+.form-sign-in__password {
+    margin-bottom: 12px;
+}
+</style>
 
 <script>
 import {reactive} from 'vue';
