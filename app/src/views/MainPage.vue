@@ -12,7 +12,7 @@
             </div>
             <div class="main-page-section">
                 <p class="section-name">Варианты</p>
-                <div class="tests-carousel">
+                <div class="tests-grid">
                     <TestCard v-for="(result, index) in testsResults" :key="index"
                               :index="index" :max-points="maxTestPoints" :result="result"/>
                 </div>
@@ -81,7 +81,7 @@ body {
     font-family: 'Comfortaa';
 }
 
-.trainings-grid {
+.trainings-grid, .tests-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 16px;

@@ -36,10 +36,11 @@ export default {
                 return `${prefix}not-solved`;
             }
             const percent = this.result / this.maxPoints * 100;
-            if (percent > 85) {
+            const [GREAT_THRESHOLD, AVERAGE_THRESHOLD] = [85, 60];
+            if (percent > GREAT_THRESHOLD) {
                 return `${prefix}great-result`;
             }
-            if (percent > 60) {
+            if (percent > AVERAGE_THRESHOLD) {
                 return `${prefix}average-result`;
             }
             return `${prefix}bad-result`;
