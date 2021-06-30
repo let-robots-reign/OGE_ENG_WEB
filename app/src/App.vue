@@ -14,8 +14,17 @@ export default {
 
 <style>
 @import 'variables.css';
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    margin-bottom: var(--footer-height);
+}
+
 #app {
-    min-height: 100vh;
+    min-height: calc(100vh - var(--footer-height));
     background-color: var(--dark-blue);
 }
 </style>
