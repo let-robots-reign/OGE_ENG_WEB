@@ -26,7 +26,6 @@ export default {
 <style scoped>
 .training-card {
     position: relative;
-    width: 100%;
     display: grid;
     grid-template-columns: 1fr 2fr;
     background-color: var(--light-blue-shadow);

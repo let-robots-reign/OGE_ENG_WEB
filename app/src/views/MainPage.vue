@@ -13,7 +13,8 @@
             <div class="main-page-section">
                 <p class="section-name">Варианты</p>
                 <div class="tests-carousel">
-
+                    <TestCard v-for="(result, index) in testsResults" :key="index"
+                              :index="index" :max-points="maxTestPoints" :result="result"/>
                 </div>
             </div>
             <div class="main-page-section">
@@ -29,29 +30,28 @@
 <script>
 import {API} from '@/services/api';
 import {useStore} from 'vuex';
-import {onMounted, ref} from 'vue';
 import TrainingCard from '@/components/TrainingCard';
+import TestCard from '@/components/TestCard';
 
 export default {
     name: 'MainPage',
-    components: {TrainingCard},
-    setup() {
-        const message = ref('You are not logged in!');
-        const store = useStore();
-
-        onMounted(async () => {
-            API.getCurrentUser()
-                .then(async (response) => {
-                    message.value = `Hi, ${response.data.name}`;
-                    await store.dispatch('setAuth', true);
-                })
-                .catch(async () => {
-                    await store.dispatch('setAuth', false);
-                });
-        });
+    components: {TestCard, TrainingCard},
+    data() {
         return {
-            message
+            // TODO: stubbing tests data
+            testsResults: [30, 12, 32, null, 44, null, 1, 0, null, 22],
+            maxTestPoints: 44
         };
+    },
+    created() {
+        const store = useStore();
+        API.getCurrentUser()
+            .then(async () => {
+                await store.dispatch('setAuth', true);
+            })
+            .catch(async () => {
+                await store.dispatch('setAuth', false);
+            });
     }
 };
 </script>
