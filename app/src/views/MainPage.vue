@@ -4,7 +4,9 @@
             <div class="main-page-section">
                 <p class="section-name">Тренировки</p>
                 <div class="trainings-grid">
-                    <TrainingCard title="Аудирование" image="ic_audio.svg" progress="0"/>
+                    <router-link :to="{name: 'Audio Tasks'}" class="training-link">
+                        <TrainingCard title="Аудирование" image="ic_audio.svg" progress="0"/>
+                    </router-link>
                     <TrainingCard title="Чтение" image="ic_reading.svg" progress="0"/>
                     <TrainingCard title="Языковой материал" image="ic_use_of_english.svg" progress="0"/>
                     <TrainingCard title="Письмо" image="ic_writing.svg" progress="0"/>
@@ -78,13 +80,17 @@ body {
 
 .section-name {
     font-size: 24px;
-    font-family: 'Comfortaa';
+    font-family: 'Comfortaa', serif;
 }
 
 .trainings-grid, .tests-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 16px;
+}
+
+.training-link {
+    text-decoration: none;
 }
 
 </style>

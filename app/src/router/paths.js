@@ -1,5 +1,6 @@
 export const PATHS = {
     main: '/',
     login: '/login',
-    signup: '/signup'
+    signup: '/signup',
+    audioTasks: '/tasks/audio',
 };
