@@ -28,7 +28,10 @@
             <div class="main-page-section">
                 <p class="section-name">Теория</p>
                 <div class="theory-grid">
-
+                    <TheoryCard class="theory-grid__general" :title="'Общая информация об экзамене'"
+                                :image="'ic_exam.svg'"/>
+                    <TheoryCard class="theory-grid__uoe" :title="'Языковой материал'" :image="'ic_use_of_english.svg'"/>
+                    <TheoryCard class="theory-grid__writing" :title="'Письмо'" :image="'ic_writing.svg'"/>
                 </div>
             </div>
         </div>
@@ -40,10 +43,11 @@ import {API} from '@/services/api';
 import {useStore} from 'vuex';
 import TrainingCard from '@/components/TrainingCard';
 import TestCard from '@/components/TestCard';
+import TheoryCard from '@/components/TheoryCard';
 
 export default {
     name: 'MainPage',
-    components: {TestCard, TrainingCard},
+    components: {TheoryCard, TestCard, TrainingCard},
     data() {
         return {
             // TODO: stubbing tests data
@@ -80,8 +84,7 @@ body {
 }
 
 .main-page-sections {
-    width: 100%;
-    max-width: 700px;
+    width: 60%;
     margin: 0 auto;
 }
 
@@ -102,6 +105,12 @@ body {
 
 .training-link {
     text-decoration: none;
+}
+
+.theory-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
 }
 
 </style>
