@@ -4,6 +4,7 @@ import Login from '@/views/Login';
 import Signup from '@/views/Signup';
 import {PATHS} from '@/router/paths';
 import MenuList from '@/views/MenuList';
+import MenuGrid from '@/views/MenuGrid';
 
 const routes = [
     {
@@ -43,6 +44,30 @@ const routes = [
         component: MenuList,
         props: {
             titles: ['По всем темам', 'Словообразование']
+        }
+    },
+    {
+        name: 'General Theory',
+        path: PATHS.generalTheory,
+        component: MenuGrid,
+        props: {
+            gridItems: ['Порядок проведения', 'Аудирование', 'Чтение', 'Языковой материал', 'Письмо']
+        }
+    },
+    {
+        name: 'Use of English Theory',
+        path: PATHS.uoeTheory,
+        component: MenuGrid,
+        props: {
+            gridItems: ['Множественное число существительных', 'Порядковые числительные']
+        }
+    },
+    {
+        name: 'Writing Theory',
+        path: PATHS.writingTheory,
+        component: MenuGrid,
+        props: {
+            gridItems: ['Фразы-клише']
         }
     }
 ];

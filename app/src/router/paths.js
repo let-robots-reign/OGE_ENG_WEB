@@ -6,4 +6,7 @@ export const PATHS = {
     readingTasks: '/trainings/reading',
     uoeTasks: '/trainings/use-of-english',
     writingTasks: '/trainings/writing',
+    generalTheory: '/theory/general',
+    uoeTheory: '/theory/use-of-english',
+    writingTheory: '/theory/writing',
 };
