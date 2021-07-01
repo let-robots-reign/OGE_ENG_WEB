@@ -4,14 +4,28 @@
             <img class="training-card__image" :src="imageURL">
         </div>
         <div class="training-card__center">{{ title }}</div>
-        <div class="training-card__progress">{{ progressPercent }}</div>
+        <div class="training-card__progress" v-if="progress">{{ progressPercent }}</div>
     </div>
 </template>
 
 <script>
 export default {
     name: 'TrainingCard',
-    props: ['image', 'title', 'progress'],
+    props: {
+        image: {
+            type: String,
+            required: true,
+        },
+        title: {
+            type: String,
+            required: true,
+        },
+        progress: {
+            type: Number,
+            required: false,
+            default: null,
+        }
+    },
     computed: {
         imageURL: function() {
             return `/assets/img/${this.image}`;

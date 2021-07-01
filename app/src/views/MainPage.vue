@@ -4,12 +4,18 @@
             <div class="main-page-section">
                 <p class="section-name">Тренировки</p>
                 <div class="trainings-grid">
-                    <router-link :to="{name: 'Audio Tasks'}" class="training-link">
-                        <TrainingCard title="Аудирование" image="ic_audio.svg" progress="0"/>
+                    <router-link :to="{ name: 'Audio Tasks' }" class="training-link">
+                        <TrainingCard title="Аудирование" image="ic_audio.svg" :progress="progress.audio"/>
                     </router-link>
-                    <TrainingCard title="Чтение" image="ic_reading.svg" progress="0"/>
-                    <TrainingCard title="Языковой материал" image="ic_use_of_english.svg" progress="0"/>
-                    <TrainingCard title="Письмо" image="ic_writing.svg" progress="0"/>
+                    <router-link :to="{ name: 'Reading Tasks' }" class="training-link">
+                        <TrainingCard title="Чтение" image="ic_reading.svg" :progress="progress.reading"/>
+                    </router-link>
+                    <router-link :to="{ name: 'Use of English Tasks' }" class="training-link">
+                        <TrainingCard title="Языковой материал" image="ic_use_of_english.svg"
+                                      :progress="progress.useOfEng"/>
+                    </router-link>
+                    <!-- Writing doesn't have progress -->
+                    <TrainingCard title="Письмо" image="ic_writing.svg"/>
                 </div>
             </div>
             <div class="main-page-section">
@@ -42,7 +48,12 @@ export default {
         return {
             // TODO: stubbing tests data
             testsResults: [30, 12, 32, null, 44, null, 1, 0, null, 22],
-            maxTestPoints: 44
+            maxTestPoints: 44,
+            progress: {
+                audio: 10,
+                reading: 35,
+                useOfEng: 70,
+            }
         };
     },
     created() {

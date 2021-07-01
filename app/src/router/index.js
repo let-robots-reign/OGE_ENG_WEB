@@ -26,7 +26,23 @@ const routes = [
         path: PATHS.audioTasks,
         component: MenuList,
         props: {
-            titles: ['Задание 1', 'Задание 2', 'Задание 3']
+            titles: ['Задание 1', 'Задание 2', 'Задания 3-8']
+        }
+    },
+    {
+        name: 'Reading Tasks',
+        path: PATHS.readingTasks,
+        component: MenuList,
+        props: {
+            titles: ['Задание 9', 'Задания 10-17']
+        }
+    },
+    {
+        name: 'Use of English Tasks',
+        path: PATHS.uoeTasks,
+        component: MenuList,
+        props: {
+            titles: ['По всем темам', 'Словообразование']
         }
     }
 ];
