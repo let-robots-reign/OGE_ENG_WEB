@@ -42,7 +42,7 @@ export default {
 
 .theory-card__center {
     margin-left: 16px;
-    font-size: 20px;
+    font-size: 18px;
     font-weight: bold;
 }
 

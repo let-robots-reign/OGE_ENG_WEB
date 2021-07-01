@@ -34,5 +34,6 @@ export default {
 .footer-link {
     display: inline;
     margin-right: 32px;
+    cursor: pointer;
 }
 </style>
