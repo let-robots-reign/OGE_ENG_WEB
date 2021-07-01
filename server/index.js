@@ -13,7 +13,7 @@ mongoose.connect(process.env.DB_CONN, {
     console.log('connected to the database');
 });
 
-const routes = require('./routes/routes');
+const routes = require('./routes/user');
 
 const app = express();
 app.use(bodyParser.json());

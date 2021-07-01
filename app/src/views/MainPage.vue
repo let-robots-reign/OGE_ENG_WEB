@@ -1,38 +1,116 @@
 <template>
-    {{ message }}
+    <main class="main">
+        <div class="main-page-sections">
+            <div class="main-page-section">
+                <p class="section-name">Тренировки</p>
+                <div class="trainings-grid">
+                    <router-link :to="{ name: 'Audio Tasks' }" class="training-link">
+                        <TrainingCard title="Аудирование" image="ic_audio.svg" :progress="progress.audio"/>
+                    </router-link>
+                    <router-link :to="{ name: 'Reading Tasks' }" class="training-link">
+                        <TrainingCard title="Чтение" image="ic_reading.svg" :progress="progress.reading"/>
+                    </router-link>
+                    <router-link :to="{ name: 'Use of English Tasks' }" class="training-link">
+                        <TrainingCard title="Языковой материал" image="ic_use_of_english.svg"
+                                      :progress="progress.useOfEng"/>
+                    </router-link>
+                    <!-- Writing doesn't have progress -->
+                    <TrainingCard title="Письмо" image="ic_writing.svg"/>
+                </div>
+            </div>
+            <div class="main-page-section">
+                <p class="section-name">Варианты</p>
+                <div class="tests-grid">
+                    <TestCard v-for="(result, index) in testsResults" :key="index"
+                              :index="index" :max-points="maxTestPoints" :result="result"/>
+                </div>
+            </div>
+            <div class="main-page-section">
+                <p class="section-name">Теория</p>
+                <div class="theory-grid">
+                    <TheoryCard class="theory-grid__general" :title="'Общая информация об экзамене'"
+                                :image="'ic_exam.svg'"/>
+                    <TheoryCard class="theory-grid__uoe" :title="'Языковой материал'" :image="'ic_use_of_english.svg'"/>
+                    <TheoryCard class="theory-grid__writing" :title="'Письмо'" :image="'ic_writing.svg'"/>
+                </div>
+            </div>
+        </div>
+    </main>
 </template>
 
 <script>
-import {API} from '@/api';
-import {OK_CODE} from '@/api/codes';
+import {API} from '@/services/api';
 import {useStore} from 'vuex';
-import {onMounted, ref} from 'vue';
+import TrainingCard from '@/components/TrainingCard';
+import TestCard from '@/components/TestCard';
+import TheoryCard from '@/components/TheoryCard';
 
 export default {
     name: 'MainPage',
-    setup() {
-        const message = ref('You are not logged in!');
-        const store = useStore();
-
-        onMounted(async () => {
-            API.getCurrentUser()
-                .then(async (response) => {
-                    if (response.status === OK_CODE) {
-                        message.value = `Hi, ${response.data.name}`;
-                        await store.dispatch('setAuth', true);
-                    }
-                })
-                .catch(async () => {
-                    await store.dispatch('setAuth', false);
-                });
-        });
+    components: {TheoryCard, TestCard, TrainingCard},
+    data() {
         return {
-            message
+            // TODO: stubbing tests data
+            testsResults: [30, 12, 32, null, 44, null, 1, 0, null, 22],
+            maxTestPoints: 44,
+            progress: {
+                audio: 10,
+                reading: 35,
+                useOfEng: 70,
+            }
         };
+    },
+    created() {
+        const store = useStore();
+        API.getCurrentUser()
+            .then(async () => {
+                await store.dispatch('setAuth', true);
+            })
+            .catch(async () => {
+                await store.dispatch('setAuth', false);
+            });
     }
 };
 </script>
 
 <style scoped>
+body {
+    margin-bottom: 60px;
+}
+
+.main {
+    padding: 16px;
+    color: var(--light-blue-shadow);
+}
+
+.main-page-sections {
+    width: 60%;
+    margin: 0 auto;
+}
+
+.main-page-section {
+    margin: 32px;
+}
+
+.section-name {
+    font-size: 24px;
+    font-family: 'Comfortaa', serif;
+}
+
+.trainings-grid, .tests-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.training-link {
+    text-decoration: none;
+}
+
+.theory-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+}
 
 </style>
