@@ -26,11 +26,13 @@ export default {
     background-color: var(--lighter-blue);
     border-radius: 8px;
     padding: 8px;
+    min-width: 160px;
+    min-height: 100px;
 }
 
 .menu-list-item__text {
     color: white;
-    font-size: 18px;
+    font-size: 20px;
     margin: 0;
 }
 

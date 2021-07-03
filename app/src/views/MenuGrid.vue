@@ -25,7 +25,7 @@ export default {
 <style scoped>
 
 .menu {
-    width: 30%;
+    max-width: 50%;
     margin: 32px auto;
 }
 
@@ -37,10 +37,12 @@ export default {
 }
 
 .back-link {
+    display: block;
     text-decoration: none;
     color: white;
     font-size: 18px;
     cursor: pointer;
+    padding-bottom: 32px;
 }
 
 </style>

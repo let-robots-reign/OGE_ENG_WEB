@@ -36,9 +36,11 @@ export default {
 }
 
 .back-link {
+    display: block;
     text-decoration: none;
     color: white;
     font-size: 18px;
     cursor: pointer;
+    padding-bottom: 32px;
 }
 </style>
