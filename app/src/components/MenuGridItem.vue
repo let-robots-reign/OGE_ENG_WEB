@@ -1,5 +1,5 @@
 <template>
-    <div class="menu-list-item">
+    <div class="card menu-list-item">
         <p class="menu-list-item__text">{{ text }}</p>
     </div>
 </template>
@@ -23,9 +23,6 @@ export default {
   justify-content: center;
   align-items: center;
   text-align: center;
-  background-color: var(--white);
-  border-radius: 8px;
-  padding: 8px;
   min-height: 100px;
   cursor: pointer;
 

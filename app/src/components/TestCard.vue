@@ -1,5 +1,5 @@
 <template>
-    <div class="test-card">
+    <div class="card test-card">
         <p class="test-card__title">{{ testTitle }}</p>
         <p class="test-card__result" :class="testProgressColorClass">{{ testProgress }}</p>
     </div>
@@ -60,9 +60,6 @@ export default {
   flex-direction: column;
   justify-content: space-between;
   gap: 24px;
-  background-color: var(--white);
-  padding: 16px;
-  border-radius: 24px;
   color: var(--primary-text-color);
   cursor: pointer;
 

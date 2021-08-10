@@ -1,5 +1,5 @@
 <template>
-    <div class="menu-item">
+    <div class="card menu-item">
         <p class="menu-item__title">{{ title }}</p>
     </div>
 </template>
@@ -19,9 +19,6 @@ export default {
 
 <style lang="scss" scoped>
 .menu-item {
-  background-color: var(--white);
-  padding: 16px;
-  border-radius: 24px;
   color: var(--primary-text-color);
   cursor: pointer;
 

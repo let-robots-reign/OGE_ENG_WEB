@@ -1,5 +1,5 @@
 <template>
-    <div class="training-card">
+    <div class="card training-card">
         <div class="training-card__left">
             <img class="training-card__image" :src="imageURL" :alt="title">
         </div>
@@ -45,9 +45,6 @@ export default {
   position: relative;
   display: grid;
   grid-template-columns: 1fr 2fr;
-  background-color: var(--white);
-  padding: 16px;
-  border-radius: 24px;
   color: var(--primary-text-color);
   cursor: pointer;
 

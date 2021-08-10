@@ -49,4 +49,29 @@ a {
     text-underline-offset: 4px;
   }
 }
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.card {
+  overflow: hidden;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 16px;
+  box-shadow: 2px 3px 10px rgba(0, 0, 0, 0.2);
+  background: #fff;
+}
+
+.card.marked {
+  border: 4px solid #42b983;
+}
+
+.card.center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 </style>

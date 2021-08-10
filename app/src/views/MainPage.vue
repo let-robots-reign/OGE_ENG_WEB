@@ -29,16 +29,16 @@
                 <p class="section-name">Теория</p>
                 <div class="theory-grid">
                     <router-link class="theory-link" :to="{ name: 'General Theory' }">
-                        <TheoryCard class="theory-grid__general" :title="'Общая информация об экзамене'"
-                                    :image="'ic_exam.svg'"/>
+                        <TheoryCard class="theory-grid__general" title="Общая информация об экзамене"
+                                    image="ic_exam.svg"/>
                     </router-link>
                     <router-link class="theory-link" :to="{ name: 'Use of English Theory' }">
-                        <TheoryCard class="theory-grid__uoe" :title="'Языковой материал'"
-                                    :image="'ic_use_of_english.svg'"/>
+                        <TheoryCard class="theory-grid__uoe" title="Языковой материал"
+                                    image="ic_use_of_english.svg"/>
                     </router-link>
                     <router-link class="theory-link" :to="{ name: 'Writing Theory' }">
-                        <TheoryCard class="theory-grid__writing" :title="'Письмо'"
-                                    :image="'ic_writing.svg'"/>
+                        <TheoryCard class="theory-grid__writing" title="Письмо"
+                                    image="ic_writing.svg"/>
                     </router-link>
                 </div>
             </div>
