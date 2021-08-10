@@ -25,16 +25,16 @@ export default {
             required: true,
         }
     },
-    setup() {
-        const testTitle = computed(() => `Вариант ${this.index + 1}`);
+    setup(props) {
+        const testTitle = computed(() => `Вариант ${props.index + 1}`);
         const testProgress = computed(() =>
-            (this.result !== null) ? `результат: ${this.result}/${this.maxPoints}` : 'не решено');
+            (props.result !== null) ? `результат: ${props.result}/${props.maxPoints}` : 'не решено');
         const testProgressColorClass = computed(() => {
             const prefix = 'test-card__';
-            if (this.result === null) {
+            if (props.result === null) {
                 return `${prefix}not-solved`;
             }
-            const percent = this.result / this.maxPoints * 100;
+            const percent = props.result / props.maxPoints * 100;
             const [GREAT_THRESHOLD, AVERAGE_THRESHOLD] = [85, 60];
             if (percent > GREAT_THRESHOLD) {
                 return `${prefix}great-result`;

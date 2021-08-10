@@ -28,9 +28,9 @@ export default {
             default: null,
         }
     },
-    setup() {
-        const imageURL = computed(() => `/assets/img/${this.image}`);
-        const progressPercent = computed(() => `прогресс: ${this.progress}%`);
+    setup(props) {
+        const imageURL = computed(() => `/assets/img/${props.image}`);
+        const progressPercent = computed(() => `прогресс: ${props.progress}%`);
 
         return {
             imageURL,

@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import TheNavbar from '@/components/Navbar';
+import TheNavbar from '@/components/TheNavbar';
 import TheFooter from '@/components/TheFooter';
 export default {
     components: {TheFooter, TheNavbar}

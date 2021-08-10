@@ -22,8 +22,8 @@ export default {
             required: true,
         }
     },
-    setup() {
-        const imageURL = computed(() => `/assets/img/${this.image}`);
+    setup(props) {
+        const imageURL = computed(() => `/assets/img/${props.image}`);
 
         return {
             imageURL
