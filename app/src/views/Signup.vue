@@ -1,13 +1,23 @@
 <template>
-    <form class="form-sign-up" @submit.prevent="signup">
-        <h1>Создать аккаунт</h1>
-        <input v-model="data.name" type="text" class="form-control form-sign-up__name"
-               placeholder="Имя пользователя">
-        <input v-model="data.email" type="email" class="form-control form-sign-up__email"
-               placeholder="Почта">
-        <input v-model="data.password" type="password" class="form-control form-sign-up__password"
-               placeholder="Пароль">
-        <button class="login-button" type="submit">Регистрация</button>
+    <form class="card form-card" @submit.prevent="signup">
+        <h1 class="form-card__title">Создать аккаунт</h1>
+
+        <div class="form-control">
+            <label for="username">Имя пользователя</label>
+            <input type="text" id="username" v-model="formData.name">
+        </div>
+
+        <div class="form-control">
+            <label for="email">Email</label>
+            <input type="email" id="email" v-model="formData.email">
+        </div>
+
+        <div class="form-control">
+            <label for="password">Пароль</label>
+            <input type="password" id="password" v-model="formData.password">
+        </div>
+
+        <button class="btn primary" type="submit">Регистрация</button>
     </form>
 </template>
 
@@ -20,7 +30,7 @@ import {PATHS} from '@/router/paths';
 export default {
     name: 'Signup',
     setup() {
-        const data = reactive({
+        const formData = reactive({
             name: '',
             email: '',
             password: ''
@@ -28,27 +38,16 @@ export default {
 
         const router = useRouter();
         const signup = () => {
-            API.signup(data)
+            API.signup(formData)
                 .then(async () => await router.push(PATHS.main))
                 .catch(() => console.log('Неудачная регистрация!'));
         };
 
         return {
-            data,
+            formData,
             signup
         };
     }
 };
 </script>
 
-<style scoped>
-.form-sign-up {
-    width: 100%;
-    max-width: 330px;
-    margin: 0 auto;
-}
-
-.form-sign-up__password {
-    margin-bottom: 12px;
-}
-</style>

@@ -105,7 +105,7 @@ body {
 }
 
 .section-name {
-  font-size: 24px;
+  font-size: 28px;
   margin-bottom: 16px;
 }
 

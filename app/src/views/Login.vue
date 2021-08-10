@@ -1,10 +1,18 @@
 <template>
-    <form class="form-sign-in" @submit.prevent="login">
-        <h1>Войти</h1>
-        <input v-model="data.email" type="email" class="form-control form-sign-in__email" placeholder="Почта">
-        <input v-model="data.password" type="password" class="form-control form-sign-in__password"
-               placeholder="Пароль">
-        <button class="login-button" type="submit">Войти</button>
+    <form class="card form-card" @submit.prevent="login">
+        <h1 class="form-card__title">Войти в систему</h1>
+
+        <div class="form-control">
+            <label for="email">Email</label>
+            <input type="email" id="email" v-model="formData.email">
+        </div>
+
+        <div class="form-control">
+            <label for="password">Пароль</label>
+            <input type="password" id="password" v-model="formData.password">
+        </div>
+
+        <button class="btn primary" type="submit">Войти</button>
     </form>
 </template>
 
@@ -17,34 +25,22 @@ import {PATHS} from '@/router/paths';
 export default {
     name: 'Login',
     setup() {
-        const data = reactive({
+        const formData = reactive({
             email: '',
             password: ''
         });
         const router = useRouter();
 
         const login = () => {
-            API.login(data)
+            API.login(formData)
                 .then(async () => await router.push(PATHS.main))
                 .catch(() => console.log('Неверный логин или пароль!'));
         };
 
         return {
-            data,
+            formData,
             login
         };
     }
 };
 </script>
-
-<style scoped>
-.form-sign-in {
-    width: 100%;
-    max-width: 330px;
-    margin: 0 auto;
-}
-
-.form-sign-in__password {
-    margin-bottom: 12px;
-}
-</style>
