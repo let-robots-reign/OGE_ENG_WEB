@@ -8,7 +8,10 @@ const store = createStore({
         SET_AUTH: (state, auth) => state.authenticated = auth
     },
     actions: {
-        setAuth: ({commit}, auth) => commit('SET_AUTH', auth)
+        setAuth: (context, auth) => context.commit('SET_AUTH', auth)
+    },
+    getters: {
+        isAuthenticated: (state) => state.authenticated
     },
     modules: {}
 });

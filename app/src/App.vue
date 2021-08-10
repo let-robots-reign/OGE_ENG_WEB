@@ -1,14 +1,14 @@
 <template>
-    <Navbar/>
+    <the-navbar></the-navbar>
     <router-view/>
-    <Footer/>
+    <the-footer></the-footer>
 </template>
 
 <script>
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
+import TheNavbar from '@/components/Navbar';
+import TheFooter from '@/components/TheFooter';
 export default {
-    components: {Footer, Navbar}
+    components: {TheFooter, TheNavbar}
 };
 </script>
 

@@ -6,6 +6,8 @@
 </template>
 
 <script>
+import {computed} from 'vue';
+
 export default {
     name: 'TestCard',
     props: {
@@ -23,14 +25,11 @@ export default {
             required: true,
         }
     },
-    computed: {
-        testTitle: function() {
-            return `Вариант ${this.index + 1}`;
-        },
-        testProgress: function() {
-            return (this.result !== null) ? `результат: ${this.result}/${this.maxPoints}` : 'не решено';
-        },
-        testProgressColorClass: function() {
+    setup() {
+        const testTitle = computed(() => `Вариант ${this.index + 1}`);
+        const testProgress = computed(() =>
+            (this.result !== null) ? `результат: ${this.result}/${this.maxPoints}` : 'не решено');
+        const testProgressColorClass = computed(() => {
             const prefix = 'test-card__';
             if (this.result === null) {
                 return `${prefix}not-solved`;
@@ -44,7 +43,13 @@ export default {
                 return `${prefix}average-result`;
             }
             return `${prefix}bad-result`;
-        }
+        });
+
+        return {
+            testTitle,
+            testProgress,
+            testProgressColorClass
+        };
     }
 };
 </script>

@@ -1,13 +1,15 @@
 <template>
     <div class="theory-card">
         <div class="theory-card__left">
-            <img class="theory-card__image" :src="imageURL">
+            <img class="theory-card__image" :src="imageURL" :alt="title">
         </div>
         <div class="theory-card__center">{{ title }}</div>
     </div>
 </template>
 
 <script>
+import {computed} from 'vue';
+
 export default {
     name: 'TheoryCard',
     props: {
@@ -20,10 +22,12 @@ export default {
             required: true,
         }
     },
-    computed: {
-        imageURL: function() {
-            return `/assets/img/${this.image}`;
-        }
+    setup() {
+        const imageURL = computed(() => `/assets/img/${this.image}`);
+
+        return {
+            imageURL
+        };
     }
 };
 </script>

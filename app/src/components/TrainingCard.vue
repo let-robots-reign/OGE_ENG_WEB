@@ -1,7 +1,7 @@
 <template>
     <div class="training-card">
         <div class="training-card__left">
-            <img class="training-card__image" :src="imageURL">
+            <img class="training-card__image" :src="imageURL" :alt="title">
         </div>
         <div class="training-card__center">{{ title }}</div>
         <div class="training-card__progress" v-if="progress">{{ progressPercent }}</div>
@@ -9,6 +9,8 @@
 </template>
 
 <script>
+import {computed} from 'vue';
+
 export default {
     name: 'TrainingCard',
     props: {
@@ -26,13 +28,14 @@ export default {
             default: null,
         }
     },
-    computed: {
-        imageURL: function() {
-            return `/assets/img/${this.image}`;
-        },
-        progressPercent: function() {
-            return `прогресс: ${this.progress}%`;
-        }
+    setup() {
+        const imageURL = computed(() => `/assets/img/${this.image}`);
+        const progressPercent = computed(() => `прогресс: ${this.progress}%`);
+
+        return {
+            imageURL,
+            progressPercent
+        };
     }
 };
 </script>

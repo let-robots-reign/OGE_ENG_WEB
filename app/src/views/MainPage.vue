@@ -52,31 +52,37 @@ import {useStore} from 'vuex';
 import TrainingCard from '@/components/TrainingCard';
 import TestCard from '@/components/TestCard';
 import TheoryCard from '@/components/TheoryCard';
+import {onMounted, reactive, ref} from 'vue';
 
 export default {
     name: 'MainPage',
     components: {TheoryCard, TestCard, TrainingCard},
-    data() {
-        return {
-            // TODO: stubbing tests data
-            testsResults: [30, 12, 32, null, 44, null, 1, 0, null, 22],
-            maxTestPoints: 44,
-            progress: {
-                audio: 10,
-                reading: 35,
-                useOfEng: 70,
-            }
-        };
-    },
-    created() {
+    setup() {
+        // TODO: stubbing tests data
+        const testsResults = ref([30, 12, 32, null, 44, null, 1, 0, null, 22]);
+        const maxTestPoints = ref(44);
+        const progress = reactive({
+            audio: 10,
+            reading: 35,
+            useOfEng: 70,
+        });
+
         const store = useStore();
-        API.getCurrentUser()
-            .then(async () => {
-                await store.dispatch('setAuth', true);
-            })
-            .catch(async () => {
-                await store.dispatch('setAuth', false);
-            });
+        onMounted(() => {
+            API.getCurrentUser()
+                .then(async () => {
+                    await store.dispatch('setAuth', true);
+                })
+                .catch(async () => {
+                    await store.dispatch('setAuth', false);
+                });
+        });
+
+        return {
+            testsResults,
+            maxTestPoints,
+            progress
+        };
     }
 };
 </script>

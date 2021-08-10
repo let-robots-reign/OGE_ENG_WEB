@@ -30,14 +30,13 @@
 
 <script>
 import {useStore} from 'vuex';
-import {computed} from 'vue';
 import {API} from '@/services/api';
 
 export default {
-    name: 'Navbar',
+    name: 'TheNavbar',
     setup() {
         const store = useStore();
-        const auth = computed(() => store.state.authenticated);
+        const auth = store.getters.isAuthenticated;
 
         const logout = () => {
             API.logout().then(async () => {
