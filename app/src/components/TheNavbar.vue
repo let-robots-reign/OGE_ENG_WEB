@@ -31,17 +31,16 @@
 <script>
 import {useStore} from 'vuex';
 import {API} from '@/services/api';
+import {computed} from 'vue';
 
 export default {
     name: 'TheNavbar',
     setup() {
         const store = useStore();
-        const auth = store.getters.isAuthenticated;
+        const auth = computed(() => store.getters['auth/isAuthenticated']);
 
         const logout = () => {
-            API.logout().then(async () => {
-                await store.dispatch('setAuth', false);
-            });
+            API.logout().then(() => store.commit('auth/setAuth', false));
         };
 
         return {

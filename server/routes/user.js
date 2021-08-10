@@ -20,6 +20,13 @@ router.post('/signup', async (req, res) => {
     // eslint-disable-next-line no-unused-vars
     const {password, ...data} = await result.toJSON();
 
+    const token = jwt.sign({_id: data._id}, process.env.JWT_SECRET);
+
+    res.cookie('jwt', token, {
+        httpOnly: true,
+        maxAge: 10 * 24 * 60 * 60 * 1000  // 10 days
+    });
+
     res.status(201).send(data);
 });
 

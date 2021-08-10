@@ -70,12 +70,8 @@ export default {
         const store = useStore();
         onMounted(() => {
             API.getCurrentUser()
-                .then(async () => {
-                    await store.dispatch('setAuth', true);
-                })
-                .catch(async () => {
-                    await store.dispatch('setAuth', false);
-                });
+                .then(() => store.commit('auth/setAuth', true))
+                .catch(() => store.commit('auth/setAuth', false));
         });
 
         return {

@@ -24,45 +24,5 @@
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.12.12",
     "nodemon": "^2.0.7"
-  },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "node": true,
-      "es6": true
-    },
-    "extends": [
-      "eslint:recommended"
-    ],
-    "parser": "babel-eslint",
-    "parserOptions": {
-      "ecmaVersion": 2017
-    },
-    "rules": {
-      "quotes": [
-        "error",
-        "single"
-      ],
-      "semi": [
-        "error",
-        "always"
-      ],
-      "indent": [
-        "error",
-        4
-      ],
-      "max-len": [
-        "error",
-        120,
-        2,
-        {
-          "ignoreUrls": true,
-          "ignoreComments": true,
-          "ignoreRegExpLiterals": true,
-          "ignoreStrings": false,
-          "ignoreTemplateLiterals": false
-        }
-      ]
-    }
   }
 }

@@ -25,12 +25,12 @@ export default {
             email: '',
             password: ''
         });
-        const router = useRouter();
 
+        const router = useRouter();
         const signup = () => {
-            API.signup(data).then(async () => {
-                await router.push(PATHS.main);
-            });
+            API.signup(data)
+                .then(async () => await router.push(PATHS.main))
+                .catch(() => console.log('Неудачная регистрация!'));
         };
 
         return {

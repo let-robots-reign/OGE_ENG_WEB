@@ -24,9 +24,9 @@ export default {
         const router = useRouter();
 
         const login = () => {
-            API.login(data).then(async () => {
-                await router.push(PATHS.main);
-            });
+            API.login(data)
+                .then(async () => await router.push(PATHS.main))
+                .catch(() => console.log('Неверный логин или пароль!'));
         };
 
         return {
