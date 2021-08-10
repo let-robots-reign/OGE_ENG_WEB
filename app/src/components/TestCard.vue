@@ -54,38 +54,46 @@ export default {
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .test-card {
-    background-color: var(--light-blue-shadow);
-    padding: 16px;
-    border-radius: 24px;
-    color: var(--primary-text-color);
-    cursor: pointer;
-}
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 24px;
+  background-color: var(--white);
+  padding: 16px;
+  border-radius: 24px;
+  color: var(--primary-text-color);
+  cursor: pointer;
 
-.test-card__title {
+  &:hover {
+    box-shadow: 0 0 2px 2px var(--green-accent) inset;
+  }
+
+  &__title {
     font-size: 20px;
     font-weight: bold;
-}
+  }
 
-.test-card__result {
+  &__result {
     font-size: 16px;
-}
+  }
 
-/* TODO: fix colors */
-.test-card__not-solved {
+  /* TODO: fix colors */
+  &__not-solved {
     color: grey
-}
+  }
 
-.test-card__great-result {
+  &__great-result {
     color: lawngreen;
-}
+  }
 
-.test-card__average-result {
+  &__average-result {
     color: yellow;
-}
+  }
 
-.test-card__bad-result {
+  &__bad-result {
     color: red;
+  }
 }
 </style>

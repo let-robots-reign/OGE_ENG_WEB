@@ -32,22 +32,25 @@ export default {
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .theory-card {
-    display: grid;
-    grid-template-columns: 1fr 2fr;
-    background-color: var(--light-blue-shadow);
-    padding: 16px;
-    border-radius: 24px;
-    color: var(--primary-text-color);
-    cursor: pointer;
-    height: 120px;
-}
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  background-color: var(--white);
+  padding: 16px;
+  border-radius: 24px;
+  color: var(--primary-text-color);
+  cursor: pointer;
 
-.theory-card__center {
+  &:hover {
+    box-shadow: 0 0 2px 2px var(--green-accent) inset;
+  }
+
+  &__center {
     margin-left: 16px;
     font-size: 18px;
     font-weight: bold;
+  }
 }
 
 </style>

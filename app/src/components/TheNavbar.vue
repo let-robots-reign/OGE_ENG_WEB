@@ -1,30 +1,23 @@
 <template>
-    <nav class="navbar navbar-expand-md ps-4 pe-4">
-        <div class="container-fluid">
-            <router-link :to="{ name: 'Main Page' }" class="navbar-brand navbar-logo me-2">ОГЭ English</router-link>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse"
-                    aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarCollapse">
-                <ul class="navbar-nav ms-auto mb-2 mb-md-0" v-if="!auth">
-                    <li class="nav-item px-3">
-                        <router-link :to="{ name: 'Login' }" class="nav-link">Войти</router-link>
-                    </li>
-                    <li class="nav-item px-3">
-                        <router-link :to="{ name: 'Signup' }" class="nav-link">Регистрация</router-link>
-                    </li>
-                </ul>
-                <ul class="navbar-nav ms-auto mb-2 mb-md-0" v-else>
-                    <li class="nav-item px-3">
-                        <router-link :to="{ name: 'Main Page' }" class="nav-link">Профиль</router-link>
-                    </li>
-                    <li class="nav-item px-3">
-                        <router-link :to="{ name: 'Login' }" class="nav-link" @click="logout">Выход</router-link>
-                    </li>
-                </ul>
-            </div>
-        </div>
+    <nav class="navbar">
+        <router-link :to="{ name: 'Main Page' }" class="navbar-logo">ОГЭ Английский</router-link>
+
+        <ul class="navbar-menu" v-if="auth">
+            <li>
+                <router-link :to="{ name: 'Main Page' }" class="nav-link">Профиль</router-link>
+            </li>
+            <li>
+                <router-link :to="{ name: 'Login' }" class="nav-link" @click="logout">Выход</router-link>
+            </li>
+        </ul>
+        <ul class="navbar-menu" v-else>
+            <li>
+                <router-link :to="{ name: 'Login' }" class="nav-link">Войти</router-link>
+            </li>
+            <li>
+                <router-link :to="{ name: 'Signup' }" class="nav-link">Регистрация</router-link>
+            </li>
+        </ul>
     </nav>
 </template>
 
@@ -51,30 +44,35 @@ export default {
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .navbar {
-    height: var(--navbar-height);
-    background-color: var(--lighter-blue);
+  height: var(--navbar-height);
+  background-color: var(--white);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 24px;
+}
+
+.navbar-menu {
+  display: flex;
+  justify-content: center;
+  align-content: center;
+  gap: 16px;
+  list-style: none;
 }
 
 .navbar-logo {
-    font-size: 28px;
+  font-size: 28px;
+  font-weight: bold;
 }
 
 .nav-link {
-    font-size: 20px;
+  font-size: 20px;
 }
 
 .navbar-logo, .nav-link {
-    color: var(--light-blue-shadow);
-    font-family: 'Comfortaa';
-    padding: 8px;
-}
-
-.navbar-logo:hover, .nav-link:hover {
-    color: var(--light-blue-shadow);
-    background-color: var(--lightest-blue);
-    border-radius: 4px;
+  padding: 8px;
 }
 
 </style>

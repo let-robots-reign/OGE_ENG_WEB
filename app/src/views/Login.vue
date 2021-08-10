@@ -1,10 +1,10 @@
 <template>
     <form class="form-sign-in" @submit.prevent="login">
-        <h1 class="h3 mb-3 fw-normal">Войти</h1>
+        <h1>Войти</h1>
         <input v-model="data.email" type="email" class="form-control form-sign-in__email" placeholder="Почта">
         <input v-model="data.password" type="password" class="form-control form-sign-in__password"
                placeholder="Пароль">
-        <button class="w-100 btn btn-lg btn-primary" type="submit">Войти</button>
+        <button class="login-button" type="submit">Войти</button>
     </form>
 </template>
 

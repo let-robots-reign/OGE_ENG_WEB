@@ -2,9 +2,15 @@
     <footer class="footer">
         <div class="container">
             <ul class="footer-links">
-                <li class="footer-link">ОГЭ Английский (2021) &copy;</li>
-                <li class="footer-link">О проекте</li>
-                <li class="footer-link">Контакты</li>
+                <li class="footer-link">
+                    <router-link :to="{ name: 'Main Page' }">ОГЭ Английский (2021) &copy;</router-link>
+                </li>
+                <li class="footer-link">
+                    <router-link :to="{ name: 'Main Page' }">О проекте</router-link>
+                </li>
+                <li class="footer-link">
+                    <router-link :to="{ name: 'Main Page' }">Контакты</router-link>
+                </li>
             </ul>
         </div>
     </footer>
@@ -20,11 +26,10 @@ export default {
 .footer {
     position: absolute;
     bottom: 0;
-    color: var(--light-blue-shadow);
     width: 100%;
     height: var(--footer-height);  /* Fixed height of the footer here */
     line-height: 60px; /* Vertically center the text there */
-    background-color: var(--lighter-blue);
+    background-color: var(--white);
 }
 
 .footer-links {

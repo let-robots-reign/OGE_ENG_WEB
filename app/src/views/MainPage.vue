@@ -104,7 +104,7 @@ body {
 
 .section-name {
     font-size: 24px;
-    font-family: 'Comfortaa', serif;
+    margin-bottom: 16px;
 }
 
 .trainings-grid, .tests-grid {

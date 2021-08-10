@@ -16,24 +16,28 @@ export default {
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 
 .menu-list-item {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    background-color: var(--lighter-blue);
-    border-radius: 8px;
-    padding: 8px;
-    min-width: 160px;
-    min-height: 100px;
-}
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background-color: var(--white);
+  border-radius: 8px;
+  padding: 8px;
+  min-height: 100px;
+  cursor: pointer;
 
-.menu-list-item__text {
-    color: white;
+  &:hover {
+    .menu-list-item__text {
+      color: var(--green-accent);
+    }
+  }
+
+  &__text {
     font-size: 20px;
-    margin: 0;
+  }
 }
 
 </style>
