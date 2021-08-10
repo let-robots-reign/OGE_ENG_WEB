@@ -17,6 +17,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import '../variables';
 
 .menu-list-item {
   display: flex;
@@ -28,7 +29,7 @@ export default {
 
   &:hover {
     .menu-list-item__text {
-      color: var(--green-accent);
+      color: $green-accent;
     }
   }
 

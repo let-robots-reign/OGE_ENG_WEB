@@ -83,44 +83,46 @@ export default {
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+@import '../variables';
+
 body {
-    margin-bottom: 60px;
+  margin-bottom: 60px;
 }
 
 .main {
-    padding: 16px;
-    color: var(--light-blue-shadow);
+  padding: 16px;
+  color: $light-blue-shadow;
 }
 
 .main-page-sections {
-    width: 60%;
-    margin: 0 auto;
+  width: 60%;
+  margin: 0 auto;
 }
 
 .main-page-section {
-    margin: 32px;
+  margin: 32px;
 }
 
 .section-name {
-    font-size: 24px;
-    margin-bottom: 16px;
+  font-size: 24px;
+  margin-bottom: 16px;
 }
 
 .trainings-grid, .tests-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
 }
 
 .training-link, .theory-link {
-    text-decoration: none;
+  text-decoration: none;
 }
 
 .theory-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
 }
 
 </style>

@@ -55,16 +55,18 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import '../variables';
+
 .test-card {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   gap: 24px;
-  color: var(--primary-text-color);
+  color: $primary-text-color;
   cursor: pointer;
 
   &:hover {
-    box-shadow: 0 0 2px 2px var(--green-accent) inset;
+    box-shadow: 0 0 2px 2px $green-accent inset;
   }
 
   &__title {

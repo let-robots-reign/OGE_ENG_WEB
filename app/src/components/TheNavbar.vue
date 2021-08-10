@@ -45,9 +45,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import '../variables';
+
 .navbar {
-  height: var(--navbar-height);
-  background-color: var(--white);
+  height: $navbar-height;
+  background-color: $white;
   display: flex;
   justify-content: space-between;
   align-items: center;
