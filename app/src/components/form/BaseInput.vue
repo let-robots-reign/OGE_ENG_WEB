@@ -17,8 +17,7 @@ export default {
     props: {
         label: {
             type: String,
-            required: true,
-            default: ''
+            required: true
         },
         placeholder: {
             type: String,

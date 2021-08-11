@@ -16,7 +16,7 @@ export default {
     props: {
         gridItems: {
             type: Array,
-            required: true,
+            required: true
         }
     }
 };

@@ -16,7 +16,7 @@ export default {
     props: {
         titles: {
             type: Array,
-            required: true,
+            required: true
         }
     }
 };

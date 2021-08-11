@@ -13,16 +13,16 @@ export default {
     props: {
         index: {
             type: Number,
-            required: true,
+            required: true
         },
         result: {
             type: Number,
             required: false,
-            default: null,
+            default: null
         },
         maxPoints: {
             type: Number,
-            required: true,
+            required: true
         }
     },
     setup(props) {

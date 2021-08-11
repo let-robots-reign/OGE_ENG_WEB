@@ -16,16 +16,16 @@ export default {
     props: {
         image: {
             type: String,
-            required: true,
+            required: true
         },
         title: {
             type: String,
-            required: true,
+            required: true
         },
         progress: {
             type: Number,
             required: false,
-            default: null,
+            default: null
         }
     },
     setup(props) {
