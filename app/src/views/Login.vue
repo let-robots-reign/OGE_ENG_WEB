@@ -21,6 +21,7 @@ import useVuelidate from '@vuelidate/core';
 import {useRouter} from 'vue-router';
 import {API} from '@/services/api';
 import {PATHS} from '@/router/paths';
+import vconst from '@/const/validation';
 
 export default {
     name: 'Login',
@@ -30,8 +31,6 @@ export default {
             email: '',
             password: ''
         });
-
-        const MIN_PASSWORD_LENGTH = 8;
 
         const rules = {
             email: {
@@ -50,8 +49,8 @@ export default {
                     required
                 ),
                 min: helpers.withMessage(
-                    `Пароль должен быть не короче ${MIN_PASSWORD_LENGTH} символов`,
-                    minLength(MIN_PASSWORD_LENGTH)
+                    `Пароль должен быть не короче ${vconst.MIN_PASSWORD_LENGTH} символов`,
+                    minLength(vconst.MIN_PASSWORD_LENGTH)
                 )
             }
         };
