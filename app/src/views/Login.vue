@@ -2,15 +2,8 @@
     <form class="card form-card" @submit.prevent="login">
         <h1 class="form-card__title">Войти в систему</h1>
 
-        <div class="form-control">
-            <label for="email">Email</label>
-            <input type="email" id="email" v-model="formData.email">
-        </div>
-
-        <div class="form-control">
-            <label for="password">Пароль</label>
-            <input type="password" id="password" v-model="formData.password">
-        </div>
+        <BaseInput label="Email" type="text" v-model="formData.email"/>
+        <BaseInput label="Пароль" type="password" v-model="formData.password"/>
 
         <button class="btn primary" type="submit">Войти</button>
     </form>
@@ -21,9 +14,11 @@ import {reactive} from 'vue';
 import {useRouter} from 'vue-router';
 import {API} from '@/services/api';
 import {PATHS} from '@/router/paths';
+import BaseInput from '@/components/form/BaseInput';
 
 export default {
     name: 'Login',
+    components: {BaseInput},
     setup() {
         const formData = reactive({
             email: '',
