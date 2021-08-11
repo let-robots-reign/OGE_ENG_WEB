@@ -3,7 +3,7 @@
         <h1 class="form-card__title">Создать аккаунт</h1>
 
         <BaseInput label="Имя пользователя" type="text" v-model="formData.name"/>
-        <BaseInput label="Email" type="text" v-model="formData.email"/>
+        <BaseInput label="Email" type="email" v-model="formData.email"/>
         <BaseInput label="Пароль" type="password" v-model="formData.password"/>
 
         <button class="btn primary" type="submit">Регистрация</button>

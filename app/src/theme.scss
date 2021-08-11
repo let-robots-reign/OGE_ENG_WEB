@@ -71,6 +71,7 @@ img {
 .form-control {
   position: relative;
   margin-bottom: 0.5rem;
+  min-width: 50%;
 }
 
 .form-control input,
@@ -88,12 +89,16 @@ img {
   resize: none;
 }
 
-.form-control small {
+.form-error-message {
   color: #e53935;
 }
 
 .form-control.invalid input {
   border-color: #e53935;
+}
+
+.form-control.valid input {
+  border-color: rgba(195, 233, 145);
 }
 
 .form-checkbox {
@@ -144,6 +149,7 @@ img {
 
 .btn-block {
   display: block;
+  margin: 12px 0;
 }
 
 .btn:hover {
@@ -158,6 +164,14 @@ img {
 .btn.primary {
   background: #42b983;
   color: #fff;
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 1!important;
+  background: #eee!important;
+  border-color: #ddd!important;
+  color: #999!important;
 }
 
 .btn.danger {

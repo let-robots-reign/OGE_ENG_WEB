@@ -1,5 +1,5 @@
 <template>
-    <div class="form-control">
+    <div class="form-control" :class="{'valid': valid, 'invalid': errors && errors.length}">
         <label :for=id>{{ label }}</label>
         <input
                 v-bind=$attrs
@@ -8,6 +8,7 @@
                 :value="modelValue"
                 @input="$emit('update:modelValue', $event.target.value)"
         >
+        <small class="form-error-message" v-for="error in errors" :key="error.$uid">{{ error.$message }}</small>
     </div>
 </template>
 
@@ -27,6 +28,14 @@ export default {
         modelValue: {
             type: [String, Number],
             default: ''
+        },
+        valid: {
+            type: Boolean,
+            default: null
+        },
+        errors: {
+            type: Array,
+            default: null
         }
     },
     setup() {
