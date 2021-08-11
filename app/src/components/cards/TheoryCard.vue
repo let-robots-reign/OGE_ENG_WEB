@@ -33,7 +33,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../variables';
+@import '@/variables';
 
 .theory-card {
   display: grid;

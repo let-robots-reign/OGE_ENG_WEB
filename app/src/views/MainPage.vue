@@ -49,9 +49,9 @@
 <script>
 import {API} from '@/services/api';
 import {useStore} from 'vuex';
-import TrainingCard from '@/components/TrainingCard';
-import TestCard from '@/components/TestCard';
-import TheoryCard from '@/components/TheoryCard';
+import TrainingCard from '@/components/cards/TrainingCard';
+import TestCard from '@/components/cards/TestCard';
+import TheoryCard from '@/components/cards/TheoryCard';
 import {onMounted, reactive, ref} from 'vue';
 
 export default {
@@ -84,7 +84,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../variables';
+@import '@/variables';
 
 body {
   margin-bottom: 60px;

@@ -45,7 +45,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../variables';
+@import '@/variables';
 
 .navbar {
   height: $navbar-height;

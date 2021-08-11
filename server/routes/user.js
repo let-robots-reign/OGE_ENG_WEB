@@ -15,6 +15,7 @@ router.post('/signup', async (req, res) => {
         email: userData.email,
         password: hashedPassword
     });
+    // TODO: fields validation
     // TODO: check for existing user
     const result = await user.save();
     // eslint-disable-next-line no-unused-vars
