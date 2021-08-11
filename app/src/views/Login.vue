@@ -5,7 +5,7 @@
         <BaseInput label="Email" type="text" v-model="formData.email"/>
         <BaseInput label="Пароль" type="password" v-model="formData.password"/>
 
-        <button class="btn primary" type="submit">Войти</button>
+        <button class="btn btn-block primary" type="submit">Войти</button>
     </form>
 </template>
 

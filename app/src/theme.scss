@@ -142,6 +142,10 @@ img {
   transition: all 0.22s;
 }
 
+.btn-block {
+  display: block;
+}
+
 .btn:hover {
   cursor: pointer;
   opacity: 0.8;

@@ -1,7 +1,14 @@
 <template>
     <div class="form-checkbox">
-        <input :id="id" type="checkbox" :value="modelValue">
-        <label :for="id">{{ label }}</label>
+        <div class="checkbox">
+            <input
+                    :id="id"
+                    type="checkbox"
+                    :checked="modelValue"
+                    @change="$emit('update:modelValue', $event.target.checked)"
+            >
+            <label :for="id">{{ label }}</label>
+        </div>
     </div>
 </template>
 
@@ -12,11 +19,15 @@ export default {
         label: {
             type: String,
             required: true
+        },
+        modelValue: {
+            type: Boolean,
+            default: false
         }
+    },
+    setup() {
+        const id = `base-checkbox-${Math.random()}`;
+        return {id};
     }
 };
 </script>
-
-<style scoped>
-
-</style>
