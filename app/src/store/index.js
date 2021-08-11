@@ -1,16 +1,17 @@
-import {createStore} from 'vuex';
+import {createLogger, createStore} from 'vuex';
+import auth from './modules/auth.module';
+
+const plugins = [];
+
+if (process.env.NODE_ENV === 'development') {
+    plugins.push(createLogger());
+}
 
 const store = createStore({
-    state: {
-        authenticated: false
-    },
-    mutations: {
-        SET_AUTH: (state, auth) => state.authenticated = auth
-    },
-    actions: {
-        setAuth: ({commit}, auth) => commit('SET_AUTH', auth)
-    },
-    modules: {}
+    plugins,
+    modules: {
+        auth
+    }
 });
 
 export default store;

@@ -1,5 +1,5 @@
 <template>
-    <div class="menu-item">
+    <div class="card menu-item">
         <p class="menu-item__title">{{ title }}</p>
     </div>
 </template>
@@ -10,25 +10,27 @@ export default {
     props: {
         title: {
             type: String,
-            default: '',
-            required: true,
+            required: true
         }
     }
 };
 </script>
 
-<style scoped>
-.menu-item {
-    background-color: var(--light-blue-shadow);
-    padding: 16px;
-    border-radius: 24px;
-    color: var(--primary-text-color);
-    cursor: pointer;
-}
+<style lang="scss" scoped>
+@import '@/variables';
 
-.menu-item__title {
+.menu-item {
+  color: $primary-text-color;
+  cursor: pointer;
+
+  &:hover {
+    box-shadow: 0 0 2px 2px $green-accent inset;
+  }
+
+  &__title {
     font-size: 20px;
     font-weight: bold;
+  }
 }
 
 </style>

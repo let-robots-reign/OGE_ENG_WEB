@@ -1,30 +1,24 @@
 <template>
-    <Navbar/>
+    <the-navbar></the-navbar>
     <router-view/>
-    <Footer/>
+    <the-footer></the-footer>
 </template>
 
 <script>
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
+import TheNavbar from '@/components/TheNavbar';
+import TheFooter from '@/components/TheFooter';
+
 export default {
-    components: {Footer, Navbar}
+    components: {TheFooter, TheNavbar}
 };
 </script>
 
-<style>
-@import 'variables.css';
-html {
-    position: relative;
-    min-height: 100%;
-}
-
-body {
-    margin-bottom: var(--footer-height);
-}
+<style lang="scss">
+@import 'theme';
+@import 'variables';
 
 #app {
-    min-height: calc(100vh - var(--footer-height));
-    background-color: var(--dark-blue);
+  min-height: calc(100vh - #{$footer-height});
 }
+
 </style>

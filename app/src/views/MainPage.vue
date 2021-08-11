@@ -29,16 +29,16 @@
                 <p class="section-name">Теория</p>
                 <div class="theory-grid">
                     <router-link class="theory-link" :to="{ name: 'General Theory' }">
-                        <TheoryCard class="theory-grid__general" :title="'Общая информация об экзамене'"
-                                    :image="'ic_exam.svg'"/>
+                        <TheoryCard class="theory-grid__general" title="Общая информация об экзамене"
+                                    image="ic_exam.svg"/>
                     </router-link>
                     <router-link class="theory-link" :to="{ name: 'Use of English Theory' }">
-                        <TheoryCard class="theory-grid__uoe" :title="'Языковой материал'"
-                                    :image="'ic_use_of_english.svg'"/>
+                        <TheoryCard class="theory-grid__uoe" title="Языковой материал"
+                                    image="ic_use_of_english.svg"/>
                     </router-link>
                     <router-link class="theory-link" :to="{ name: 'Writing Theory' }">
-                        <TheoryCard class="theory-grid__writing" :title="'Письмо'"
-                                    :image="'ic_writing.svg'"/>
+                        <TheoryCard class="theory-grid__writing" title="Письмо"
+                                    image="ic_writing.svg"/>
                     </router-link>
                 </div>
             </div>
@@ -49,76 +49,80 @@
 <script>
 import {API} from '@/services/api';
 import {useStore} from 'vuex';
-import TrainingCard from '@/components/TrainingCard';
-import TestCard from '@/components/TestCard';
-import TheoryCard from '@/components/TheoryCard';
+import TrainingCard from '@/components/cards/TrainingCard';
+import TestCard from '@/components/cards/TestCard';
+import TheoryCard from '@/components/cards/TheoryCard';
+import {onMounted, reactive, ref} from 'vue';
 
 export default {
     name: 'MainPage',
     components: {TheoryCard, TestCard, TrainingCard},
-    data() {
-        return {
-            // TODO: stubbing tests data
-            testsResults: [30, 12, 32, null, 44, null, 1, 0, null, 22],
-            maxTestPoints: 44,
-            progress: {
-                audio: 10,
-                reading: 35,
-                useOfEng: 70,
-            }
-        };
-    },
-    created() {
+    setup() {
+        // TODO: stubbing tests data
+        const testsResults = ref([30, 12, 32, null, 44, null, 1, 0, null, 22]);
+        const maxTestPoints = ref(44);
+        const progress = reactive({
+            audio: 10,
+            reading: 35,
+            useOfEng: 70,
+        });
+
         const store = useStore();
-        API.getCurrentUser()
-            .then(async () => {
-                await store.dispatch('setAuth', true);
-            })
-            .catch(async () => {
-                await store.dispatch('setAuth', false);
-            });
+        onMounted(() => {
+            API.getCurrentUser()
+                .then(() => store.commit('auth/setAuth', true))
+                .catch(() => store.commit('auth/setAuth', false));
+        });
+
+        return {
+            testsResults,
+            maxTestPoints,
+            progress
+        };
     }
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+@import '@/variables';
+
 body {
-    margin-bottom: 60px;
+  margin-bottom: 60px;
 }
 
 .main {
-    padding: 16px;
-    color: var(--light-blue-shadow);
+  padding: 16px;
+  color: $light-blue-shadow;
 }
 
 .main-page-sections {
-    width: 60%;
-    margin: 0 auto;
+  width: 60%;
+  margin: 0 auto;
 }
 
 .main-page-section {
-    margin: 32px;
+  margin: 32px;
 }
 
 .section-name {
-    font-size: 24px;
-    font-family: 'Comfortaa', serif;
+  font-size: 28px;
+  margin-bottom: 16px;
 }
 
 .trainings-grid, .tests-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
 }
 
 .training-link, .theory-link {
-    text-decoration: none;
+  text-decoration: none;
 }
 
 .theory-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
 }
 
 </style>

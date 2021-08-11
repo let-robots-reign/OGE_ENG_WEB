@@ -80,7 +80,9 @@ const routes = [
 const router = createRouter({
     // eslint-disable-next-line no-undef
     history: createWebHistory(process.env.BASE_URL),
-    routes
+    routes,
+    linkActiveClass: 'active',
+    linkExactActiveClass: 'active'
 });
 
 export default router;

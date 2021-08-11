@@ -1,5 +1,5 @@
 <template>
-    <div class="menu-list-item">
+    <div class="card menu-list-item">
         <p class="menu-list-item__text">{{ text }}</p>
     </div>
 </template>
@@ -10,30 +10,32 @@ export default {
     props: {
         text: {
             type: String,
-            required: true,
+            required: true
         }
     }
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+@import '@/variables';
 
 .menu-list-item {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    background-color: var(--lighter-blue);
-    border-radius: 8px;
-    padding: 8px;
-    min-width: 160px;
-    min-height: 100px;
-}
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  min-height: 100px;
+  cursor: pointer;
 
-.menu-list-item__text {
-    color: white;
+  &:hover {
+    .menu-list-item__text {
+      color: $green-accent;
+    }
+  }
+
+  &__text {
     font-size: 20px;
-    margin: 0;
+  }
 }
 
 </style>

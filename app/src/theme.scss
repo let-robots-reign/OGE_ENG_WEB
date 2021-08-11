@@ -1,0 +1,187 @@
+@import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+@import 'variables';
+
+* {
+  margin: 0;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  font-family: Inter, Roboto, Oxygen, Fira Sans, Helvetica Neue, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 16px;
+  background: $dark-blue;
+  margin-bottom: $footer-height;
+}
+
+a {
+  text-decoration: none;
+  color: $primary-text-color;
+
+  &:hover {
+    color: $primary-text-color;
+    text-decoration: underline;
+    text-decoration-color: $green-accent;
+    text-underline-offset: 4px;
+  }
+}
+
+img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.card {
+  overflow: hidden;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 16px;
+  box-shadow: 2px 3px 10px rgba(0, 0, 0, 0.2);
+  background: #fff;
+}
+
+.card.marked {
+  border: 4px solid #42b983;
+}
+
+.card.center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.form-card {
+  width: 50%;
+  padding: 24px;
+  margin: 32px auto;
+
+  &__title {
+    margin-bottom: 12px;
+  }
+}
+
+.form-control {
+  position: relative;
+  margin-bottom: 0.5rem;
+  min-width: 50%;
+}
+
+.form-control input,
+.form-control select,
+.form-control textarea{
+  font-family: Inter, Roboto, Oxygen, Fira Sans, Helvetica Neue, sans-serif;
+  outline: none;
+  border: 2px solid #ccc;
+  display: block;
+  width: 100%;
+  color: #2c3e50;
+  padding: 0.5rem 0 0.5rem 0.5rem;
+  border-radius: 3px;
+  font-size: 1rem;
+  resize: none;
+}
+
+.form-error-message {
+  color: #e53935;
+}
+
+.form-control.invalid input {
+  border-color: #e53935;
+}
+
+.form-control.valid input {
+  border-color: rgba(195, 233, 145);
+}
+
+.form-checkbox {
+  margin-bottom: 1rem;
+}
+
+.form-checkbox .label {
+  display: block;
+  margin: 0 0 0.3rem 0.3rem;
+  font-weight: 500;
+}
+
+.form-checkbox .checkbox input {
+  margin-right: 1rem;
+}
+
+.form-control label {
+  display: block;
+  margin: 0 0 0.3rem 0.3rem;
+  font-weight: 500;
+}
+
+.form-control input:active,
+.form-control input:focus {
+  transition: border 0.22s;
+  border: 2px solid #42b983;
+}
+
+.btn {
+  color: #42b983;
+  position: relative;
+  place-content: center;
+  place-items: center;
+  width: fit-content;
+  border-radius: 99px;
+  letter-spacing: 0.05em;
+  border: 1px solid #42b983;
+  text-decoration: none;
+  text-transform: uppercase;
+  margin-right: 10px;
+  padding: 0.5rem 1.5rem;
+  white-space: nowrap;
+  font-weight: 700;
+  outline: none;
+  background: #fff;
+  transition: all 0.22s;
+}
+
+.btn-block {
+  display: block;
+  margin: 12px 0;
+}
+
+.btn:hover {
+  cursor: pointer;
+  opacity: 0.8;
+}
+
+.btn:active {
+  box-shadow: inset 1px 1px 1px rgba(0, 0, 0, 0.3);
+}
+
+.btn.primary {
+  background: #42b983;
+  color: #fff;
+}
+
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 1!important;
+  background: #eee!important;
+  border-color: #ddd!important;
+  color: #999!important;
+}
+
+.btn.danger {
+  background: #e53935;
+  color: #fff;
+  border-color: #e53935;
+}
+
+.btn.warning {
+  background: #c25205;
+  color: #fff;
+  border-color: #c25205;
+}

@@ -1,50 +1,80 @@
 <template>
-    <form class="form-sign-in" @submit.prevent="login">
-        <h1 class="h3 mb-3 fw-normal">Войти</h1>
-        <input v-model="data.email" type="email" class="form-control form-sign-in__email" placeholder="Почта">
-        <input v-model="data.password" type="password" class="form-control form-sign-in__password"
-               placeholder="Пароль">
-        <button class="w-100 btn btn-lg btn-primary" type="submit">Войти</button>
+    <form class="card form-card center" @submit.prevent="login" novalidate>
+        <h1 class="form-card__title">Войти в систему</h1>
+
+        <BaseInput label="Email" type="email" v-model="v$.email.$model"
+                   :valid="!v$.email.$error && v$.email.$dirty" :errors="v$.email.$errors"/>
+
+        <BaseInput label="Пароль" type="password" v-model="v$.password.$model"
+                   :valid="!v$.password.$error && v$.password.$dirty" :errors="v$.password.$errors"/>
+
+        <small class="form-error-message" v-if="loginResult">{{ loginResult }}</small>
+        <button class="btn btn-block primary" type="submit" :disabled="v$.$error">Войти</button>
     </form>
 </template>
 
 <script>
-import {reactive} from 'vue';
+import BaseInput from '@/components/form/BaseInput';
+import {reactive, ref} from 'vue';
+import {email, helpers, minLength, required} from '@vuelidate/validators';
+import useVuelidate from '@vuelidate/core';
 import {useRouter} from 'vue-router';
 import {API} from '@/services/api';
 import {PATHS} from '@/router/paths';
+import vconst from '@/const/validation';
 
 export default {
     name: 'Login',
+    components: {BaseInput},
     setup() {
-        const data = reactive({
+        const loginState = reactive({
             email: '',
             password: ''
         });
-        const router = useRouter();
 
+        const rules = {
+            email: {
+                required: helpers.withMessage(
+                    'Поле не может быть пустым',
+                    required
+                ),
+                email: helpers.withMessage(
+                    'Некорректный адрес электронной почты',
+                    email
+                )
+            },
+            password: {
+                required: helpers.withMessage(
+                    'Поле не может быть пустым',
+                    required
+                ),
+                min: helpers.withMessage(
+                    `Пароль должен быть не короче ${vconst.MIN_PASSWORD_LENGTH} символов`,
+                    minLength(vconst.MIN_PASSWORD_LENGTH)
+                )
+            }
+        };
+
+        const v$ = useVuelidate(rules, loginState);
+
+        const loginResult = ref('');
+        const router = useRouter();
         const login = () => {
-            API.login(data).then(async () => {
-                await router.push(PATHS.main);
-            });
+            v$.value.$touch();
+            if (v$.value.$error) {
+                return;
+            }
+            API.login(loginState)
+                .then(async () => await router.push(PATHS.main))
+                .catch(() => loginResult.value = 'Неверный логин или пароль!');
         };
 
         return {
-            data,
+            loginState,
+            loginResult,
+            v$,
             login
         };
     }
 };
 </script>
-
-<style scoped>
-.form-sign-in {
-    width: 100%;
-    max-width: 330px;
-    margin: 0 auto;
-}
-
-.form-sign-in__password {
-    margin-bottom: 12px;
-}
-</style>
