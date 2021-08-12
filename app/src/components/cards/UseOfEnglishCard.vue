@@ -29,7 +29,7 @@ export default {
     setup(props) {
         const userAnswer = ref('');
 
-        const getAnswerData = () => ({id: props.id, userAnswer: userAnswer.value});
+        const getAnswerData = () => ({_id: props.id, answer: userAnswer.value});
 
         return {
             userAnswer,

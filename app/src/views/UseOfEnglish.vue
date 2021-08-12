@@ -45,11 +45,11 @@ export default {
         onBeforeUpdate(() => uoeCards.value = []);
 
         const isChecking = ref(false);
-        const checkAnswers = () => {
+        const checkAnswers = async () => {
             isChecking.value = true;
             const userAnswers = uoeCards.value.map((cardComponent) => cardComponent.getAnswerData());
-            console.log(userAnswers);
-
+            const checkResult = await API.checkTraining('use-of-english', userAnswers);
+            console.log(checkResult);
             isChecking.value = false;
         };
 

@@ -1,21 +1,25 @@
 const mongoose = require('mongoose');
 
 const uoeTaskSchema = new mongoose.Schema({
+    _id: {
+        type: String,
+        required: true
+    },
     topic: {
         type: String,
-        required: true,
+        required: true
     },
     task: {
         type: String,
-        required: true,
+        required: true
     },
     origin: {
         type: String,
-        required: true,
+        required: true
     },
     answer: {
         type: String,
-        required: true,
+        required: true
     },
     completion: {
         type: Number,

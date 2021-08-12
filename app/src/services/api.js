@@ -31,6 +31,10 @@ class Api {
     getUoeTraining(topic) {
         return this.apiClient.get('/training/use-of-english' + ((topic) ? `?topic=${topic}` : ''));
     }
+
+    checkTraining(category, answers) {
+        return this.apiClient.post(`/training/${category}/check`, answers);
+    }
 }
 
 export const API = new Api();

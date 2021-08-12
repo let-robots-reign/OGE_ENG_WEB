@@ -2,11 +2,6 @@ const router = require('express').Router();
 const UoeTask = require('../models/uoe_task');
 const getRandomDocuments = require('../utils/getRandomDocuments');
 
-const checkTaskAnswer = async (model, taskID, answer) => {
-    const task = await model.findOne({_id: taskID}).exec();
-    return task.answer === answer;
-};
-
 router.get('/training/use-of-english', async (req, res) => {
     const DEFAULT_BATCH_SIZE = 10;
 
@@ -27,10 +22,17 @@ router.get('/training/use-of-english', async (req, res) => {
 
 router.post('/training/use-of-english/check', async (req, res) => {
     const userAnswers = req.body;
-    const correctness = userAnswers.map((userAnswer) => {
+    const sortById = (lhs, rhs) => parseInt(lhs._id) > parseInt(rhs._id) && 1 || -1;
+
+    userAnswers.sort(sortById);
+
+    const documents = await UoeTask.find({_id: {$in: userAnswers.map((item) => item._id)}});
+    documents.sort(sortById);
+
+    const correctness = userAnswers.map((userAnswer, index) => {
         return {
             _id: userAnswer._id,
-            ifCorrect: checkTaskAnswer(UoeTask, userAnswer._id, userAnswer.answer)
+            ifCorrect: userAnswer.answer === documents[index].answer
         };
     });
 
