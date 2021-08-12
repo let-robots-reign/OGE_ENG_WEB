@@ -32,7 +32,7 @@ router.post('/training/use-of-english/check', async (req, res) => {
     const correctness = userAnswers.map((userAnswer, index) => {
         return {
             _id: userAnswer._id,
-            ifCorrect: userAnswer.answer === documents[index].answer
+            rightAnswer: documents[index].answer
         };
     });
 

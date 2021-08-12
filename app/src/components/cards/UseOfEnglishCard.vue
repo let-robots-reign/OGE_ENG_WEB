@@ -14,6 +14,7 @@
 <script>
 import BaseInput from '@/components/form/BaseInput';
 import {computed, ref} from 'vue';
+import {replaceCharSequence} from '@/utils/replaceCharSequence';
 
 export default {
     name: 'UseOfEnglishCard',
@@ -36,16 +37,19 @@ export default {
         const userAnswer = ref('');
         const isCorrect = ref(null);
 
+        const validity = computed(() => (isCorrect.value === null) ? null : (isCorrect.value) ? 'valid' : 'invalid');
+
         const getAnswerData = () => ({_id: props.id, answer: userAnswer.value});
         const setIsCorrect = (correct) => isCorrect.value = correct;
-        const validity = computed(() => (isCorrect.value === null) ? null : (isCorrect.value) ? 'valid' : 'invalid');
+        const displayRightAnswer = (rightAnswer) => console.log(replaceCharSequence(props.question, '_', rightAnswer));
 
         return {
             userAnswer,
             getAnswerData,
             isCorrect,
             setIsCorrect,
-            validity
+            validity,
+            displayRightAnswer
         };
     }
 };

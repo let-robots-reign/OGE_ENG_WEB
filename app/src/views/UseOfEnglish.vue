@@ -47,12 +47,18 @@ export default {
         const isChecking = ref(false);
         const checkAnswers = async () => {
             isChecking.value = true;
+
             const userAnswers = uoeCards.value.map((cardComponent) => cardComponent.getAnswerData());
             const checkResultResponse = await API.checkTraining('use-of-english', userAnswers);
             const checkResult = checkResultResponse.data.correctness;
+
             uoeCards.value.forEach((cardComponent, index) => {
-                cardComponent.setIsCorrect(checkResult.find((el) => el._id === userAnswers[index]._id).ifCorrect);
+                const givenAnswer = userAnswers[index].answer;
+                const rightAnswer = checkResult.find((el) => el._id === userAnswers[index]._id).rightAnswer;
+                cardComponent.setIsCorrect(givenAnswer === rightAnswer);
+                cardComponent.displayRightAnswer(rightAnswer);
             });
+
             isChecking.value = false;
         };
 
