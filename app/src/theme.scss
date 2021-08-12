@@ -166,6 +166,12 @@ img {
   color: #fff;
 }
 
+.btn.secondary {
+  background: #ccc;
+  border-color: #ccc;
+  color: #fff;
+}
+
 .btn:disabled {
   cursor: not-allowed;
   opacity: 1!important;

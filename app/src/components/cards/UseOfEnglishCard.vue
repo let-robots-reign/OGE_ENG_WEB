@@ -34,7 +34,6 @@ export default {
 
 <style lang="scss" scoped>
 .uoe-card {
-  max-width: 50%;
   margin: 24px auto;
   display: flex;
   flex-direction: column;
