@@ -5,6 +5,7 @@ import Signup from '@/views/Signup';
 import {PATHS} from '@/router/paths';
 import MenuList from '@/views/MenuList';
 import MenuGrid from '@/views/MenuGrid';
+import UseOfEnglish from '@/views/UseOfEnglish';
 
 const routes = [
     {
@@ -23,28 +24,37 @@ const routes = [
         component: Signup
     },
     {
-        name: 'Audio Tasks',
-        path: PATHS.audioTasks,
+        name: 'Audio Topics',
+        path: PATHS.audioTrainingTopics,
         component: MenuList,
         props: {
-            titles: ['Задание 1', 'Задание 2', 'Задания 3-8']
+            titles: ['Задание 1', 'Задание 2', 'Задания 3-8'],
+            baseClickLink: '/training/audio'
         }
     },
     {
-        name: 'Reading Tasks',
-        path: PATHS.readingTasks,
+        name: 'Reading Topics',
+        path: PATHS.readingTrainingTopics,
         component: MenuList,
         props: {
-            titles: ['Задание 9', 'Задания 10-17']
+            titles: ['Задание 9', 'Задания 10-17'],
+            baseClickLink: '/training/reading'
         }
     },
     {
-        name: 'Use of English Tasks',
-        path: PATHS.uoeTasks,
+        name: 'Use of English Topics',
+        path: PATHS.uoeTrainingTopics,
         component: MenuList,
         props: {
-            titles: ['По всем темам', 'Словообразование']
+            titles: ['По всем темам', 'Словообразование'],
+            baseClickLink: '/training/use-of-english'
         }
+    },
+    {
+        name: 'Use Of English Training',
+        path: PATHS.uoeTraining,
+        component: UseOfEnglish,
+        props: (route) => ({topic: route.query.topic})
     },
     {
         name: 'General Theory',

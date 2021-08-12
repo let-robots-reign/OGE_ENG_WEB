@@ -1,6 +1,6 @@
 <template>
     <div class="form-control" :class="{'valid': valid, 'invalid': errors && errors.length}">
-        <label :for=id>{{ label }}</label>
+        <label :for=id v-if="label">{{ label }}</label>
         <input
                 v-bind=$attrs
                 :id=id
@@ -18,11 +18,10 @@ export default {
     props: {
         label: {
             type: String,
-            required: true
+            default: ''
         },
         placeholder: {
             type: String,
-            required: false,
             default: (props) => props.label,
         },
         modelValue: {

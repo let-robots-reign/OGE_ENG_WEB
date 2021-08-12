@@ -1,32 +1,10 @@
 const router = require('express').Router();
 const UoeTask = require('../models/uoe_task');
+const getRandomDocuments = require('../utils/getRandomDocuments');
 
-const getRandomDocument = async (model, filterOptions) => {
-    return await model.aggregate([
-        { $match: filterOptions },
-        { $sample: { size: 1 } }
-    ]);
-};
-
-const getRandomDocuments = async (model, n, filterOptions) => {
-    const count = await model.countDocuments().exec();
-    if (count < n) {
-        n = count;
-    }
-
-    const documents = [];
-    const ids = [];
-    let document = {};
-    let id = 0;
-    for (let i = 0; i < n; ++i) {
-        document = await getRandomDocument(model, filterOptions);
-        while (ids.includes(document.id)) {
-            document = await getRandomDocument(model, filterOptions);
-        }
-        documents.push(document);
-        ids.push(id);
-    }
-    return documents;
+const checkTaskAnswer = async (model, taskID, answer) => {
+    const task = await model.findOne({_id: taskID}).exec();
+    return task.answer === answer;
 };
 
 router.get('/training/use-of-english', async (req, res) => {
@@ -39,11 +17,26 @@ router.get('/training/use-of-english', async (req, res) => {
         filterOptions.topic = topic;
     }
     const questions = await getRandomDocuments(UoeTask, batchSize, filterOptions);
-    questions.map((question) => delete question[0].answer);
+    questions.map((question) => delete question.answer);
 
     res.status(200).send({
         message: 'success',
         questions
+    });
+});
+
+router.post('/training/use-of-english/check', async (req, res) => {
+    const userAnswers = req.body;
+    const correctness = userAnswers.map((userAnswer) => {
+        return {
+            _id: userAnswer._id,
+            ifCorrect: checkTaskAnswer(UoeTask, userAnswer._id, userAnswer.answer)
+        };
+    });
+
+    res.status(200).send({
+        message: 'success',
+        correctness
     });
 });
 
