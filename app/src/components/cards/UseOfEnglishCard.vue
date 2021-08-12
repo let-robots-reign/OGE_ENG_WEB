@@ -1,13 +1,19 @@
 <template>
     <div class="card uoe-card">
         <div class="uoe-card__question">{{ question }}</div>
-        <BaseInput class="uoe-card__input" type="text" :placeholder="origin" v-model="userAnswer"/>
+        <BaseInput
+                class="uoe-card__input"
+                :class="validity"
+                type="text"
+                :placeholder="origin"
+                v-model="userAnswer"
+        />
     </div>
 </template>
 
 <script>
 import BaseInput from '@/components/form/BaseInput';
-import {ref} from 'vue';
+import {computed, ref} from 'vue';
 
 export default {
     name: 'UseOfEnglishCard',
@@ -28,12 +34,18 @@ export default {
     },
     setup(props) {
         const userAnswer = ref('');
+        const isCorrect = ref(null);
 
         const getAnswerData = () => ({_id: props.id, answer: userAnswer.value});
+        const setIsCorrect = (correct) => isCorrect.value = correct;
+        const validity = computed(() => (isCorrect.value === null) ? null : (isCorrect.value) ? 'valid' : 'invalid');
 
         return {
             userAnswer,
-            getAnswerData
+            getAnswerData,
+            isCorrect,
+            setIsCorrect,
+            validity
         };
     }
 };
