@@ -1,13 +1,17 @@
 <template>
     <main v-if="questions.length">
         <UseOfEnglishCard
-                v-for="(question, index) in questions"
-                :key="index"
+                v-for="(question, i) in questions"
+                :key="question._id"
+                :id="question._id"
                 :question="question.task"
                 :origin="question.origin"
+                :ref="el => { if (el) uoeCards[i] = el }"
         />
         <div class="buttons-group">
-            <button class="btn primary send-answers-btn">Проверить</button>
+            <button class="btn primary send-answers-btn" :disabled="isChecking"
+                    @click="checkAnswers">Проверить
+            </button>
             <button class="btn secondary" @click="$router.go(-1)">Выход</button>
         </div>
     </main>
@@ -15,8 +19,9 @@
 
 <script>
 import UseOfEnglishCard from '@/components/cards/UseOfEnglishCard';
-import {onMounted, ref} from 'vue';
+import {onBeforeUpdate, onMounted, ref} from 'vue';
 import {API} from '@/services/api';
+
 export default {
     name: 'UseOfEnglish',
     components: {UseOfEnglishCard},
@@ -27,15 +32,32 @@ export default {
     },
     setup(props) {
         const questions = ref([]);
+        const uoeCards = ref([]);
 
         onMounted(async () => {
             API.getUoeTraining(props.topic)
-                .then((res) => questions.value = res.data.questions)
+                .then((res) => {
+                    questions.value = res.data.questions;
+                })
                 .catch((err) => console.log(err));
         });
 
+        onBeforeUpdate(() => uoeCards.value = []);
+
+        const isChecking = ref(false);
+        const checkAnswers = () => {
+            isChecking.value = true;
+            const userAnswers = uoeCards.value.map((cardComponent) => cardComponent.getAnswerData());
+            console.log(userAnswers);
+
+            isChecking.value = false;
+        };
+
         return {
-            questions
+            questions,
+            uoeCards,
+            isChecking,
+            checkAnswers
         };
     }
 };

@@ -13,6 +13,10 @@ export default {
     name: 'UseOfEnglishCard',
     components: {BaseInput},
     props: {
+        id: {
+            type: String,
+            required: true
+        },
         question: {
             type: String,
             required: true
@@ -22,11 +26,14 @@ export default {
             required: true
         }
     },
-    setup() {
+    setup(props) {
         const userAnswer = ref('');
 
+        const getAnswerData = () => ({id: props.id, userAnswer: userAnswer.value});
+
         return {
-            userAnswer
+            userAnswer,
+            getAnswerData
         };
     }
 };
