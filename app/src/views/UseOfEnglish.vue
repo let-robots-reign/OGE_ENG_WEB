@@ -10,7 +10,8 @@
         />
         <div class="buttons-group">
             <button class="btn primary send-answers-btn" :disabled="isChecking"
-                    v-if="!isChecked" @click="checkAnswers">Проверить
+                    v-if="!isChecked" @click="checkAnswers">
+                Проверить
             </button>
             <button class="btn secondary" @click="$router.go(-1)">Выход</button>
         </div>
@@ -19,7 +20,7 @@
 
 <script>
 import UseOfEnglishCard from '@/components/cards/UseOfEnglishCard';
-import {onBeforeUpdate, onMounted, ref} from 'vue';
+import {computed, onBeforeUpdate, onMounted, ref} from 'vue';
 import {API} from '@/services/api';
 import {replaceCharSequence} from '@/utils/replaceCharSequence';
 
@@ -47,12 +48,17 @@ export default {
 
         const isChecking = ref(false);
         const isChecked = ref(false);
+        const rightAnswers = ref(null);
+        const result = computed(() => (rightAnswers.value === null || questions.value === null)
+            ? null : `${rightAnswers.value}/${questions.value.length}`);
+
         const checkAnswers = async () => {
             isChecking.value = true;
 
             const userAnswers = uoeCards.value.map((cardComponent) => cardComponent.getAnswerData());
             const checkResultResponse = await API.checkTraining('use-of-english', userAnswers);
             const checkResult = checkResultResponse.data.correctness;
+            rightAnswers.value = checkResultResponse.data.rightAnswers;
 
             uoeCards.value.forEach((cardComponent, index) => {
                 const givenAnswer = userAnswers[index].answer;
@@ -72,6 +78,7 @@ export default {
             uoeCards,
             isChecking,
             isChecked,
+            result,
             checkAnswers
         };
     }
@@ -83,7 +90,7 @@ export default {
 
 main {
   width: 50%;
-  margin: 0 auto;
+  margin: 32px auto;
 }
 
 .buttons-group {

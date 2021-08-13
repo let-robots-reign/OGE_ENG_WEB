@@ -29,16 +29,20 @@ router.post('/training/use-of-english/check', async (req, res) => {
     const documents = await UoeTask.find({_id: {$in: userAnswers.map((item) => item._id)}});
     documents.sort(sortById);
 
+    let rightAnswers = 0;
     const correctness = userAnswers.map((userAnswer, index) => {
+        const rightAnswer = documents[index].answer;
+        rightAnswers += userAnswer.answer === rightAnswer;
         return {
             _id: userAnswer._id,
-            rightAnswer: documents[index].answer
+            rightAnswer
         };
     });
 
     res.status(200).send({
         message: 'success',
-        correctness
+        correctness,
+        rightAnswers
     });
 });
 
