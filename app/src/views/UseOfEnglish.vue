@@ -15,6 +15,18 @@
             </button>
             <button class="btn secondary" @click="$router.go(-1)">Выход</button>
         </div>
+        <vue-final-modal v-model="showResult" classes="modal-container" content-class="modal-content">
+            <button class="modal__close" @click="showResult = false">
+                X
+            </button>
+            <span class="modal__title">Ваш результат: {{ result }}</span>
+            <div class="modal__content">
+                <p>Вы можете посмотреть свои ошибки и правильные ответы</p>
+            </div>
+            <div class="modal__action">
+                <button class="btn primary" @click="showResult = false">ОК</button>
+            </div>
+        </vue-final-modal>
     </main>
 </template>
 
@@ -23,10 +35,11 @@ import UseOfEnglishCard from '@/components/cards/UseOfEnglishCard';
 import {computed, onBeforeUpdate, onMounted, ref} from 'vue';
 import {API} from '@/services/api';
 import {replaceCharSequence} from '@/utils/replaceCharSequence';
+import {VueFinalModal} from 'vue-final-modal';
 
 export default {
     name: 'UseOfEnglish',
-    components: {UseOfEnglishCard},
+    components: {UseOfEnglishCard, VueFinalModal},
     props: {
         topic: {
             type: String,
@@ -48,6 +61,7 @@ export default {
 
         const isChecking = ref(false);
         const isChecked = ref(false);
+        const showResult = ref(false);
         const rightAnswers = ref(null);
         const result = computed(() => (rightAnswers.value === null || questions.value === null)
             ? null : `${rightAnswers.value}/${questions.value.length}`);
@@ -71,6 +85,7 @@ export default {
 
             isChecking.value = false;
             isChecked.value = true;
+            showResult.value = true;
         };
 
         return {
@@ -79,6 +94,7 @@ export default {
             isChecking,
             isChecked,
             result,
+            showResult,
             checkAnswers
         };
     }
@@ -108,4 +124,54 @@ main {
     font-family: Inter, Roboto, Oxygen, Fira Sans, Helvetica Neue, sans-serif;
   }
 }
+</style>
+
+
+<style lang="scss" scoped>
+::v-deep .modal-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+::v-deep .modal-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  max-height: 90%;
+  margin: 0 1rem;
+  padding: 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.25rem;
+  background: #fff;
+  gap: 16px;
+}
+
+.modal {
+  &__title {
+    margin: 0 2rem 0 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+  }
+
+  &__content {
+    flex-grow: 1;
+    overflow-y: auto;
+  }
+
+  &__action {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    padding: 1rem 0 0;
+  }
+
+  &__close {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+  }
+}
+
 </style>
