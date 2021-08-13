@@ -4,13 +4,13 @@
                 v-for="(question, i) in questions"
                 :key="question._id"
                 :id="question._id"
-                :question="question.task"
+                v-model:question="question.task"
                 :origin="question.origin"
                 :ref="el => { if (el) uoeCards[i] = el }"
         />
         <div class="buttons-group">
             <button class="btn primary send-answers-btn" :disabled="isChecking"
-                    @click="checkAnswers">Проверить
+                    v-if="!isChecked" @click="checkAnswers">Проверить
             </button>
             <button class="btn secondary" @click="$router.go(-1)">Выход</button>
         </div>
@@ -21,6 +21,7 @@
 import UseOfEnglishCard from '@/components/cards/UseOfEnglishCard';
 import {onBeforeUpdate, onMounted, ref} from 'vue';
 import {API} from '@/services/api';
+import {replaceCharSequence} from '@/utils/replaceCharSequence';
 
 export default {
     name: 'UseOfEnglish',
@@ -45,6 +46,7 @@ export default {
         onBeforeUpdate(() => uoeCards.value = []);
 
         const isChecking = ref(false);
+        const isChecked = ref(false);
         const checkAnswers = async () => {
             isChecking.value = true;
 
@@ -56,16 +58,20 @@ export default {
                 const givenAnswer = userAnswers[index].answer;
                 const rightAnswer = checkResult.find((el) => el._id === userAnswers[index]._id).rightAnswer;
                 cardComponent.setIsCorrect(givenAnswer === rightAnswer);
-                cardComponent.displayRightAnswer(rightAnswer);
+                const relevantQuestion = questions.value.find((question) => question._id === userAnswers[index]._id);
+                relevantQuestion.task = replaceCharSequence(relevantQuestion.task, '_',
+                    rightAnswer, {tagWrapper: 'strong'});
             });
 
             isChecking.value = false;
+            isChecked.value = true;
         };
 
         return {
             questions,
             uoeCards,
             isChecking,
+            isChecked,
             checkAnswers
         };
     }

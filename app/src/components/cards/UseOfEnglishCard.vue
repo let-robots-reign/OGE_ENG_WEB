@@ -1,6 +1,7 @@
 <template>
     <div class="card uoe-card">
-        <div class="uoe-card__question">{{ question }}</div>
+        <!-- v-html to support user-defined tags like <strong> -->
+        <div class="uoe-card__question" v-html="question"></div>
         <BaseInput
                 class="uoe-card__input"
                 :class="validity"
@@ -14,7 +15,6 @@
 <script>
 import BaseInput from '@/components/form/BaseInput';
 import {computed, ref} from 'vue';
-import {replaceCharSequence} from '@/utils/replaceCharSequence';
 
 export default {
     name: 'UseOfEnglishCard',
@@ -41,15 +41,13 @@ export default {
 
         const getAnswerData = () => ({_id: props.id, answer: userAnswer.value});
         const setIsCorrect = (correct) => isCorrect.value = correct;
-        const displayRightAnswer = (rightAnswer) => console.log(replaceCharSequence(props.question, '_', rightAnswer));
 
         return {
             userAnswer,
             getAnswerData,
             isCorrect,
             setIsCorrect,
-            validity,
-            displayRightAnswer
+            validity
         };
     }
 };
