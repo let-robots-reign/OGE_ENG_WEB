@@ -37,7 +37,7 @@ export default {
   border-radius: 10px;
   transform: translate(-50%, -40%);
   box-shadow: 2px 3px 10px rgba(0, 0, 0, 0.2);
-  width: 50%;
+  width: 30%;
 
   &__title {
     margin: 0 2rem 0 0;

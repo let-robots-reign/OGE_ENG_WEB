@@ -14,7 +14,7 @@
 
 <script>
 import BaseInput from '@/components/form/BaseInput';
-import {computed, ref} from 'vue';
+import {computed, ref, watch} from 'vue';
 
 export default {
     name: 'UseOfEnglishCard',
@@ -41,6 +41,8 @@ export default {
 
         const getAnswerData = () => ({_id: props.id, answer: userAnswer.value});
         const setIsCorrect = (correct) => isCorrect.value = correct;
+
+        watch(userAnswer, (newV) => userAnswer.value = newV.toUpperCase().replace(' ', ''));
 
         return {
             userAnswer,
