@@ -1,21 +1,32 @@
 <template>
     <div class="menu">
+        <AppBackFloatingButton/>
+
         <div class="menu__list">
-            <MenuListItem v-for="(title, index) in titles" :key="index" :title="title"/>
+            <MenuListItem
+                    v-for="(title, index) in titles"
+                    :key="index"
+                    :title="title"
+                    :base-click-link="baseClickLink"
+            />
         </div>
-        <a class="back-link" @click="$router.go(-1)">&lt;- назад</a>
     </div>
 </template>
 
 <script>
 import MenuListItem from '@/components/MenuListItem';
+import AppBackFloatingButton from '@/components/AppBackFloatingButton';
 
 export default {
     name: 'MenuList',
-    components: {MenuListItem},
+    components: {AppBackFloatingButton, MenuListItem},
     props: {
         titles: {
             type: Array,
+            required: true
+        },
+        baseClickLink: {
+            type: String,
             required: true
         }
     }
@@ -33,14 +44,5 @@ export default {
     flex-direction: column;
     gap: 16px;
     margin-bottom: 20px;
-}
-
-.back-link {
-    display: block;
-    text-decoration: none;
-    color: white;
-    font-size: 18px;
-    cursor: pointer;
-    padding-bottom: 32px;
 }
 </style>

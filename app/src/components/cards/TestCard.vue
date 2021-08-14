@@ -1,7 +1,7 @@
 <template>
     <div class="card test-card">
         <p class="test-card__title">{{ testTitle }}</p>
-        <p class="test-card__result" :class="testProgressColorClass">{{ testProgress }}</p>
+        <p class="test-card__result" :class="testProgressColorClass" v-if="testProgress">{{ testProgress }}</p>
     </div>
 </template>
 
@@ -17,7 +17,6 @@ export default {
         },
         result: {
             type: Number,
-            required: false,
             default: null
         },
         maxPoints: {

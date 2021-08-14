@@ -13,7 +13,8 @@ mongoose.connect(process.env.DB_CONN, {
     console.log('connected to the database');
 });
 
-const routes = require('./routes/user');
+const userRoutes = require('./routes/user');
+const taskRoutes = require('./routes/task');
 
 const app = express();
 app.use(bodyParser.json());
@@ -23,6 +24,7 @@ app.use(cors({
     credentials: true,
     origin: [process.env.FRONTEND_URL]
 }));
-app.use('/api/v1', routes);
+app.use('/api/v1', userRoutes);
+app.use('/api/v1', taskRoutes);
 
 app.listen(8000);

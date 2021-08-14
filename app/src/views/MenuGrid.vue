@@ -1,18 +1,20 @@
 <template>
     <div class="menu">
+        <AppBackFloatingButton/>
+
         <div class="menu__grid">
             <MenuGridItem v-for="(title, index) in gridItems" :text="title" :key="index"/>
         </div>
-        <a class="back-link" @click="$router.go(-1)">&lt;- назад</a>
     </div>
 </template>
 
 <script>
 import MenuGridItem from '@/components/MenuGridItem';
+import AppBackFloatingButton from '@/components/AppBackFloatingButton';
 
 export default {
     name: 'MenuGrid',
-    components: {MenuGridItem},
+    components: {AppBackFloatingButton, MenuGridItem},
     props: {
         gridItems: {
             type: Array,
@@ -35,14 +37,4 @@ export default {
     gap: 16px;
     margin-bottom: 20px;
 }
-
-.back-link {
-    display: block;
-    text-decoration: none;
-    color: white;
-    font-size: 18px;
-    cursor: pointer;
-    padding-bottom: 32px;
-}
-
 </style>

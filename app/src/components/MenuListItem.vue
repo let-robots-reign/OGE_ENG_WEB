@@ -1,17 +1,32 @@
 <template>
-    <div class="card menu-item">
-        <p class="menu-item__title">{{ title }}</p>
-    </div>
+    <router-link :to="itemClickLink">
+        <div class="card menu-item">
+            <p class="menu-item__title">{{ title }}</p>
+        </div>
+    </router-link>
 </template>
 
 <script>
+import {computed} from 'vue';
+
 export default {
     name: 'MenuListItem',
     props: {
         title: {
             type: String,
             required: true
+        },
+        baseClickLink: {
+            type: String,
+            required: true
         }
+    },
+    setup(props) {
+        const itemClickLink = computed(() =>
+            `${props.baseClickLink}?${new URLSearchParams({topic: props.title}).toString()}`);
+        return {
+            itemClickLink
+        };
     }
 };
 </script>
@@ -22,13 +37,11 @@ export default {
 .menu-item {
   color: $primary-text-color;
   cursor: pointer;
-
-  &:hover {
-    box-shadow: 0 0 2px 2px $green-accent inset;
-  }
+  padding: 2rem;
+  margin-bottom: 0;
 
   &__title {
-    font-size: 20px;
+    font-size: 24px;
     font-weight: bold;
   }
 }

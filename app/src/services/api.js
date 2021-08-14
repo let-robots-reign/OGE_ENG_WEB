@@ -3,7 +3,7 @@ import axios from 'axios';
 class Api {
     constructor() {
         this.apiClient = axios.create({
-            baseURL: 'http://localhost:8000/api/v1',
+            baseURL: process.env.VUE_APP_API_URL,
             withCredentials: true,
             headers: {
                 Accept: 'application/json',
@@ -26,6 +26,14 @@ class Api {
 
     getCurrentUser() {
         return this.apiClient.get('/user');
+    }
+
+    getUoeTraining(topic) {
+        return this.apiClient.get('/training/use-of-english' + ((topic) ? `?topic=${topic}` : ''));
+    }
+
+    checkTraining(category, answers) {
+        return this.apiClient.post(`/training/${category}/check`, answers);
     }
 }
 

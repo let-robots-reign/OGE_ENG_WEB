@@ -4,13 +4,13 @@
             <div class="main-page-section">
                 <p class="section-name">Тренировки</p>
                 <div class="trainings-grid">
-                    <router-link :to="{ name: 'Audio Tasks' }" class="training-link">
+                    <router-link :to="{ name: 'Audio Topics' }" class="training-link">
                         <TrainingCard title="Аудирование" image="ic_audio.svg" :progress="progress.audio"/>
                     </router-link>
-                    <router-link :to="{ name: 'Reading Tasks' }" class="training-link">
+                    <router-link :to="{ name: 'Reading Topics' }" class="training-link">
                         <TrainingCard title="Чтение" image="ic_reading.svg" :progress="progress.reading"/>
                     </router-link>
-                    <router-link :to="{ name: 'Use of English Tasks' }" class="training-link">
+                    <router-link :to="{ name: 'Use of English Topics' }" class="training-link">
                         <TrainingCard title="Языковой материал" image="ic_use_of_english.svg"
                                       :progress="progress.useOfEng"/>
                     </router-link>
