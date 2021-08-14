@@ -12,6 +12,7 @@ import AppBackFloatingButton from '@/components/AppBackFloatingButton';
 
 export default {
     name: 'AppTrainingHeader',
+    emits: ['show-instruction'],
     components: {AppBackFloatingButton},
     props: {
         topic: {

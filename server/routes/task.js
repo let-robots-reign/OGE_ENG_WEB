@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const UoeTask = require('../models/uoe_task');
-const getRandomDocuments = require('../utils/getRandomDocuments');
+const ReadingTaskFirst = require('../models/reading_task_first');
+const {getRandomDocument, getRandomDocuments} = require('../utils/getRandomDocuments');
 
 router.get('/training/use-of-english', async (req, res) => {
     const DEFAULT_BATCH_SIZE = 10;
@@ -18,6 +19,22 @@ router.get('/training/use-of-english', async (req, res) => {
     res.status(200).send({
         message: 'success',
         questions
+    });
+});
+
+router.get('/training/reading', async (req, res) => {
+    const topic = req.query.topic;
+    let model;
+    if (topic === 'Задание 9') {
+        model = ReadingTaskFirst;
+    }
+    const document = await getRandomDocument(model);
+    delete document.answer;
+    delete document.explanation;
+
+    res.status(200).send({
+        message: 'success',
+        document
     });
 });
 

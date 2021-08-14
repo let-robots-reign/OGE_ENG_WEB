@@ -32,6 +32,10 @@ class Api {
         return this.apiClient.get('/training/use-of-english' + ((topic) ? `?topic=${topic}` : ''));
     }
 
+    getReadingTraining(topic) {
+        return this.apiClient.get(`/training/reading?topic=${topic}`);
+    }
+
     checkTraining(category, answers) {
         return this.apiClient.post(`/training/${category}/check`, answers);
     }

@@ -24,8 +24,9 @@
 
 <script>
 import AppTrainingHeader from '@/components/AppTrainingHeader';
-import {ref} from 'vue';
+import {onMounted, ref} from 'vue';
 import AppModal from '@/components/AppModal';
+import {API} from '@/services/api';
 
 export default {
     name: 'Reading',
@@ -36,10 +37,20 @@ export default {
             required: true
         }
     },
-    setup() {
+    setup(props) {
         const questions = ref([]);
         const textSections = ref([]);
         const showInstruction = ref(false);
+
+        onMounted(async () => {
+            API.getReadingTraining(props.topic)
+                .then((res) => {
+                    console.log(res);
+                    // assign question
+                    showInstruction.value = true;
+                })
+                .catch((err) => console.log(err));
+        });
 
         return {
             questions,
