@@ -21,9 +21,13 @@
             </app-modal>
         </teleport>
 
-        <div class="card training-header">
-            <p class="training-header__title">{{ topic }}</p>
-            <button class="btn primary" @click="showInstruction = true">Инструкция</button>
+        <div>
+            <AppBackFloatingButton/>
+
+            <div class="card training-header">
+                <p class="training-header__title">{{ topic }}</p>
+                <button class="btn primary" @click="showInstruction = true">Инструкция</button>
+            </div>
         </div>
 
         <UseOfEnglishCard
@@ -59,10 +63,11 @@ import {computed, onBeforeUpdate, onMounted, ref} from 'vue';
 import {API} from '@/services/api';
 import {replaceCharSequence} from '@/utils/replaceCharSequence';
 import AppModal from '@/components/AppModal';
+import AppBackFloatingButton from '@/components/AppBackFloatingButton';
 
 export default {
     name: 'UseOfEnglish',
-    components: {UseOfEnglishCard, AppModal},
+    components: {AppBackFloatingButton, UseOfEnglishCard, AppModal},
     props: {
         topic: {
             type: String,
