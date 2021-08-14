@@ -76,7 +76,7 @@ img {
 
 .form-control input,
 .form-control select,
-.form-control textarea{
+.form-control textarea {
   font-family: Inter, Roboto, Oxygen, Fira Sans, Helvetica Neue, sans-serif;
   outline: none;
   border: 2px solid #ccc;
@@ -152,6 +152,10 @@ img {
   margin: 12px 0;
 }
 
+.btn-centered {
+  margin: 12px auto;
+}
+
 .btn:hover {
   cursor: pointer;
   opacity: 0.8;
@@ -174,10 +178,10 @@ img {
 
 .btn:disabled {
   cursor: not-allowed;
-  opacity: 1!important;
-  background: #eee!important;
-  border-color: #ddd!important;
-  color: #999!important;
+  opacity: 1 !important;
+  background: #eee !important;
+  border-color: #ddd !important;
+  color: #999 !important;
 }
 
 .btn.danger {

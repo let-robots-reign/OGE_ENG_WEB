@@ -4,7 +4,7 @@
                 v-for="(question, i) in questions"
                 :key="question._id"
                 :id="question._id"
-                v-model:question="question.task"
+                :question="question.task"
                 :origin="question.origin"
                 :ref="el => { if (el) uoeCards[i] = el }"
         />
@@ -15,18 +15,15 @@
             </button>
             <button class="btn secondary" @click="$router.go(-1)">Выход</button>
         </div>
-        <vue-final-modal v-model="showResult" classes="modal-container" content-class="modal-content">
-            <button class="modal__close" @click="showResult = false">
-                X
-            </button>
-            <span class="modal__title">Ваш результат: {{ result }}</span>
-            <div class="modal__content">
-                <p>Вы можете посмотреть свои ошибки и правильные ответы</p>
-            </div>
-            <div class="modal__action">
-                <button class="btn primary" @click="showResult = false">ОК</button>
-            </div>
-        </vue-final-modal>
+
+        <teleport to="body">
+            <app-modal v-if="showResult" :title="result" @close="showResult = false">
+                <div>
+                    <p>Вы можете посмотреть свои ошибки и правильные ответы</p>
+                    <button class="btn btn-block btn-centered primary" @click="showResult = false">ОК</button>
+                </div>
+            </app-modal>
+        </teleport>
     </main>
 </template>
 
@@ -35,11 +32,11 @@ import UseOfEnglishCard from '@/components/cards/UseOfEnglishCard';
 import {computed, onBeforeUpdate, onMounted, ref} from 'vue';
 import {API} from '@/services/api';
 import {replaceCharSequence} from '@/utils/replaceCharSequence';
-import {VueFinalModal} from 'vue-final-modal';
+import AppModal from '@/components/AppModal';
 
 export default {
     name: 'UseOfEnglish',
-    components: {UseOfEnglishCard, VueFinalModal},
+    components: {UseOfEnglishCard, AppModal},
     props: {
         topic: {
             type: String,
@@ -63,8 +60,11 @@ export default {
         const isChecked = ref(false);
         const showResult = ref(false);
         const rightAnswers = ref(null);
-        const result = computed(() => (rightAnswers.value === null || questions.value === null)
-            ? null : `${rightAnswers.value}/${questions.value.length}`);
+        const result = computed(() => {
+            const resultRatio = (rightAnswers.value === null || questions.value === null) ? null :
+                `${rightAnswers.value}/${questions.value.length}`;
+            return `Ваш результат: ${resultRatio}`;
+        });
 
         const checkAnswers = async () => {
             isChecking.value = true;
