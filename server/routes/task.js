@@ -4,11 +4,12 @@ const getRandomDocuments = require('../utils/getRandomDocuments');
 
 router.get('/training/use-of-english', async (req, res) => {
     const DEFAULT_BATCH_SIZE = 10;
+    const DEFAULT_TOPIC = 'По всем темам';
 
-    const topic = req.query.topic;
+    const topic = req.query.topic.replace('   ', ' + ');
     const batchSize = req.query.size || DEFAULT_BATCH_SIZE;
     const filterOptions = {};
-    if (topic) {
+    if (topic && topic !== DEFAULT_TOPIC) {
         filterOptions.topic = topic;
     }
     const questions = await getRandomDocuments(UoeTask, batchSize, filterOptions);

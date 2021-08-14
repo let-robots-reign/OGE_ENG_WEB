@@ -22,9 +22,8 @@ export default {
         }
     },
     setup(props) {
-        // const itemClickLink = computed(() => `${props.baseClickLink}?topic=${props.title}`);
-        console.log(`${props.baseClickLink}?topic=${props.title}`);
-        const itemClickLink = computed(() => props.baseClickLink);
+        const itemClickLink = computed(() =>
+            `${props.baseClickLink}?${new URLSearchParams({topic: props.title}).toString()}`);
         return {
             itemClickLink
         };
@@ -38,9 +37,11 @@ export default {
 .menu-item {
   color: $primary-text-color;
   cursor: pointer;
+  padding: 2rem;
+  margin-bottom: 0;
 
   &__title {
-    font-size: 20px;
+    font-size: 24px;
     font-weight: bold;
   }
 }
