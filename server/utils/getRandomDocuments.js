@@ -14,14 +14,13 @@ const getRandomDocuments = async (model, n, filterOptions) => {
     const documents = [];
     const ids = [];
     let document = {};
-    let id = 0;
     for (let i = 0; i < n; ++i) {
         document = await getRandomDocument(model, filterOptions);
-        while (ids.includes(document.id)) {
+        while (ids.includes(document._id)) {
             document = await getRandomDocument(model, filterOptions);
         }
         documents.push(document);
-        ids.push(id);
+        ids.push(document._id);
     }
     return documents;
 };

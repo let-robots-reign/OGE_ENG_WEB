@@ -1,5 +1,31 @@
 <template>
     <main v-if="questions.length">
+        <teleport to="body">
+            <app-modal v-if="showInstruction" title="Инструкция" @close="showInstruction = false">
+                <div>
+                    <p>
+                        Преобразуйте слова, напечатанные заглавными буквами так, чтобы они грамматически и лексически
+                        соответствовали содержанию текстов.
+                    </p>
+                    <p>
+                        Заполните пропуски полученными словами.
+                    </p>
+                    <p>
+                        Слова вводите заглавными буквами, без пробелов, как в экзаменационном бланке.
+                    </p>
+                    <p>
+                        Глагольные формы вводите без сокращений.
+                    </p>
+                    <button class="btn btn-block btn-centered primary" @click="showInstruction = false">ОК</button>
+                </div>
+            </app-modal>
+        </teleport>
+
+        <div class="card training-header">
+            <p class="training-header__title">{{ topic }}</p>
+            <button class="btn primary" @click="showInstruction = true">Инструкция</button>
+        </div>
+
         <UseOfEnglishCard
                 v-for="(question, i) in questions"
                 :key="question._id"
@@ -45,11 +71,13 @@ export default {
     setup(props) {
         const questions = ref([]);
         const uoeCards = ref([]);
+        const showInstruction = ref(false);
 
         onMounted(async () => {
             API.getUoeTraining(props.topic)
                 .then((res) => {
                     questions.value = res.data.questions;
+                    showInstruction.value = true;
                 })
                 .catch((err) => console.log(err));
         });
@@ -95,6 +123,7 @@ export default {
             isChecked,
             result,
             showResult,
+            showInstruction,
             checkAnswers
         };
     }

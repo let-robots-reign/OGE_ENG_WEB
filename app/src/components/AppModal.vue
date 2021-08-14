@@ -3,7 +3,9 @@
     <div class="modal">
         <h3 v-if="title" class="modal__title">{{ title }}</h3>
 
-        <slot/>
+        <div class="modal__content">
+            <slot/>
+        </div>
     </div>
 </template>
 
@@ -35,11 +37,16 @@ export default {
   border-radius: 10px;
   transform: translate(-50%, -40%);
   box-shadow: 2px 3px 10px rgba(0, 0, 0, 0.2);
+  width: 50%;
 
   &__title {
     margin: 0 2rem 0 0;
     font-size: 1.5rem;
     font-weight: 700;
+  }
+
+  &__content {
+    font-size: 18px;
   }
 }
 
