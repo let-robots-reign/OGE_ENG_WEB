@@ -21,14 +21,7 @@
             </app-modal>
         </teleport>
 
-        <div>
-            <AppBackFloatingButton/>
-
-            <div class="card training-header">
-                <p class="training-header__title">{{ topic }}</p>
-                <button class="btn primary" @click="showInstruction = true">Инструкция</button>
-            </div>
-        </div>
+        <AppTrainingHeader :topic="topic" @show-instruction="showInstruction = true"/>
 
         <UseOfEnglishCard
                 v-for="(question, i) in questions"
@@ -63,14 +56,14 @@ import {computed, onBeforeUpdate, onMounted, ref} from 'vue';
 import {API} from '@/services/api';
 import {replaceCharSequence} from '@/utils/replaceCharSequence';
 import AppModal from '@/components/AppModal';
-import AppBackFloatingButton from '@/components/AppBackFloatingButton';
+import AppTrainingHeader from '@/components/AppTrainingHeader';
 
 export default {
     name: 'UseOfEnglish',
-    components: {AppBackFloatingButton, UseOfEnglishCard, AppModal},
+    components: {AppTrainingHeader, UseOfEnglishCard, AppModal},
     props: {
         topic: {
-            type: String,
+            type: String
         }
     },
     setup(props) {
@@ -158,54 +151,4 @@ main {
     font-family: Inter, Roboto, Oxygen, Fira Sans, Helvetica Neue, sans-serif;
   }
 }
-</style>
-
-
-<style lang="scss" scoped>
-::v-deep .modal-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-::v-deep .modal-content {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  max-height: 90%;
-  margin: 0 1rem;
-  padding: 1rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.25rem;
-  background: #fff;
-  gap: 16px;
-}
-
-.modal {
-  &__title {
-    margin: 0 2rem 0 0;
-    font-size: 1.5rem;
-    font-weight: 700;
-  }
-
-  &__content {
-    flex-grow: 1;
-    overflow-y: auto;
-  }
-
-  &__action {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-shrink: 0;
-    padding: 1rem 0 0;
-  }
-
-  &__close {
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-  }
-}
-
 </style>

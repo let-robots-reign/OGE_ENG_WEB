@@ -6,6 +6,7 @@ import {PATHS} from '@/router/paths';
 import MenuList from '@/views/MenuList';
 import MenuGrid from '@/views/MenuGrid';
 import UseOfEnglish from '@/views/UseOfEnglish';
+import Reading from '@/views/Reading';
 
 const routes = [
     {
@@ -54,6 +55,12 @@ const routes = [
                 'Прошедшее Продолженное', 'Будущее Простое', 'Would + V'],
             baseClickLink: '/training/use-of-english'
         }
+    },
+    {
+        name: 'Reading Training',
+        path: PATHS.readingTraining,
+        component: Reading,
+        props: (route) => ({topic: route.query.topic})
     },
     {
         name: 'Use Of English Training',
