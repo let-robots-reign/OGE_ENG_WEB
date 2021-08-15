@@ -93,11 +93,11 @@ img {
   color: #e53935;
 }
 
-.form-control.invalid input {
+.form-control.invalid input, .form-control.invalid select {
   border-color: #e53935;
 }
 
-.form-control.valid input {
+.form-control.valid input, .form-control.valid select {
   border-color: rgba(195, 233, 145);
 }
 

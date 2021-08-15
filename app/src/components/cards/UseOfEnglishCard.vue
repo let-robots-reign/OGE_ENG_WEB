@@ -8,6 +8,7 @@
                 type="text"
                 :placeholder="origin"
                 v-model="userAnswer"
+                @change="isCorrect = null"
         />
     </div>
 </template>

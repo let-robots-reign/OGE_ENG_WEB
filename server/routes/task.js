@@ -64,4 +64,17 @@ router.post('/training/use-of-english/check', async (req, res) => {
     });
 });
 
+router.post('/training/reading/check', async (req, res) => {
+    const {_id, answers} = req.body;
+    const task = await ReadingTaskFirst.findOne({_id});
+    const rightAnswers = task.answer.split(' ').map((ans) => parseInt(ans));
+    const correctness = answers.map((answer, index) => answer === rightAnswers[index]);
+
+    res.status(200).send({
+        message: 'success',
+        correctness,
+        rightAnswers
+    });
+});
+
 module.exports = router;

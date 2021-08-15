@@ -28,7 +28,12 @@
         <div class="card text-sections">
             <p class="text-sections__title">Тексты</p>
             <p class="text-sections__section" v-for="(section, index) in textSections" :key="index">
-                <BaseSelect v-model="userAnswers[index]" :options="answerOptions"/>
+                <BaseSelect
+                        :class="classForSelect(index)"
+                        v-model="userAnswers[index]"
+                        :options="answerOptions"
+                        @change="resetCorrectness(index)"
+                />
                 {{ section }}
             </p>
         </div>
@@ -91,22 +96,34 @@ export default {
         const isChecking = ref(false);
         const isChecked = ref(false);
         const showResult = ref(false);
-        // const rightAnswers = ref(null);
+        const rightAnswers = ref(null);
+        const correctness = ref(null);
         const result = computed(() => {
-            const resultRatio = '0/10';
-            // const resultRatio = (rightAnswers.value === null || question.value === null) ? null :
-            //     `${rightAnswers.value}/${userAnswers.value.length}`;
+            const resultRatio = (correctness.value === null || question.value === null) ? null :
+                `${correctness.value.filter(Boolean).length}/${correctness.value.length}`;
             return `Ваш результат: ${resultRatio}`;
         });
 
         const checkAnswers = async () => {
             isChecking.value = true;
 
-
+            const answers = userAnswers.value.map((answer) => answerOptions.value.indexOf(answer));
+            const payload = {_id: question.value._id, answers};
+            const resultResponse = await API.checkTraining('reading', payload);
+            rightAnswers.value = resultResponse.data.rightAnswers;
+            correctness.value = resultResponse.data.correctness;
 
             isChecking.value = false;
             isChecked.value = true;
             showResult.value = true;
+        };
+
+        const classForSelect = (index) => (correctness.value === null || correctness.value[index] === null)
+            ? null : (correctness.value[index]) ? 'valid' : 'invalid';
+        const resetCorrectness = (index) => {
+            if (correctness.value) {
+                correctness.value[index] = null;
+            }
         };
 
         return {
@@ -120,6 +137,9 @@ export default {
             isChecked,
             result,
             showResult,
+            correctness,
+            classForSelect,
+            resetCorrectness,
             checkAnswers
         };
     }
