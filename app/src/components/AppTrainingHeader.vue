@@ -23,6 +23,17 @@ export default {
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+.training-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  position: relative;
 
+  &__title {
+    font-size: 2rem;
+    font-weight: 700;
+  }
+}
 </style>

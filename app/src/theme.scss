@@ -195,16 +195,3 @@ img {
   color: #fff;
   border-color: #c25205;
 }
-
-.training-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem;
-  position: relative;
-
-  &__title {
-    font-size: 2rem;
-    font-weight: 700;
-  }
-}

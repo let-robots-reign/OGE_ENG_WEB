@@ -28,13 +28,13 @@ router.get('/training/reading', async (req, res) => {
     if (topic === 'Задание 9') {
         model = ReadingTaskFirst;
     }
-    const document = await getRandomDocument(model);
-    delete document.answer;
-    delete document.explanation;
+    const question = await getRandomDocument(model);
+    delete question.answer;
+    delete question.explanation;
 
     res.status(200).send({
         message: 'success',
-        document
+        question
     });
 });
 

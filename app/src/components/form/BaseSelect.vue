@@ -1,6 +1,6 @@
 <template>
     <div class="form-control">
-        <label :for=id>{{ label }}</label>
+        <label :for=id v-if="label">{{ label }}</label>
         <select
                 :value="modelValue"
                 :id="id"
@@ -22,8 +22,7 @@ export default {
     name: 'BaseSelect',
     props: {
         label: {
-            type: String,
-            required: true
+            type: String
         },
         modelValue: {
             type: [String, Number],
