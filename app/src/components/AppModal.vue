@@ -1,6 +1,6 @@
 <template>
     <div class="modal-backdrop" @click="$emit('close')"></div>
-    <div class="modal">
+    <div class="modal" :class="`modal_size_${size}`">
         <h3 v-if="title" class="modal__title">{{ title }}</h3>
 
         <div class="modal__content">
@@ -16,6 +16,10 @@ export default {
     props: {
         title: {
             type: String
+        },
+        size: {
+            type: String,
+            default: 'small'
         }
     }
 };
@@ -37,7 +41,22 @@ export default {
   border-radius: 10px;
   transform: translate(-50%, -40%);
   box-shadow: 2px 3px 10px rgba(0, 0, 0, 0.2);
-  width: 30%;
+  overflow-y: auto;
+  max-height: 80%;
+
+  &_size {
+    &_small {
+      width: 30%;
+    }
+
+    &_medium {
+      width: 60%;
+    }
+
+    &_large {
+      width: 90%;
+    }
+  }
 
   &__title {
     margin: 0 2rem 0 0;

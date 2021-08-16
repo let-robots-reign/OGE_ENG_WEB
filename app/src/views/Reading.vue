@@ -1,6 +1,11 @@
 <template>
     <main>
-        <AppTrainingPage :topic="topic" ref="page" @check-answers="checkAnswers">
+        <AppTrainingPage
+                :topic="topic"
+                has-explanations
+                ref="page"
+                @check-answers="checkAnswers"
+        >
             <template #training-instruction>
                 <p>
                     Определите, в каком из текстов <strong>A-F</strong> содержатся ответы на вопросы
@@ -35,6 +40,14 @@
                     </p>
                 </div>
             </template>
+
+            <template #training-explanations>
+                <AppTrainingExplanation
+                    :explanation="explanation"
+                    :user-answers="userAnswers"
+                    :right-answers="rightAnswers"
+                />
+            </template>
         </AppTrainingPage>
     </main>
 </template>
@@ -44,10 +57,11 @@ import {computed, onMounted, ref} from 'vue';
 import {API} from '@/services/api';
 import BaseSelect from '@/components/form/BaseSelect';
 import AppTrainingPage from '@/components/AppTrainingPage';
+import AppTrainingExplanation from '@/components/AppTrainingExplanation';
 
 export default {
     name: 'Reading',
-    components: {AppTrainingPage, BaseSelect},
+    components: {AppTrainingExplanation, AppTrainingPage, BaseSelect},
     props: {
         topic: {
             type: String,
@@ -74,6 +88,7 @@ export default {
         const slicedAnswerOptions = computed(() => (answerOptions.value) ? answerOptions.value.slice(1) : []);
 
         const rightAnswers = ref(null);
+        const explanation = ref('');
         const rightAnswersNumber = ref(null);
         const correctness = ref(null);
         const result = computed(() => `Ваш результат: ${rightAnswersNumber.value}/${correctness.value.length}`);
@@ -84,7 +99,8 @@ export default {
             const answers = userAnswers.value.map((answer) => answerOptions.value.indexOf(answer));
             const payload = {_id: question.value._id, answers};
             const resultResponse = await API.checkTraining('reading', payload);
-            rightAnswers.value = resultResponse.data.rightAnswers;
+            rightAnswers.value = resultResponse.data.rightAnswers.map((answer) => answerOptions.value[answer]);
+            explanation.value = resultResponse.data.explanation;
             rightAnswersNumber.value = resultResponse.data.result;
             correctness.value = resultResponse.data.correctness;
 
@@ -108,7 +124,9 @@ export default {
             userAnswers,
             result,
             correctness,
+            rightAnswers,
             rightAnswersNumber,
+            explanation,
             classForSelect,
             resetCorrectness,
             checkAnswers

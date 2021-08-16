@@ -25,6 +25,18 @@
             <div>
                 <p>Вы можете посмотреть свои ошибки и правильные ответы</p>
                 <button class="btn btn-block btn-centered primary" @click="showResult = false">ОК</button>
+                <button v-if="hasExplanations" class="btn btn-block btn-centered primary"
+                        @click="toggleShowExplanation">Показать ошибки</button>
+            </div>
+        </app-modal>
+    </teleport>
+
+    <teleport to="body">
+        <app-modal v-if="showExplanation" :title="result" size="large" @close="toggleShowExplanation">
+            <div>
+                <p>Пояснения к правильным ответам</p>
+                <slot name="training-explanations"></slot>
+                <button class="btn btn-block btn-centered primary" @click="toggleShowExplanation">Назад</button>
             </div>
         </app-modal>
     </teleport>
@@ -43,6 +55,10 @@ export default {
         topic: {
             type: String,
             required: true
+        },
+        hasExplanations: {
+            type: Boolean,
+            default: false
         }
     },
     setup() {
@@ -51,6 +67,7 @@ export default {
         const isChecking = ref(false);
         const isChecked = ref(false);
         const showResult = ref(false);
+        const showExplanation = ref(false);
         const result = ref('');
 
         const setShowInstruction = (ifShow) => showInstruction.value = ifShow;
@@ -61,6 +78,10 @@ export default {
             result.value = res;
             showResult.value = true;
         };
+        const toggleShowExplanation = () => {
+            showResult.value = !showResult.value;
+            showExplanation.value = !showExplanation.value;
+        };
 
         return {
             showInstruction,
@@ -68,8 +89,10 @@ export default {
             isChecked,
             result,
             showResult,
+            showExplanation,
             setShowInstruction,
             setIsChecking,
+            toggleShowExplanation,
             setResult
         };
     }

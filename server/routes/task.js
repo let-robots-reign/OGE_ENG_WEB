@@ -75,7 +75,8 @@ router.post('/training/reading/check', async (req, res) => {
         message: 'success',
         correctness,
         rightAnswers,
-        result
+        result,
+        explanation: task.explanation
     });
 });
 
