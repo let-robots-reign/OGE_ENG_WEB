@@ -7,12 +7,13 @@
             </span>
         </p>
         <p>Правильный ответ: <strong>{{ rightAnswers[index] }}</strong></p>
-        <p>{{ explanation }}</p>
+        <p v-html="explanation"></p>
     </div>
 </template>
 
 <script>
 import {computed} from 'vue';
+import {injectAccentTag} from '@/utils/injectAccentTag';
 
 export default {
     name: 'AppTrainingExplanation',
@@ -31,7 +32,11 @@ export default {
         }
     },
     setup(props) {
-        const explanationsArray = computed(() => props.explanation.split('\r\n---'));
+        const explanationsArray = computed(() => {
+            const explanations = props.explanation.split('\r\n---');
+            // в тексте объяснение выделяется символами "|", заменим их на теги <strong>, чтобы выделить жирным
+            return explanations.map((explanation) => injectAccentTag(explanation, '|', 'strong'));
+        });
         const userAnswerClean = (answer) => {
             if (answer === 'Выберите ответ') {
                 answer = 'Нет ответа';

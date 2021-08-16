@@ -34,7 +34,7 @@
     <teleport to="body">
         <app-modal v-if="showExplanation" :title="result" size="large" @close="toggleShowExplanation">
             <div>
-                <p>Пояснения к правильным ответам</p>
+                <p>Пояснения к правильным ответам выделены жирным</p>
                 <slot name="training-explanations"></slot>
                 <button class="btn btn-block btn-centered primary" @click="toggleShowExplanation">Назад</button>
             </div>
