@@ -62,10 +62,10 @@ export default {
 
         onBeforeUpdate(() => uoeCards.value = []);
 
-        const rightAnswers = ref(null);
+        const rightAnswersNumber = ref(null);
         const result = computed(() => {
-            const resultRatio = (rightAnswers.value === null || questions.value === null) ? null :
-                `${rightAnswers.value}/${questions.value.length}`;
+            const resultRatio = (rightAnswersNumber.value === null || questions.value === null) ? null :
+                `${rightAnswersNumber.value}/${questions.value.length}`;
             return `Ваш результат: ${resultRatio}`;
         });
 
@@ -74,12 +74,12 @@ export default {
 
             const userAnswers = uoeCards.value.map((cardComponent) => cardComponent.getAnswerData());
             const checkResultResponse = await API.checkTraining('use-of-english', userAnswers);
-            const checkResult = checkResultResponse.data.correctness;
-            rightAnswers.value = checkResultResponse.data.rightAnswers;
+            const rightAnswers = checkResultResponse.data.rightAnswers;
+            rightAnswersNumber.value = checkResultResponse.data.result;
 
             uoeCards.value.forEach((cardComponent, index) => {
                 const givenAnswer = userAnswers[index].answer;
-                const rightAnswer = checkResult.find((el) => el._id === userAnswers[index]._id).rightAnswer;
+                const rightAnswer = rightAnswers.find((el) => el._id === userAnswers[index]._id).rightAnswer;
                 cardComponent.setIsCorrect(givenAnswer === rightAnswer);
                 const relevantQuestion = questions.value.find((question) => question._id === userAnswers[index]._id);
                 relevantQuestion.task = replaceCharSequence(relevantQuestion.task, '_',

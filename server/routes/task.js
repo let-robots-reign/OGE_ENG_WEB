@@ -47,20 +47,20 @@ router.post('/training/use-of-english/check', async (req, res) => {
     const documents = await UoeTask.find({_id: {$in: userAnswers.map((item) => item._id)}});
     documents.sort(sortById);
 
-    let rightAnswers = 0;
-    const correctness = userAnswers.map((userAnswer, index) => {
-        const rightAnswer = documents[index].answer;
-        rightAnswers += userAnswer.answer === rightAnswer;
+    let result = 0;
+    const rightAnswers = documents.map((rightAnswer, index) => {
+        const userAnswer = userAnswers[index].answer;
+        result += userAnswer === rightAnswer.answer;
         return {
-            _id: userAnswer._id,
-            rightAnswer
+            _id: rightAnswer._id,
+            rightAnswer: rightAnswer.answer
         };
     });
 
     res.status(200).send({
         message: 'success',
-        correctness,
-        rightAnswers
+        rightAnswers,
+        result
     });
 });
 
@@ -69,11 +69,13 @@ router.post('/training/reading/check', async (req, res) => {
     const task = await ReadingTaskFirst.findOne({_id});
     const rightAnswers = task.answer.split(' ').map((ans) => parseInt(ans));
     const correctness = answers.map((answer, index) => answer === rightAnswers[index]);
+    const result = correctness.filter(Boolean).length;
 
     res.status(200).send({
         message: 'success',
         correctness,
-        rightAnswers
+        rightAnswers,
+        result
     });
 });
 

@@ -74,12 +74,9 @@ export default {
         const slicedAnswerOptions = computed(() => (answerOptions.value) ? answerOptions.value.slice(1) : []);
 
         const rightAnswers = ref(null);
+        const rightAnswersNumber = ref(null);
         const correctness = ref(null);
-        const result = computed(() => {
-            const resultRatio = (correctness.value === null || question.value === null) ? null :
-                `${correctness.value.filter(Boolean).length}/${correctness.value.length}`;
-            return `Ваш результат: ${resultRatio}`;
-        });
+        const result = computed(() => `Ваш результат: ${rightAnswersNumber.value}/${correctness.value.length}`);
 
         const checkAnswers = async () => {
             page.value.setIsChecking(true);
@@ -88,6 +85,7 @@ export default {
             const payload = {_id: question.value._id, answers};
             const resultResponse = await API.checkTraining('reading', payload);
             rightAnswers.value = resultResponse.data.rightAnswers;
+            rightAnswersNumber.value = resultResponse.data.result;
             correctness.value = resultResponse.data.correctness;
 
             page.value.setResult(result.value);
@@ -110,6 +108,7 @@ export default {
             userAnswers,
             result,
             correctness,
+            rightAnswersNumber,
             classForSelect,
             resetCorrectness,
             checkAnswers
