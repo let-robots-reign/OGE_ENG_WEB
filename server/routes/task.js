@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const UoeTask = require('../models/uoe_task');
-const getRandomDocuments = require('../utils/getRandomDocuments');
+const ReadingTaskFirst = require('../models/reading_task_first');
+const {getRandomDocument, getRandomDocuments} = require('../utils/getRandomDocuments');
 
 router.get('/training/use-of-english', async (req, res) => {
     const DEFAULT_BATCH_SIZE = 10;
@@ -21,6 +22,22 @@ router.get('/training/use-of-english', async (req, res) => {
     });
 });
 
+router.get('/training/reading', async (req, res) => {
+    const topic = req.query.topic;
+    let model;
+    if (topic === 'Задание 9') {
+        model = ReadingTaskFirst;
+    }
+    const question = await getRandomDocument(model);
+    delete question.answer;
+    delete question.explanation;
+
+    res.status(200).send({
+        message: 'success',
+        question
+    });
+});
+
 router.post('/training/use-of-english/check', async (req, res) => {
     const userAnswers = req.body;
     const sortById = (lhs, rhs) => parseInt(lhs._id) > parseInt(rhs._id) && 1 || -1;
@@ -30,20 +47,36 @@ router.post('/training/use-of-english/check', async (req, res) => {
     const documents = await UoeTask.find({_id: {$in: userAnswers.map((item) => item._id)}});
     documents.sort(sortById);
 
-    let rightAnswers = 0;
-    const correctness = userAnswers.map((userAnswer, index) => {
-        const rightAnswer = documents[index].answer;
-        rightAnswers += userAnswer.answer === rightAnswer;
+    let result = 0;
+    const rightAnswers = documents.map((rightAnswer, index) => {
+        const userAnswer = userAnswers[index].answer;
+        result += userAnswer === rightAnswer.answer;
         return {
-            _id: userAnswer._id,
-            rightAnswer
+            _id: rightAnswer._id,
+            rightAnswer: rightAnswer.answer
         };
     });
 
     res.status(200).send({
         message: 'success',
+        rightAnswers,
+        result
+    });
+});
+
+router.post('/training/reading/check', async (req, res) => {
+    const {_id, answers} = req.body;
+    const task = await ReadingTaskFirst.findOne({_id});
+    const rightAnswers = task.answer.split(' ').map((ans) => parseInt(ans));
+    const correctness = answers.map((answer, index) => answer === rightAnswers[index]);
+    const result = correctness.filter(Boolean).length;
+
+    res.status(200).send({
+        message: 'success',
         correctness,
-        rightAnswers
+        rightAnswers,
+        result,
+        explanation: task.explanation
     });
 });
 

@@ -1,4 +1,4 @@
-const getRandomDocument = async (model, filterOptions) => {
+const getRandomDocument = async (model, filterOptions={}) => {
     return (await model.aggregate([
         {$match: filterOptions},
         {$sample: {size: 1}}
@@ -25,4 +25,4 @@ const getRandomDocuments = async (model, n, filterOptions) => {
     return documents;
 };
 
-module.exports = getRandomDocuments;
+module.exports = {getRandomDocument, getRandomDocuments};

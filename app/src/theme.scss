@@ -93,11 +93,11 @@ img {
   color: #e53935;
 }
 
-.form-control.invalid input {
+.form-control.invalid input, .form-control.invalid select {
   border-color: #e53935;
 }
 
-.form-control.valid input {
+.form-control.valid input, .form-control.valid select {
   border-color: rgba(195, 233, 145);
 }
 
@@ -194,17 +194,4 @@ img {
   background: #c25205;
   color: #fff;
   border-color: #c25205;
-}
-
-.training-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem;
-  position: relative;
-
-  &__title {
-    font-size: 2rem;
-    font-weight: 700;
-  }
 }
