@@ -23,9 +23,11 @@
             <template #training-content>
                 <div class="card audio-task">
                     <div class="audio-section">
-                        <p>Здесь будет аудио</p>
+                        <p class="audio-task__title">Аудио</p>
+                        <audio controls :src="question.audioPath"></audio>
                     </div>
                     <div class="task-section">
+                        <p class="audio-task__title">Варианты ответов</p>
                         <p v-for="(option, index) in answerOptions" :key="index">{{ option }}</p>
                     </div>
                     <div class="answers-section">
@@ -177,8 +179,16 @@ main {
   font-size: 18px;
   padding: 1.5rem;
 
-  p {
-    margin-bottom: 4px;
+  audio {
+    width: 70%;
+    display: block;
+    margin: 0 auto;
+  }
+
+  &__title {
+    font-size: 1.7rem;
+    font-weight: 700;
+    margin-bottom: 12px;
   }
 
   &__table {

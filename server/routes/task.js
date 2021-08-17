@@ -4,6 +4,8 @@ const AudioTaskFirst = require('../models/audio_task_first');
 const ReadingTaskFirst = require('../models/reading_task_first');
 const {getRandomDocument, getRandomDocuments} = require('../utils/getRandomDocuments');
 
+require('dotenv').config();
+
 router.get('/training/use-of-english', async (req, res) => {
     const DEFAULT_BATCH_SIZE = 10;
     const DEFAULT_TOPIC = 'По всем темам';
@@ -26,12 +28,18 @@ router.get('/training/use-of-english', async (req, res) => {
 router.get('/training/reading', async (req, res) => {
     const topic = req.query.topic;
     let model;
-    if (topic === 'Задание 9') {
+    switch (topic) {
+    case 'Задание 9':
         model = ReadingTaskFirst;
+        break;
+    default:
+        res.status(500).send({
+            message: 'unknown topic'
+        });
     }
-    const question = await getRandomDocument(model);
-    delete question.answer;
-    delete question.explanation;
+
+    // eslint-disable-next-line no-unused-vars
+    const {answer, explanation, ...question} = await getRandomDocument(model);
 
     res.status(200).send({
         message: 'success',
@@ -52,12 +60,10 @@ router.get('/training/audio', async (req, res) => {
         });
     }
 
-    // TODO: rest operator
-    const question = await getRandomDocument(model);
-    delete question.answer;
-    delete question.explanation;
+    // eslint-disable-next-line no-unused-vars
+    const {answer, explanation, audio, ...question} = await getRandomDocument(model);
 
-    question.audioPath = `/files/audio/${question.audio}`;
+    question.audioPath = `${process.env.BACKEND_URL}/audio/${audio}.m4a`;
 
     res.status(200).send({
         message: 'success',
