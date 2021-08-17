@@ -7,6 +7,7 @@ import MenuList from '@/views/MenuList';
 import MenuGrid from '@/views/MenuGrid';
 import UseOfEnglish from '@/views/UseOfEnglish';
 import Reading from '@/views/Reading';
+import Listening from '@/views/Listening';
 
 const routes = [
     {
@@ -23,6 +24,15 @@ const routes = [
         name: 'Signup',
         path: PATHS.signup,
         component: Signup
+    },
+    {
+        name: 'Audio Topics',
+        path: PATHS.audioTrainingTopics,
+        component: MenuList,
+        props: {
+            titles: ['Задание 1', 'Задание 2', 'Задания 3-8'],
+            baseClickLink: '/training/audio'
+        }
     },
     {
         name: 'Audio Topics',
@@ -55,6 +65,12 @@ const routes = [
                 'Прошедшее Продолженное', 'Будущее Простое', 'Would + V'],
             baseClickLink: '/training/use-of-english'
         }
+    },
+    {
+        name: 'Audio Training',
+        path: PATHS.audioTraining,
+        component: Listening,
+        props: (route) => ({topic: route.query.topic})
     },
     {
         name: 'Reading Training',

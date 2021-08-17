@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const UoeTask = require('../models/uoe_task');
+const AudioTaskFirst = require('../models/audio_task_first');
 const ReadingTaskFirst = require('../models/reading_task_first');
 const {getRandomDocument, getRandomDocuments} = require('../utils/getRandomDocuments');
 
@@ -31,6 +32,32 @@ router.get('/training/reading', async (req, res) => {
     const question = await getRandomDocument(model);
     delete question.answer;
     delete question.explanation;
+
+    res.status(200).send({
+        message: 'success',
+        question
+    });
+});
+
+router.get('/training/audio', async (req, res) => {
+    const topic = req.query.topic;
+    let model;
+    switch (topic) {
+    case 'Задание 1':
+        model = AudioTaskFirst;
+        break;
+    default:
+        res.status(500).send({
+            message: 'unknown topic'
+        });
+    }
+
+    // TODO: rest operator
+    const question = await getRandomDocument(model);
+    delete question.answer;
+    delete question.explanation;
+
+    question.audioPath = `/files/audio/${question.audio}`;
 
     res.status(200).send({
         message: 'success',
