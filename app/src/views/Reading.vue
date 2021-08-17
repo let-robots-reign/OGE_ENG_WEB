@@ -123,7 +123,6 @@ export default {
             slicedAnswerOptions,
             userAnswers,
             result,
-            correctness,
             rightAnswers,
             rightAnswersNumber,
             explanation,

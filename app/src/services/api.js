@@ -28,12 +28,16 @@ class Api {
         return this.apiClient.get('/user');
     }
 
-    getUoeTraining(topic) {
-        return this.apiClient.get('/training/use-of-english' + ((topic) ? `?topic=${topic}` : ''));
+    getAudioTraining(topic) {
+        return this.apiClient.get(`/training/audio?topic=${topic}`);
     }
 
     getReadingTraining(topic) {
         return this.apiClient.get(`/training/reading?topic=${topic}`);
+    }
+
+    getUoeTraining(topic) {
+        return this.apiClient.get('/training/use-of-english' + ((topic) ? `?topic=${topic}` : ''));
     }
 
     checkTraining(category, answers) {

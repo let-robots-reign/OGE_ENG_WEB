@@ -8,7 +8,7 @@
                 type="text"
                 :placeholder="origin"
                 v-model="userAnswer"
-                @change="isCorrect = null"
+                @input="isCorrect = null"
         />
     </div>
 </template>

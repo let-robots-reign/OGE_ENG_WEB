@@ -38,7 +38,7 @@ export default {
             return explanations.map((explanation) => injectAccentTag(explanation, '|', 'strong'));
         });
         const userAnswerClean = (answer) => {
-            if (answer === 'Выберите ответ') {
+            if (answer === 'Выберите ответ' || !answer) {
                 answer = 'Нет ответа';
             }
             return answer;

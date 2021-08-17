@@ -17,5 +17,5 @@ export const injectAccentTag = (text, accentSymbol, tagWrapper) => {
             resultString += char;
         }
     }
-    return resultString;
+    return resultString.trim().replaceAll('\r\n', '<br/>');
 };

@@ -1,7 +1,10 @@
 const router = require('express').Router();
 const UoeTask = require('../models/uoe_task');
+const AudioTaskFirst = require('../models/audio_task_first');
 const ReadingTaskFirst = require('../models/reading_task_first');
 const {getRandomDocument, getRandomDocuments} = require('../utils/getRandomDocuments');
+
+require('dotenv').config();
 
 router.get('/training/use-of-english', async (req, res) => {
     const DEFAULT_BATCH_SIZE = 10;
@@ -25,12 +28,42 @@ router.get('/training/use-of-english', async (req, res) => {
 router.get('/training/reading', async (req, res) => {
     const topic = req.query.topic;
     let model;
-    if (topic === 'Задание 9') {
+    switch (topic) {
+    case 'Задание 9':
         model = ReadingTaskFirst;
+        break;
+    default:
+        res.status(500).send({
+            message: 'unknown topic'
+        });
     }
-    const question = await getRandomDocument(model);
-    delete question.answer;
-    delete question.explanation;
+
+    // eslint-disable-next-line no-unused-vars
+    const {answer, explanation, ...question} = await getRandomDocument(model);
+
+    res.status(200).send({
+        message: 'success',
+        question
+    });
+});
+
+router.get('/training/audio', async (req, res) => {
+    const topic = req.query.topic;
+    let model;
+    switch (topic) {
+    case 'Задание 1':
+        model = AudioTaskFirst;
+        break;
+    default:
+        res.status(500).send({
+            message: 'unknown topic'
+        });
+    }
+
+    // eslint-disable-next-line no-unused-vars
+    const {answer, explanation, audio, ...question} = await getRandomDocument(model);
+
+    question.audioPath = `${process.env.BACKEND_URL}/audio/${audio}.m4a`;
 
     res.status(200).send({
         message: 'success',
@@ -69,6 +102,22 @@ router.post('/training/reading/check', async (req, res) => {
     const task = await ReadingTaskFirst.findOne({_id});
     const rightAnswers = task.answer.split(' ').map((ans) => parseInt(ans));
     const correctness = answers.map((answer, index) => answer === rightAnswers[index]);
+    const result = correctness.filter(Boolean).length;
+
+    res.status(200).send({
+        message: 'success',
+        correctness,
+        rightAnswers,
+        result,
+        explanation: task.explanation
+    });
+});
+
+router.post('/training/audio/check', async (req, res) => {
+    const {_id, answers} = req.body;
+    const task = await AudioTaskFirst.findOne({_id});
+    const rightAnswers = task.answer.split(' ').map((ans) => parseInt(ans));
+    const correctness = answers.map((answer, index) => parseInt(answer) === rightAnswers[index]);
     const result = correctness.filter(Boolean).length;
 
     res.status(200).send({

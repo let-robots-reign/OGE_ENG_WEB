@@ -23,4 +23,5 @@ pnpm-debug.log*
 *.sw?
 
 server/.env
+server/files
 app/.env
