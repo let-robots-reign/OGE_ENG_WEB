@@ -37,6 +37,7 @@
                             <tr>
                                 <td v-for="(num, index) in 4" :key="index">
                                     <BaseInput
+                                            :class="classForInput(index)"
                                             :placeholder="num.toString()"
                                             v-model="userAnswers[index]"
                                             @input="validateAnswer(index)"
@@ -48,6 +49,13 @@
                 </div>
             </template>
 
+            <template #training-explanations>
+                <AppTrainingExplanation
+                        :explanation="explanation"
+                        :user-answers="userAnswersExtended"
+                        :right-answers="rightAnswersExtended"
+                />
+            </template>
         </AppTrainingPage>
     </main>
 </template>
@@ -57,10 +65,11 @@ import AppTrainingPage from '@/components/AppTrainingPage';
 import {computed, onMounted, ref} from 'vue';
 import {API} from '@/services/api';
 import BaseInput from '@/components/form/BaseInput';
+import AppTrainingExplanation from '@/components/AppTrainingExplanation';
 
 export default {
     name: 'Listening',
-    components: {BaseInput, AppTrainingPage},
+    components: {BaseInput, AppTrainingPage, AppTrainingExplanation},
     props: {
         topic: {
             type: String,
@@ -76,12 +85,20 @@ export default {
             API.getAudioTraining(props.topic)
                 .then((res) => {
                     question.value = res.data.question;
+                    userAnswers.value = Array(answerOptions.value.length - 1).fill('');
                     page.value.setShowInstruction(true);
                 })
                 .catch((err) => console.log(err));
         });
 
         const answerOptions = computed(() => question.value.task?.split('\r\n'));
+        /*
+        Ответы приходят и сравниваются в виде чисел, но для объяснения пользователю нам нужно отобразить ответ в полном виде.
+        Например, вместо "1" показывать "1. At home".
+        */
+        const extendAnswer = (answer) => answerOptions.value[answer - 1];
+        const userAnswersExtended = computed(() => userAnswers.value.map(extendAnswer));
+        const rightAnswersExtended = computed(() => rightAnswers.value.map(extendAnswer));
 
         const rightAnswers = ref(null);
         const explanation = ref('');
@@ -92,8 +109,9 @@ export default {
         const checkAnswers = async () => {
             page.value.setIsChecking(true);
 
-            const payload = {_id: question.value._id, userAnswers: userAnswers.value};
+            const payload = {_id: question.value._id, answers: userAnswers.value};
             const resultResponse = await API.checkTraining('audio', payload);
+
             rightAnswers.value = resultResponse.data.rightAnswers;
             explanation.value = resultResponse.data.explanation;
             rightAnswersNumber.value = resultResponse.data.result;
@@ -103,6 +121,10 @@ export default {
         };
         
         const validateAnswer = (index) => {
+            if (correctness.value) {
+                correctness.value[index] = null;
+            }
+
             const isValidRange = (num, min, max) => {
                 const numInt = parseInt(num);
                 return numInt >= min && numInt <= max;
@@ -120,6 +142,9 @@ export default {
             }
         };
 
+        const classForInput = (index) => (correctness.value === null || correctness.value[index] === null)
+            ? null : (correctness.value[index]) ? 'valid' : 'invalid';
+
         return {
             page,
             question,
@@ -129,6 +154,9 @@ export default {
             rightAnswers,
             rightAnswersNumber,
             explanation,
+            userAnswersExtended,
+            rightAnswersExtended,
+            classForInput,
             checkAnswers,
             validateAnswer
         };

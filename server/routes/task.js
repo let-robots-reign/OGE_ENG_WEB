@@ -107,4 +107,20 @@ router.post('/training/reading/check', async (req, res) => {
     });
 });
 
+router.post('/training/audio/check', async (req, res) => {
+    const {_id, answers} = req.body;
+    const task = await AudioTaskFirst.findOne({_id});
+    const rightAnswers = task.answer.split(' ').map((ans) => parseInt(ans));
+    const correctness = answers.map((answer, index) => parseInt(answer) === rightAnswers[index]);
+    const result = correctness.filter(Boolean).length;
+
+    res.status(200).send({
+        message: 'success',
+        correctness,
+        rightAnswers,
+        result,
+        explanation: task.explanation
+    });
+});
+
 module.exports = router;
