@@ -8,6 +8,7 @@ import MenuGrid from '@/views/MenuGrid';
 import UseOfEnglish from '@/views/UseOfEnglish';
 import Reading from '@/views/Reading';
 import Listening from '@/views/Listening';
+import Writing from '@/views/Writing';
 
 const routes = [
     {
@@ -83,6 +84,11 @@ const routes = [
         path: PATHS.uoeTraining,
         component: UseOfEnglish,
         props: (route) => ({topic: route.query.topic})
+    },
+    {
+        name: 'Writing Training',
+        path: PATHS.writingTraining,
+        component: Writing,
     },
     {
         name: 'General Theory',

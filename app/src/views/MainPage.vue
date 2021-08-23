@@ -15,7 +15,9 @@
                                       :progress="progress.useOfEng"/>
                     </router-link>
                     <!-- Writing doesn't have progress -->
-                    <TrainingCard title="Письмо" image="ic_writing.svg"/>
+                    <router-link :to="{ name: 'Writing Training' }" class="training-link">
+                        <TrainingCard title="Письмо" image="ic_writing.svg"/>
+                    </router-link>
                 </div>
             </div>
             <div class="main-page-section">

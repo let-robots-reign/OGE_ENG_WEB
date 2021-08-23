@@ -2,6 +2,7 @@ const router = require('express').Router();
 const UoeTask = require('../models/uoe_task');
 const AudioTaskFirst = require('../models/audio_task_first');
 const ReadingTaskFirst = require('../models/reading_task_first');
+const WritingTask = require('../models/writing_task');
 const {getRandomDocument, getRandomDocuments} = require('../utils/getRandomDocuments');
 
 require('dotenv').config();
@@ -68,6 +69,22 @@ router.get('/training/audio', async (req, res) => {
     res.status(200).send({
         message: 'success',
         question
+    });
+});
+
+router.get('/training/writing', async (req, res) => {
+    const allTasks = await WritingTask.find({});
+    const getSubtasksByTopic = (topic) => allTasks.filter(task => task.topic === topic);
+    const task = {
+        structure: getSubtasksByTopic('structure'),
+        cliches: getSubtasksByTopic('cliche'),
+        linkers: getSubtasksByTopic('linkers'),
+        fullAnswers: getSubtasksByTopic('full_answers')
+    };
+
+    res.status(200).send({
+        message: 'success',
+        task
     });
 });
 

@@ -40,6 +40,10 @@ class Api {
         return this.apiClient.get('/training/use-of-english' + ((topic) ? `?topic=${topic}` : ''));
     }
 
+    getWritingTraining() {
+        return this.apiClient.get('/training/writing');
+    }
+
     checkTraining(category, answers) {
         return this.apiClient.post(`/training/${category}/check`, answers);
     }
