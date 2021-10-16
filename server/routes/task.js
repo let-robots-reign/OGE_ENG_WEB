@@ -82,6 +82,9 @@ router.get('/training/writing', async (req, res) => {
         fullAnswers: getSubtasksByTopic('full_answers')
     };
 
+    // TODO: delete answers
+    // TODO: for writing task linkers replace 'answers' with 'options'
+
     res.status(200).send({
         message: 'success',
         task

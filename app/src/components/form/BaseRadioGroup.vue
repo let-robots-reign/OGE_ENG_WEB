@@ -1,13 +1,13 @@
 <template>
     <component
             v-for="option in options"
-            :key="option.value"
+            :key="option"
             :is="(vertical) ? 'div' : 'span'"
             :class="{'horizontal': !vertical}"
     >
         <BaseRadio
-            :value="option.value"
-            :label="option.label"
+            :value="option"
+            :label="option"
             :name="name"
             :modelValue="modelValue"
             @update:modelValue="$emit('update:modelValue', $event)"

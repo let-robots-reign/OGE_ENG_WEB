@@ -121,7 +121,7 @@ export default {
 
             page.value.setResult(result.value);
         };
-        
+
         const validateAnswer = (index) => {
             if (correctness.value) {
                 correctness.value[index] = null;

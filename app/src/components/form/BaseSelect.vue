@@ -40,6 +40,11 @@ export default {
 };
 </script>
 
-<style scoped>
-
+<style lang="scss" scoped>
+.autofit {
+    width: fit-content;
+    min-width: 0;
+    display: inline-block;
+    margin-right: 4px;
+}
 </style>

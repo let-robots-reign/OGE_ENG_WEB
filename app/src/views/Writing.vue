@@ -37,7 +37,7 @@
                             <BaseInput
                                     v-for="index in letterParts.length"
                                     :key="index"
-                                    :placeholder="index"
+                                    :placeholder="index.toString()"
                                     v-model="letterPartsAnswers[index - 1]"
                                     class="letter-answers__input"
                             />
@@ -47,46 +47,69 @@
 
                     <div class="writing-task__section">
                         <p class="writing-task__title">Фразы-клише</p>
-                        <p>
-                            Расставьте слова по порядку.
+                        <p class="writing-task__hint">
+                            Расставьте слова по порядку
                         </p>
-            <!--                        <p v-for="(cliche, index) in task.cliches" :key="index">-->
-            <!--                            {{ index + 1 }})-->
-            <!--                            <span v-for="(word, index) in cliche" :key="index">{{ word }}</span>-->
-            <!--&lt;!&ndash;                            TODO: BaseSelect v-for &ndash;&gt;-->
-            <!--                        </p>-->
+                        <p v-for="(cliche, clicheIndex) in cliches" :key="clicheIndex">
+                            {{ clicheIndex + 1 }})
+                            <span v-for="(word, wordIndex) in cliche.split(' ')" :key="wordIndex">
+                                <BaseSelect
+                                    v-model="clichesAnswers[clicheIndex][wordIndex]"
+                                    :options="cliche.split(' ')"
+                                    class="autofit"
+                                />
+                            </span>
+                        </p>
                     </div>
 
                     <div class="writing-task__section">
                         <p class="writing-task__title">Слова-связки</p>
-                        <p>
-                            Совместите слова-связки с их русскими эквивалентами.
+                        <p class="writing-task__hint">
+                            Совместите слова-связки с их русскими эквивалентами
                         </p>
-                        <!--                        <p v-for="(linker, index) in task.linkers" :key="index">-->
-                        <!--                            {{ index + 1 }}) {{ linker }} - -->
-                        <!--                        </p>-->
-                        <p>
+                        <p v-for="(linker, linkerIndex) in linkers[0]" :key="linker">
+                            {{ linkerIndex + 1 }}) {{ linker }} -
+                            <BaseSelect
+                                v-model="linkersAnswers[0][linkerIndex]"
+                                :options="linkersOptions[0]"
+                                class="autofit"
+                            />
+                        </p>
+                        <p class="writing-task__hint">
                             Дополните текст, используя слова-связки
                         </p>
+                        <div v-for="(task, index) in linkers.slice(1)" :key="index">
+                            {{ index + 1 }})
+                            <span v-for="(text, textIndex) in task" :key="text">
+                                <BaseSelect
+                                    v-model="linkersAnswers[index + 1][textIndex]"
+                                    :options="linkersOptions[index + 1]"
+                                    class="autofit"
+                                />
+                                {{ text }}
+                            </span>
+                        </div>
                     </div>
 
                     <div class="writing-task__section">
                         <p class="writing-task__title">
                             Полные ответы
                         </p>
-                <!--                        <div class="writing-task__full-answers"-->
-                <!--                             v-for="(fullAnswersTask, index) in task.fullAnswers" :key="index">-->
-                <!--                            <p>-->
-                <!--                                Выберите лучший ответ на вопрос-->
-                <!--                            </p>-->
-                <!--                            <p>{{ fullAnswersTask.question }}</p>-->
-                <!--&lt;!&ndash;                         TODO: add v-model &ndash;&gt;-->
-                <!--                            <BaseRadioGroup-->
-                <!--                                    name="fullAnswersRadio"-->
-                <!--                                    :options="fullAnswersTask.options"-->
-                <!--                                    vertical-->
-                <!--                            />-->
-                <!--                        </div>-->
+                        <div 
+                            class="writing-task__full-replies"
+                            v-for="(fullReplyTask, index) in fullReplies" :key="index"
+                        >
+                            <p class="writing-task__hint">
+                                Выберите лучший ответ на вопрос
+                            </p>
+                            <p><strong>{{ fullReplyTask }}</strong></p>
+                            <BaseRadioGroup
+                                    :name="`fullRepliesRadio-${index}`"
+                                    :options="fullRepliesOptions[index]"
+                                    v-model="fullRepliesAnswers[index]"
+                                    vertical
+                            />
+                        </div>
                     </div>
                 </div>
             </template>
@@ -100,15 +123,26 @@ import AppTrainingPage from '@/components/AppTrainingPage';
 import {onMounted, ref} from 'vue';
 import {API} from '@/services/api';
 import BaseInput from '@/components/form/BaseInput';
+import BaseSelect from '@/components/form/BaseSelect';
+import BaseRadioGroup from '@/components/form/BaseRadioGroup';
+import { shuffle } from '@/utils/shuffle';
 
 export default {
     name: 'Writing',
-    components: {BaseInput, AppTrainingPage},
+    components: {BaseInput, BaseSelect, BaseRadioGroup, AppTrainingPage},
     setup() {
         const page = ref([]);
 
         const letterParts = ref([]);
         const letterPartsAnswers = ref([]);
+        const cliches = ref([]);
+        const clichesAnswers = ref([[]]);
+        const linkers = ref([]);
+        const linkersOptions = ref([]);
+        const linkersAnswers = ref([]);
+        const fullReplies = ref([]);
+        const fullRepliesOptions = ref([]);
+        const fullRepliesAnswers = ref([]);
 
         const userAnswers = ref([]);
 
@@ -118,7 +152,18 @@ export default {
                     const task = result.data.task;
                     console.log(task);
                     letterParts.value = task.structure[0].task.split('\r\n');
-                    console.log(letterParts.value);
+                    cliches.value = task.cliches.map(object => object.task);
+                    clichesAnswers.value = cliches.value.map((cliche) => cliche.split(' '));
+                    linkers.value = task.linkers.map(object => object.task.split('\r\n'));
+                    linkersOptions.value = task.linkers.map(object => object.answer.split('\r\n'));
+                    linkersOptions.value.forEach((options) => { shuffle(options); });
+                    // TODO: replace 'answer' with 'options'
+                    linkersAnswers.value = JSON.parse(JSON.stringify(linkersOptions.value));
+                    fullReplies.value = task.fullAnswers.map((full) => full.task.split('\r\n')[0]);
+                    fullRepliesOptions.value = task.fullAnswers.map((full) => full.task.split('\r\n').slice(1, 4));
+                    fullRepliesAnswers.value = Array(fullReplies.value.length).fill('');
+
+                    page.value.setShowInstruction(true);
                 })
                 .catch((err) => console.log(err));
         });
@@ -131,6 +176,14 @@ export default {
             page,
             letterParts,
             letterPartsAnswers,
+            cliches,
+            clichesAnswers,
+            linkers,
+            linkersOptions,
+            linkersAnswers,
+            fullReplies,
+            fullRepliesOptions,
+            fullRepliesAnswers,
             userAnswers,
             checkAnswers
         };
@@ -157,7 +210,7 @@ main {
   }
 
   &__hint {
-    margin: 24px 0;
+    margin: 20px 0 16px 0;
     font-style: italic;
     text-align: center;
   }
@@ -167,6 +220,10 @@ main {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   max-width: 70%;
-  margin: 16px auto;
+  margin: 16px auto 0 auto;
+
+  &__input {
+      margin-bottom: 0;
+  }
 }
 </style>
