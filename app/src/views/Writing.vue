@@ -55,7 +55,7 @@
                             <span v-for="(word, wordIndex) in cliche.split(' ')" :key="wordIndex">
                                 <BaseSelect
                                     v-model="clichesAnswers[clicheIndex][wordIndex]"
-                                    :options="cliche.split(' ')"
+                                    :options="clichesOptions[clicheIndex]"
                                     class="autofit"
                                 />
                             </span>
@@ -136,7 +136,8 @@ export default {
         const letterParts = ref([]);
         const letterPartsAnswers = ref([]);
         const cliches = ref([]);
-        const clichesAnswers = ref([[]]);
+        const clichesOptions = ref([]);
+        const clichesAnswers = ref([]);
         const linkers = ref([]);
         const linkersOptions = ref([]);
         const linkersAnswers = ref([]);
@@ -153,11 +154,11 @@ export default {
                     console.log(task);
                     letterParts.value = task.structure[0].task.split('\r\n');
                     cliches.value = task.cliches.map(object => object.task);
+                    clichesOptions.value = task.cliches.map(object => object.options);
                     clichesAnswers.value = cliches.value.map((cliche) => cliche.split(' '));
                     linkers.value = task.linkers.map(object => object.task.split('\r\n'));
-                    linkersOptions.value = task.linkers.map(object => object.answer.split('\r\n'));
-                    linkersOptions.value.forEach((options) => { shuffle(options); });
-                    // TODO: replace 'answer' with 'options'
+                    linkersOptions.value = task.linkers.map(object => object.options);
+                    linkersOptions.value.forEach((options) => shuffle(options));
                     linkersAnswers.value = JSON.parse(JSON.stringify(linkersOptions.value));
                     fullReplies.value = task.fullAnswers.map((full) => full.task.split('\r\n')[0]);
                     fullRepliesOptions.value = task.fullAnswers.map((full) => full.task.split('\r\n').slice(1, 4));
@@ -177,6 +178,7 @@ export default {
             letterParts,
             letterPartsAnswers,
             cliches,
+            clichesOptions,
             clichesAnswers,
             linkers,
             linkersOptions,

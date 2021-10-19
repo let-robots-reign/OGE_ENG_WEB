@@ -4,6 +4,7 @@ const AudioTaskFirst = require('../models/audio_task_first');
 const ReadingTaskFirst = require('../models/reading_task_first');
 const WritingTask = require('../models/writing_task');
 const {getRandomDocument, getRandomDocuments} = require('../utils/getRandomDocuments');
+const shuffle = require('../utils/shuffle');
 
 require('dotenv').config();
 
@@ -74,16 +75,25 @@ router.get('/training/audio', async (req, res) => {
 
 router.get('/training/writing', async (req, res) => {
     const allTasks = await WritingTask.find({});
-    const getSubtasksByTopic = (topic) => allTasks.filter(task => task.topic === topic);
-    const task = {
-        structure: getSubtasksByTopic('structure'),
-        cliches: getSubtasksByTopic('cliche'),
-        linkers: getSubtasksByTopic('linkers'),
-        fullAnswers: getSubtasksByTopic('full_answers')
+    
+    const getSubtasksByTopic = (topic, withOptions=false) => {
+        let tasks = allTasks.filter((task) => task.topic === topic).map((task) => task._doc);
+        if (withOptions) {
+            tasks = tasks.map((task) => {
+                task.options = [...task.answer.split((task.answer.includes('\r\n')) ? '\r\n' : ' ')];
+                shuffle(task.options);
+                return task;
+            });
+        }
+        return tasks.map(({ answer, ...task }) => task);
     };
 
-    // TODO: delete answers
-    // TODO: for writing task linkers replace 'answers' with 'options'
+    const task = {
+        structure: getSubtasksByTopic('structure'),
+        cliches: getSubtasksByTopic('cliche', true),
+        linkers: getSubtasksByTopic('linkers', true),
+        fullAnswers: getSubtasksByTopic('full_answers')
+    };
 
     res.status(200).send({
         message: 'success',
