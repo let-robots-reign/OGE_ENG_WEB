@@ -75,7 +75,7 @@ router.get('/training/audio', async (req, res) => {
 
 router.get('/training/writing', async (req, res) => {
     const allTasks = await WritingTask.find({});
-    
+
     const getSubtasksByTopic = (topic, withOptions=false) => {
         let tasks = allTasks.filter((task) => task.topic === topic).map((task) => task._doc);
         if (withOptions) {
@@ -85,6 +85,7 @@ router.get('/training/writing', async (req, res) => {
                 return task;
             });
         }
+        // eslint-disable-next-line no-unused-vars
         return tasks.map(({ answer, ...task }) => task);
     };
 
@@ -156,6 +157,38 @@ router.post('/training/audio/check', async (req, res) => {
         rightAnswers,
         result,
         explanation: task.explanation
+    });
+});
+
+router.post('/training/writing/check', async (req, res) => {
+    const { letterPartsAnswers, clichesAnswers, linkersAnswers, fullRepliesAnswers } = req.body;
+    const allTasks = await WritingTask.find({});
+
+    const getAnswersByTopic = (topic) => allTasks.filter((task) => task.topic === topic).map((task) => task.answer);
+
+    const letterPartsRightAnswers = getAnswersByTopic('structure').map((answer) => answer.split('\r\n'))[0];
+    const letterPartsCorrectness = letterPartsAnswers.map((letterAnswer, index) =>
+        letterAnswer === letterPartsRightAnswers[index]);
+    const clichesRightAnswers = getAnswersByTopic('cliche').map((answer) => answer.split(' '));
+    const clichesCorrectness = clichesAnswers.map((cliche, i) =>
+        cliche.map((answer, j) => answer === clichesRightAnswers[i][j]));
+    const linkersRightAnswers = getAnswersByTopic('linkers').map((answer) => answer.split('\r\n'));
+    const linkersCorrectness = linkersAnswers.map((linker, i) =>
+        linker.map((answer, j) => answer === linkersRightAnswers[i][j]));
+    const fullRepliesRightAnswers = getAnswersByTopic('full_answers');
+    const fullRepliesCorrectness = fullRepliesAnswers.map((reply, index) =>
+        reply === parseInt(fullRepliesRightAnswers[index]));
+
+    const result = [letterPartsCorrectness, clichesCorrectness, linkersCorrectness, fullRepliesCorrectness]
+        .flat(2).filter(Boolean).length;
+
+    res.status(200).send({
+        message: 'success',
+        letterPartsCorrectness,
+        clichesCorrectness,
+        linkersCorrectness,
+        fullRepliesCorrectness,
+        result
     });
 });
 

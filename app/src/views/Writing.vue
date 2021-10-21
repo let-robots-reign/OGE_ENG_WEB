@@ -39,7 +39,10 @@
                                     :key="index"
                                     :placeholder="index.toString()"
                                     v-model="letterPartsAnswers[index - 1]"
-                                    class="letter-answers__input"
+                                    :class="[
+                                            'letter-answers__input', 
+                                            getClassForUserInput(letterPartsCorrectness, index)
+                                            ]"
                             />
                         </div>
                         <p class="writing-task__hint">Впишите номера предложений в нужном порядке</p>
@@ -52,11 +55,14 @@
                         </p>
                         <p v-for="(cliche, clicheIndex) in cliches" :key="clicheIndex">
                             {{ clicheIndex + 1 }})
-                            <span v-for="(word, wordIndex) in cliche.split(' ')" :key="wordIndex">
+                            <span v-for="(word, wordIndex) in cliche.split(' ')" :key="word">
                                 <BaseSelect
                                     v-model="clichesAnswers[clicheIndex][wordIndex]"
                                     :options="clichesOptions[clicheIndex]"
-                                    class="autofit"
+                                    :class="[
+                                            'autofit', 
+                                            getClassForUserInput(clichesCorrectness[clicheIndex], wordIndex)
+                                            ]"
                                 />
                             </span>
                         </p>
@@ -72,7 +78,7 @@
                             <BaseSelect
                                 v-model="linkersAnswers[0][linkerIndex]"
                                 :options="linkersOptions[0]"
-                                class="autofit"
+                                :class="['autofit', getClassForUserInput(linkersCorrectness[0], linkerIndex)]"
                             />
                         </p>
                         <p class="writing-task__hint">
@@ -84,7 +90,7 @@
                                 <BaseSelect
                                     v-model="linkersAnswers[index + 1][textIndex]"
                                     :options="linkersOptions[index + 1]"
-                                    class="autofit"
+                                    :class="['autofit', getClassForUserInput(linkersCorrectness[index], textIndex)]"
                                 />
                                 {{ text }}
                             </span>
@@ -120,7 +126,7 @@
 
 <script>
 import AppTrainingPage from '@/components/AppTrainingPage';
-import {onMounted, ref} from 'vue';
+import {computed, onMounted, ref} from 'vue';
 import {API} from '@/services/api';
 import BaseInput from '@/components/form/BaseInput';
 import BaseSelect from '@/components/form/BaseSelect';
@@ -135,27 +141,35 @@ export default {
 
         const letterParts = ref([]);
         const letterPartsAnswers = ref([]);
+        const letterPartsCorrectness = ref([]);
         const cliches = ref([]);
         const clichesOptions = ref([]);
         const clichesAnswers = ref([]);
+        const clichesCorrectness = ref([]);
         const linkers = ref([]);
         const linkersOptions = ref([]);
         const linkersAnswers = ref([]);
+        const linkersCorrectness = ref([]);
         const fullReplies = ref([]);
         const fullRepliesOptions = ref([]);
         const fullRepliesAnswers = ref([]);
+        const fullRepliesCorrectness = ref([]);
 
-        const userAnswers = ref([]);
+        const rightAnswersNumber = ref(0);
+        const result = computed(() => {
+            const total = [letterParts.value, ...cliches.value, ...linkers.value, fullReplies.value].flat().length;
+            return `Ваш результат: ${rightAnswersNumber.value}/${total}`;
+        });
 
         onMounted(async () => {
             API.getWritingTraining()
                 .then((result) => {
                     const task = result.data.task;
-                    console.log(task);
                     letterParts.value = task.structure[0].task.split('\r\n');
+                    letterPartsAnswers.value = Array(letterParts.value.length).fill('');
                     cliches.value = task.cliches.map(object => object.task);
                     clichesOptions.value = task.cliches.map(object => object.options);
-                    clichesAnswers.value = cliches.value.map((cliche) => cliche.split(' '));
+                    clichesAnswers.value = JSON.parse(JSON.stringify(clichesOptions.value));
                     linkers.value = task.linkers.map(object => object.task.split('\r\n'));
                     linkersOptions.value = task.linkers.map(object => object.options);
                     linkersOptions.value.forEach((options) => shuffle(options));
@@ -169,24 +183,49 @@ export default {
                 .catch((err) => console.log(err));
         });
 
-        const checkAnswers = () => {
+        const checkAnswers = async () => {
+            page.value.setIsChecking(true);
 
+            const answers = {
+                letterPartsAnswers: letterPartsAnswers.value.map((answer) => letterParts.value[answer - 1]),
+                clichesAnswers: clichesAnswers.value,
+                linkersAnswers: linkersAnswers.value,
+                fullRepliesAnswers: fullRepliesAnswers.value.map((answer, i) => 
+                    fullRepliesOptions.value[i].indexOf(answer) + 1)
+            };
+
+            const { data } = await API.checkTraining('writing', answers);
+            letterPartsCorrectness.value = data.letterPartsCorrectness;
+            clichesCorrectness.value = data.clichesCorrectness;
+            linkersCorrectness.value = data.linkersCorrectness;
+            fullRepliesCorrectness.value = data.fullRepliesCorrectness;
+            rightAnswersNumber.value = data.result;
+
+            page.value.setResult(result.value);
         };
+
+        const getClassForUserInput = (correctnessArray, index) => 
+            (!correctnessArray || !correctnessArray.length) ? null : (correctnessArray[index] ? 'valid' : 'invalid');
 
         return {
             page,
             letterParts,
             letterPartsAnswers,
+            letterPartsCorrectness,
             cliches,
             clichesOptions,
             clichesAnswers,
+            clichesCorrectness,
             linkers,
             linkersOptions,
             linkersAnswers,
+            linkersCorrectness,
             fullReplies,
             fullRepliesOptions,
             fullRepliesAnswers,
-            userAnswers,
+            fullRepliesCorrectness,
+            result,
+            getClassForUserInput,
             checkAnswers
         };
     }
