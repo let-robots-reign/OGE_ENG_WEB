@@ -12,4 +12,6 @@ export const PATHS = {
     generalTheory: '/theory/general',
     uoeTheory: '/theory/use-of-english',
     writingTheory: '/theory/writing',
+    createTheory: '/create/theory',
+    createTask: '/create/task'
 };

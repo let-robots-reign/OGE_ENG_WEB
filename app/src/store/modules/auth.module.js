@@ -1,12 +1,14 @@
 export default {
     namespaced: true,
     state: {
-        authenticated: false
+        user: null,
     },
     mutations: {
-        setAuth: (state, auth) => state.authenticated = auth
+        setUser: (state, user) => state.user = user
     },
     getters: {
-        isAuthenticated: (state) => !!state.authenticated
+        isAuthenticated: (state) => state.user !== null,
+        role: (state) => state.user?.role,
+        username: (state) => state.user?.name
     }
 };

@@ -3,6 +3,9 @@
         <router-link :to="{ name: 'Main Page' }" class="navbar-logo">ОГЭ Английский</router-link>
 
         <ul class="navbar-menu" v-if="auth">
+            <li v-if="isAdmin">
+                <router-link :to="{ name: 'Create Theory' }" class="nav-link">Создать</router-link>
+            </li>
             <li>
                 <router-link :to="{ name: 'Main Page' }" class="nav-link">Профиль</router-link>
             </li>
@@ -31,13 +34,15 @@ export default {
     setup() {
         const store = useStore();
         const auth = computed(() => store.getters['auth/isAuthenticated']);
+        const isAdmin = computed(() => store.getters['auth/role'] === 'admin');
 
         const logout = () => {
-            API.logout().then(() => store.commit('auth/setAuth', false));
+            API.logout().then(() => store.commit('auth/setUser', null));
         };
 
         return {
             auth,
+            isAdmin,
             logout
         };
     }

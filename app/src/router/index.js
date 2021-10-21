@@ -9,6 +9,7 @@ import UseOfEnglish from '@/views/UseOfEnglish';
 import Reading from '@/views/Reading';
 import Listening from '@/views/Listening';
 import Writing from '@/views/Writing';
+import CreateTheory from '@/views/CreateTheory';
 
 const routes = [
     {
@@ -118,6 +119,11 @@ const routes = [
         props: {
             gridItems: ['Алгоритм написания', 'Фразы-клише', 'Слова-связки']
         }
+    },
+    {
+        name: 'Create Theory',
+        path: PATHS.createTheory,
+        component: CreateTheory
     }
 ];
 

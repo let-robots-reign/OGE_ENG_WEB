@@ -72,8 +72,8 @@ export default {
         const store = useStore();
         onMounted(() => {
             API.getCurrentUser()
-                .then(() => store.commit('auth/setAuth', true))
-                .catch(() => store.commit('auth/setAuth', false));
+                .then((res) => store.commit('auth/setUser', res.data))
+                .catch(() => store.commit('auth/setUser', null));
         });
 
         return {
