@@ -36,33 +36,33 @@
                 </button>
                 <button @click="editor.chain().focus().setTextAlign('left').run()"
                         :class="['editor-btn', (editor.isActive({ textAlign: 'left' })) ? 'active' : 'inactive']">
-                    left
+                    <font-awesome-icon :icon="['fas', 'align-left']"/>
                 </button>
                 <button @click="editor.chain().focus().setTextAlign('center').run()"
                         :class="['editor-btn', (editor.isActive({ textAlign: 'center' })) ? 'active' : 'inactive']">
-                    center
+                    <font-awesome-icon :icon="['fas', 'align-center']"/>
                 </button>
                 <button @click="editor.chain().focus().setTextAlign('right').run()"
                         :class="['editor-btn', (editor.isActive({ textAlign: 'right' })) ? 'active' : 'inactive']">
-                    right
+                    <font-awesome-icon :icon="['fas', 'align-right']"/>
                 </button>
                 <button @click="editor.chain().focus().toggleBulletList().run()"
                         :class="['editor-btn', (editor.isActive('bulletList')) ? 'active' : 'inactive']">
-                    bullet list
+                    <font-awesome-icon :icon="['fas', 'list-ul']"/>
                 </button>
                 <button @click="editor.chain().focus().toggleOrderedList().run()"
                         :class="['editor-btn', (editor.isActive('orderedList')) ? 'active' : 'inactive']">
-                    ordered list
+                    <font-awesome-icon :icon="['fas', 'list-ol']"/>
                 </button>
                 <button @click="editor.chain().focus().toggleBlockquote().run()"
                         :class="['editor-btn', (editor.isActive('blockquote')) ? 'active' : 'inactive']">
-                    «...»
+                    <font-awesome-icon :icon="['fas', 'quote-right']"/>
                 </button>
                 <button @click="editor.chain().focus().undo().run()" class="editor-btn">
-                    <i class="gg-undo"></i>
+                    <font-awesome-icon :icon="['fas', 'undo']"/>
                 </button>
                 <button @click="editor.chain().focus().redo().run()" class="editor-btn">
-                    <i class="gg-redo"></i>
+                    <font-awesome-icon :icon="['fas', 'redo']"/>
                 </button>
             </div>
             <editor-content :editor="editor" class="editor"/>
