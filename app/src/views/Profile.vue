@@ -1,0 +1,50 @@
+<template>
+    <main>
+        <div class="card profile-card">
+            <h1 class="heading">Профиль {{ user.name }}</h1>
+            <hr/>
+            <p class="main-info">
+                Email: {{ user.email }}
+            </p>
+            <hr/>
+            <p class="activity-history">
+                В будущем обновлении здесь появятся Ваша история действий на сайте и статистика
+            </p>
+        </div>
+    </main>
+</template>
+
+<script>
+import {useStore} from 'vuex';
+
+export default {
+    name: 'Profile',
+    setup() {
+        const store = useStore();
+        const user = store.getters['auth/user'];
+
+        return {user};
+    },
+};
+</script>
+
+<style lang="scss" scoped>
+main {
+  width: 50%;
+  margin: 32px auto;
+}
+
+.profile-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.heading {
+  text-align: center;
+}
+
+.main-info, .activity-history {
+  font-size: 20px;
+}
+</style>

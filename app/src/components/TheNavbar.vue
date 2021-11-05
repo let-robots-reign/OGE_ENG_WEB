@@ -7,7 +7,7 @@
                 <router-link :to="{ name: 'Create Theory' }" class="nav-link">Создать</router-link>
             </li>
             <li>
-                <router-link :to="{ name: 'Main Page' }" class="nav-link">Профиль</router-link>
+                <router-link :to="{ name: 'Profile', params: { username } }" class="nav-link">Профиль</router-link>
             </li>
             <li>
                 <router-link :to="{ name: 'Login' }" class="nav-link" @click="logout">Выход</router-link>
@@ -35,6 +35,7 @@ export default {
         const store = useStore();
         const auth = computed(() => store.getters['auth/isAuthenticated']);
         const isAdmin = computed(() => store.getters['auth/role'] === 'admin');
+        const username = computed(() => store.getters['auth/username']);
 
         const logout = () => {
             API.logout().then(() => store.commit('auth/setUser', null));
@@ -43,6 +44,7 @@ export default {
         return {
             auth,
             isAdmin,
+            username,
             logout
         };
     }

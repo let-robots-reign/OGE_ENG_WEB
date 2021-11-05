@@ -11,6 +11,7 @@ import Listening from '@/views/Listening';
 import Writing from '@/views/Writing';
 import CreateTheory from '@/views/CreateTheory';
 import TheoryArticle from '@/views/TheoryArticle';
+import Profile from '@/views/Profile';
 
 const routes = [
     {
@@ -27,6 +28,11 @@ const routes = [
         name: 'Signup',
         path: PATHS.signup,
         component: Signup
+    },
+    {
+        name: 'Profile',
+        path: PATHS.profile,
+        component: Profile
     },
     {
         name: 'Audio Topics',
