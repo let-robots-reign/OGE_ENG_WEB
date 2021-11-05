@@ -5,14 +5,13 @@
                 <p class="section-name">Тренировки</p>
                 <div class="trainings-grid">
                     <router-link :to="{ name: 'Audio Topics' }" class="training-link">
-                        <TrainingCard title="Аудирование" image="ic_audio.svg" :progress="progress.audio"/>
+                        <TrainingCard title="Аудирование" image="ic_audio.svg"/>
                     </router-link>
                     <router-link :to="{ name: 'Reading Topics' }" class="training-link">
-                        <TrainingCard title="Чтение" image="ic_reading.svg" :progress="progress.reading"/>
+                        <TrainingCard title="Чтение" image="ic_reading.svg"/>
                     </router-link>
                     <router-link :to="{ name: 'Use of English Topics' }" class="training-link">
-                        <TrainingCard title="Языковой материал" image="ic_use_of_english.svg"
-                                      :progress="progress.useOfEng"/>
+                        <TrainingCard title="Языковой материал" image="ic_use_of_english.svg"/>
                     </router-link>
                     <!-- Writing doesn't have progress -->
                     <router-link :to="{ name: 'Writing Training' }" class="training-link">
@@ -20,13 +19,13 @@
                     </router-link>
                 </div>
             </div>
-            <div class="main-page-section">
-                <p class="section-name">Варианты</p>
-                <div class="tests-grid">
-                    <TestCard v-for="(result, index) in testsResults" :key="index"
-                              :index="index" :max-points="maxTestPoints" :result="result"/>
-                </div>
-            </div>
+            <!--            <div class="main-page-section">-->
+            <!--                <p class="section-name">Варианты</p>-->
+            <!--                <div class="tests-grid">-->
+            <!--                    <TestCard v-for="(result, index) in testsResults" :key="index"-->
+            <!--                              :index="index" :max-points="maxTestPoints" :result="result"/>-->
+            <!--                </div>-->
+            <!--            </div>-->
             <div class="main-page-section">
                 <p class="section-name">Теория</p>
                 <div class="theory-grid">
@@ -52,35 +51,19 @@
 import {API} from '@/services/api';
 import {useStore} from 'vuex';
 import TrainingCard from '@/components/cards/TrainingCard';
-import TestCard from '@/components/cards/TestCard';
 import TheoryCard from '@/components/cards/TheoryCard';
-import {onMounted, reactive, ref} from 'vue';
+import {onMounted} from 'vue';
 
 export default {
     name: 'MainPage',
-    components: {TheoryCard, TestCard, TrainingCard},
+    components: {TheoryCard, TrainingCard},
     setup() {
-        // TODO: stubbing tests data
-        const testsResults = ref([30, 12, 32, null, 44, null, 1, 0, null, 22]);
-        const maxTestPoints = ref(44);
-        const progress = reactive({
-            audio: 10,
-            reading: 35,
-            useOfEng: 70,
-        });
-
         const store = useStore();
         onMounted(() => {
             API.getCurrentUser()
                 .then((res) => store.commit('auth/setUser', res.data))
                 .catch(() => store.commit('auth/setUser', null));
         });
-
-        return {
-            testsResults,
-            maxTestPoints,
-            progress
-        };
     }
 };
 </script>

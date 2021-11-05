@@ -4,7 +4,7 @@
             <img class="training-card__image" :src="imageURL" :alt="title">
         </div>
         <div class="training-card__center">{{ title }}</div>
-        <div class="training-card__progress" v-if="progress">{{ progressPercent }}</div>
+<!--        <div class="training-card__progress" v-if="progress">{{ progressPercent }}</div>-->
     </div>
 </template>
 
@@ -25,7 +25,7 @@ export default {
         progress: {
             type: Number,
             required: false,
-            default: null
+            default: 0
         }
     },
     setup(props) {

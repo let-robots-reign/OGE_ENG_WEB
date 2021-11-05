@@ -16,6 +16,7 @@ mongoose.connect(process.env.DB_CONN, {
 
 const userRoutes = require('./routes/user');
 const taskRoutes = require('./routes/task');
+const theoryRoutes = require('./routes/theory');
 
 const app = express();
 
@@ -29,6 +30,7 @@ app.use(cors({
 
 app.use('/api/v1', userRoutes);
 app.use('/api/v1', taskRoutes);
+app.use('/api/v1', theoryRoutes);
 
 app.use(express.static(path.resolve('./files')));
 

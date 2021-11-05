@@ -47,6 +47,10 @@ class Api {
     checkTraining(category, answers) {
         return this.apiClient.post(`/training/${category}/check`, answers);
     }
+
+    saveTheoryArticle(article) {
+        return this.apiClient.post('/theory', article);
+    }
 }
 
 export const API = new Api();

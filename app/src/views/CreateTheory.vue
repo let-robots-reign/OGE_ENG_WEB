@@ -1,6 +1,12 @@
 <template>
     <main>
         <div class="card center">
+            <BaseSelect
+                    class="category-select"
+                    label="Выберите категорию"
+                    :options="categories"
+                    v-model="chosenCategory"
+            />
             <div v-if="editor" class="editor-menu">
                 <button @click="editor.chain().focus().toggleBold().run()"
                         :class="['editor-btn', (editor.isActive('bold')) ? 'active' : 'inactive']">
@@ -68,7 +74,7 @@
             <editor-content :editor="editor" class="editor"/>
         </div>
 
-        <button class="btn primary save-btn">Сохранить</button>
+        <button class="btn primary save-btn" @click="saveArticle">Сохранить</button>
     </main>
 </template>
 
@@ -78,14 +84,23 @@ import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import Focus from '@tiptap/extension-focus';
 import TextAlign from '@tiptap/extension-text-align';
+import Underline from '@tiptap/extension-underline';
+import BaseSelect from '@/components/form/BaseSelect';
+import {getCategories, getCategorySlug} from '@/utils/theoryCategories';
+import {ref} from 'vue';
+import {API} from '@/services/api';
 
 export default {
     name: 'CreateTheory',
-    components: {EditorContent},
+    components: {BaseSelect, EditorContent},
     setup() {
+        const categories = ref(getCategories());
+        const chosenCategory = ref(getCategories()[0]);
+
         const editor = useEditor({
             extensions: [
                 StarterKit,
+                Underline,
                 Placeholder.configure({
                     placeholder: ({node}) => {
                         if (node.type.name === 'heading') {
@@ -112,7 +127,26 @@ export default {
             `,
         });
 
-        return {editor};
+        const saveArticle = () => {
+            const parsed = new DOMParser().parseFromString(editor.value.getHTML(), 'text/html');
+            const title = parsed.body.firstChild.textContent;
+            const article = {
+                category: getCategorySlug(chosenCategory.value),
+                title,
+                content: editor.value.getHTML(),
+            };
+            // console.log(article);
+            API.saveTheoryArticle(article)
+                .then(() => this.$router.back())
+                .catch((err) => console.log(err));
+        };
+
+        return {
+            categories,
+            chosenCategory,
+            editor,
+            saveArticle,
+        };
     },
 };
 </script>
@@ -125,6 +159,12 @@ export default {
 main {
   width: 50%;
   margin: 32px auto;
+}
+
+.category-select {
+  align-self: start;
+  margin-top: 12px;
+  margin-bottom: 32px;
 }
 
 .editor {
