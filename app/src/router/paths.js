@@ -13,5 +13,6 @@ export const PATHS = {
     uoeTheory: '/theory/use-of-english',
     writingTheory: '/theory/writing',
     createTheory: '/create/theory',
-    createTask: '/create/task'
+    createTask: '/create/task',
+    theoryArticle: '/theory/:id',
 };

@@ -10,6 +10,7 @@ import Reading from '@/views/Reading';
 import Listening from '@/views/Listening';
 import Writing from '@/views/Writing';
 import CreateTheory from '@/views/CreateTheory';
+import TheoryArticle from '@/views/TheoryArticle';
 
 const routes = [
     {
@@ -113,6 +114,11 @@ const routes = [
         name: 'Create Theory',
         path: PATHS.createTheory,
         component: CreateTheory
+    },
+    {
+        name: 'Theory Article',
+        path: PATHS.theoryArticle,
+        component: TheoryArticle,
     }
 ];
 

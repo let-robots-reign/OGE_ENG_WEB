@@ -1,5 +1,7 @@
 <template>
     <main>
+        <AppBackFloatingButton/>
+
         <div class="card center">
             <BaseSelect
                     class="category-select"
@@ -89,11 +91,14 @@ import BaseSelect from '@/components/form/BaseSelect';
 import {getCategories, getCategorySlug} from '@/utils/theoryCategories';
 import {ref} from 'vue';
 import {API} from '@/services/api';
+import {useRouter} from 'vue-router';
+import AppBackFloatingButton from '@/components/AppBackFloatingButton';
 
 export default {
     name: 'CreateTheory',
-    components: {BaseSelect, EditorContent},
+    components: {BaseSelect, EditorContent, AppBackFloatingButton},
     setup() {
+        const router = useRouter();
         const categories = ref(getCategories());
         const chosenCategory = ref(getCategories()[0]);
 
@@ -135,9 +140,8 @@ export default {
                 title,
                 content: editor.value.getHTML(),
             };
-            // console.log(article);
             API.saveTheoryArticle(article)
-                .then(() => this.$router.back())
+                .then(() => router.back())
                 .catch((err) => console.log(err));
         };
 

@@ -49,7 +49,11 @@ class Api {
     }
 
     getTheoryArticlesByCategory(category) {
-        return this.apiClient.get(`/theory/${category}`);
+        return this.apiClient.get(`/theory/category/${category}`);
+    }
+
+    getTheoryArticleContent(id) {
+        return this.apiClient.get(`/theory/${id}`);
     }
 
     saveTheoryArticle(article) {

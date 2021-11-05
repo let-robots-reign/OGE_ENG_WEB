@@ -3,7 +3,13 @@
         <AppBackFloatingButton/>
 
         <div class="menu__grid">
-            <MenuGridItem v-for="item in gridItems" :text="item.title" :key="item._id"/>
+            <router-link
+                    v-for="item in gridItems"
+                    :key="item._id"
+                    :to="{ name: 'Theory Article', params: { id: item._id } }"
+            >
+                <MenuGridItem :text="item.title"  />
+            </router-link>
         </div>
     </div>
 </template>
