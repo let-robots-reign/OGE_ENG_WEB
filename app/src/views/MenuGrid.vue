@@ -3,7 +3,7 @@
         <AppBackFloatingButton/>
 
         <div class="menu__grid">
-            <MenuGridItem v-for="(title, index) in gridItems" :text="title" :key="index"/>
+            <MenuGridItem v-for="item in gridItems" :text="item.title" :key="item._id"/>
         </div>
     </div>
 </template>
@@ -11,16 +11,26 @@
 <script>
 import MenuGridItem from '@/components/MenuGridItem';
 import AppBackFloatingButton from '@/components/AppBackFloatingButton';
+import {API} from '@/services/api';
+import {ref} from 'vue';
 
 export default {
     name: 'MenuGrid',
     components: {AppBackFloatingButton, MenuGridItem},
     props: {
-        gridItems: {
-            type: Array,
-            required: true
-        }
-    }
+        category: {
+            type: String,
+            required: true,
+        },
+    },
+    setup(props) {
+        const gridItems = ref([]);
+        API.getTheoryArticlesByCategory(props.category)
+            .then((res) => gridItems.value = res.data.items)
+            .catch((err) => console.log(err));
+
+        return {gridItems};
+    },
 };
 </script>
 

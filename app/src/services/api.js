@@ -48,6 +48,10 @@ class Api {
         return this.apiClient.post(`/training/${category}/check`, answers);
     }
 
+    getTheoryArticlesByCategory(category) {
+        return this.apiClient.get(`/theory/${category}`);
+    }
+
     saveTheoryArticle(article) {
         return this.apiClient.post('/theory', article);
     }

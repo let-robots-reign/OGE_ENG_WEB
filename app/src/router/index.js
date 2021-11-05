@@ -95,30 +95,19 @@ const routes = [
         name: 'General Theory',
         path: PATHS.generalTheory,
         component: MenuGrid,
-        props: {
-            gridItems: ['Порядок проведения', 'Аудирование', 'Чтение', 'Языковой материал', 'Письмо']
-        }
+        props: { category: 'general' },
     },
     {
         name: 'Use of English Theory',
         path: PATHS.uoeTheory,
         component: MenuGrid,
-        props: {
-            gridItems: ['Множественное число существительных', 'Порядковые числительные', 'Притяжательные местоимения',
-                'Объектные местоимения', 'Возвратные местоимения', 'Пассивный залог', 'I wish + V2',
-                'Условное предложение (реальное)', 'Условное предложение (нереальное)', 'Формы глагола to be',
-                'Модальные глаголы', 'Настоящее простое', 'Настоящее продолженное', 'Настоящее совершённое',
-                'Прошедшее простое', 'Прошедшее продолженное', 'Прошедшее совершённое', 'Будущее простое',
-                'Степени сравнения прилагательных', 'would + V']
-        }
+        props: { category: 'uoe' },
     },
     {
         name: 'Writing Theory',
         path: PATHS.writingTheory,
         component: MenuGrid,
-        props: {
-            gridItems: ['Алгоритм написания', 'Фразы-клише', 'Слова-связки']
-        }
+        props: { category: 'writing' },
     },
     {
         name: 'Create Theory',

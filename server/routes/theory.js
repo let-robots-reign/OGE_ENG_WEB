@@ -1,6 +1,15 @@
 const router = require('express').Router();
 const TheoryArticle = require('../models/theory_article');
 
+router.get('/theory/:category', async (req, res) => {
+    const category = req.params.category;
+    const items = await TheoryArticle.find({category: category}).select('title');
+    res.status(200).send({
+        message: 'success',
+        items,
+    });
+});
+
 // router.get('/theory/:category/:id', async (req, res) => {
 //
 // });
