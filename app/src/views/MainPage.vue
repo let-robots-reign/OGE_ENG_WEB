@@ -48,23 +48,12 @@
 </template>
 
 <script>
-import {API} from '@/services/api';
-import {useStore} from 'vuex';
 import TrainingCard from '@/components/cards/TrainingCard';
 import TheoryCard from '@/components/cards/TheoryCard';
-import {onMounted} from 'vue';
 
 export default {
     name: 'MainPage',
-    components: {TheoryCard, TrainingCard},
-    setup() {
-        const store = useStore();
-        onMounted(() => {
-            API.getCurrentUser()
-                .then((res) => store.commit('auth/setUser', res.data))
-                .catch(() => store.commit('auth/setUser', null));
-        });
-    }
+    components: {TheoryCard, TrainingCard}
 };
 </script>
 
