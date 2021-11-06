@@ -119,12 +119,14 @@ const routes = [
     {
         name: 'Create Theory',
         path: PATHS.createTheory,
-        component: CreateTheory
+        component: CreateTheory,
+        props: true,
     },
     {
         name: 'Theory Article',
         path: PATHS.theoryArticle,
         component: TheoryArticle,
+        props: true,
     }
 ];
 

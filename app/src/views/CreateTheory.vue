@@ -76,7 +76,7 @@
             <editor-content :editor="editor" class="editor"/>
         </div>
 
-        <button class="btn primary save-btn" @click="saveArticle">Сохранить</button>
+        <button class="btn primary save-btn" @click="saveArticle">{{ (isEditing) ? 'Обновить' : 'Сохранить' }}</button>
     </main>
 </template>
 
@@ -88,7 +88,7 @@ import Focus from '@tiptap/extension-focus';
 import TextAlign from '@tiptap/extension-text-align';
 import Underline from '@tiptap/extension-underline';
 import BaseSelect from '@/components/form/BaseSelect';
-import {getCategories, getCategorySlug} from '@/utils/theoryCategories';
+import {getCategories, getCategoryName, getCategorySlug} from '@/utils/theoryCategories';
 import {ref} from 'vue';
 import {API} from '@/services/api';
 import {useRouter} from 'vue-router';
@@ -97,10 +97,29 @@ import AppBackFloatingButton from '@/components/AppBackFloatingButton';
 export default {
     name: 'CreateTheory',
     components: {BaseSelect, EditorContent, AppBackFloatingButton},
-    setup() {
+    props: {
+        isEditing: {
+            type: [Boolean, String],
+            default: false,
+        },
+        articleID: {
+            type: String,
+            default: '',
+        },
+        articleCategory: {
+            type: String,
+            default: '',
+        },
+        initialContent: {
+            type: String,
+            default: '',
+        },
+    },
+    setup(props) {
         const router = useRouter();
         const categories = ref(getCategories());
-        const chosenCategory = ref(getCategories()[0]);
+        const chosenCategory = (props.articleCategory) ?
+            ref(getCategoryName(props.articleCategory)) : ref(getCategories()[0]);
 
         const editor = useEditor({
             extensions: [
@@ -124,7 +143,7 @@ export default {
                 }),
             ],
             autofocus: true,
-            content: `
+            content: props.initialContent || `
             <h2></h2>
             <p>
                 Вставьте текст теоретической карточки
@@ -140,7 +159,12 @@ export default {
                 title,
                 content: editor.value.getHTML(),
             };
-            API.saveTheoryArticle(article)
+            if (props.isEditing) {
+                article.id = props.articleID;
+            }
+            const method = (props.isEditing) ?
+                API.updateTheoryArticle(article, props.articleID) : API.createTheoryArticle(article);
+            method
                 .then(() => router.back())
                 .catch((err) => console.log(err));
         };

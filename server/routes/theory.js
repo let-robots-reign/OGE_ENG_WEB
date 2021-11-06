@@ -12,10 +12,11 @@ router.get('/theory/category/:category', async (req, res) => {
 
 router.get('/theory/:id', async (req, res) => {
     const {id} = req.params;
-    const {content} = await TheoryArticle.findOne({_id: id});
+    const {content, category} = await TheoryArticle.findOne({_id: id});
     res.status(200).send({
         message: 'success',
         content: content,
+        category: category,
     });
 });
 
@@ -27,9 +28,22 @@ router.post('/theory', async (req, res) => {
         content: articleData.content
     });
 
-    const result = await article.save();
-    console.log(result);
+    await article.save();
     res.status(201).send({
+        message: 'success'
+    });
+});
+
+router.put('/theory/:id', async (req, res) => {
+    const articleData = req.body;
+    const updateTo = {
+        category: articleData.category,
+        title: articleData.title,
+        content: articleData.content
+    };
+
+    await TheoryArticle.findOneAndUpdate({ _id: articleData.id}, updateTo, {upsert: true});
+    res.status(200).send({
         message: 'success'
     });
 });

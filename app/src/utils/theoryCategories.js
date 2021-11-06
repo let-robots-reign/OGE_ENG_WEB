@@ -1,8 +1,9 @@
-export const getCategories = () => ['Общая информация', 'Языковой материал', 'Письмо'];
+const GENERAL = 'Общая информация';
+const UOE = 'Языковой материал';
+const WRITING = 'Письмо';
 
-export const getCategorySlug = (category) => {
-    const slugs = ['general', 'uoe', 'writing'];
-    const index = getCategories().indexOf(category);
-    if (index === -1) return null;
-    return slugs[index];
-};
+export const getCategories = () => [GENERAL, UOE, WRITING];
+
+export const getCategorySlug = (category) => ({GENERAL: 'general', UOE: 'uoe', WRITING: 'writing'}[category]);
+
+export const getCategoryName = (slug) => ({'general': GENERAL, 'uoe': UOE, 'writing': WRITING}[slug]);

@@ -3,6 +3,16 @@
         <AppBackFloatingButton/>
 
         <div class="card">
+            <router-link
+                    :to="{ name: 'Create Theory',
+                    params: { isEditing: true, articleID: $route.params.id, initialContent: htmlContent,
+                              articleCategory: category }}"
+                    class="edit-link"
+                    v-if="$store.getters['auth/role'] === 'admin'"
+            >
+                <span>Редактировать</span>
+                <font-awesome-icon :icon="['fas', 'edit']" class="edit-link__icon"/>
+            </router-link>
             <div class="card-content" v-html="htmlContent"></div>
         </div>
     </main>
@@ -19,13 +29,17 @@ export default {
     components: {AppBackFloatingButton},
     setup() {
         const htmlContent = ref('');
+        const category = ref('');
         const route = useRoute();
 
         API.getTheoryArticleContent(route.params.id)
-            .then((res) => htmlContent.value = res.data.content)
+            .then((res) => {
+                htmlContent.value = res.data.content;
+                category.value = res.data.category;
+            })
             .catch((err) => console.log(err));
 
-        return {htmlContent};
+        return {htmlContent, category};
     },
 };
 </script>
@@ -40,7 +54,18 @@ main {
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
 
+.edit-link {
+  display: flex;
+  justify-content: right;
+  align-items: center;
+  gap: 12px;
+  font-size: 16px;
 
+  &__icon {
+    width: 20px;
+    height: 20px;
+  }
 }
 </style>

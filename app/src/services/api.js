@@ -56,8 +56,12 @@ class Api {
         return this.apiClient.get(`/theory/${id}`);
     }
 
-    saveTheoryArticle(article) {
+    createTheoryArticle(article) {
         return this.apiClient.post('/theory', article);
+    }
+
+    updateTheoryArticle(article, id) {
+        return this.apiClient.put(`/theory/${id}`, article);
     }
 }
 

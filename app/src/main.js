@@ -13,11 +13,13 @@ import {
     faTable,
     faListUl,
     faListOl,
-    faQuoteRight
+    faQuoteRight,
+    faEdit
 } from '@fortawesome/free-solid-svg-icons';
 import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
 
-library.add(faUndo, faRedo, faAlignLeft, faAlignCenter, faAlignRight, faTable, faListUl, faListOl, faQuoteRight);
+library.add(faUndo, faRedo, faAlignLeft, faAlignCenter, faAlignRight, faTable,
+    faListUl, faListOl, faQuoteRight, faEdit);
 
 createApp(App)
     .component('font-awesome-icon', FontAwesomeIcon)
