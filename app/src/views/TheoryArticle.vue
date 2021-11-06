@@ -3,7 +3,7 @@
         <AppBackFloatingButton/>
 
         <div class="card">
-            <div v-html="htmlContent"></div>
+            <div class="card-content" v-html="htmlContent"></div>
         </div>
     </main>
 </template>
@@ -34,5 +34,13 @@ export default {
 main {
   width: 50%;
   margin: 32px auto;
+}
+
+.card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+
 }
 </style>

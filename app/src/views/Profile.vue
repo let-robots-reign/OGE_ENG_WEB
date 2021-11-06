@@ -1,5 +1,7 @@
 <template>
     <main>
+        <AppBackFloatingButton/>
+
         <div class="card profile-card">
             <h1 class="heading">Профиль {{ user.name }}</h1>
             <hr/>
@@ -16,9 +18,11 @@
 
 <script>
 import {useStore} from 'vuex';
+import AppBackFloatingButton from '@/components/AppBackFloatingButton';
 
 export default {
     name: 'Profile',
+    components: {AppBackFloatingButton},
     setup() {
         const store = useStore();
         const user = store.getters['auth/user'];

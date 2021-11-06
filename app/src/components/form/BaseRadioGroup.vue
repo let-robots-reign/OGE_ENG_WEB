@@ -11,6 +11,7 @@
             :name="name"
             :modelValue="modelValue"
             @update:modelValue="$emit('update:modelValue', $event)"
+            :disabled="disabled"
         />
     </component>
 </template>
@@ -36,6 +37,10 @@ export default {
         vertical: {
             type: Boolean,
             default: false
+        },
+        disabled: {
+            type: Boolean,
+            default: false,
         }
     }
 };

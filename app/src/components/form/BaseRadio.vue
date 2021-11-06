@@ -6,8 +6,9 @@
             :value="value"
             v-bind="$attrs"
             @change="$emit('update:modelValue', value)"
+            :disabled="disabled"
     >
-    <label :for="id">{{ label }}</label>
+    <label :for="id" :disabled="disabled">{{ label }}</label>
 </template>
 
 <script>
@@ -27,6 +28,10 @@ export default {
             // value - value of particular BaseRadio
             type: [String, Number],
             required: true
+        },
+        disabled: {
+            type: Boolean,
+            default: false,
         }
     },
     setup() {

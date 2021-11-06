@@ -195,6 +195,8 @@ main {
     text-align: center;
     max-width: 50%;
     margin: 12px auto;
+    border-spacing: 0;
+    border-collapse: collapse;
   }
 }
 

@@ -19,7 +19,9 @@
                     Для получения подробной информации обратитесь к соответствующим разделам Теории
                 </p>
                 <p>
-                    <a href="/">Ссылка на теорию</a>
+                    <router-link :to="{ name: 'Writing Theory' }" class="link-to-theory">
+                        Ссылка на теорию
+                    </router-link>
                 </p>
             </template>
 
@@ -41,8 +43,11 @@
                                     v-model="letterPartsAnswers[index - 1]"
                                     :class="[
                                             'letter-answers__input', 
-                                            getClassForUserInput(letterPartsCorrectness, index)
+                                            getClassForUserInput(letterPartsCorrectness, index),
+                                            { 'no-borders': index > 1 && index < letterParts.length,
+                                              'first-item': index === 1, 'last-item': index === letterParts.length}
                                             ]"
+                                    :disabled="controlsDisabled"
                             />
                         </div>
                         <p class="writing-task__hint">Впишите номера предложений в нужном порядке</p>
@@ -57,12 +62,13 @@
                             {{ clicheIndex + 1 }})
                             <span v-for="(word, wordIndex) in cliche.split(' ')" :key="word">
                                 <BaseSelect
-                                    v-model="clichesAnswers[clicheIndex][wordIndex]"
-                                    :options="clichesOptions[clicheIndex]"
-                                    :class="[
+                                        v-model="clichesAnswers[clicheIndex][wordIndex]"
+                                        :options="clichesOptions[clicheIndex]"
+                                        :class="[
                                             'autofit', 
                                             getClassForUserInput(clichesCorrectness[clicheIndex], wordIndex)
                                             ]"
+                                        :disabled="controlsDisabled"
                                 />
                             </span>
                         </p>
@@ -76,9 +82,10 @@
                         <p v-for="(linker, linkerIndex) in linkers[0]" :key="linker">
                             {{ linkerIndex + 1 }}) {{ linker }} -
                             <BaseSelect
-                                v-model="linkersAnswers[0][linkerIndex]"
-                                :options="linkersOptions[0]"
-                                :class="['autofit', getClassForUserInput(linkersCorrectness[0], linkerIndex)]"
+                                    v-model="linkersAnswers[0][linkerIndex]"
+                                    :options="linkersOptions[0]"
+                                    :class="['autofit', getClassForUserInput(linkersCorrectness[0], linkerIndex)]"
+                                    :disabled="controlsDisabled"
                             />
                         </p>
                         <p class="writing-task__hint">
@@ -88,9 +95,10 @@
                             {{ index + 1 }})
                             <span v-for="(text, textIndex) in task" :key="text">
                                 <BaseSelect
-                                    v-model="linkersAnswers[index + 1][textIndex]"
-                                    :options="linkersOptions[index + 1]"
-                                    :class="['autofit', getClassForUserInput(linkersCorrectness[index], textIndex)]"
+                                        v-model="linkersAnswers[index + 1][textIndex]"
+                                        :options="linkersOptions[index + 1]"
+                                        :class="['autofit', getClassForUserInput(linkersCorrectness[index], textIndex)]"
+                                        :disabled="controlsDisabled"
                                 />
                                 {{ text }}
                             </span>
@@ -101,9 +109,9 @@
                         <p class="writing-task__title">
                             Полные ответы
                         </p>
-                        <div 
-                            class="writing-task__full-replies"
-                            v-for="(fullReplyTask, index) in fullReplies" :key="index"
+                        <div
+                                class="writing-task__full-replies"
+                                v-for="(fullReplyTask, index) in fullReplies" :key="index"
                         >
                             <p class="writing-task__hint">
                                 Выберите лучший ответ на вопрос
@@ -114,6 +122,7 @@
                                     :options="fullRepliesOptions[index]"
                                     v-model="fullRepliesAnswers[index]"
                                     vertical
+                                    :disabled="controlsDisabled"
                             />
                         </div>
                     </div>
@@ -131,7 +140,7 @@ import {API} from '@/services/api';
 import BaseInput from '@/components/form/BaseInput';
 import BaseSelect from '@/components/form/BaseSelect';
 import BaseRadioGroup from '@/components/form/BaseRadioGroup';
-import { shuffle } from '@/utils/shuffle';
+import {shuffle} from '@/utils/shuffle';
 
 export default {
     name: 'Writing',
@@ -190,11 +199,11 @@ export default {
                 letterPartsAnswers: letterPartsAnswers.value.map((answer) => letterParts.value[answer - 1]),
                 clichesAnswers: clichesAnswers.value,
                 linkersAnswers: linkersAnswers.value,
-                fullRepliesAnswers: fullRepliesAnswers.value.map((answer, i) => 
+                fullRepliesAnswers: fullRepliesAnswers.value.map((answer, i) =>
                     fullRepliesOptions.value[i].indexOf(answer) + 1)
             };
 
-            const { data } = await API.checkTraining('writing', answers);
+            const {data} = await API.checkTraining('writing', answers);
             letterPartsCorrectness.value = data.letterPartsCorrectness;
             clichesCorrectness.value = data.clichesCorrectness;
             linkersCorrectness.value = data.linkersCorrectness;
@@ -204,8 +213,10 @@ export default {
             page.value.setResult(result.value);
         };
 
-        const getClassForUserInput = (correctnessArray, index) => 
+        const getClassForUserInput = (correctnessArray, index) =>
             (!correctnessArray || !correctnessArray.length) ? null : (correctnessArray[index] ? 'valid' : 'invalid');
+
+        const controlsDisabled = computed(() => page.value.isChecked);
 
         return {
             page,
@@ -226,7 +237,8 @@ export default {
             fullRepliesCorrectness,
             result,
             getClassForUserInput,
-            checkAnswers
+            checkAnswers,
+            controlsDisabled,
         };
     }
 };
@@ -263,8 +275,16 @@ main {
   max-width: 70%;
   margin: 16px auto 0 auto;
 
-  &__input {
-      margin-bottom: 0;
+  .form-control {
+    margin-bottom: 0;
+  }
+}
+
+.link-to-theory {
+  color: #4DA8DA;
+
+  &:hover {
+    text-decoration-color: #4DA8DA;
   }
 }
 </style>
