@@ -123,6 +123,7 @@
                                     v-model="fullRepliesAnswers[index]"
                                     vertical
                                     :disabled="controlsDisabled"
+                                    :isChosenCorrect="fullRepliesCorrectness[index]"
                             />
                         </div>
                     </div>

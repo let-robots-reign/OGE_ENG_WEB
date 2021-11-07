@@ -12,6 +12,7 @@
             :modelValue="modelValue"
             @update:modelValue="$emit('update:modelValue', $event)"
             :disabled="disabled"
+            :isChosenCorrect="isChosenCorrect"
         />
     </component>
 </template>
@@ -41,7 +42,11 @@ export default {
         disabled: {
             type: Boolean,
             default: false,
-        }
+        },
+        isChosenCorrect: {
+            type: Boolean,
+            default: null,
+        },
     }
 };
 </script>

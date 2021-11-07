@@ -8,10 +8,18 @@
             @change="$emit('update:modelValue', value)"
             :disabled="disabled"
     >
-    <label :for="id" :disabled="disabled">{{ label }}</label>
+    <label
+            :for="id"
+            :disabled="disabled"
+            :class="getClassForLabel"
+    >
+        {{ label }}
+    </label>
 </template>
 
 <script>
+import {computed} from 'vue';
+
 export default {
     name: 'BaseRadio',
     props: {
@@ -32,11 +40,21 @@ export default {
         disabled: {
             type: Boolean,
             default: false,
-        }
+        },
+        isChosenCorrect: {
+            type: Boolean,
+            default: null,
+        },
     },
-    setup() {
+    setup(props) {
         const id = `base-radio-${Math.random()}`;
-        return {id};
+        const getClassForLabel = computed(() => {
+            if (props.modelValue === props.value && props.isChosenCorrect !== null) {
+                return (props.isChosenCorrect) ? 'correct' : 'wrong';
+            }
+            return '';
+        });
+        return {id, getClassForLabel};
     }
 };
 </script>
@@ -44,5 +62,13 @@ export default {
 <style scoped>
 label {
     margin-left: 8px;
+}
+
+.correct {
+    color: #42b983;
+}
+
+.wrong {
+    color: #e53935;
 }
 </style>

@@ -48,7 +48,7 @@ const routes = [
         path: PATHS.audioTrainingTopics,
         component: MenuList,
         props: {
-            titles: ['Задание 1', 'Задание 2', 'Задания 3-8'],
+            titles: ['Задание 1'],
             baseClickLink: '/training/audio'
         }
     },
@@ -57,7 +57,7 @@ const routes = [
         path: PATHS.readingTrainingTopics,
         component: MenuList,
         props: {
-            titles: ['Задание 9', 'Задания 10-17'],
+            titles: ['Задание 9'],
             baseClickLink: '/training/reading'
         }
     },
