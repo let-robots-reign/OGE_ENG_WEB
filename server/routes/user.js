@@ -72,6 +72,7 @@ router.get('/user', async (req, res) => {
         const user = await User.findOne({_id: token._id});
         // eslint-disable-next-line no-unused-vars
         const {password, ...data} = await user.toJSON();
+        data.role = (process.env.ADMIN_LOGINS.split(',').includes(data.name)) ? 'admin' : 'user';
         res.status(200).send(data);
     } catch (e) {
         return res.status(401).send({

@@ -7,9 +7,20 @@
 <script>
 import TheNavbar from '@/components/TheNavbar';
 import TheFooter from '@/components/TheFooter';
+import {useStore} from 'vuex';
+import {onMounted} from 'vue';
+import {API} from '@/services/api';
 
 export default {
-    components: {TheFooter, TheNavbar}
+    components: {TheFooter, TheNavbar},
+    setup() {
+        const store = useStore();
+        onMounted(() => {
+            API.getCurrentUser()
+                .then((res) => store.commit('auth/setUser', res.data))
+                .catch(() => store.commit('auth/setUser', null));
+        });
+    }
 };
 </script>
 

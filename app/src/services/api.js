@@ -40,8 +40,28 @@ class Api {
         return this.apiClient.get('/training/use-of-english' + ((topic) ? `?topic=${topic}` : ''));
     }
 
+    getWritingTraining() {
+        return this.apiClient.get('/training/writing');
+    }
+
     checkTraining(category, answers) {
         return this.apiClient.post(`/training/${category}/check`, answers);
+    }
+
+    getTheoryArticlesByCategory(category) {
+        return this.apiClient.get(`/theory/category/${category}`);
+    }
+
+    getTheoryArticleContent(id) {
+        return this.apiClient.get(`/theory/${id}`);
+    }
+
+    createTheoryArticle(article) {
+        return this.apiClient.post('/theory', article);
+    }
+
+    updateTheoryArticle(article, id) {
+        return this.apiClient.put(`/theory/${id}`, article);
     }
 }
 

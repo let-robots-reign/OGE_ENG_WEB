@@ -8,6 +8,10 @@ import MenuGrid from '@/views/MenuGrid';
 import UseOfEnglish from '@/views/UseOfEnglish';
 import Reading from '@/views/Reading';
 import Listening from '@/views/Listening';
+import Writing from '@/views/Writing';
+import CreateTheory from '@/views/CreateTheory';
+import TheoryArticle from '@/views/TheoryArticle';
+import Profile from '@/views/Profile';
 
 const routes = [
     {
@@ -26,6 +30,11 @@ const routes = [
         component: Signup
     },
     {
+        name: 'Profile',
+        path: PATHS.profile,
+        component: Profile
+    },
+    {
         name: 'Audio Topics',
         path: PATHS.audioTrainingTopics,
         component: MenuList,
@@ -39,7 +48,7 @@ const routes = [
         path: PATHS.audioTrainingTopics,
         component: MenuList,
         props: {
-            titles: ['Задание 1', 'Задание 2', 'Задания 3-8'],
+            titles: ['Задание 1'],
             baseClickLink: '/training/audio'
         }
     },
@@ -48,7 +57,7 @@ const routes = [
         path: PATHS.readingTrainingTopics,
         component: MenuList,
         props: {
-            titles: ['Задание 9', 'Задания 10-17'],
+            titles: ['Задание 9'],
             baseClickLink: '/training/reading'
         }
     },
@@ -85,33 +94,39 @@ const routes = [
         props: (route) => ({topic: route.query.topic})
     },
     {
+        name: 'Writing Training',
+        path: PATHS.writingTraining,
+        component: Writing,
+    },
+    {
         name: 'General Theory',
         path: PATHS.generalTheory,
         component: MenuGrid,
-        props: {
-            gridItems: ['Порядок проведения', 'Аудирование', 'Чтение', 'Языковой материал', 'Письмо']
-        }
+        props: { category: 'general' },
     },
     {
         name: 'Use of English Theory',
         path: PATHS.uoeTheory,
         component: MenuGrid,
-        props: {
-            gridItems: ['Множественное число существительных', 'Порядковые числительные', 'Притяжательные местоимения',
-                'Объектные местоимения', 'Возвратные местоимения', 'Пассивный залог', 'I wish + V2',
-                'Условное предложение (реальное)', 'Условное предложение (нереальное)', 'Формы глагола to be',
-                'Модальные глаголы', 'Настоящее простое', 'Настоящее продолженное', 'Настоящее совершённое',
-                'Прошедшее простое', 'Прошедшее продолженное', 'Прошедшее совершённое', 'Будущее простое',
-                'Степени сравнения прилагательных', 'would + V']
-        }
+        props: { category: 'uoe' },
     },
     {
         name: 'Writing Theory',
         path: PATHS.writingTheory,
         component: MenuGrid,
-        props: {
-            gridItems: ['Алгоритм написания', 'Фразы-клише', 'Слова-связки']
-        }
+        props: { category: 'writing' },
+    },
+    {
+        name: 'Create Theory',
+        path: PATHS.createTheory,
+        component: CreateTheory,
+        props: true,
+    },
+    {
+        name: 'Theory Article',
+        path: PATHS.theoryArticle,
+        component: TheoryArticle,
+        props: true,
     }
 ];
 

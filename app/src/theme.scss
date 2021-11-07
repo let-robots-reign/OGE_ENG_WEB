@@ -5,6 +5,7 @@
 
 * {
   margin: 0;
+  box-sizing: border-box;
 }
 
 html {
@@ -46,6 +47,7 @@ img {
   border-radius: 16px;
   box-shadow: 2px 3px 10px rgba(0, 0, 0, 0.2);
   background: #fff;
+  position: relative;
 }
 
 .card.marked {
@@ -98,7 +100,7 @@ img {
 }
 
 .form-control.valid input, .form-control.valid select {
-  border-color: rgba(195, 233, 145);
+  border-color: #c3e991;
 }
 
 .form-checkbox {

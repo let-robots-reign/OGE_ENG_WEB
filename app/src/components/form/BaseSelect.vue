@@ -6,6 +6,7 @@
                 :id="id"
                 v-bind=$attrs
                 @change="$emit('update:modelValue', $event.target.value)"
+                :disabled="disabled"
         >
             <option
                     v-for="option in options"
@@ -31,7 +32,11 @@ export default {
         options: {
             type: Array,
             required: true
-        }
+        },
+        disabled: {
+            type: Boolean,
+            default: false,
+        },
     },
     setup() {
         const id = `base-select-${Math.random()}`;
@@ -40,6 +45,11 @@ export default {
 };
 </script>
 
-<style scoped>
-
+<style lang="scss" scoped>
+.autofit {
+    width: fit-content;
+    min-width: 0;
+    display: inline-block;
+    margin-right: 4px;
+}
 </style>

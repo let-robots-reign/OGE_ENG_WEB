@@ -1,16 +1,18 @@
 <template>
     <component
             v-for="option in options"
-            :key="option.value"
+            :key="option"
             :is="(vertical) ? 'div' : 'span'"
             :class="{'horizontal': !vertical}"
     >
         <BaseRadio
-            :value="option.value"
-            :label="option.label"
+            :value="option"
+            :label="option"
             :name="name"
             :modelValue="modelValue"
             @update:modelValue="$emit('update:modelValue', $event)"
+            :disabled="disabled"
+            :isChosenCorrect="isChosenCorrect"
         />
     </component>
 </template>
@@ -36,7 +38,15 @@ export default {
         vertical: {
             type: Boolean,
             default: false
-        }
+        },
+        disabled: {
+            type: Boolean,
+            default: false,
+        },
+        isChosenCorrect: {
+            type: Boolean,
+            default: null,
+        },
     }
 };
 </script>

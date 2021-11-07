@@ -12,7 +12,7 @@
                 </p>
                 <p>
                     Установите соответствие между диалогами и местами, где они происходят: к каждому диалогу подберите
-                    соответсвующее место действия, обозначенное цифрами.
+                    соответствующее место действия, обозначенное цифрами.
                 </p>
                 <p>
                     Используйте каждое место действия из списка <strong>1-5</strong> только один раз. В задании есть
@@ -121,7 +121,7 @@ export default {
 
             page.value.setResult(result.value);
         };
-        
+
         const validateAnswer = (index) => {
             if (correctness.value) {
                 correctness.value[index] = null;
@@ -195,6 +195,8 @@ main {
     text-align: center;
     max-width: 50%;
     margin: 12px auto;
+    border-spacing: 0;
+    border-collapse: collapse;
   }
 }
 

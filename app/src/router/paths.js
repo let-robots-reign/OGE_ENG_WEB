@@ -2,6 +2,7 @@ export const PATHS = {
     main: '/',
     login: '/login',
     signup: '/signup',
+    profile: '/user/:username',
     audioTrainingTopics: '/training/audio/topics',
     readingTrainingTopics: '/training/reading/topics',
     uoeTrainingTopics: '/training/use-of-english/topics',
@@ -12,4 +13,7 @@ export const PATHS = {
     generalTheory: '/theory/general',
     uoeTheory: '/theory/use-of-english',
     writingTheory: '/theory/writing',
+    createTheory: '/create/theory',
+    createTask: '/create/task',
+    theoryArticle: '/theory/:id',
 };

@@ -7,6 +7,7 @@
                 :placeholder="placeholder"
                 :value="modelValue"
                 @input="$emit('update:modelValue', $event.target.value)"
+                :disabled="disabled"
         >
         <small class="form-error-message" v-for="error in errors" :key="error.$uid">{{ error.$message }}</small>
     </div>
@@ -35,7 +36,11 @@ export default {
         errors: {
             type: Array,
             default: null
-        }
+        },
+        disabled: {
+            type: Boolean,
+            default: false,
+        },
     },
     setup() {
         const id = `base-input-${Math.random()}`;
@@ -44,6 +49,18 @@ export default {
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+.no-borders {
+  border-radius: 0;
+}
 
+.first-item {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.last-item {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
 </style>
