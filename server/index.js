@@ -10,9 +10,9 @@ require('dotenv').config();
 mongoose.connect(process.env.DB_CONN, {
     useNewUrlParser: true,
     useUnifiedTopology: true
-}, () => {
-    console.log('connected to the database');
-});
+})
+    .then(() => console.log('connected to the database'))
+    .catch((err) => console.log('error connecting to mongo:', err));
 
 const userRoutes = require('./routes/user');
 const taskRoutes = require('./routes/task');
