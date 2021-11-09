@@ -26,6 +26,7 @@
   - Vue.js
   - Vue Router
   - Vuex
+  - Vuelidate
   - SCSS
   - Axios
   - ESLint, Babel

@@ -5,12 +5,12 @@
                 <li class="footer-link">
                     <router-link :to="{ name: 'Main Page' }">ОГЭ Английский (2021) &copy;</router-link>
                 </li>
-                <li class="footer-link">
-                    <router-link :to="{ name: 'Main Page' }">О проекте</router-link>
-                </li>
-                <li class="footer-link">
-                    <router-link :to="{ name: 'Main Page' }">Контакты</router-link>
-                </li>
+<!--                <li class="footer-link">-->
+<!--                    <router-link :to="{ name: 'Main Page' }">О проекте</router-link>-->
+<!--                </li>-->
+<!--                <li class="footer-link">-->
+<!--                    <router-link :to="{ name: 'Main Page' }">Контакты</router-link>-->
+<!--                </li>-->
             </ul>
         </div>
     </footer>

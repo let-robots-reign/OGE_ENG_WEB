@@ -10,13 +10,20 @@ router.post('/signup', async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(userData.password, salt);
 
+    const existing = await User.exists({email: userData.email});
+    if (existing) {
+        return res.status(400).send({
+            message: 'user already exists',
+        });
+    }
+
     const user = new User({
         name: userData.name,
         email: userData.email,
         password: hashedPassword
     });
     // TODO: fields validation
-    // TODO: check for existing user
+
     const result = await user.save();
     // eslint-disable-next-line no-unused-vars
     const {password, ...data} = await result.toJSON();
@@ -50,7 +57,9 @@ router.post('/login', async (req, res) => {
 
     res.cookie('jwt', token, {
         httpOnly: true,
-        maxAge: 10 * 24 * 60 * 60 * 1000  // 10 days
+        maxAge: 10 * 24 * 60 * 60 * 1000,  // 10 days,
+        sameSite: 'none',
+        secure: true,
     });
 
     res.status(200).send({

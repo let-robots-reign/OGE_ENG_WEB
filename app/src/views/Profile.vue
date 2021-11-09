@@ -8,6 +8,9 @@
             <p class="main-info">
                 Email: {{ user.email }}
             </p>
+            <p class="main-info">
+                Желаемая оценка: {{ user.desiredMark }}
+            </p>
             <hr/>
             <p class="activity-history">
                 В будущем обновлении здесь появятся Ваша история действий на сайте и статистика
