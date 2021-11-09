@@ -68,7 +68,7 @@ export default {
             }
             API.login(loginState)
                 .then(async (res) => {
-                    store.commit('auth/setUser', res.data);
+                    store.commit('auth/setUser', res.data.user);
                     await router.push(PATHS.main);
                 })
                 .catch(() => {

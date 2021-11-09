@@ -41,7 +41,7 @@ router.post('/signup', async (req, res) => {
 
     res.status(201).send({
         message: 'success',
-        data
+        user: data
     });
 });
 
@@ -70,12 +70,12 @@ router.post('/login', async (req, res) => {
     });
 
     // eslint-disable-next-line no-unused-vars
-    const {password, ...data} = user;
+    const {password, ...data} = await user.toJSON();
     data.role = (process.env.ADMIN_LOGINS.split(',').includes(data.name)) ? 'admin' : 'user';
 
     res.status(200).send({
         message: 'success',
-        data
+        user: data
     });
 });
 
