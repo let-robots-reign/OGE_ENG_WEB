@@ -22,6 +22,7 @@ import {useRouter} from 'vue-router';
 import {API} from '@/services/api';
 import {PATHS} from '@/router/paths';
 import vconst from '@/const/validation';
+import {useStore} from 'vuex';
 
 export default {
     name: 'Login',
@@ -59,14 +60,21 @@ export default {
 
         const loginResult = ref('');
         const router = useRouter();
+        const store = useStore();
         const login = () => {
             v$.value.$touch();
             if (v$.value.$error) {
                 return;
             }
             API.login(loginState)
-                .then(async () => await router.push(PATHS.main))
-                .catch(() => loginResult.value = 'Неверный логин или пароль!');
+                .then(async (res) => {
+                    store.commit('auth/setUser', res.data);
+                    await router.push(PATHS.main);
+                })
+                .catch(() => {
+                    store.commit('auth/setUser', null);
+                    loginResult.value = 'Неверный логин или пароль!';
+                });
         };
 
         return {

@@ -32,6 +32,7 @@ import {email, helpers, minLength, required} from '@vuelidate/validators';
 import useVuelidate from '@vuelidate/core';
 import vconst from '@/const/validation';
 import BaseSelect from '@/components/form/BaseSelect';
+import {useStore} from 'vuex';
 
 export default {
     name: 'Signup',
@@ -81,14 +82,21 @@ export default {
 
         const signupResult = ref('');
         const router = useRouter();
+        const store = useStore();
         const signup = () => {
             v$.value.$touch();
             if (v$.value.$error) {
                 return;
             }
             API.signup(signupState)
-                .then(async () => await router.push(PATHS.main))
-                .catch(() => signupResult.value = 'Ошибка при регистрации!');
+                .then(async (res) => {
+                    store.commit('auth/setUser', res.data);
+                    await router.push(PATHS.main);
+                })
+                .catch(() => {
+                    store.commit('auth/setUser', null);
+                    signupResult.value = 'Ошибка при регистрации!';
+                });
         };
 
         return {

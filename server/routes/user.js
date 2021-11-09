@@ -20,6 +20,7 @@ router.post('/signup', async (req, res) => {
     const user = new User({
         name: userData.name,
         email: userData.email,
+        desiredMark: userData.desiredMark,
         password: hashedPassword
     });
     // TODO: fields validation
@@ -27,15 +28,21 @@ router.post('/signup', async (req, res) => {
     const result = await user.save();
     // eslint-disable-next-line no-unused-vars
     const {password, ...data} = await result.toJSON();
+    data.role = (process.env.ADMIN_LOGINS.split(',').includes(data.name)) ? 'admin' : 'user';
 
     const token = jwt.sign({_id: data._id}, process.env.JWT_SECRET);
 
     res.cookie('jwt', token, {
         httpOnly: true,
-        maxAge: 10 * 24 * 60 * 60 * 1000  // 10 days
+        maxAge: 10 * 24 * 60 * 60 * 1000,  // 10 days
+        sameSite: 'none',
+        secure: true
     });
 
-    res.status(201).send(data);
+    res.status(201).send({
+        message: 'success',
+        data
+    });
 });
 
 router.post('/login', async (req, res) => {
@@ -62,8 +69,13 @@ router.post('/login', async (req, res) => {
         secure: true,
     });
 
+    // eslint-disable-next-line no-unused-vars
+    const {password, ...data} = user;
+    data.role = (process.env.ADMIN_LOGINS.split(',').includes(data.name)) ? 'admin' : 'user';
+
     res.status(200).send({
-        message: 'success'
+        message: 'success',
+        data
     });
 });
 
