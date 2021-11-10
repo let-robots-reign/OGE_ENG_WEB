@@ -39,8 +39,12 @@ export default {
 
 @media screen and (max-width: 676px){
   .training-header {
+    flex-direction: column;
+    word-break: break-word;
+    gap: 12px;
+
     &__title {
-      font-size: 1.5rem;
+      font-size: 1.3rem;
     }
   }
 }
