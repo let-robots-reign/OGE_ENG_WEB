@@ -83,11 +83,11 @@ export default {
   .modal {
     &_size {
       &_small {
-        width: 70%;
+        width: 80%;
       }
 
       &_medium {
-        width: 80%;
+        width: 90%;
       }
 
       &_large {

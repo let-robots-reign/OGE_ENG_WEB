@@ -33,8 +33,7 @@ export default {
 @import 'variables';
 
 #app {
-  min-height: calc(100vh - #{$footer-height} - #{$app-padding-bottom});
-  padding-bottom: $app-padding-bottom;
+  min-height: calc(100vh - #{$footer-height});
 }
 
 .main {

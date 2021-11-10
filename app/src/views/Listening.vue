@@ -205,6 +205,10 @@ main {
     audio {
       width: 100%;
     }
+
+    &__table {
+      max-width: 100%;
+    }
   }
 }
 </style>

@@ -36,4 +36,12 @@ export default {
     font-weight: 700;
   }
 }
+
+@media screen and (max-width: 676px){
+  .training-header {
+    &__title {
+      font-size: 1.5rem;
+    }
+  }
+}
 </style>
