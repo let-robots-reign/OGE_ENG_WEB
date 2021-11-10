@@ -78,4 +78,22 @@ export default {
   background: rgba(0, 0, 0, .35);
   z-index: 100;
 }
+
+@media screen and (max-width: 1100px) {
+  .modal {
+    &_size {
+      &_small {
+        width: 70%;
+      }
+
+      &_medium {
+        width: 80%;
+      }
+
+      &_large {
+        width: 90%;
+      }
+    }
+  }
+}
 </style>

@@ -168,7 +168,7 @@ export default {
 
 <style lang="scss" scoped>
 main {
-  width: 50%;
+  flex-grow: 1;
   margin: 32px auto;
 }
 
@@ -200,4 +200,11 @@ main {
   }
 }
 
+@media screen and (max-width: 676px) {
+  .audio-task {
+    audio {
+      width: 100%;
+    }
+  }
+}
 </style>

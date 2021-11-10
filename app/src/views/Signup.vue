@@ -109,3 +109,10 @@ export default {
 };
 </script>
 
+
+<style lang="scss" scoped>
+form {
+  flex-grow: 1;
+  margin: 32px auto;
+}
+</style>

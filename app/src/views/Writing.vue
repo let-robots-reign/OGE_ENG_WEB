@@ -247,7 +247,7 @@ export default {
 
 <style lang="scss" scoped>
 main {
-  width: 50%;
+  flex-grow: 1;
   margin: 32px auto;
 }
 

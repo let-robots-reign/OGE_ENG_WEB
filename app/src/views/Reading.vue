@@ -136,7 +136,7 @@ export default {
 
 <style lang="scss" scoped>
 main {
-  width: 50%;
+  flex-grow: 1;
   margin: 32px auto;
 }
 
@@ -158,6 +158,8 @@ main {
   &__section {
     font-size: 20px;
     margin-bottom: 20px;
+    min-width: 100%;
+    width: 0;
   }
 }
 </style>

@@ -43,13 +43,13 @@ export default {
 <style scoped>
 
 .menu {
-    max-width: 50%;
+    flex-grow: 1;
     margin: 32px auto;
 }
 
 .menu__grid {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 16px;
     margin-bottom: 20px;
 }

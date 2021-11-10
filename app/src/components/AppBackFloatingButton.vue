@@ -31,4 +31,10 @@ export default {
     background-color: #ccc;
   }
 }
+
+@media screen and (max-width: 1100px) {
+  .back-button {
+    display: none;
+  }
+}
 </style>
