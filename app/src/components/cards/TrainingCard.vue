@@ -69,4 +69,10 @@ export default {
   }
 }
 
+@media screen and (max-width: 650px) {
+  .training-card {
+    max-width: 350px;
+    margin: 0 auto;
+  }
+}
 </style>

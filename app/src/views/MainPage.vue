@@ -1,5 +1,6 @@
 <template>
     <main class="main">
+        <aside/>
         <div class="main-page-sections">
             <div class="main-page-section">
                 <p class="section-name">Тренировки</p>
@@ -44,6 +45,7 @@
                 </div>
             </div>
         </div>
+        <aside/>
     </main>
 </template>
 
@@ -65,17 +67,21 @@ body {
 }
 
 .main {
+  display: flex;
   padding: 16px;
   color: $light-blue-shadow;
 }
 
+aside {
+  width: 20%;
+}
+
 .main-page-sections {
-  width: 60%;
-  margin: 0 auto;
+  flex-grow: 1;
 }
 
 .main-page-section {
-  margin: 32px;
+  margin: 32px 0;
 }
 
 .section-name {
@@ -85,7 +91,7 @@ body {
 
 .trainings-grid, .tests-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 16px;
 }
 
@@ -95,8 +101,14 @@ body {
 
 .theory-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 16px;
+}
+
+@media screen and (max-width: 1100px) {
+  aside {
+    width: 0
+  }
 }
 
 </style>

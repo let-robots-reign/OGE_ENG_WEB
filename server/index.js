@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
-const path = require('path');
 
 require('dotenv').config();
 
@@ -31,7 +30,5 @@ app.use(cors({
 app.use('/api/v1', userRoutes);
 app.use('/api/v1', taskRoutes);
 app.use('/api/v1', theoryRoutes);
-
-app.use(express.static(path.resolve('./files')));
 
 app.listen(8000);
