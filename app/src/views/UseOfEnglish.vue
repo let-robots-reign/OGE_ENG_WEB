@@ -104,7 +104,7 @@ export default {
 @import '@/variables';
 
 main {
-  width: 50%;
+  flex-grow: 1;
   margin: 32px auto;
 }
 </style>

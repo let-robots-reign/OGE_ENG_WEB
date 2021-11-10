@@ -65,7 +65,8 @@ router.get('/training/audio', async (req, res) => {
     // eslint-disable-next-line no-unused-vars
     const {answer, explanation, audio, ...question} = await getRandomDocument(model);
 
-    question.audioPath = `${process.env.BACKEND_URL}/audio/${audio}.m4a`;
+    // question.audioPath = `${process.env.BACKEND_URL}/audio/${audio}.m4a`;
+    question.audioPath = `https://oge-eng.ru/files/audio/${audio}.m4a`;
 
     res.status(200).send({
         message: 'success',

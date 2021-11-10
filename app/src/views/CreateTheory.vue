@@ -185,7 +185,7 @@ export default {
 @import url('https://css.gg/redo.css');
 
 main {
-  width: 50%;
+  flex-grow: 1;
   margin: 32px auto;
 }
 

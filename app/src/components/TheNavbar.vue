@@ -69,6 +69,7 @@ export default {
   align-content: center;
   gap: 16px;
   list-style: none;
+  padding: 0;
 }
 
 .navbar-logo {
@@ -82,6 +83,19 @@ export default {
 
 .navbar-logo, .nav-link {
   padding: 8px;
+}
+
+@media screen and (max-width: 670px) {
+  .navbar {
+    height: auto;
+    flex-direction: column;
+    padding: 8px 0;
+  }
+
+  .navbar-menu {
+    margin-top: 12px;
+    margin-bottom: 20px;
+  }
 }
 
 </style>

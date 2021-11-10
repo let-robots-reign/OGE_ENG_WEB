@@ -33,16 +33,27 @@ export default {
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .menu {
-    width: 30%;
-    margin: 32px auto;
-}
+  flex-grow: 0;
+  margin: 32px auto;
 
-.menu__list {
+  &__list {
+    width: 500px;
     display: flex;
     flex-direction: column;
     gap: 16px;
-    margin-bottom: 20px;
+    margin: 0 auto 20px auto;
+  }
+}
+
+@media screen and (max-width: 512px) {
+  .menu {
+    flex-grow: 1;
+
+    &__list {
+      width: 100%;
+    }
+  }
 }
 </style>

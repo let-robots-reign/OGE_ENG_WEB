@@ -1,6 +1,10 @@
 <template>
     <the-navbar></the-navbar>
-    <router-view/>
+    <main class="main">
+        <aside/>
+        <router-view/>
+        <aside/>
+    </main>
     <the-footer></the-footer>
 </template>
 
@@ -33,4 +37,18 @@ export default {
   padding-bottom: $app-padding-bottom;
 }
 
+.main {
+  display: flex;
+  padding: 16px;
+}
+
+aside {
+  width: 20%;
+}
+
+@media screen and (max-width: 1100px) {
+  aside {
+    width: 0
+  }
+}
 </style>

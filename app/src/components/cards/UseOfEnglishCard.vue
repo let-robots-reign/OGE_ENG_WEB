@@ -66,6 +66,8 @@ export default {
 
   &__question {
     font-size: 18px;
+    min-width: 100%;
+    width: 0;
   }
 }
 </style>

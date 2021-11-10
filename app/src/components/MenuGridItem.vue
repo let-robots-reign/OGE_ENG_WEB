@@ -24,7 +24,7 @@ export default {
   justify-content: center;
   align-items: center;
   text-align: center;
-  min-height: 100px;
+  min-height: 120px;
   cursor: pointer;
 
   &:hover {
