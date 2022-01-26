@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 const User = require('../models/user');
+const UserActivity = require('../models/user_activity');
 
 class UserController {
     async createUser(userData) {
@@ -30,6 +31,11 @@ class UserController {
         const data = await user.toJSON();
         data.role = (process.env.ADMIN_LOGINS.split(',').includes(data.name)) ? 'admin' : 'user';
         return data;
+    }
+
+    async saveUserActivity(activityData) {
+        const activity = new UserActivity(activityData);
+        await activity.save();
     }
 }
 
