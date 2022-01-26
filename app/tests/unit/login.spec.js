@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import Login from '@/views/Login';
+import Login from '@/views/user/Login';
 
 describe('Login.vue', () => {
     it('renders two input fields', async () => {

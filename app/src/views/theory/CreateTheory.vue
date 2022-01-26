@@ -92,7 +92,7 @@ import {getCategories, getCategoryName, getCategorySlug} from '@/utils/theoryCat
 import {ref} from 'vue';
 import {API} from '@/services/api';
 import {useRouter} from 'vue-router';
-import AppBackFloatingButton from '@/components/AppBackFloatingButton';
+import AppBackFloatingButton from '@/components/base/AppBackFloatingButton';
 
 export default {
     name: 'CreateTheory',

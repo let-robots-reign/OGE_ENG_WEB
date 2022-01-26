@@ -21,7 +21,7 @@
 
 <script>
 import {useStore} from 'vuex';
-import AppBackFloatingButton from '@/components/AppBackFloatingButton';
+import AppBackFloatingButton from '@/components/base/AppBackFloatingButton';
 
 export default {
     name: 'Profile',

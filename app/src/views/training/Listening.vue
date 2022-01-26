@@ -63,11 +63,11 @@
 </template>
 
 <script>
-import AppTrainingPage from '@/components/AppTrainingPage';
+import AppTrainingPage from '@/components/base/AppTrainingPage';
 import {computed, onMounted, ref} from 'vue';
 import {API} from '@/services/api';
 import BaseInput from '@/components/form/BaseInput';
-import AppTrainingExplanation from '@/components/AppTrainingExplanation';
+import AppTrainingExplanation from '@/components/base/AppTrainingExplanation';
 
 export default {
     name: 'Listening',

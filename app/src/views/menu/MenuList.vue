@@ -14,8 +14,8 @@
 </template>
 
 <script>
-import MenuListItem from '@/components/MenuListItem';
-import AppBackFloatingButton from '@/components/AppBackFloatingButton';
+import MenuListItem from '@/components/menu/MenuListItem';
+import AppBackFloatingButton from '@/components/base/AppBackFloatingButton';
 
 export default {
     name: 'MenuList',

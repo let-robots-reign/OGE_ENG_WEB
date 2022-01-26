@@ -15,8 +15,8 @@
 </template>
 
 <script>
-import MenuGridItem from '@/components/MenuGridItem';
-import AppBackFloatingButton from '@/components/AppBackFloatingButton';
+import MenuGridItem from '@/components/menu/MenuGridItem';
+import AppBackFloatingButton from '@/components/base/AppBackFloatingButton';
 import {API} from '@/services/api';
 import {ref} from 'vue';
 

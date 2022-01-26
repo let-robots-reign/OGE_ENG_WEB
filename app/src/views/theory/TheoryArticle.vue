@@ -22,7 +22,7 @@
 import {API} from '@/services/api';
 import {ref} from 'vue';
 import {useRoute} from 'vue-router';
-import AppBackFloatingButton from '@/components/AppBackFloatingButton';
+import AppBackFloatingButton from '@/components/base/AppBackFloatingButton';
 
 export default {
     name: 'TheoryArticle',

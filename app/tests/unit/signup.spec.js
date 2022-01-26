@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils';
-import Signup from '@/views/Signup';
+import Signup from '@/views/user/Signup';
 
 describe('Signup.vue', () => {
     it('renders three input fields', async () => {

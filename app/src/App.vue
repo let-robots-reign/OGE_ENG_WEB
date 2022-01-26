@@ -9,8 +9,8 @@
 </template>
 
 <script>
-import TheNavbar from '@/components/TheNavbar';
-import TheFooter from '@/components/TheFooter';
+import TheNavbar from '@/components/base/TheNavbar';
+import TheFooter from '@/components/base/TheFooter';
 import {useStore} from 'vuex';
 import {onMounted} from 'vue';
 import {API} from '@/services/api';

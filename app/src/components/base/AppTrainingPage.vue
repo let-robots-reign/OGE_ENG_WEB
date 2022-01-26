@@ -43,9 +43,9 @@
 </template>
 
 <script>
-import AppTrainingHeader from '@/components/AppTrainingHeader';
+import AppTrainingHeader from '@/components/base/AppTrainingHeader';
 import {ref} from 'vue';
-import AppModal from '@/components/AppModal';
+import AppModal from '@/components/base/AppModal';
 
 export default {
     name: 'AppTrainingPage',

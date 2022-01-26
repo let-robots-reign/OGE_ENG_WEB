@@ -36,7 +36,7 @@ import UseOfEnglishCard from '@/components/cards/UseOfEnglishCard';
 import {computed, onBeforeUpdate, onMounted, ref} from 'vue';
 import {API} from '@/services/api';
 import {replaceCharSequence} from '@/utils/replaceCharSequence';
-import AppTrainingPage from '@/components/AppTrainingPage';
+import AppTrainingPage from '@/components/base/AppTrainingPage';
 
 export default {
     name: 'UseOfEnglish',

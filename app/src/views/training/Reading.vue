@@ -56,8 +56,8 @@
 import {computed, onMounted, ref} from 'vue';
 import {API} from '@/services/api';
 import BaseSelect from '@/components/form/BaseSelect';
-import AppTrainingPage from '@/components/AppTrainingPage';
-import AppTrainingExplanation from '@/components/AppTrainingExplanation';
+import AppTrainingPage from '@/components/base/AppTrainingPage';
+import AppTrainingExplanation from '@/components/base/AppTrainingExplanation';
 
 export default {
     name: 'Reading',

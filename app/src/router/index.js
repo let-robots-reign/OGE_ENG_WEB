@@ -1,17 +1,17 @@
 import {createRouter, createWebHistory} from 'vue-router';
-import MainPage from '@/views/MainPage';
-import Login from '@/views/Login';
-import Signup from '@/views/Signup';
 import {PATHS} from '@/router/paths';
-import MenuList from '@/views/MenuList';
-import MenuGrid from '@/views/MenuGrid';
-import UseOfEnglish from '@/views/UseOfEnglish';
-import Reading from '@/views/Reading';
-import Listening from '@/views/Listening';
-import Writing from '@/views/Writing';
-import CreateTheory from '@/views/CreateTheory';
-import TheoryArticle from '@/views/TheoryArticle';
-import Profile from '@/views/Profile';
+import MainPage from '@/views/MainPage';
+import Login from '@/views/user/Login';
+import Signup from '@/views/user/Signup';
+import MenuList from '@/views/menu/MenuList';
+import MenuGrid from '@/views/menu/MenuGrid';
+import UseOfEnglish from '@/views/training/UseOfEnglish';
+import Reading from '@/views/training/Reading';
+import Listening from '@/views/training/Listening';
+import Writing from '@/views/training/Writing';
+import CreateTheory from '@/views/theory/CreateTheory';
+import TheoryArticle from '@/views/theory/TheoryArticle';
+import Profile from '@/views/user/Profile';
 
 const routes = [
     {
