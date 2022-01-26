@@ -2,8 +2,12 @@ const UoeTask = require('../models/uoe_task');
 const AudioTaskFirst = require('../models/audio_task_first');
 const ReadingTaskFirst = require('../models/reading_task_first');
 const WritingTask = require('../models/writing_task');
+const userController = require('../controllers/user');
 const {getRandomDocument, getRandomDocuments} = require('../utils/getRandomDocuments');
 const shuffle = require('../utils/shuffle');
+
+const computeResult = (correct, total) => `${correct}/${total}`;
+const computeExperience = () => 0;
 
 class TaskController {
     async getAudioTask(topic) {
@@ -73,15 +77,22 @@ class TaskController {
         };
     }
 
-    async checkAudioTask(id, userAnswers) {
+    async checkAudioTask(id, user_id, userAnswers) {
         const task = await AudioTaskFirst.findOne({_id: id});
         const rightAnswers = task.answer.split(' ').map((ans) => parseInt(ans));
         const correctness = userAnswers.map((answer, index) => parseInt(answer) === rightAnswers[index]);
         const result = correctness.filter(Boolean).length;
+        await userController.saveUserActivity({
+            user_id,
+            task: 'Задание 1',
+            result: computeResult(result, rightAnswers.length),
+            experience: computeExperience(),
+            date: new Date(),
+        });
         return { rightAnswers, result, correctness, explanation: task.explanation };
     }
 
-    async checkReadingTask(id, userAnswers) {
+    async checkReadingTask(id, user_id, userAnswers) {
         const task = await ReadingTaskFirst.findOne({_id: id});
         const rightAnswers = task.answer.split(' ').map((ans) => parseInt(ans));
         const correctness = userAnswers.map((answer, index) => answer === rightAnswers[index]);
@@ -89,7 +100,7 @@ class TaskController {
         return { rightAnswers, result, correctness, explanation: task.explanation };
     }
 
-    async checkUoeTask(userAnswers) {
+    async checkUoeTask(user_id, userAnswers) {
         const sortById = (lhs, rhs) => parseInt(lhs._id) > parseInt(rhs._id) && 1 || -1;
 
         userAnswers.sort(sortById);
@@ -109,7 +120,7 @@ class TaskController {
         return { rightAnswers, result };
     }
 
-    async checkWritingTask(letterPartsAnswers, clichesAnswers, linkersAnswers, fullRepliesAnswers) {
+    async checkWritingTask(user_id, letterPartsAnswers, clichesAnswers, linkersAnswers, fullRepliesAnswers) {
         const allTasks = await WritingTask.find({});
 
         const getAnswersByTopic = (topic) => allTasks.filter((task) => task.topic === topic).map((task) => task.answer);
@@ -140,4 +151,4 @@ class TaskController {
     }
 }
 
-module.exports = TaskController;
+module.exports = new TaskController();

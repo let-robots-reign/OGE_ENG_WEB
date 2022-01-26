@@ -18,6 +18,6 @@ const userSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
-});
+}, { collection: 'users' });
 
 module.exports = mongoose.model('User', userSchema);

@@ -1,11 +1,9 @@
 const router = require('express').Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const UserController = require('../controllers/user');
+const userController = require('../controllers/user');
 
 require('dotenv').config();
-
-const userController = new UserController();
 
 router.post('/signup', async (req, res) => {
     const userData = req.body;

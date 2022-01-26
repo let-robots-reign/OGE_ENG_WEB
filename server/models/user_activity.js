@@ -21,6 +21,6 @@ const userActivitySchema = new mongoose.Schema({
     date: {
         type: Date,
     }
-});
+}, { collection: 'users_activity' });
 
 module.exports = mongoose.model('User Activity', userActivitySchema);

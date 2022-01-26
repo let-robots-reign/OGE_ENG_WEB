@@ -1,9 +1,8 @@
 const router = require('express').Router();
-const TaskController = require('../controllers/task');
+const taskController = require('../controllers/task');
 
 require('dotenv').config();
 
-const taskController = new TaskController();
 
 router.get('/training/use-of-english', async (req, res) => {
     const DEFAULT_BATCH_SIZE = 10;
@@ -54,39 +53,39 @@ router.get('/training/writing', async (req, res) => {
 });
 
 router.post('/training/use-of-english/check', async (req, res) => {
-    const { answers } = req.body;
+    const { user_id, answers } = req.body;
     res.status(200).send({
         message: 'success',
-        ...(await taskController.checkUoeTask(answers))
+        ...(await taskController.checkUoeTask(user_id, answers))
     });
 });
 
 router.post('/training/reading/check', async (req, res) => {
-    const {_id, answers} = req.body;
+    const {_id, user_id, answers} = req.body;
 
     res.status(200).send({
         message: 'success',
-        ...(await taskController.checkReadingTask(_id, answers))
+        ...(await taskController.checkReadingTask(_id, user_id, answers))
     });
 });
 
 router.post('/training/audio/check', async (req, res) => {
-    const {_id, answers} = req.body;
+    const {_id, user_id, answers} = req.body;
 
     res.status(200).send({
         message: 'success',
-        ...(await taskController.checkAudioTask(_id, answers))
+        ...(await taskController.checkAudioTask(_id, user_id, answers))
     });
 });
 
 router.post('/training/writing/check', async (req, res) => {
-    const { answers } = req.body;
+    const { user_id, answers } = req.body;
     const { letterPartsAnswers, clichesAnswers, linkersAnswers, fullRepliesAnswers } = answers;
 
     res.status(200).send({
         message: 'success',
-        ...(await taskController.checkWritingTask(letterPartsAnswers, clichesAnswers, linkersAnswers,
-            fullRepliesAnswers))
+        ...(await taskController.checkWritingTask(user_id, letterPartsAnswers, clichesAnswers,
+            linkersAnswers, fullRepliesAnswers))
     });
 });
 
