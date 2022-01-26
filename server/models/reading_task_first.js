@@ -21,11 +21,6 @@ const readingTaskFirstSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    completion: {
-        type: Number,
-        required: false,
-        default: 0
-    }
 }, {collection: 'reading_tasks_section_1'});
 
 module.exports = mongoose.model('ReadingTaskFirst', readingTaskFirstSchema);

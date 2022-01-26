@@ -21,11 +21,6 @@ const audioTaskFirstSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    completion: {
-        type: Number,
-        required: false,
-        default: 0
-    }
 }, {collection: 'audio_tasks_section_1'});
 
 module.exports = mongoose.model('AudioTaskFirst', audioTaskFirstSchema);

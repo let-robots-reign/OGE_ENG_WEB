@@ -21,11 +21,6 @@ const uoeTaskSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    completion: {
-        type: Number,
-        required: false,
-        default: 0
-    }
 }, {collection: 'uoe_tasks'});
 
 module.exports = mongoose.model('UoeTask', uoeTaskSchema);
