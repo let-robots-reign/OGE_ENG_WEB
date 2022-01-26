@@ -160,8 +160,6 @@ main {
   &__section {
     font-size: 20px;
     margin-bottom: 20px;
-    min-width: 100%;
-    width: 0;
   }
 }
 </style>
