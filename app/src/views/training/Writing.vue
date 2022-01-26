@@ -142,11 +142,13 @@ import BaseInput from '@/components/form/BaseInput';
 import BaseSelect from '@/components/form/BaseSelect';
 import BaseRadioGroup from '@/components/form/BaseRadioGroup';
 import {shuffle} from '@/utils/shuffle';
+import {useStore} from 'vuex';
 
 export default {
     name: 'Writing',
     components: {BaseInput, BaseSelect, BaseRadioGroup, AppTrainingPage},
     setup() {
+        const store = useStore();
         const page = ref([]);
 
         const letterParts = ref([]);
@@ -204,7 +206,8 @@ export default {
                     fullRepliesOptions.value[i].indexOf(answer) + 1)
             };
 
-            const {data} = await API.checkTraining('writing', answers);
+            const payload = { user_id: store.getters['auth/user_id'], answers };
+            const {data} = await API.checkTraining('writing', payload);
             letterPartsCorrectness.value = data.letterPartsCorrectness;
             clichesCorrectness.value = data.clichesCorrectness;
             linkersCorrectness.value = data.linkersCorrectness;

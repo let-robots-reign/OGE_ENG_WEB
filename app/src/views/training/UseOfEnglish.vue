@@ -37,6 +37,7 @@ import {computed, onBeforeUpdate, onMounted, ref} from 'vue';
 import {API} from '@/services/api';
 import {replaceCharSequence} from '@/utils/replaceCharSequence';
 import AppTrainingPage from '@/components/base/AppTrainingPage';
+import {useStore} from 'vuex';
 
 export default {
     name: 'UseOfEnglish',
@@ -50,6 +51,7 @@ export default {
         const page = ref(null);
         const questions = ref([]);
         const uoeCards = ref([]);
+        const store = useStore();
 
         onMounted(async () => {
             API.getUoeTraining(props.topic)
@@ -73,7 +75,8 @@ export default {
             page.value.setIsChecking(true);
 
             const userAnswers = uoeCards.value.map((cardComponent) => cardComponent.getAnswerData());
-            const checkResultResponse = await API.checkTraining('use-of-english', userAnswers);
+            const payload = { user_id: store.getters['auth/user_id'], answers: userAnswers };
+            const checkResultResponse = await API.checkTraining('use-of-english', payload);
             const rightAnswers = checkResultResponse.data.rightAnswers;
             rightAnswersNumber.value = checkResultResponse.data.result;
 

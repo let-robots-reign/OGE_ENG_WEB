@@ -54,9 +54,10 @@ router.get('/training/writing', async (req, res) => {
 });
 
 router.post('/training/use-of-english/check', async (req, res) => {
+    const { answers } = req.body;
     res.status(200).send({
         message: 'success',
-        ...(await taskController.checkUoeTask(req.body))
+        ...(await taskController.checkUoeTask(answers))
     });
 });
 
@@ -79,7 +80,8 @@ router.post('/training/audio/check', async (req, res) => {
 });
 
 router.post('/training/writing/check', async (req, res) => {
-    const { letterPartsAnswers, clichesAnswers, linkersAnswers, fullRepliesAnswers } = req.body;
+    const { answers } = req.body;
+    const { letterPartsAnswers, clichesAnswers, linkersAnswers, fullRepliesAnswers } = answers;
 
     res.status(200).send({
         message: 'success',

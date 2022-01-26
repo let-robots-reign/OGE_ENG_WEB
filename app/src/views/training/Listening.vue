@@ -68,6 +68,7 @@ import {computed, onMounted, ref} from 'vue';
 import {API} from '@/services/api';
 import BaseInput from '@/components/form/BaseInput';
 import AppTrainingExplanation from '@/components/base/AppTrainingExplanation';
+import {useStore} from 'vuex';
 
 export default {
     name: 'Listening',
@@ -82,6 +83,7 @@ export default {
         const page = ref(null);
         const question = ref({});
         const userAnswers = ref([]);
+        const store = useStore();
 
         onMounted(async () => {
             API.getAudioTraining(props.topic)
@@ -111,7 +113,8 @@ export default {
         const checkAnswers = async () => {
             page.value.setIsChecking(true);
 
-            const payload = {_id: question.value._id, answers: userAnswers.value};
+            const payload = {_id: question.value._id, user_id: store.getters['auth/user_id'],
+                answers: userAnswers.value};
             const resultResponse = await API.checkTraining('audio', payload);
 
             rightAnswers.value = resultResponse.data.rightAnswers;

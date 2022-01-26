@@ -10,6 +10,7 @@ export default {
         user: (state) => state.user,
         isAuthenticated: (state) => state.user !== null,
         role: (state) => state.user?.role,
-        username: (state) => state.user?.name
+        username: (state) => state.user?.name,
+        user_id: (state) => state.user?._id,
     }
 };

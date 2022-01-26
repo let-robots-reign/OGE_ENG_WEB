@@ -58,6 +58,7 @@ import {API} from '@/services/api';
 import BaseSelect from '@/components/form/BaseSelect';
 import AppTrainingPage from '@/components/base/AppTrainingPage';
 import AppTrainingExplanation from '@/components/base/AppTrainingExplanation';
+import {useStore} from 'vuex';
 
 export default {
     name: 'Reading',
@@ -72,6 +73,7 @@ export default {
         const page = ref(null);
         const question = ref({});
         const userAnswers = ref([]);
+        const store = useStore();
 
         onMounted(async () => {
             API.getReadingTraining(props.topic)
@@ -97,7 +99,7 @@ export default {
             page.value.setIsChecking(true);
 
             const answers = userAnswers.value.map((answer) => answerOptions.value.indexOf(answer));
-            const payload = {_id: question.value._id, answers};
+            const payload = {_id: question.value._id, user_id: store.getters['auth/user_id'], answers};
             const resultResponse = await API.checkTraining('reading', payload);
             rightAnswers.value = resultResponse.data.rightAnswers.map((answer) => answerOptions.value[answer]);
             explanation.value = resultResponse.data.explanation;
