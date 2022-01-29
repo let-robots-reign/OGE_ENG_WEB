@@ -28,6 +28,10 @@ class Api {
         return this.apiClient.get('/user');
     }
 
+    getUserActivity() {
+        return this.apiClient.get('/user/activity');
+    }
+
     getAudioTraining(topic) {
         return this.apiClient.get(`/training/audio?topic=${topic}`);
     }

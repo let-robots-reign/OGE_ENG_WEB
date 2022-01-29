@@ -33,6 +33,12 @@ class UserController {
         return data;
     }
 
+    async getUserActivity(user_id) {
+        const activity = await UserActivity.find({ user_id }).sort({ _id: -1 }).limit(10);
+        if (!activity) return null;
+        return activity;
+    }
+
     async saveUserActivity(activityData) {
         const activity = new UserActivity(activityData);
         await activity.save();

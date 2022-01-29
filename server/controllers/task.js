@@ -82,13 +82,15 @@ class TaskController {
         const rightAnswers = task.answer.split(' ').map((ans) => parseInt(ans));
         const correctness = userAnswers.map((answer, index) => parseInt(answer) === rightAnswers[index]);
         const result = correctness.filter(Boolean).length;
-        await userController.saveUserActivity({
-            user_id,
-            task: 'Задание 1',
-            result: computeResult(result, rightAnswers.length),
-            experience: computeExperience(),
-            date: new Date(),
-        });
+        if (user_id) {
+            await userController.saveUserActivity({
+                user_id,
+                task: 'Задание 1',
+                result: computeResult(result, rightAnswers.length),
+                experience: computeExperience(),
+                date: new Date(),
+            });
+        }
         return { rightAnswers, result, correctness, explanation: task.explanation };
     }
 
@@ -97,13 +99,15 @@ class TaskController {
         const rightAnswers = task.answer.split(' ').map((ans) => parseInt(ans));
         const correctness = userAnswers.map((answer, index) => answer === rightAnswers[index]);
         const result = correctness.filter(Boolean).length;
-        await userController.saveUserActivity({
-            user_id,
-            task: 'Задание 9',
-            result: computeResult(result, rightAnswers.length),
-            experience: computeExperience(),
-            date: new Date(),
-        });
+        if (user_id) {
+            await userController.saveUserActivity({
+                user_id,
+                task: 'Задание 9',
+                result: computeResult(result, rightAnswers.length),
+                experience: computeExperience(),
+                date: new Date(),
+            });
+        }
         return { rightAnswers, result, correctness, explanation: task.explanation };
     }
 
@@ -124,13 +128,15 @@ class TaskController {
                 rightAnswer: rightAnswer.answer
             };
         });
-        await userController.saveUserActivity({
-            user_id,
-            task: 'Языковой материал',
-            result: computeResult(result, rightAnswers.length),
-            experience: computeExperience(),
-            date: new Date(),
-        });
+        if (user_id) {
+            await userController.saveUserActivity({
+                user_id,
+                task: 'Языковой материал',
+                result: computeResult(result, rightAnswers.length),
+                experience: computeExperience(),
+                date: new Date(),
+            });
+        }
         return { rightAnswers, result };
     }
 
@@ -155,13 +161,15 @@ class TaskController {
         const result = [letterPartsCorrectness, clichesCorrectness, linkersCorrectness, fullRepliesCorrectness]
             .flat(2).filter(Boolean).length;
 
-        await userController.saveUserActivity({
-            user_id,
-            task: 'Письмо',
-            result: computeResult(result, 55),
-            experience: computeExperience(),
-            date: new Date(),
-        });
+        if (user_id) {
+            await userController.saveUserActivity({
+                user_id,
+                task: 'Письмо',
+                result: computeResult(result, 55),
+                experience: computeExperience(),
+                date: new Date(),
+            });
+        }
 
         return {
             letterPartsCorrectness,

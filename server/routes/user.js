@@ -83,6 +83,26 @@ router.get('/user', async (req, res) => {
     }
 });
 
+router.get('/user/activity', async (req, res) => {
+    try {
+        const cookie = req.cookies['jwt'];
+        const token = jwt.verify(cookie, process.env.JWT_SECRET);
+
+        if (!token) {
+            return res.status(401).send({
+                message: 'invalid jwt token'
+            });
+        }
+
+        const activity = await userController.getUserActivity({ _id: token._id });
+        res.status(200).send(activity);
+    } catch (e) {
+        return res.status(401).send({
+            message: `unauthenticated, ${e}`
+        });
+    }
+});
+
 router.post('/logout', (req, res) => {
     res.cookie('jwt', '', {maxAge: 0});
     res.status(200).send({
