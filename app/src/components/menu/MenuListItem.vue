@@ -1,33 +1,33 @@
 <template>
-    <router-link :to="itemClickLink">
-        <div class="card menu-item">
-            <p class="menu-item__title">{{ title }}</p>
-        </div>
-    </router-link>
+  <router-link :to="itemClickLink">
+    <div class="card menu-item">
+      <p class="menu-item__title">{{ title }}</p>
+    </div>
+  </router-link>
 </template>
 
 <script>
 import {computed} from 'vue';
 
 export default {
-    name: 'MenuListItem',
-    props: {
-        title: {
-            type: String,
-            required: true
-        },
-        baseClickLink: {
-            type: String,
-            required: true
-        }
+  name: 'MenuListItem',
+  props: {
+    title: {
+      type: String,
+      required: true
     },
-    setup(props) {
-        const itemClickLink = computed(() =>
-            `${props.baseClickLink}?${new URLSearchParams({topic: props.title}).toString()}`);
-        return {
-            itemClickLink
-        };
+    baseClickLink: {
+      type: String,
+      required: true
     }
+  },
+  setup(props) {
+    const itemClickLink = computed(() =>
+      `${props.baseClickLink}?${new URLSearchParams({topic: props.title}).toString()}`);
+    return {
+      itemClickLink
+    };
+  }
 };
 </script>
 

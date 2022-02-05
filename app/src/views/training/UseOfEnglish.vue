@@ -1,34 +1,34 @@
 <template>
-    <main>
-        <AppTrainingPage :topic="topic" ref="page" @check-answers="checkAnswers">
-            <template #training-instruction>
-                <p>
-                    Преобразуйте слова, напечатанные заглавными буквами так, чтобы они грамматически и лексически
-                    соответствовали содержанию текстов.
-                </p>
-                <p>
-                    Заполните пропуски полученными словами.
-                </p>
-                <p>
-                    Слова вводите заглавными буквами, без пробелов, как в экзаменационном бланке.
-                </p>
-                <p>
-                    Глагольные формы вводите без сокращений.
-                </p>
-            </template>
+  <main>
+    <AppTrainingPage :topic="topic" ref="page" @check-answers="checkAnswers">
+      <template #training-instruction>
+        <p>
+          Преобразуйте слова, напечатанные заглавными буквами так, чтобы они грамматически и лексически
+          соответствовали содержанию текстов.
+        </p>
+        <p>
+          Заполните пропуски полученными словами.
+        </p>
+        <p>
+          Слова вводите заглавными буквами, без пробелов, как в экзаменационном бланке.
+        </p>
+        <p>
+          Глагольные формы вводите без сокращений.
+        </p>
+      </template>
 
-            <template #training-content>
-                <UseOfEnglishCard
-                        v-for="(question, i) in questions"
-                        :key="question._id"
-                        :id="question._id"
-                        :question="question.task"
-                        :origin="question.origin"
-                        :ref="el => { if (el) uoeCards[i] = el }"
-                />
-            </template>
-        </AppTrainingPage>
-    </main>
+      <template #training-content>
+        <UseOfEnglishCard
+          v-for="(question, i) in questions"
+          :key="question._id"
+          :id="question._id"
+          :question="question.task"
+          :origin="question.origin"
+          :ref="el => { if (el) uoeCards[i] = el }"
+        />
+      </template>
+    </AppTrainingPage>
+  </main>
 </template>
 
 <script>
@@ -40,66 +40,66 @@ import AppTrainingPage from '@/components/base/AppTrainingPage';
 import {useStore} from 'vuex';
 
 export default {
-    name: 'UseOfEnglish',
-    components: {AppTrainingPage, UseOfEnglishCard},
-    props: {
-        topic: {
-            type: String
-        }
-    },
-    setup(props) {
-        const page = ref(null);
-        const questions = ref([]);
-        const uoeCards = ref([]);
-        const store = useStore();
-
-        onMounted(async () => {
-            API.getUoeTraining(props.topic)
-                .then((res) => {
-                    questions.value = res.data.questions;
-                    page.value.setShowInstruction(true);
-                })
-                .catch((err) => console.log(err));
-        });
-
-        onBeforeUpdate(() => uoeCards.value = []);
-
-        const rightAnswersNumber = ref(null);
-        const result = computed(() => {
-            const resultRatio = (rightAnswersNumber.value === null || questions.value === null) ? null :
-                `${rightAnswersNumber.value}/${questions.value.length}`;
-            return `Ваш результат: ${resultRatio}`;
-        });
-
-        const checkAnswers = async () => {
-            page.value.setIsChecking(true);
-
-            const userAnswers = uoeCards.value.map((cardComponent) => cardComponent.getAnswerData());
-            const payload = { user_id: store.getters['auth/user_id'], answers: userAnswers };
-            const checkResultResponse = await API.checkTraining('use-of-english', payload);
-            const rightAnswers = checkResultResponse.data.rightAnswers;
-            rightAnswersNumber.value = checkResultResponse.data.result;
-
-            uoeCards.value.forEach((cardComponent, index) => {
-                const givenAnswer = userAnswers[index].answer;
-                const rightAnswer = rightAnswers.find((el) => el._id === userAnswers[index]._id).rightAnswer;
-                cardComponent.setIsCorrect(givenAnswer === rightAnswer);
-                const relevantQuestion = questions.value.find((question) => question._id === userAnswers[index]._id);
-                relevantQuestion.task = replaceCharSequence(relevantQuestion.task, '_',
-                    rightAnswer, {tagWrapper: 'strong'});
-            });
-
-            page.value.setResult(result.value);
-        };
-
-        return {
-            page,
-            questions,
-            uoeCards,
-            result,
-            checkAnswers
-        };
+  name: 'UseOfEnglish',
+  components: {AppTrainingPage, UseOfEnglishCard},
+  props: {
+    topic: {
+      type: String
     }
+  },
+  setup(props) {
+    const page = ref(null);
+    const questions = ref([]);
+    const uoeCards = ref([]);
+    const store = useStore();
+
+    onMounted(async () => {
+      API.getUoeTraining(props.topic)
+        .then((res) => {
+          questions.value = res.data.questions;
+          page.value.setShowInstruction(true);
+        })
+        .catch((err) => console.log(err));
+    });
+
+    onBeforeUpdate(() => uoeCards.value = []);
+
+    const rightAnswersNumber = ref(null);
+    const result = computed(() => {
+      const resultRatio = (rightAnswersNumber.value === null || questions.value === null) ? null :
+        `${rightAnswersNumber.value}/${questions.value.length}`;
+      return `Ваш результат: ${resultRatio}`;
+    });
+
+    const checkAnswers = async () => {
+      page.value.setIsChecking(true);
+
+      const userAnswers = uoeCards.value.map((cardComponent) => cardComponent.getAnswerData());
+      const payload = {user_id: store.getters['auth/user_id'], answers: userAnswers};
+      const checkResultResponse = await API.checkTraining('use-of-english', payload);
+      const rightAnswers = checkResultResponse.data.rightAnswers;
+      rightAnswersNumber.value = checkResultResponse.data.result;
+
+      uoeCards.value.forEach((cardComponent, index) => {
+        const givenAnswer = userAnswers[index].answer;
+        const rightAnswer = rightAnswers.find((el) => el._id === userAnswers[index]._id).rightAnswer;
+        cardComponent.setIsCorrect(givenAnswer === rightAnswer);
+        const relevantQuestion = questions.value.find((question) => question._id === userAnswers[index]._id);
+        relevantQuestion.task = replaceCharSequence(relevantQuestion.task, '_',
+          rightAnswer, {tagWrapper: 'strong'});
+      });
+
+      page.value.setResult(result.value);
+    };
+
+    return {
+      page,
+      questions,
+      uoeCards,
+      result,
+      checkAnswers
+    };
+  }
 };
 </script>
 

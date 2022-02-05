@@ -1,27 +1,27 @@
 <template>
-    <div class="modal-backdrop" @click="$emit('close')"></div>
-    <div class="modal" :class="`modal_size_${size}`">
-        <h3 v-if="title" class="modal__title">{{ title }}</h3>
+  <div class="modal-backdrop" @click="$emit('close')"></div>
+  <div class="modal" :class="`modal_size_${size}`">
+    <h3 v-if="title" class="modal__title">{{ title }}</h3>
 
-        <div class="modal__content">
-            <slot/>
-        </div>
+    <div class="modal__content">
+      <slot/>
     </div>
+  </div>
 </template>
 
 <script>
 export default {
-    name: 'AppModal',
-    emits: ['close'],
-    props: {
-        title: {
-            type: String
-        },
-        size: {
-            type: String,
-            default: 'small'
-        }
+  name: 'AppModal',
+  emits: ['close'],
+  props: {
+    title: {
+      type: String
+    },
+    size: {
+      type: String,
+      default: 'small'
     }
+  }
 };
 </script>
 

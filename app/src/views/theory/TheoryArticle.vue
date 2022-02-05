@@ -1,21 +1,21 @@
 <template>
-    <main>
-        <AppBackFloatingButton/>
+  <main>
+    <AppBackFloatingButton/>
 
-        <div class="card">
-            <router-link
-                    :to="{ name: 'Create Theory',
+    <div class="card">
+      <router-link
+        :to="{ name: 'Create Theory',
                     params: { isEditing: true, articleID: $route.params.id, initialContent: htmlContent,
                               articleCategory: category }}"
-                    class="edit-link"
-                    v-if="$store.getters['auth/role'] === 'admin'"
-            >
-                <span>Редактировать</span>
-                <font-awesome-icon :icon="['fas', 'edit']" class="edit-link__icon"/>
-            </router-link>
-            <div class="card-content" v-html="htmlContent"></div>
-        </div>
-    </main>
+        class="edit-link"
+        v-if="$store.getters['auth/role'] === 'admin'"
+      >
+        <span>Редактировать</span>
+        <font-awesome-icon :icon="['fas', 'edit']" class="edit-link__icon"/>
+      </router-link>
+      <div class="card-content" v-html="htmlContent"></div>
+    </div>
+  </main>
 </template>
 
 <script>
@@ -25,22 +25,22 @@ import {useRoute} from 'vue-router';
 import AppBackFloatingButton from '@/components/base/AppBackFloatingButton';
 
 export default {
-    name: 'TheoryArticle',
-    components: {AppBackFloatingButton},
-    setup() {
-        const htmlContent = ref('');
-        const category = ref('');
-        const route = useRoute();
+  name: 'TheoryArticle',
+  components: {AppBackFloatingButton},
+  setup() {
+    const htmlContent = ref('');
+    const category = ref('');
+    const route = useRoute();
 
-        API.getTheoryArticleContent(route.params.id)
-            .then((res) => {
-                htmlContent.value = res.data.content;
-                category.value = res.data.category;
-            })
-            .catch((err) => console.log(err));
+    API.getTheoryArticleContent(route.params.id)
+      .then((res) => {
+        htmlContent.value = res.data.content;
+        category.value = res.data.category;
+      })
+      .catch((err) => console.log(err));
 
-        return {htmlContent, category};
-    },
+    return {htmlContent, category};
+  },
 };
 </script>
 

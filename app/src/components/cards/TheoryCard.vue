@@ -1,34 +1,34 @@
 <template>
-    <div class="card theory-card">
-        <div class="theory-card__left">
-            <img class="theory-card__image" :src="imageURL" :alt="title">
-        </div>
-        <div class="theory-card__center">{{ title }}</div>
+  <div class="card theory-card">
+    <div class="theory-card__left">
+      <img class="theory-card__image" :src="imageURL" :alt="title">
     </div>
+    <div class="theory-card__center">{{ title }}</div>
+  </div>
 </template>
 
 <script>
 import {computed} from 'vue';
 
 export default {
-    name: 'TheoryCard',
-    props: {
-        image: {
-            type: String,
-            required: true
-        },
-        title: {
-            type: String,
-            required: true
-        }
+  name: 'TheoryCard',
+  props: {
+    image: {
+      type: String,
+      required: true
     },
-    setup(props) {
-        const imageURL = computed(() => `/assets/img/${props.image}`);
-
-        return {
-            imageURL
-        };
+    title: {
+      type: String,
+      required: true
     }
+  },
+  setup(props) {
+    const imageURL = computed(() => `/assets/img/${props.image}`);
+
+    return {
+      imageURL
+    };
+  }
 };
 </script>
 

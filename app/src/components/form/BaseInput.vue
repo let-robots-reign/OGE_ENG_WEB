@@ -1,51 +1,51 @@
 <template>
-    <div class="form-control" :class="{'valid': valid, 'invalid': errors && errors.length}">
-        <label :for=id v-if="label">{{ label }}</label>
-        <input
-                v-bind=$attrs
-                :id=id
-                :placeholder="placeholder"
-                :value="modelValue"
-                @input="$emit('update:modelValue', $event.target.value)"
-                :disabled="disabled"
-        >
-        <small class="form-error-message" v-for="error in errors" :key="error.$uid">{{ error.$message }}</small>
-    </div>
+  <div class="form-control" :class="{'valid': valid, 'invalid': errors && errors.length}">
+    <label :for=id v-if="label">{{ label }}</label>
+    <input
+      v-bind=$attrs
+      :id=id
+      :placeholder="placeholder"
+      :value="modelValue"
+      @input="$emit('update:modelValue', $event.target.value)"
+      :disabled="disabled"
+    >
+    <small class="form-error-message" v-for="error in errors" :key="error.$uid">{{ error.$message }}</small>
+  </div>
 </template>
 
 <script>
 export default {
-    name: 'BaseInput',
-    props: {
-        label: {
-            type: String,
-            default: ''
-        },
-        placeholder: {
-            type: String,
-            default: (props) => props.label,
-        },
-        modelValue: {
-            type: [String, Number],
-            default: ''
-        },
-        valid: {
-            type: Boolean,
-            default: null
-        },
-        errors: {
-            type: Array,
-            default: null
-        },
-        disabled: {
-            type: Boolean,
-            default: false,
-        },
+  name: 'BaseInput',
+  props: {
+    label: {
+      type: String,
+      default: ''
     },
-    setup() {
-        const id = `base-input-${Math.random()}`;
-        return {id};
-    }
+    placeholder: {
+      type: String,
+      default: (props) => props.label,
+    },
+    modelValue: {
+      type: [String, Number],
+      default: ''
+    },
+    valid: {
+      type: Boolean,
+      default: null
+    },
+    errors: {
+      type: Array,
+      default: null
+    },
+    disabled: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  setup() {
+    const id = `base-input-${Math.random()}`;
+    return {id};
+  }
 };
 </script>
 

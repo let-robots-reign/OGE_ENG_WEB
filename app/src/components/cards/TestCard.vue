@@ -1,55 +1,55 @@
 <template>
-    <div class="card test-card">
-        <p class="test-card__title">{{ testTitle }}</p>
-        <p class="test-card__result" :class="testProgressColorClass" v-if="testProgress">{{ testProgress }}</p>
-    </div>
+  <div class="card test-card">
+    <p class="test-card__title">{{ testTitle }}</p>
+    <p class="test-card__result" :class="testProgressColorClass" v-if="testProgress">{{ testProgress }}</p>
+  </div>
 </template>
 
 <script>
 import {computed} from 'vue';
 
 export default {
-    name: 'TestCard',
-    props: {
-        index: {
-            type: Number,
-            required: true
-        },
-        result: {
-            type: Number,
-            default: null
-        },
-        maxPoints: {
-            type: Number,
-            required: true
-        }
+  name: 'TestCard',
+  props: {
+    index: {
+      type: Number,
+      required: true
     },
-    setup(props) {
-        const testTitle = computed(() => `Вариант ${props.index + 1}`);
-        const testProgress = computed(() =>
-            (props.result !== null) ? `результат: ${props.result}/${props.maxPoints}` : 'не решено');
-        const testProgressColorClass = computed(() => {
-            const prefix = 'test-card__';
-            if (props.result === null) {
-                return `${prefix}not-solved`;
-            }
-            const percent = props.result / props.maxPoints * 100;
-            const [GREAT_THRESHOLD, AVERAGE_THRESHOLD] = [85, 60];
-            if (percent > GREAT_THRESHOLD) {
-                return `${prefix}great-result`;
-            }
-            if (percent > AVERAGE_THRESHOLD) {
-                return `${prefix}average-result`;
-            }
-            return `${prefix}bad-result`;
-        });
-
-        return {
-            testTitle,
-            testProgress,
-            testProgressColorClass
-        };
+    result: {
+      type: Number,
+      default: null
+    },
+    maxPoints: {
+      type: Number,
+      required: true
     }
+  },
+  setup(props) {
+    const testTitle = computed(() => `Вариант ${props.index + 1}`);
+    const testProgress = computed(() =>
+      (props.result !== null) ? `результат: ${props.result}/${props.maxPoints}` : 'не решено');
+    const testProgressColorClass = computed(() => {
+      const prefix = 'test-card__';
+      if (props.result === null) {
+        return `${prefix}not-solved`;
+      }
+      const percent = props.result / props.maxPoints * 100;
+      const [GREAT_THRESHOLD, AVERAGE_THRESHOLD] = [85, 60];
+      if (percent > GREAT_THRESHOLD) {
+        return `${prefix}great-result`;
+      }
+      if (percent > AVERAGE_THRESHOLD) {
+        return `${prefix}average-result`;
+      }
+      return `${prefix}bad-result`;
+    });
+
+    return {
+      testTitle,
+      testProgress,
+      testProgressColorClass
+    };
+  }
 };
 </script>
 

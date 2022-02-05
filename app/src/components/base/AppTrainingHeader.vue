@@ -1,25 +1,25 @@
 <template>
-    <AppBackFloatingButton/>
+  <AppBackFloatingButton/>
 
-    <div class="card training-header">
-        <p class="training-header__title">{{ topic }}</p>
-        <button class="btn primary" @click="$emit('show-instruction')">Инструкция</button>
-    </div>
+  <div class="card training-header">
+    <p class="training-header__title">{{ topic }}</p>
+    <button class="btn primary" @click="$emit('show-instruction')">Инструкция</button>
+  </div>
 </template>
 
 <script>
 import AppBackFloatingButton from '@/components/base/AppBackFloatingButton';
 
 export default {
-    name: 'AppTrainingHeader',
-    emits: ['show-instruction'],
-    components: {AppBackFloatingButton},
-    props: {
-        topic: {
-            type: String,
-            required: true
-        }
+  name: 'AppTrainingHeader',
+  emits: ['show-instruction'],
+  components: {AppBackFloatingButton},
+  props: {
+    topic: {
+      type: String,
+      required: true
     }
+  }
 };
 </script>
 
@@ -37,7 +37,7 @@ export default {
   }
 }
 
-@media screen and (max-width: 676px){
+@media screen and (max-width: 676px) {
   .training-header {
     flex-direction: column;
     word-break: break-word;

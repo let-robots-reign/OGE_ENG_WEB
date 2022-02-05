@@ -1,11 +1,11 @@
 <template>
-    <the-navbar></the-navbar>
-    <main class="main">
-        <aside/>
-        <router-view/>
-        <aside/>
-    </main>
-    <the-footer></the-footer>
+  <the-navbar></the-navbar>
+  <main class="main">
+    <aside/>
+    <router-view/>
+    <aside/>
+  </main>
+  <the-footer></the-footer>
 </template>
 
 <script>
@@ -16,15 +16,15 @@ import {onMounted} from 'vue';
 import {API} from '@/services/api';
 
 export default {
-    components: {TheFooter, TheNavbar},
-    setup() {
-        const store = useStore();
-        onMounted(() => {
-            API.getCurrentUser()
-                .then((res) => store.commit('auth/setUser', res.data))
-                .catch(() => store.commit('auth/setUser', null));
-        });
-    }
+  components: {TheFooter, TheNavbar},
+  setup() {
+    const store = useStore();
+    onMounted(() => {
+      API.getCurrentUser()
+        .then((res) => store.commit('auth/setUser', res.data))
+        .catch(() => store.commit('auth/setUser', null));
+    });
+  }
 };
 </script>
 

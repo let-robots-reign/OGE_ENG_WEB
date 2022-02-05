@@ -1,42 +1,42 @@
 <template>
-    <div class="card training-card">
-        <div class="training-card__left">
-            <img class="training-card__image" :src="imageURL" :alt="title">
-        </div>
-        <div class="training-card__center">{{ title }}</div>
-<!--        <div class="training-card__progress" v-if="progress">{{ progressPercent }}</div>-->
+  <div class="card training-card">
+    <div class="training-card__left">
+      <img class="training-card__image" :src="imageURL" :alt="title">
     </div>
+    <div class="training-card__center">{{ title }}</div>
+    <!--        <div class="training-card__progress" v-if="progress">{{ progressPercent }}</div>-->
+  </div>
 </template>
 
 <script>
 import {computed} from 'vue';
 
 export default {
-    name: 'TrainingCard',
-    props: {
-        image: {
-            type: String,
-            required: true
-        },
-        title: {
-            type: String,
-            required: true
-        },
-        progress: {
-            type: Number,
-            required: false,
-            default: 0
-        }
+  name: 'TrainingCard',
+  props: {
+    image: {
+      type: String,
+      required: true
     },
-    setup(props) {
-        const imageURL = computed(() => `/assets/img/${props.image}`);
-        const progressPercent = computed(() => `прогресс: ${props.progress}%`);
-
-        return {
-            imageURL,
-            progressPercent
-        };
+    title: {
+      type: String,
+      required: true
+    },
+    progress: {
+      type: Number,
+      required: false,
+      default: 0
     }
+  },
+  setup(props) {
+    const imageURL = computed(() => `/assets/img/${props.image}`);
+    const progressPercent = computed(() => `прогресс: ${props.progress}%`);
+
+    return {
+      imageURL,
+      progressPercent
+    };
+  }
 };
 </script>
 

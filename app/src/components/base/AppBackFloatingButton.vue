@@ -1,12 +1,12 @@
 <template>
-    <div class="back-button" @click="$router.go(-1)">
-        &lt;-
-    </div>
+  <div class="back-button" @click="$router.go(-1)">
+    &lt;-
+  </div>
 </template>
 
 <script>
 export default {
-    name: 'AppBackFloatingButton'
+  name: 'AppBackFloatingButton'
 };
 </script>
 

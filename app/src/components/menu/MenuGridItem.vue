@@ -1,18 +1,18 @@
 <template>
-    <div class="card menu-list-item">
-        <p class="menu-list-item__text">{{ text }}</p>
-    </div>
+  <div class="card menu-list-item">
+    <p class="menu-list-item__text">{{ text }}</p>
+  </div>
 </template>
 
 <script>
 export default {
-    name: 'MenuGridItem',
-    props: {
-        text: {
-            type: String,
-            required: true
-        }
+  name: 'MenuGridItem',
+  props: {
+    text: {
+      type: String,
+      required: true
     }
+  }
 };
 </script>
 

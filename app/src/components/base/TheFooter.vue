@@ -1,24 +1,24 @@
 <template>
-    <footer class="footer">
-        <div class="container">
-            <ul class="footer-links">
-                <li class="footer-link">
-                    <router-link :to="{ name: 'Main Page' }">ОГЭ Английский (2021) &copy;</router-link>
-                </li>
-<!--                <li class="footer-link">-->
-<!--                    <router-link :to="{ name: 'Main Page' }">О проекте</router-link>-->
-<!--                </li>-->
-<!--                <li class="footer-link">-->
-<!--                    <router-link :to="{ name: 'Main Page' }">Контакты</router-link>-->
-<!--                </li>-->
-            </ul>
-        </div>
-    </footer>
+  <footer class="footer">
+    <div class="container">
+      <ul class="footer-links">
+        <li class="footer-link">
+          <router-link :to="{ name: 'Main Page' }">ОГЭ Английский (2021) &copy;</router-link>
+        </li>
+        <!-- <li class="footer-link">-->
+        <!--     <router-link :to="{ name: 'Main Page' }">О проекте</router-link>-->
+        <!-- </li>-->
+        <!-- <li class="footer-link">-->
+        <!--     <router-link :to="{ name: 'Main Page' }">Контакты</router-link>-->
+        <!-- </li>-->
+      </ul>
+    </div>
+  </footer>
 </template>
 
 <script>
 export default {
-    name: 'TheFooter'
+  name: 'TheFooter'
 };
 </script>
 

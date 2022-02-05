@@ -1,27 +1,27 @@
 <template>
-    <nav class="navbar">
-        <router-link :to="{ name: 'Main Page' }" class="navbar-logo">ОГЭ Английский</router-link>
+  <nav class="navbar">
+    <router-link :to="{ name: 'Main Page' }" class="navbar-logo">ОГЭ Английский</router-link>
 
-        <ul class="navbar-menu" v-if="auth">
-            <li v-if="isAdmin">
-                <router-link :to="{ name: 'Create Theory' }" class="nav-link">Создать</router-link>
-            </li>
-            <li>
-                <router-link :to="{ name: 'Profile', params: { username } }" class="nav-link">Профиль</router-link>
-            </li>
-            <li>
-                <router-link :to="{ name: 'Login' }" class="nav-link" @click="logout">Выход</router-link>
-            </li>
-        </ul>
-        <ul class="navbar-menu" v-else>
-            <li>
-                <router-link :to="{ name: 'Login' }" class="nav-link">Войти</router-link>
-            </li>
-            <li>
-                <router-link :to="{ name: 'Signup' }" class="nav-link">Регистрация</router-link>
-            </li>
-        </ul>
-    </nav>
+    <ul class="navbar-menu" v-if="auth">
+      <li v-if="isAdmin">
+        <router-link :to="{ name: 'Create Theory' }" class="nav-link">Создать</router-link>
+      </li>
+      <li>
+        <router-link :to="{ name: 'Profile', params: { username } }" class="nav-link">Профиль</router-link>
+      </li>
+      <li>
+        <router-link :to="{ name: 'Login' }" class="nav-link" @click="logout">Выход</router-link>
+      </li>
+    </ul>
+    <ul class="navbar-menu" v-else>
+      <li>
+        <router-link :to="{ name: 'Login' }" class="nav-link">Войти</router-link>
+      </li>
+      <li>
+        <router-link :to="{ name: 'Signup' }" class="nav-link">Регистрация</router-link>
+      </li>
+    </ul>
+  </nav>
 </template>
 
 <script>
@@ -30,24 +30,24 @@ import {API} from '@/services/api';
 import {computed} from 'vue';
 
 export default {
-    name: 'TheNavbar',
-    setup() {
-        const store = useStore();
-        const auth = computed(() => store.getters['auth/isAuthenticated']);
-        const isAdmin = computed(() => store.getters['auth/role'] === 'admin');
-        const username = computed(() => store.getters['auth/username']);
+  name: 'TheNavbar',
+  setup() {
+    const store = useStore();
+    const auth = computed(() => store.getters['auth/isAuthenticated']);
+    const isAdmin = computed(() => store.getters['auth/role'] === 'admin');
+    const username = computed(() => store.getters['auth/username']);
 
-        const logout = () => {
-            API.logout().then(() => store.commit('auth/setUser', null));
-        };
+    const logout = () => {
+      API.logout().then(() => store.commit('auth/setUser', null));
+    };
 
-        return {
-            auth,
-            isAdmin,
-            username,
-            logout
-        };
-    }
+    return {
+      auth,
+      isAdmin,
+      username,
+      logout
+    };
+  }
 };
 </script>
 
