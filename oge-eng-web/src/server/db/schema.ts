@@ -45,7 +45,7 @@ export const users = createTable("user", (d) => ({
       withTimezone: true,
     })
     .$defaultFn(() => /* @__PURE__ */ new Date()),
-  avatar_url: d.varchar({ length: 255 }),
+  image: d.varchar({ length: 255 }),
 }));
 
 export const usersRelations = relations(users, ({ many }) => ({

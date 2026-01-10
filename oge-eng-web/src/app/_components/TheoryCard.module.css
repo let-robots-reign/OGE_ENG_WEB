@@ -1,0 +1,42 @@
+.card {
+  overflow: hidden;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 16px;
+  box-shadow: 2px 3px 10px rgba(0, 0, 0, 0.2);
+  background: #fff;
+  position: relative;
+  min-width: 100%;
+  width: 0;
+  color: #444;
+  cursor: pointer;
+}
+
+.card:hover {
+  box-shadow: 0 0 2px 2px #3eaf7c inset;
+}
+
+.theoryCard {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  align-items: center;
+}
+
+.theoryCard__center {
+  margin-left: 16px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.theoryCard__image {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+@media screen and (max-width: 650px) {
+  .theoryCard {
+    max-width: 350px;
+    margin: 0 auto;
+  }
+}
