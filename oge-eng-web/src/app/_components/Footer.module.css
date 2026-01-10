@@ -1,0 +1,32 @@
+.footer {
+  width: 100%;
+  height: 60px;
+  line-height: 60px;
+  background-color: #fff;
+  border-top: 1px solid #eaeaea;
+}
+
+.container {
+  padding: 0 32px;
+}
+
+.footerLinks {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footerLink {
+  display: inline;
+  margin-right: 32px;
+  cursor: pointer;
+}
+
+.footerLink a {
+  color: #444;
+  text-decoration: none;
+}
+
+.footerLink a:hover {
+  text-decoration: underline;
+}

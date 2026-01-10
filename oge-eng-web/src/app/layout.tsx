@@ -5,6 +5,7 @@ import { Inter } from "next/font/google";
 
 import { TRPCReactProvider } from "@/trpc/react";
 import { Header } from "./_components/header";
+import { Footer } from "./_components/footer";
 
 export const metadata: Metadata = {
   title: "ОГЭ Английский",
@@ -25,7 +26,8 @@ export default function RootLayout({
       <body>
         <TRPCReactProvider>
           <Header />
-          {children}
+          <main>{children}</main>
+          <Footer />
         </TRPCReactProvider>
       </body>
     </html>

@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { TrainingCard } from "./_components/TrainingCard";
-import { TheoryCard } from "./_components/TheoryCard";
+import { TrainingCard } from "./_components/training-card";
+import { TheoryCard } from "./_components/theory-card";
 import styles from "./page.module.css";
 
 export default function HomePage() {
