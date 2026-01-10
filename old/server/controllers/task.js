@@ -2,7 +2,7 @@ const UoeTask = require('../models/uoe_task');
 const AudioTaskFirst = require('../models/audio_task_first');
 const ReadingTaskFirst = require('../models/reading_task_first');
 const WritingTask = require('../models/writing_task');
-const userController = require('../controllers/user');
+const userController = require('./user');
 const {getRandomDocument, getRandomDocuments} = require('../utils/getRandomDocuments');
 const shuffle = require('../utils/shuffle');
 
