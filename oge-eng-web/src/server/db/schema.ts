@@ -1,13 +1,15 @@
 import { relations } from "drizzle-orm";
-import { index, pgTableCreator, primaryKey } from "drizzle-orm/pg-core";
+import {
+  index,
+  pgTableCreator,
+  primaryKey,
+  text,
+  timestamp,
+  varchar,
+  integer,
+} from "drizzle-orm/pg-core";
 import { type AdapterAccount } from "next-auth/adapters";
 
-/**
- * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
- * database instance for multiple projects.
- *
- * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
- */
 export const createTable = pgTableCreator((name) => name);
 
 export const posts = createTable(
@@ -21,7 +23,7 @@ export const posts = createTable(
       .references(() => users.id),
     createdAt: d
       .timestamp({ withTimezone: true })
-      .$defaultFn(() => /* @__PURE__ */ new Date())
+      .$defaultFn(() => new Date())
       .notNull(),
     updatedAt: d.timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
   }),
@@ -44,12 +46,14 @@ export const users = createTable("user", (d) => ({
       mode: "date",
       withTimezone: true,
     })
-    .$defaultFn(() => /* @__PURE__ */ new Date()),
+    .$defaultFn(() => new Date()),
   image: d.varchar({ length: 255 }),
+  role: d.varchar({ length: 50 }).default("user"),
 }));
 
 export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
+  userActivities: many(userActivities),
 }));
 
 export const accounts = createTable(
@@ -90,7 +94,7 @@ export const sessions = createTable(
       .references(() => users.id),
     expires: d.timestamp({ mode: "date", withTimezone: true }).notNull(),
   }),
-  (t) => [index("t_user_id_idx").on(t.userId)],
+  (t) => [index("session_user_id_idx").on(t.userId)],
 );
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({
@@ -106,3 +110,57 @@ export const verificationTokens = createTable(
   }),
   (t) => [primaryKey({ columns: [t.identifier, t.token] })],
 );
+
+export const audioTasksFirst = createTable("audio_task_first", (d) => ({
+  id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+  task: d.text().notNull(),
+  answer: d.text().notNull(),
+  explanation: d.text().notNull(),
+  audio_url: d.varchar({ length: 255 }).notNull(),
+}));
+
+export const readingTasksFirst = createTable("reading_task_first", (d) => ({
+  id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+  text: d.text().notNull(),
+  task: d.text().notNull(),
+  answer: d.text().notNull(),
+  explanation: d.text().notNull(),
+}));
+
+export const uoeTasks = createTable("uoe_task", (d) => ({
+  id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+  topic: d.varchar({ length: 255 }).notNull(),
+  task: d.text().notNull(),
+  origin: d.text().notNull(),
+  answer: d.text().notNull(),
+}));
+
+export const writingTasks = createTable("writing_task", (d) => ({
+  id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+  topic: d.varchar({ length: 255 }).notNull(),
+  task: d.text().notNull(),
+  answer: d.text().notNull(),
+}));
+
+export const theoryArticles = createTable("theory_article", (d) => ({
+  id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+  category: d.varchar({ length: 255 }).notNull(),
+  title: d.varchar({ length: 255 }).notNull(),
+  content: d.text().notNull(),
+}));
+
+export const userActivities = createTable("user_activity", (d) => ({
+  id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+  userId: d
+    .varchar({ length: 255 })
+    .notNull()
+    .references(() => users.id),
+  task: d.text().notNull(),
+  result: d.text().notNull(),
+  experience: d.integer().notNull(),
+  date: d.timestamp({ withTimezone: true }).$defaultFn(() => new Date()),
+}));
+
+export const userActivitiesRelations = relations(userActivities, ({ one }) => ({
+  user: one(users, { fields: [userActivities.userId], references: [users.id] }),
+}));
