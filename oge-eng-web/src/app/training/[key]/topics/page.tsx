@@ -1,8 +1,6 @@
 import { BackButton } from "@/app/_components/BackButton";
 import { MenuListItem } from "@/app/_components/MenuListItem";
-import { db } from "@/server/db";
-import { trainingTopics } from "@/server/db/schema";
-import { eq } from "drizzle-orm";
+import { api } from "@/trpc/server";
 import styles from "./page.module.css";
 
 // This function tells Next.js which `key` values to pre-build
@@ -19,8 +17,8 @@ export default async function TopicsPage({
 }) {
   const { key } = await params;
 
-  const topics = await db.query.trainingTopics.findMany({
-    where: eq(trainingTopics.category, key),
+  const topics = await api.training.getTopicsByCategory({
+    category: key,
   });
 
   return (
