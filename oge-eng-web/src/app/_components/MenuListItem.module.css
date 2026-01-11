@@ -1,0 +1,26 @@
+.card {
+  overflow: hidden;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 16px;
+  box-shadow: 2px 3px 10px rgba(0, 0, 0, 0.2);
+  background: #fff;
+  position: relative;
+  min-width: 100%;
+  width: 0;
+  color: #444;
+  cursor: pointer;
+}
+
+.menuItem {
+  color: #444;
+  cursor: pointer;
+  padding: 2rem;
+  margin-bottom: 0;
+}
+
+.menuItem__title {
+  font-size: 24px;
+  line-height: 28px;
+  font-weight: bold;
+}

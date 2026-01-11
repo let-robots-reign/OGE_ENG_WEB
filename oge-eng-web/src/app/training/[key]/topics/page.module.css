@@ -1,0 +1,22 @@
+.menu {
+  flex-grow: 0;
+  margin: 32px auto;
+}
+
+.menu__list {
+  width: 500px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 0 auto 20px auto;
+}
+
+@media screen and (max-width: 512px) {
+  .menu {
+    flex-grow: 1;
+  }
+
+  .menu__list {
+    width: 100%;
+  }
+}

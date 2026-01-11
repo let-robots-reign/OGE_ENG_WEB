@@ -7,6 +7,8 @@ import { TRPCReactProvider } from "@/trpc/react";
 import { Header } from "./_components/header";
 import { Footer } from "./_components/footer";
 
+import styles from "./page.module.css";
+
 export const metadata: Metadata = {
   title: "ОГЭ Английский",
   description: "Лучшее приложение для подготовки к ОГЭ по английскому языку",
@@ -26,7 +28,7 @@ export default function RootLayout({
       <body>
         <TRPCReactProvider>
           <Header />
-          <main>{children}</main>
+          <main className={styles.main}>{children}</main>
           <Footer />
         </TRPCReactProvider>
       </body>
