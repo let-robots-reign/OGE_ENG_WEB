@@ -1,18 +1,25 @@
 import Link from "next/link";
 import styles from "./MenuListItem.module.css";
 
-type MenuListItemProps = {
+type Topic = {
+  id: number;
   title: string;
+  category: string;
+  isActive: boolean;
+};
+
+type MenuListItemProps = {
+  topic: Topic;
   baseClickLink: string;
 };
 
-export function MenuListItem({ title, baseClickLink }: MenuListItemProps) {
-  const itemClickLink = `${baseClickLink}?topic=${encodeURIComponent(title)}`;
+export function MenuListItem({ topic, baseClickLink }: MenuListItemProps) {
+  const itemClickLink = `${baseClickLink}?topic=${topic.id}`;
 
   return (
     <Link href={itemClickLink}>
       <div className={`${styles.card} ${styles.menuItem}`}>
-        <p className={styles.menuItem__title}>{title}</p>
+        <p className={styles.menuItem__title}>{topic.title}</p>
       </div>
     </Link>
   );

@@ -1,53 +1,37 @@
 import { BackButton } from "@/app/_components/BackButton";
 import { MenuListItem } from "@/app/_components/MenuListItem";
+import { db } from "@/server/db";
+import { trainingTopics } from "@/server/db/schema";
+import { eq } from "drizzle-orm";
 import styles from "./page.module.css";
 
-const topicsMap: Record<string, string[]> = {
-  audio: ["Задания 1-4"],
-  reading: ["Задание 12"],
-  "use-of-english": [
-    "По всем темам",
-    "Словообразование",
-    "Множественное число существительных",
-    "Порядковые числительные",
-    "Объектные местоимения",
-    "Степени сравнения",
-    "Притяжательные и возвратные местоимения",
-    "Пассивный залог",
-    "Глагол to be",
-    "I wish + V2",
-    "Модальные глаголы",
-    "Условное предложение (реальное)",
-    "Условное предложение (нереальное)",
-    "Настоящее Простое/Продолженное",
-    "Настоящее/Прошедшее Совершенное",
-    "Прошедшее Простое",
-    "Прошедшее Продолженное",
-    "Будущее Простое",
-    "Would + V",
-  ],
-};
+// This function tells Next.js which `key` values to pre-build
+export async function generateStaticParams() {
+  return [{ key: "audio" }, { key: "reading" }, { key: "use-of-english" }];
+}
 
-type TopicsPageProps = {
-  params: {
+export default async function TopicsPage({
+  params,
+}: {
+  params: Promise<{
     key: string;
-  };
-};
+  }>;
+}) {
+  const { key } = await params;
 
-export default function TopicsPage({ params }: TopicsPageProps) {
-  const { key } = params;
-  const titles = topicsMap[key] ?? [];
-  const baseClickLink = `/training/${key}`;
+  const topics = await db.query.trainingTopics.findMany({
+    where: eq(trainingTopics.category, key),
+  });
 
   return (
     <div className={styles.menu}>
       <BackButton />
       <div className={styles.menu__list}>
-        {titles.map((title) => (
+        {topics.map((topic) => (
           <MenuListItem
-            key={title}
-            title={title}
-            baseClickLink={baseClickLink}
+            key={topic.id}
+            topic={topic}
+            baseClickLink={`/training/${key}`}
           />
         ))}
       </div>

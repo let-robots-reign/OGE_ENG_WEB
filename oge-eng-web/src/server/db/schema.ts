@@ -7,31 +7,13 @@ import {
   timestamp,
   varchar,
   integer,
+  boolean,
 } from "drizzle-orm/pg-core";
 import { type AdapterAccount } from "next-auth/adapters";
 
 export const createTable = pgTableCreator((name) => name);
 
-export const posts = createTable(
-  "post",
-  (d) => ({
-    id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
-    name: d.varchar({ length: 256 }),
-    createdById: d
-      .varchar({ length: 255 })
-      .notNull()
-      .references(() => users.id),
-    createdAt: d
-      .timestamp({ withTimezone: true })
-      .$defaultFn(() => new Date())
-      .notNull(),
-    updatedAt: d.timestamp({ withTimezone: true }).$onUpdate(() => new Date()),
-  }),
-  (t) => [
-    index("created_by_idx").on(t.createdById),
-    index("name_idx").on(t.name),
-  ],
-);
+// --- AUTH TABLES ---
 
 export const users = createTable("user", (d) => ({
   id: d
@@ -111,12 +93,37 @@ export const verificationTokens = createTable(
   (t) => [primaryKey({ columns: [t.identifier, t.token] })],
 );
 
+// --- APP TABLES ---
+
+export const trainingTopics = createTable("training_topic", (d) => ({
+  id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+  title: d.varchar({ length: 255 }).notNull(),
+  category: d.varchar({ length: 100 }).notNull(),
+  isActive: d.boolean().default(true).notNull(),
+}));
+
+export const trainingTopicsRelations = relations(trainingTopics, ({ many }) => ({
+  audioTasks: many(audioTasksFirst),
+  readingTasks: many(readingTasksFirst),
+  uoeTasks: many(uoeTasks),
+}));
+
 export const audioTasksFirst = createTable("audio_task_first", (d) => ({
   id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
   task: d.text().notNull(),
   answer: d.text().notNull(),
   explanation: d.text().notNull(),
-  audio_url: d.varchar({ length: 255 }).notNull(),
+  audioUrl: d.varchar({ length: 255 }).notNull(),
+  topicId: d
+    .integer()
+    .references(() => trainingTopics.id, { onDelete: "set null" }),
+}));
+
+export const audioTasksFirstRelations = relations(audioTasksFirst, ({ one }) => ({
+  topic: one(trainingTopics, {
+    fields: [audioTasksFirst.topicId],
+    references: [trainingTopics.id],
+  }),
 }));
 
 export const readingTasksFirst = createTable("reading_task_first", (d) => ({
@@ -125,14 +132,36 @@ export const readingTasksFirst = createTable("reading_task_first", (d) => ({
   task: d.text().notNull(),
   answer: d.text().notNull(),
   explanation: d.text().notNull(),
+  topicId: d
+    .integer()
+    .references(() => trainingTopics.id, { onDelete: "set null" }),
 }));
+
+export const readingTasksFirstRelations = relations(
+  readingTasksFirst,
+  ({ one }) => ({
+    topic: one(trainingTopics, {
+      fields: [readingTasksFirst.topicId],
+      references: [trainingTopics.id],
+    }),
+  }),
+);
 
 export const uoeTasks = createTable("uoe_task", (d) => ({
   id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
-  topic: d.varchar({ length: 255 }).notNull(),
   task: d.text().notNull(),
   origin: d.text().notNull(),
   answer: d.text().notNull(),
+  topicId: d
+    .integer()
+    .references(() => trainingTopics.id, { onDelete: "set null" }),
+}));
+
+export const uoeTasksRelations = relations(uoeTasks, ({ one }) => ({
+  topic: one(trainingTopics, {
+    fields: [uoeTasks.topicId],
+    references: [trainingTopics.id],
+  }),
 }));
 
 export const writingTasks = createTable("writing_task", (d) => ({

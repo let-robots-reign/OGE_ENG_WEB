@@ -13,7 +13,7 @@ class TaskController {
     async getAudioTask(topic) {
         let model;
         switch (topic) {
-        case 'Задание 1':
+        case 'Задания 1-4':
             model = AudioTaskFirst;
             break;
         default:
