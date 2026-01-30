@@ -3,7 +3,7 @@ import { MenuListItem } from "@/app/_components/MenuListItem";
 import { api } from "@/trpc/server";
 import styles from "./page.module.css";
 
-// This function tells Next.js which `key` values to pre-build
+// this function tells Next.js which `key` values to pre-build
 export async function generateStaticParams() {
   return [{ key: "audio" }, { key: "reading" }, { key: "use-of-english" }];
 }
@@ -23,8 +23,8 @@ export default async function TopicsPage({
 
   return (
     <div className={styles.menu}>
-      <BackButton />
       <div className={styles.menu__list}>
+        <BackButton />
         {topics.map((topic) => (
           <MenuListItem
             key={topic.id}

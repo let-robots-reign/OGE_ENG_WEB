@@ -9,6 +9,7 @@ import SuperJSON from "superjson";
 
 import { type AppRouter } from "@/server/api/root";
 import { createQueryClient } from "./query-client";
+import { GlobalSpinner } from "@/app/_components/GlobalSpinner";
 
 let clientQueryClientSingleton: QueryClient | undefined = undefined;
 const getQueryClient = () => {
@@ -66,6 +67,7 @@ export function TRPCReactProvider(props: { children: React.ReactNode }) {
     <QueryClientProvider client={queryClient}>
       <api.Provider client={trpcClient} queryClient={queryClient}>
         {props.children}
+        <GlobalSpinner />
       </api.Provider>
     </QueryClientProvider>
   );

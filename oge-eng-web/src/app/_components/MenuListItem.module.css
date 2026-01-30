@@ -12,6 +12,12 @@
   cursor: pointer;
 }
 
+.card:hover p {
+  text-decoration: underline;
+  text-decoration-color: #3eaf7c;
+  text-underline-offset: 4px;
+}
+
 .menuItem {
   color: #444;
   cursor: pointer;
