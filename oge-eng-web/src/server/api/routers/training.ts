@@ -125,7 +125,7 @@ export const trainingRouter = createTRPCRouter({
     .input(
       z.object({
         id: z.number(),
-        answers: z.array(z.string().nullable()),
+        answers: z.array(z.number().nullable()),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -141,9 +141,8 @@ export const trainingRouter = createTRPCRouter({
       }
 
       const correctAnswers = task.answer.split(" ").map(Number);
-      const userAnswers = input.answers.map((a) => (a ? Number(a) : null));
 
-      const results = userAnswers.map(
+      const results = input.answers.map(
         (userAnswer, i) => userAnswer === correctAnswers[i],
       );
       const correctCount = results.filter(Boolean).length;

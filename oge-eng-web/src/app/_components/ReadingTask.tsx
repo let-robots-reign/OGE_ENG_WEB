@@ -30,7 +30,7 @@ export const ReadingTask = forwardRef<ReadingTaskRef, ReadingTaskProps>(
       getAnswers: () => answers,
       showCorrectAnswers: (userAnswers, correctAnswers) => {
         const newValidity = userAnswers.map(
-          (ans, i) => Number(ans) === correctAnswers[i],
+          (ans, i) => parseInt(ans ?? "") === correctAnswers[i],
         );
         setValidity(newValidity);
       },
@@ -49,7 +49,7 @@ export const ReadingTask = forwardRef<ReadingTaskRef, ReadingTaskProps>(
     const answerOptions = headings.slice(1);
 
     const getSelectClass = (index: number) => {
-      if (validity[index] === true) return styles.valid;
+      if (validity[index]) return styles.valid;
       if (validity[index] === false) return styles.invalid;
       return "";
     };

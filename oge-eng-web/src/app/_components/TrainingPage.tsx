@@ -4,6 +4,7 @@ import { useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { Modal } from "./Modal";
 import { TrainingHeader } from "./TrainingHeader";
+import { TrainingExplanation } from "./TrainingExplanation";
 import styles from "./TrainingPage.module.css";
 
 type TrainingPageProps = {
@@ -14,7 +15,12 @@ type TrainingPageProps = {
   isChecking: boolean;
   isChecked: boolean;
   resultText: string;
-  explanation?: string | null;
+  explanation?: {
+    text: string;
+    userAnswers: (string | null)[];
+    correctAnswers: number[];
+    headings: string[];
+  } | null;
 };
 
 export function TrainingPage({
@@ -104,24 +110,24 @@ export function TrainingPage({
         </Modal>
       )}
 
-      {isChecked && showExplanation && (
+      {isChecked && showExplanation && explanation && (
         <Modal
           title="Пояснение к заданию"
-          size="medium"
+          size="large"
           onClose={toggleExplanation}
         >
-          <div>
-            <p
-              className={styles.explanationText}
-              dangerouslySetInnerHTML={{ __html: explanation ?? "" }}
-            ></p>
-            <button
-              className={`${styles.btn} ${styles.primary} ${styles.btnBlock} ${styles.btnCentered}`}
-              onClick={toggleExplanation}
-            >
-              Назад
-            </button>
-          </div>
+          <TrainingExplanation
+            userAnswers={explanation.userAnswers}
+            correctAnswers={explanation.correctAnswers}
+            explanation={explanation.text}
+            headings={explanation.headings}
+          />
+          <button
+            className={`${styles.btn} ${styles.primary} ${styles.btnBlock} ${styles.btnCentered}`}
+            onClick={toggleExplanation}
+          >
+            Назад
+          </button>
         </Modal>
       )}
     </>

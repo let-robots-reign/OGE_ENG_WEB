@@ -30,7 +30,12 @@ export default function ReadingPage() {
   const [isChecking, setIsChecking] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   const [resultText, setResultText] = useState("");
-  const [explanation, setExplanation] = useState<string | null>(null);
+  const [explanationData, setExplanationData] = useState<{
+    text: string;
+    userAnswers: (string | null)[];
+    correctAnswers: number[];
+    headings: string[];
+  } | null>(null);
 
   const handleCheck = async () => {
     if (!data?.task) return;
@@ -39,13 +44,22 @@ export default function ReadingPage() {
     const userAnswers = taskRef.current?.getAnswers() ?? [];
     const result = await checkAnswersMutation.mutateAsync({
       id: data.task.id,
-      answers: userAnswers,
+      answers: userAnswers.map((userAnswer) =>
+        userAnswer ? data.task.headings.indexOf(userAnswer) : null,
+      ),
     });
 
     taskRef.current?.showCorrectAnswers(userAnswers, result.correctAnswers);
 
     setResultText(`Ваш результат: ${result.correctCount}/${result.total}`);
-    setExplanation(result.explanation);
+    if (result.explanation) {
+      setExplanationData({
+        text: result.explanation,
+        userAnswers,
+        correctAnswers: result.correctAnswers,
+        headings: data.task.headings,
+      });
+    }
     setIsChecking(false);
     setIsChecked(true);
   };
@@ -79,7 +93,7 @@ export default function ReadingPage() {
         isChecking={isChecking}
         isChecked={isChecked}
         resultText={resultText}
-        explanation={explanation}
+        explanation={explanationData}
       >
         <ReadingTask
           ref={taskRef}

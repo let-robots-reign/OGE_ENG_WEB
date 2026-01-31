@@ -1,0 +1,22 @@
+.explanation {
+  font-size: 18px;
+  margin: 16px 0;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #eee;
+}
+
+.explanation:last-child {
+  border-bottom: none;
+}
+
+.explanation p {
+  margin-bottom: 0.5rem;
+}
+
+.right {
+  color: #42b983;
+}
+
+.wrong {
+  color: #e53935;
+}
