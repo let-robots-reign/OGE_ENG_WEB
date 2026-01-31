@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { Modal } from "./Modal";
 import { TrainingHeader } from "./TrainingHeader";
 import styles from "./TrainingPage.module.css";
-import clsx from "clsx";
 
 type TrainingPageProps = {
   topic: string;
@@ -15,6 +14,7 @@ type TrainingPageProps = {
   isChecking: boolean;
   isChecked: boolean;
   resultText: string;
+  explanation?: string | null;
 };
 
 export function TrainingPage({
@@ -25,10 +25,22 @@ export function TrainingPage({
   isChecking,
   isChecked,
   resultText,
+  explanation,
 }: TrainingPageProps) {
   const router = useRouter();
   const [showInstruction, setShowInstruction] = useState(true);
   const [showResult, setShowResult] = useState(false);
+  const [showExplanation, setShowExplanation] = useState(false);
+
+  const handleCheck = () => {
+    onCheck();
+    setShowResult(true);
+  };
+
+  const toggleExplanation = () => {
+    setShowResult(!showResult);
+    setShowExplanation(!showExplanation);
+  };
 
   return (
     <>
@@ -37,12 +49,7 @@ export function TrainingPage({
           <div>
             {instruction}
             <button
-              className={clsx(
-                styles.btn,
-                styles.btnBlock,
-                styles.btnCentered,
-                styles.primary,
-              )}
+              className={`${styles.btn} ${styles.primary} ${styles.btnBlock} ${styles.btnCentered}`}
               onClick={() => setShowInstruction(false)}
             >
               ОК
@@ -60,18 +67,15 @@ export function TrainingPage({
 
       <div className={styles.buttonsGroup}>
         <button
-          className={clsx(styles.btn, styles.primary)}
+          className={`${styles.btn} ${styles.primary}`}
           disabled={isChecking}
           hidden={isChecked}
-          onClick={() => {
-            onCheck();
-            setShowResult(true);
-          }}
+          onClick={handleCheck}
         >
           Проверить
         </button>
         <button
-          className={clsx(styles.btn, styles.secondary)}
+          className={`${styles.btn} ${styles.secondary}`}
           onClick={() => router.back()}
         >
           Выход
@@ -81,17 +85,41 @@ export function TrainingPage({
       {isChecked && showResult && (
         <Modal title={resultText} onClose={() => setShowResult(false)}>
           <div>
-            <p>Вы можете посмотреть свои ошибки и правильные ответы</p>
+            <p>Вы можете посмотреть свои ошибки и правильные ответы.</p>
             <button
-              className={clsx(
-                styles.btn,
-                styles.btnBlock,
-                styles.btnCentered,
-                styles.primary,
-              )}
+              className={`${styles.btn} ${styles.primary} ${styles.btnBlock} ${styles.btnCentered}`}
               onClick={() => setShowResult(false)}
             >
               ОК
+            </button>
+            {explanation && (
+              <button
+                className={`${styles.btn} ${styles.primary} ${styles.btnBlock} ${styles.btnCentered}`}
+                onClick={toggleExplanation}
+              >
+                Пояснение
+              </button>
+            )}
+          </div>
+        </Modal>
+      )}
+
+      {isChecked && showExplanation && (
+        <Modal
+          title="Пояснение к заданию"
+          size="medium"
+          onClose={toggleExplanation}
+        >
+          <div>
+            <p
+              className={styles.explanationText}
+              dangerouslySetInnerHTML={{ __html: explanation ?? "" }}
+            ></p>
+            <button
+              className={`${styles.btn} ${styles.primary} ${styles.btnBlock} ${styles.btnCentered}`}
+              onClick={toggleExplanation}
+            >
+              Назад
             </button>
           </div>
         </Modal>

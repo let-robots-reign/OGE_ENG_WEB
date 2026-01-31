@@ -38,7 +38,7 @@
 }
 
 .modal__content button {
-  width: 100px;
+  min-width: 100px;
   display: block;
   margin: 16px auto 0 auto;
 }

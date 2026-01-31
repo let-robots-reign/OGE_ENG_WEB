@@ -16,7 +16,7 @@ export default function UseOfEnglishPage() {
 
   const cardRefs = useRef<UseOfEnglishCardRef[]>([]);
 
-  const { data: fetchedTasks } = api.training.getUoeTraining.useQuery(
+  const { data, isLoading } = api.training.getUoeTraining.useQuery(
     { topicId },
     {
       enabled: !!topicId,
@@ -42,7 +42,7 @@ export default function UseOfEnglishPage() {
       );
       cardRef?.setIsCorrect(res.isCorrect);
       if (!res.isCorrect) {
-        const task = fetchedTasks?.find((t) => t.id === res.id);
+        const task = data?.tasks.find((t) => t.id === res.id);
         if (task) {
           cardRef?.setQuestion(
             task.task.replace("_", `<strong>${res.correctAnswer}</strong>`),
@@ -74,17 +74,23 @@ export default function UseOfEnglishPage() {
     [],
   );
 
+  if (!isLoading && !data) {
+    return <div>Не удалось загрузить задание. Попробуйте еще раз.</div>;
+  } else if (!data) {
+    return <></>;
+  }
+
   return (
     <main className={styles.trainingPage}>
       <TrainingPage
-        topic={`Задание ${topicId}`}
+        topic={data.topicTitle}
         instruction={instruction}
         onCheck={handleCheck}
         isChecking={isChecking}
         isChecked={isChecked}
         resultText={resultText}
       >
-        {fetchedTasks?.map((task, i) => (
+        {data.tasks.map((task, i) => (
           <UseOfEnglishCard
             key={task.id}
             ref={(el) => {

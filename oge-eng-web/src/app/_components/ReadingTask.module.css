@@ -1,0 +1,49 @@
+.card {
+  overflow: hidden;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  border-radius: 16px;
+  box-shadow: 2px 3px 10px rgba(0, 0, 0, 0.2);
+  background: #fff;
+  position: relative;
+}
+
+.readingTask {
+  display: flex;
+  flex-direction: column;
+}
+
+.headingsCard h3, .textsCard h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.headingsCard ol {
+  padding-left: 1rem;
+  margin-top: 1rem;
+}
+
+.textsCard {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.textSection {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1rem;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+/* These classes will be passed to BaseSelect */
+.valid {
+  border-color: #42b983 !important;
+}
+
+.invalid {
+  border-color: #e53935 !important;
+  color: #e53935 !important;
+}

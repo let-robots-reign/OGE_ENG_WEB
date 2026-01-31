@@ -1,0 +1,26 @@
+.select {
+  font-family: inherit;
+  outline: none;
+  border: 2px solid #ccc;
+  display: block;
+  width: 100%;
+  color: #2c3e50;
+  padding: 0.5rem;
+  border-radius: 3px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.select:focus,
+.select:active {
+  transition: border 0.22s;
+  border: 2px solid #42b983;
+}
+
+.select.invalid {
+  border-color: #e53935;
+}
+
+.select.valid {
+  border-color: #c3e991;
+}
