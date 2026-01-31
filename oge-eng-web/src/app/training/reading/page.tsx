@@ -79,7 +79,11 @@ export default function ReadingPage() {
   );
 
   if (!isLoading && !data) {
-    return <div>Не удалось загрузить задание. Попробуйте еще раз.</div>;
+    return (
+      <div className="text-white">
+        Не удалось загрузить задание. Попробуйте еще раз.
+      </div>
+    );
   } else if (!data) {
     return <></>;
   }
