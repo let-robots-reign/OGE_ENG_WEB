@@ -4,6 +4,8 @@ import { useState, useImperativeHandle, forwardRef, Fragment } from "react";
 import { BaseInput } from "./form/BaseInput";
 import { BaseSelect } from "./form/BaseSelect";
 import { BaseRadioGroup } from "./form/BaseRadioGroup";
+import { shuffle } from "@/app/_utils/shuffle";
+
 import styles from "./WritingTask.module.css";
 import clsx from "clsx";
 
@@ -51,11 +53,17 @@ export const WritingTask = forwardRef<WritingTaskRef, WritingTaskProps>(
   ({ taskData, isChecking, isChecked }, ref) => {
     const { structure, cliches, linkers, fullAnswers } = taskData;
     const structureTask = structure[0]!; // Assuming there is always one structure task
-    const letterParts = structureTask.task.split("\n");
+
+    const [shuffledLetterParts] = useState(() => {
+      const originalLetterParts = structureTask.task
+        .split("\n")
+        .map((part, index) => ({ part, originalIndex: index + 1 }));
+      return shuffle(originalLetterParts);
+    });
 
     // State for answers
     const [letterPartsAnswers, setLetterPartsAnswers] = useState<number[]>(
-      Array(letterParts.length).fill(0),
+      Array(shuffledLetterParts.length).fill(0),
     );
     const [clichesAnswers, setClichesAnswers] = useState<string[][]>(
       cliches.map((c) => c.task.split(" ")),
@@ -70,7 +78,7 @@ export const WritingTask = forwardRef<WritingTaskRef, WritingTaskProps>(
     // State for correctness indicators
     const [letterPartsCorrectness, setLetterPartsCorrectness] = useState<
       (boolean | null)[]
-    >(Array(letterParts.length).fill(null));
+    >(Array(shuffledLetterParts.length).fill(null));
     const [clichesCorrectness, setClichesCorrectness] = useState<
       (boolean[] | null)[]
     >(cliches.map(() => null));
@@ -82,21 +90,29 @@ export const WritingTask = forwardRef<WritingTaskRef, WritingTaskProps>(
     >(Array(fullAnswers.length).fill(null));
 
     useImperativeHandle(ref, () => ({
-      getAnswers: () => ({
-        structure: { id: structureTask.id, answer: letterPartsAnswers },
-        cliches: cliches.map((c, i) => ({
-          id: c.id,
-          answer: clichesAnswers[i]!,
-        })),
-        linkers: linkers.map((l, i) => ({
-          id: l.id,
-          answer: linkersAnswers[i]!,
-        })),
-        fullAnswers: fullAnswers.map((fa, i) => ({
-          id: fa.id,
-          answer: fullRepliesAnswers[i]!,
-        })),
-      }),
+      getAnswers: () => {
+        const structureAnswer = letterPartsAnswers.map((answer) => {
+          if (answer > 0 && answer <= shuffledLetterParts.length) {
+            return shuffledLetterParts[answer - 1]!.originalIndex;
+          }
+          return 0;
+        });
+        return {
+          structure: { id: structureTask.id, answer: structureAnswer },
+          cliches: cliches.map((c, i) => ({
+            id: c.id,
+            answer: clichesAnswers[i]!,
+          })),
+          linkers: linkers.map((l, i) => ({
+            id: l.id,
+            answer: linkersAnswers[i]!,
+          })),
+          fullAnswers: fullAnswers.map((fa, i) => ({
+            id: fa.id,
+            answer: fullRepliesAnswers[i]!,
+          })),
+        };
+      },
       showCorrectness: (correctness) => {
         setLetterPartsCorrectness(correctness.structureCorrectness);
         setClichesCorrectness(correctness.clichesCorrectness);
@@ -120,13 +136,13 @@ export const WritingTask = forwardRef<WritingTaskRef, WritingTaskProps>(
           <p className={styles.writingTaskHint}>
             Поставьте предложения в правильном порядке, чтобы получилось письмо.
           </p>
-          {letterParts.map((part, index) => (
+          {shuffledLetterParts.map((item, index) => (
             <p key={index}>
-              {index + 1}) {part}
+              {index + 1}) {item.part}
             </p>
           ))}
           <div className={styles.letterAnswers}>
-            {letterParts.map((_, index) => (
+            {shuffledLetterParts.map((_, index) => (
               <BaseInput
                 key={index}
                 placeholder={(index + 1).toString()}

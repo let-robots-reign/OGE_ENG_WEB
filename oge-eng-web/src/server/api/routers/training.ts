@@ -6,16 +6,9 @@ import {
   uoeTasks,
   writingTasks,
 } from "@/server/db/schema";
+import { shuffle } from "@/app/_utils/shuffle";
 import { eq, inArray, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
-
-const shuffle = (array: any[]) => {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-  return array;
-};
 
 export const trainingRouter = createTRPCRouter({
   getTopicsByCategory: publicProcedure
