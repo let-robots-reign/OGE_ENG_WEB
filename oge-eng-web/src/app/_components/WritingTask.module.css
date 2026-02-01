@@ -84,10 +84,26 @@
   font-weight: 700;
 }
 
+.writingTaskFullRepliesHint {
+  margin-top: 8px;
+}
+
 .valid {
-    border-color: #28a745 !important;
+  border-color: #28a745 !important;
+
+  p& {
+    color: #28a745;
+    margin-left: 20px;
+    font-style: italic;
+  }
 }
 
 .invalid {
-    border-color: #dc3545 !important;
+  border-color: #dc3545 !important;
+
+  p& {
+    color: #dc3545;
+    margin-left: 20px;
+    font-style: italic;
+  }
 }

@@ -20,8 +20,6 @@ export default function WritingPage() {
     },
   );
 
-  console.log(data);
-
   const checkAnswersMutation = api.training.checkWritingTraining.useMutation();
 
   const [isChecking, setIsChecking] = useState(false);
@@ -99,7 +97,8 @@ export default function WritingPage() {
         <WritingTask
           ref={taskRef}
           taskData={data.task}
-          isChecking={isChecking || isChecked}
+          isChecking={isChecking}
+          isChecked={isChecked}
         />
       </TrainingPage>
     </main>

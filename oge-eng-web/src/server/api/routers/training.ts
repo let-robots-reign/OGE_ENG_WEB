@@ -249,8 +249,8 @@ export const trainingRouter = createTRPCRouter({
 
       // Check structure
       const structureTask = getTask(input.answers.structure.id);
-      const structureCorrectParts = structureTask?.answer.split("\r\n");
-      const structureTaskParts = structureTask?.task.split("\r\n");
+      const structureCorrectParts = structureTask?.answer.split("\n");
+      const structureTaskParts = structureTask?.task.split("\n");
       const structureCorrectness = input.answers.structure.answer.map(
         (userAnswer, i) => {
           const isCorrect =
@@ -276,7 +276,7 @@ export const trainingRouter = createTRPCRouter({
       // Check linkers
       const linkersCorrectness = input.answers.linkers.map((userAnswer) => {
         const task = getTask(userAnswer.id);
-        const correct = task?.answer.split("\r\n");
+        const correct = task?.answer.split("\n");
         total += correct?.length ?? 0;
         return userAnswer.answer.map((ans, i) => {
           const isCorrect = ans === correct?.[i];
@@ -289,10 +289,11 @@ export const trainingRouter = createTRPCRouter({
       const fullAnswersCorrectness = input.answers.fullAnswers.map(
         (userAnswer) => {
           const task = getTask(userAnswer.id);
-          const options = task?.task.split("\r\n").slice(1);
+          const options = task?.task.split("\n").slice(1);
           const correctIndex = Number(task?.answer) - 1;
+          const correctAnswerText = options?.[correctIndex];
           total++;
-          const isCorrect = userAnswer.answer === options?.[correctIndex];
+          const isCorrect = userAnswer.answer === correctAnswerText;
           if (isCorrect) correctCount++;
           return isCorrect;
         },

@@ -29,6 +29,7 @@ type WritingTaskData = {
 type WritingTaskProps = {
   taskData: WritingTaskData;
   isChecking: boolean;
+  isChecked: boolean;
 };
 
 export type WritingTaskRef = {
@@ -47,14 +48,14 @@ export type WritingTaskRef = {
 };
 
 export const WritingTask = forwardRef<WritingTaskRef, WritingTaskProps>(
-  ({ taskData, isChecking }, ref) => {
+  ({ taskData, isChecking, isChecked }, ref) => {
     const { structure, cliches, linkers, fullAnswers } = taskData;
     const structureTask = structure[0]!; // Assuming there is always one structure task
     const letterParts = structureTask.task.split("\n");
 
     // State for answers
     const [letterPartsAnswers, setLetterPartsAnswers] = useState<number[]>(
-      Array(letterParts.length).fill(undefined),
+      Array(letterParts.length).fill(0),
     );
     const [clichesAnswers, setClichesAnswers] = useState<string[][]>(
       cliches.map((c) => c.task.split(" ")),
@@ -110,6 +111,8 @@ export const WritingTask = forwardRef<WritingTaskRef, WritingTaskProps>(
       return "";
     };
 
+    const disableControls = isChecking || isChecked;
+
     return (
       <div className={styles.writingTask}>
         <div className={styles.writingTaskSection}>
@@ -127,14 +130,18 @@ export const WritingTask = forwardRef<WritingTaskRef, WritingTaskProps>(
               <BaseInput
                 key={index}
                 placeholder={(index + 1).toString()}
-                modelValue={letterPartsAnswers[index] ?? ""}
+                modelValue={
+                  letterPartsAnswers[index]
+                    ? String(letterPartsAnswers[index])
+                    : ""
+                }
                 onUpdate={(value) => {
                   const newAnswers = [...letterPartsAnswers];
                   newAnswers[index] = Number(value);
                   setLetterPartsAnswers(newAnswers);
                 }}
                 className={getClassForUserInput(letterPartsCorrectness[index])}
-                disabled={isChecking}
+                disabled={disableControls}
               />
             ))}
           </div>
@@ -166,7 +173,7 @@ export const WritingTask = forwardRef<WritingTaskRef, WritingTaskProps>(
                         clichesCorrectness[clicheIndex]?.[wordIndex] ?? null,
                       ),
                     )}
-                    disabled={isChecking}
+                    disabled={disableControls}
                   />
                 ))}
               </div>
@@ -198,7 +205,7 @@ export const WritingTask = forwardRef<WritingTaskRef, WritingTaskProps>(
                     linkersCorrectness[0]?.[linkerIndex] ?? null,
                   ),
                 )}
-                disabled={isChecking}
+                disabled={disableControls}
               />
             </div>
           ))}
@@ -224,7 +231,7 @@ export const WritingTask = forwardRef<WritingTaskRef, WritingTaskProps>(
                         linkersCorrectness[index + 1]?.[textIndex] ?? null,
                       ),
                     )}
-                    disabled={isChecking}
+                    disabled={disableControls}
                   />
                   <span>{text}</span>
                 </Fragment>
@@ -253,9 +260,23 @@ export const WritingTask = forwardRef<WritingTaskRef, WritingTaskProps>(
                   setFullRepliesAnswers(newAnswers);
                 }}
                 vertical
-                disabled={isChecking}
+                disabled={disableControls}
                 isChosenCorrect={fullRepliesCorrectness[index]}
               />
+              {isChecked && (
+                <p
+                  className={clsx(
+                    styles.writingTaskFullRepliesHint,
+                    getClassForUserInput(fullRepliesCorrectness[index]),
+                  )}
+                >
+                  {
+                    fullAnswer.options.slice(3)[
+                      fullAnswer.options.indexOf(fullRepliesAnswers[index]!)
+                    ]
+                  }
+                </p>
+              )}
             </div>
           ))}
         </div>
