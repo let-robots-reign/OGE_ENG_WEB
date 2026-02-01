@@ -29,8 +29,8 @@ export function BaseSelect({
       <option value={undefined} disabled>
         {placeholder}
       </option>
-      {options.map((opt) => (
-        <option key={opt} value={opt}>
+      {options.map((opt, index) => (
+        <option key={opt + index} value={opt}>
           {opt}
         </option>
       ))}

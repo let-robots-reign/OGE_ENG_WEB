@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useImperativeHandle, forwardRef } from "react";
+import { useState, useImperativeHandle, forwardRef, Fragment } from "react";
 import { BaseInput } from "./form/BaseInput";
 import { BaseSelect } from "./form/BaseSelect";
 import { BaseRadioGroup } from "./form/BaseRadioGroup";
@@ -209,10 +209,7 @@ export const WritingTask = forwardRef<WritingTaskRef, WritingTaskProps>(
             <div key={task.id} className={styles.answerItem}>
               <span>{index + 1})</span>
               {task.task.split("\n").map((text, textIndex) => (
-                // <div key={textIndex}>
-                //
-                // </div>
-                <>
+                <Fragment key={text}>
                   <BaseSelect
                     modelValue={linkersAnswers[index + 1]?.[textIndex]}
                     onUpdate={(value) => {
@@ -229,39 +226,39 @@ export const WritingTask = forwardRef<WritingTaskRef, WritingTaskProps>(
                     )}
                     disabled={isChecking}
                   />
-                  {text}
-                </>
+                  <span>{text}</span>
+                </Fragment>
               ))}
             </div>
           ))}
         </div>
 
-        {/*<div className={styles.writingTaskSection}>*/}
-        {/*  <p className={styles.writingTaskTitle}>Полные ответы</p>*/}
-        {/*  {fullAnswers.map((fullAnswer, index) => (*/}
-        {/*    <div key={fullAnswer.id}>*/}
-        {/*      <p className={styles.writingTaskHint}>*/}
-        {/*        Выберите лучший ответ на вопрос*/}
-        {/*      </p>*/}
-        {/*      <p>*/}
-        {/*        <strong>{fullAnswer.question}</strong>*/}
-        {/*      </p>*/}
-        {/*      <BaseRadioGroup*/}
-        {/*        name={`fullRepliesRadio-${index}`}*/}
-        {/*        options={fullAnswer.options}*/}
-        {/*        modelValue={fullRepliesAnswers[index] ?? ""}*/}
-        {/*        onUpdate={(value) => {*/}
-        {/*          const newAnswers = [...fullRepliesAnswers];*/}
-        {/*          newAnswers[index] = String(value);*/}
-        {/*          setFullRepliesAnswers(newAnswers);*/}
-        {/*        }}*/}
-        {/*        vertical*/}
-        {/*        disabled={isChecking}*/}
-        {/*        isChosenCorrect={fullRepliesCorrectness[index]}*/}
-        {/*      />*/}
-        {/*    </div>*/}
-        {/*  ))}*/}
-        {/*</div>*/}
+        <div className={styles.writingTaskSection}>
+          <p className={styles.writingTaskTitle}>Полные ответы</p>
+          {fullAnswers.map((fullAnswer, index) => (
+            <div className={styles.writingTaskFullReplies} key={fullAnswer.id}>
+              <p className={styles.writingTaskHint}>
+                Выберите лучший ответ на вопрос:
+              </p>
+              <h4 className={styles.writingTaskFullRepliesQuestion}>
+                {fullAnswer.question}
+              </h4>
+              <BaseRadioGroup
+                name={`fullRepliesRadio-${index}`}
+                options={fullAnswer.options.slice(0, 3)}
+                modelValue={fullRepliesAnswers[index] ?? ""}
+                onUpdate={(value) => {
+                  const newAnswers = [...fullRepliesAnswers];
+                  newAnswers[index] = String(value);
+                  setFullRepliesAnswers(newAnswers);
+                }}
+                vertical
+                disabled={isChecking}
+                isChosenCorrect={fullRepliesCorrectness[index]}
+              />
+            </div>
+          ))}
+        </div>
       </div>
     );
   },

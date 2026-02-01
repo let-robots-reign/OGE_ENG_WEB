@@ -34,14 +34,15 @@
 
 .answerItem {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   column-gap: 12px;
+  row-gap: 8px;
   margin-bottom: 16px;
   flex-wrap: wrap;
 
   div {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     column-gap: 4px;
     margin-bottom: 16px;
   }
@@ -57,7 +58,7 @@
 .linkerText {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
+  align-items: center;
   gap: 8px;
   margin-bottom: 0;
 }
@@ -71,7 +72,16 @@
   grid-template-columns: repeat(8, 1fr);
   max-width: 70%;
   margin: 16px auto 0 auto;
-  gap: 5px;
+  gap: 4px;
+}
+
+.writingTaskFullReplies {
+  margin-bottom: 20px;
+}
+
+.writingTaskFullRepliesQuestion {
+  margin-bottom: 8px;
+  font-weight: 700;
 }
 
 .valid {
