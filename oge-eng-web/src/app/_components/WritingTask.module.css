@@ -1,0 +1,83 @@
+.writingTask {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  font-size: 18px;
+  padding: 1.5rem;
+  background-color: #fff;
+  border-radius: 8px;
+  color: #333;
+}
+
+.writingTaskSection {
+  border-bottom: 1px solid #eee;
+  padding-bottom: 20px;
+}
+
+.writingTaskSection:last-child {
+  border-bottom: none;
+}
+
+.writingTaskTitle {
+  font-size: 1.7rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.writingTaskHint {
+  margin-bottom: 20px;
+  font-style: italic;
+  text-align: center;
+  color: #555;
+}
+
+.answerItem {
+  display: flex;
+  align-items: baseline;
+  column-gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+
+  div {
+    display: flex;
+    align-items: baseline;
+    column-gap: 4px;
+    margin-bottom: 16px;
+  }
+}
+
+.clichesList {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 12px;
+  row-gap: 8px;
+}
+
+.linkerText {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  margin-bottom: 0;
+}
+
+.answerSelect {
+  width: fit-content;
+}
+
+.letterAnswers {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  max-width: 70%;
+  margin: 16px auto 0 auto;
+  gap: 5px;
+}
+
+.valid {
+    border-color: #28a745 !important;
+}
+
+.invalid {
+    border-color: #dc3545 !important;
+}

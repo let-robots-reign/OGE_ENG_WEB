@@ -7,6 +7,8 @@ type BaseSelectProps = {
   onUpdate: (value: string) => void;
   options: string[];
   className?: string;
+  disabled?: boolean;
+  placeholder?: string;
 };
 
 export function BaseSelect({
@@ -14,15 +16,18 @@ export function BaseSelect({
   onUpdate,
   options,
   className = "",
+  disabled = false,
+  placeholder = "",
 }: BaseSelectProps) {
   return (
     <select
       className={`${styles.select} ${className}`}
       value={modelValue ?? ""}
       onChange={(e) => onUpdate(e.target.value)}
+      disabled={disabled}
     >
-      <option value="" disabled key="">
-        Выберите вопрос
+      <option value={undefined} disabled>
+        {placeholder}
       </option>
       {options.map((opt) => (
         <option key={opt} value={opt}>
