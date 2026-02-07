@@ -45,7 +45,10 @@ export default function UseOfEnglishPage() {
         const task = data?.tasks.find((t) => t.id === res.id);
         if (task) {
           cardRef?.setQuestion(
-            task.task.replace("_", `<strong>${res.correctAnswer}</strong>`),
+            task.task.replace(
+              "_".repeat(18),
+              `<strong>${res.correctAnswer}</strong>`,
+            ),
           );
         }
       }

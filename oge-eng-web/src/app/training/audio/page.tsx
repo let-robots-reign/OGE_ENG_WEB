@@ -5,19 +5,19 @@ import { useSearchParams } from "next/navigation";
 import { api } from "@/trpc/react";
 import { TrainingPage } from "@/app/_components/TrainingPage";
 import {
-  ReadingTask,
-  type ReadingTaskRef,
-} from "@/app/_components/ReadingTask";
-import { TrainingExplanation } from "@/app/_components/TrainingExplanation";
+  ListeningTask,
+  type ListeningTaskRef,
+} from "@/app/_components/ListeningTask";
+import { ListeningExplanation } from "@/app/_components/ListeningExplanation";
 import styles from "@/app/_components/TrainingPage.module.css";
 
-export default function ReadingPage() {
+export default function ListeningPage() {
   const searchParams = useSearchParams();
   const topicId = Number(searchParams.get("topic"));
 
-  const taskRef = useRef<ReadingTaskRef>(null);
+  const taskRef = useRef<ListeningTaskRef>(null);
 
-  const { data, isLoading } = api.training.getReadingTraining.useQuery(
+  const { data, isLoading } = api.training.getListeningTraining.useQuery(
     { topicId },
     {
       enabled: !!topicId,
@@ -26,7 +26,8 @@ export default function ReadingPage() {
     },
   );
 
-  const checkAnswersMutation = api.training.checkReadingTraining.useMutation();
+  const checkAnswersMutation =
+    api.training.checkListeningTraining.useMutation();
 
   const [isChecking, setIsChecking] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
@@ -41,9 +42,7 @@ export default function ReadingPage() {
     const userAnswers = taskRef.current?.getAnswers() ?? [];
     const result = await checkAnswersMutation.mutateAsync({
       id: data.task.id,
-      answers: userAnswers.map((userAnswer) =>
-        userAnswer ? data.task.headings.indexOf(userAnswer) : null,
-      ),
+      answers: userAnswers,
     });
 
     taskRef.current?.showCorrectAnswers(userAnswers, result.correctAnswers);
@@ -51,11 +50,11 @@ export default function ReadingPage() {
     setResultText(`Ваш результат: ${result.correctCount}/${result.total}`);
     if (result.explanation) {
       setExplanationComponent(
-        <TrainingExplanation
+        <ListeningExplanation
           explanation={result.explanation}
           userAnswers={userAnswers}
           correctAnswers={result.correctAnswers}
-          headings={data.task.headings}
+          questions={data.task.questions}
         />,
       );
     }
@@ -65,14 +64,11 @@ export default function ReadingPage() {
 
   const instruction = useMemo(
     () => (
-      <>
-        <p>
-          Определите, в каком из текстов <b>A-F</b> содержатся ответы на вопросы{" "}
-          <b>1-7</b>.
-        </p>
-        <p>Используйте каждую цифру только один раз.</p>
-        <p>В задании есть один лишний вопрос.</p>
-      </>
+      <p>
+        Вы услышите четыре коротких текста, обозначенных буквами А, B, C, D. В
+        заданиях 1–4 запишите в поле ответа цифру 1, 2 или 3, соответствующую
+        выбранному Вами варианту ответа.
+      </p>
     ),
     [],
   );
@@ -98,10 +94,10 @@ export default function ReadingPage() {
         resultText={resultText}
         explanationComponent={explanationComponent}
       >
-        <ReadingTask
+        <ListeningTask
           ref={taskRef}
-          headings={data.task.headings}
-          texts={data.task.texts}
+          audioUrl={data.task.audioUrl}
+          questions={data.task.questions}
         />
       </TrainingPage>
     </main>

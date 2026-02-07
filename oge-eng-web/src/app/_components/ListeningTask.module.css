@@ -1,0 +1,53 @@
+.listeningTask {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.audioPlayer {
+  width: 100%;
+}
+
+.questions {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.questionBlock {
+  background-color: #fff;
+  padding: 24px;
+  border-radius: 16px;
+}
+
+.questionText {
+  font-size: 18px;
+  line-height: 20px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.radioGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid transparent;
+  transition: border-color 0.3s;
+}
+
+.radioLabel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.valid .radioLabel {
+  color: #4caf50;
+}
+
+.invalid .radioLabel {
+  color: #f44336;
+}

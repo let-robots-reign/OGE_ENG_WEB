@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import {
+  audioTasksFirst,
   readingTasksFirst,
   trainingTopics,
   uoeTasks,
@@ -299,6 +300,89 @@ export const trainingRouter = createTRPCRouter({
         clichesCorrectness,
         linkersCorrectness,
         fullAnswersCorrectness,
+      };
+    }),
+
+  // --- Listening ---
+  getListeningTraining: publicProcedure
+    .input(z.object({ topicId: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const topic = await ctx.db.query.trainingTopics.findFirst({
+        where: eq(trainingTopics.id, input.topicId),
+        columns: { title: true },
+      });
+
+      if (!topic) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Topic not found.",
+        });
+      }
+
+      const task = await ctx.db
+        .select()
+        .from(audioTasksFirst)
+        .where(eq(audioTasksFirst.topicId, input.topicId))
+        .orderBy(sql`RANDOM()`)
+        .limit(1)
+        .then((res) => res[0]);
+
+      if (!task) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Task not found for the given topic.",
+        });
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { answer, explanation, ...rest } = task;
+
+      const questions = task.task.split("\n").map((q) => {
+        const [question, ...options] = q.split("/option/");
+        return { question, options };
+      });
+
+      return {
+        task: {
+          ...rest,
+          questions,
+        },
+        topicTitle: topic.title,
+      };
+    }),
+
+  checkListeningTraining: publicProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        answers: z.array(z.number().nullable()),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const task = await ctx.db.query.audioTasksFirst.findFirst({
+        where: eq(audioTasksFirst.id, input.id),
+      });
+
+      if (!task) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Task not found for checking.",
+        });
+      }
+
+      const correctAnswers = task.answer.split(" ").map(Number);
+
+      const results = input.answers.map(
+        (userAnswer, i) => userAnswer === correctAnswers[i],
+      );
+      const correctCount = results.filter(Boolean).length;
+
+      return {
+        correctAnswers,
+        results,
+        correctCount,
+        total: correctAnswers.length,
+        explanation: task.explanation.split("---"),
       };
     }),
 });

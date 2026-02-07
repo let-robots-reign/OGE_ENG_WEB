@@ -4,7 +4,6 @@ import { useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { Modal } from "./Modal";
 import { TrainingHeader } from "./TrainingHeader";
-import { TrainingExplanation } from "./TrainingExplanation";
 import styles from "./TrainingPage.module.css";
 
 type TrainingPageProps = {
@@ -15,12 +14,7 @@ type TrainingPageProps = {
   isChecking: boolean;
   isChecked: boolean;
   resultText: string;
-  explanation?: {
-    text: string;
-    userAnswers: (string | null)[];
-    correctAnswers: number[];
-    headings: string[];
-  } | null;
+  explanationComponent?: ReactNode;
 };
 
 export function TrainingPage({
@@ -31,7 +25,7 @@ export function TrainingPage({
   isChecking,
   isChecked,
   resultText,
-  explanation,
+  explanationComponent,
 }: TrainingPageProps) {
   const router = useRouter();
   const [showInstruction, setShowInstruction] = useState(true);
@@ -98,7 +92,7 @@ export function TrainingPage({
             >
               ОК
             </button>
-            {explanation && (
+            {explanationComponent && (
               <button
                 className={`${styles.btn} ${styles.primary} ${styles.btnBlock} ${styles.btnCentered}`}
                 onClick={toggleExplanation}
@@ -110,18 +104,13 @@ export function TrainingPage({
         </Modal>
       )}
 
-      {isChecked && showExplanation && explanation && (
+      {isChecked && showExplanation && explanationComponent && (
         <Modal
           title="Пояснение к заданию"
           size="large"
           onClose={toggleExplanation}
         >
-          <TrainingExplanation
-            userAnswers={explanation.userAnswers}
-            correctAnswers={explanation.correctAnswers}
-            explanation={explanation.text}
-            headings={explanation.headings}
-          />
+          {explanationComponent}
           <button
             className={`${styles.btn} ${styles.primary} ${styles.btnBlock} ${styles.btnCentered}`}
             onClick={toggleExplanation}
