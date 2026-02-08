@@ -27,14 +27,14 @@ export const ListeningTask = forwardRef<ListeningTaskRef, ListeningTaskProps>(
     const [validity, setValidity] = useState<(boolean | null)[]>(
       Array(questions.length).fill(null),
     );
+    const [correctAnswers, setCorrectAnswers] = useState<number[] | null>(null);
 
     useImperativeHandle(ref, () => ({
       getAnswers: () => answers,
-      showCorrectAnswers: (userAnswers, correctAnswers) => {
-        const newValidity = userAnswers.map(
-          (ans, i) => ans === correctAnswers[i],
-        );
+      showCorrectAnswers: (userAnswers, correct) => {
+        const newValidity = userAnswers.map((ans, i) => ans === correct[i]);
         setValidity(newValidity);
+        setCorrectAnswers(correct);
       },
     }));
 
@@ -43,14 +43,25 @@ export const ListeningTask = forwardRef<ListeningTaskRef, ListeningTaskProps>(
       newAnswers[questionIndex] = optionIndex + 1;
       setAnswers(newAnswers);
 
-      const newValidity = [...validity];
-      newValidity[questionIndex] = null;
-      setValidity(newValidity);
+      setValidity(Array(questions.length).fill(null));
+      setCorrectAnswers(null);
     };
 
-    const getRadioGroupClass = (index: number) => {
-      if (validity[index]) return styles.valid;
-      if (validity[index] === false) return styles.invalid;
+    const getLabelClass = (qIndex: number, oIndex: number) => {
+      if (validity[qIndex] === null || correctAnswers === null) return "";
+
+      const userAnswer = answers[qIndex];
+      const correctAnswer = correctAnswers[qIndex];
+      const currentOption = oIndex + 1;
+
+      if (userAnswer === currentOption) {
+        return validity[qIndex] ? styles.valid : styles.invalid;
+      }
+
+      if (correctAnswer === currentOption && !validity[qIndex]) {
+        return styles.correct;
+      }
+
       return "";
     };
 
@@ -64,17 +75,19 @@ export const ListeningTask = forwardRef<ListeningTaskRef, ListeningTaskProps>(
           {questions.map((q, i) => (
             <div key={i} className={styles.questionBlock}>
               <p className={styles.questionText}>{q.question}</p>
-              <div
-                className={`${styles.radioGroup} ${getRadioGroupClass(i)}`}
-              >
+              <div className={styles.radioGroup}>
                 {q.options.map((option, j) => (
-                  <label key={j} className={styles.radioLabel}>
+                  <label
+                    key={j}
+                    className={`${styles.radioLabel} ${getLabelClass(i, j)}`}
+                  >
                     <input
                       type="radio"
                       name={`question-${i}`}
                       value={j + 1}
                       checked={answers[i] === j + 1}
                       onChange={() => handleAnswerChange(i, j)}
+                      disabled={validity[i] !== null}
                     />
                     {option}
                   </label>

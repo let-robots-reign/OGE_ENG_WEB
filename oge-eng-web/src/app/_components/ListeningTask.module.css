@@ -44,10 +44,12 @@
   cursor: pointer;
 }
 
-.valid .radioLabel {
+.radioLabel.valid {
   color: #4caf50;
+  font-weight: bold;
 }
 
-.invalid .radioLabel {
+.radioLabel.invalid {
   color: #f44336;
+  font-weight: bold;
 }
