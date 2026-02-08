@@ -1,0 +1,50 @@
+.container {
+  flex-grow: 1;
+  margin: 16px auto 32px auto;
+  padding: 0 16px;
+  text-align: center;
+}
+
+.title {
+  color: #fff;
+  font-size: 28px;
+  margin-bottom: 48px;
+  text-align: center;
+}
+
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 20px;
+  justify-content: center;
+  align-items: center;
+}
+
+.card {
+  width: 250px;
+  overflow: hidden;
+  padding: 1rem;
+  border-radius: 16px;
+  box-shadow: 2px 3px 10px rgba(0, 0, 0, 0.2);
+  background: #fff;
+  position: relative;
+  color: #444;
+  cursor: pointer;
+  text-decoration: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  min-height: 120px;
+}
+
+.card:hover {
+  box-shadow: 0 0 2px 2px #3eaf7c inset;
+}
+
+.cardTitle {
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: bold;
+}
