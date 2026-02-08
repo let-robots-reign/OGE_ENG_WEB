@@ -3,6 +3,12 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import styles from "./TheoryCategoryPage.module.css";
 
+export function generateStaticParams() {
+  return Object.keys(theoryTopics).map((category) => ({
+    category,
+  }));
+}
+
 interface TheoryCategoryPageProps {
   params: {
     category: CategorySlug;
