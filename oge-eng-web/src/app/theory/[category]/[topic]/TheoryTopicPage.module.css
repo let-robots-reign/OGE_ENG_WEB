@@ -1,0 +1,44 @@
+.container {
+  max-width: 800px;
+  margin: 16px auto 32px auto;
+  padding: 0 16px;
+  position: relative;
+}
+
+.title {
+  font-size: 28px;
+  margin-bottom: 2rem;
+  text-align: center;
+  color: #fff;
+}
+
+.content {
+  background-color: #fff;
+  padding: 24px 24px 12px 24px;
+  border-radius: 24px;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.content h2 {
+  font-size: 1.8rem;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.content p {
+  margin-bottom: 1rem;
+}
+
+.content ul {
+  list-style-type: disc;
+  margin-left: 2rem;
+  margin-bottom: 1rem;
+}
+
+.content code {
+  background-color: #f4f4f4;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-family: monospace;
+}

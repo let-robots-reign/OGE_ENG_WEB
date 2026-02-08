@@ -3,6 +3,8 @@
   margin: 16px auto 32px auto;
   padding: 0 16px;
   text-align: center;
+  position: relative;
+  max-width: 800px;
 }
 
 .title {
@@ -15,14 +17,15 @@
 .grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 16px;
+  column-gap: 24px;
+  row-gap: 16px;
   margin-bottom: 20px;
   justify-content: center;
   align-items: center;
 }
 
 .card {
-  width: 250px;
+  width: 240px;
   overflow: hidden;
   padding: 1rem;
   border-radius: 16px;

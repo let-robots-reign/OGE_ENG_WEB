@@ -2,6 +2,7 @@ import { theoryTopics, type CategorySlug } from "@/app/data/theory-topics";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import styles from "./TheoryCategoryPage.module.css";
+import { BackButton } from "@/app/_components/BackButton";
 
 export function generateStaticParams() {
   return Object.keys(theoryTopics).map((category) => ({
@@ -10,15 +11,15 @@ export function generateStaticParams() {
 }
 
 interface TheoryCategoryPageProps {
-  params: {
+  params: Promise<{
     category: CategorySlug;
-  };
+  }>;
 }
 
-export default function TheoryCategoryPage({
+export default async function TheoryCategoryPage({
   params,
 }: TheoryCategoryPageProps) {
-  const { category } = params;
+  const { category } = await params;
   const categoryData = theoryTopics[category];
 
   if (!categoryData) {
@@ -27,6 +28,7 @@ export default function TheoryCategoryPage({
 
   return (
     <main className={styles.container}>
+      <BackButton />
       <h1 className={styles.title}>{categoryData.title}</h1>
       <div className={styles.grid}>
         {categoryData.topics.map((topic) => (
