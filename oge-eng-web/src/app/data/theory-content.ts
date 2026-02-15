@@ -75,4 +75,73 @@ export const theoryContent: Record<string, string> = {
     </p>
   </div>
   `,
+  "plural-nouns": `
+  <div>
+    <h5>Большинство существительных</h5>
+    <p>Чтобы образовать множественное число, нужно прибавить к существительному букву <b>-s</b>.
+    <br/>Например: a dog – dog<b>s</b>; a game – game<b>s</b>; a toy – toy<b>s</b></p>
+    <h5>Существительные, оканчивающиеся на определённые буквы</h5>
+    <p>Если существительное оканчивается на <b>-o</b>, <b>-ch</b>, <b>-sh</b>, <b>-s</b>, <b>-ss</b>, <b>-x</b>, добавляем <b>-es</b>.
+    <br/>Например: a potato-potato<b>es</b>; a match – match<b>es</b>; a bush – bush<b>es</b>; a bus – bus<b>es</b>; a glass – glass<b>es</b>; a box – box<b>es</b></p>
+    <p>Если существительное оканчивается на <b>согласная+y</b>, то <b>y</b> меняется на <b>-i</b> и добавляется <b>-es</b>.
+    <br/>Например: a country – countr<b>ies</b>; a party – part<b>ies</b>; a story – stor<b>ies</b></p>
+    <p>Если существительное оканчивается на <b>-f</b> или <b>-fe</b>, то <b>-f/-fe</b> меняется на <b>-v</b> и добавляется <b>-es</b>.
+    <br/>Например: a life – li<b>ves</b>; a leaf – lea<b>ves</b>; a wolf – wol<b>ves</b>
+    <h5>Исключения</h5>
+    <p>К исключениям, которые могут встретиться в ОГЭ, относятся следующие:</p>
+    <ul>
+      <li>a m<b>a</b>n – m<b>e</b>n</li>
+      <li>a wom<b>a</b>n – wom<b>e</b>n</li>
+      <li>a child – child<b>ren</b></li>
+      <li>a fish – fish</li>
+      <li>a m<b>ous</b>e – m<b>ic</b>e</li>
+      <li>a f<b>oo</b>t – f<b>ee</b>t</li>
+      <li>a t<b>oo</b>th – t<b>ee</b>th</li>
+      <li>a g<b>oo</b>se – g<b>ee</b>se</li>
+    </ul>
+</div>
+  `,
+  "ordinal-numerals": `
+  <div>
+    <h5>Большинство числительных</h5>
+    <p>Чтобы образовать порядковое числительное, нужно прибавить к количественному числительному буквы <b>-th</b>.
+    <br/>Например: four – four<b>th</b>, seven – seven<b>th</b>, twenty-six - twenty-six<b>th</b></p>
+    <h5>Числительные, оканчивающиеся на определённые буквы</h5>
+    <p>Если числительное оканчивается на <b>-ve</b> (в английском это 5(fi<b>ve</b>) и 12(twel<b>ve</b>)), меняем <u>ve</u> на <u>f</u> и добавляем <b>-th</b>.
+    <br/>Например: fi<u>ve</u> – fi<u>f</u><b>th</b>, twel<u>ve</u>-twel<u>f</u><b>th</b></p>
+    <p>Если числительное оканчивается на <b>-y</b> (в английском это 20, 30, 40 и т.д.), то <u>y</u> меняется на <u>i</u> и добавляется <b>-eth</b>.
+    <br/>Например: twent<u>y</u> – twent<u>i</u><b>eth</b>, sixt<u>y</u> – sixt<u>i</u><b>eth</b>, ninet<u>y</u> - ninet<u>i</u><b>eth</b></p>
+    <p>В числительном 8 добавляется только буква <b>h</b>:
+    <br/>eight – eigh<b>th</b></p>
+    <p>В числительном 9 исчезает буква <b>e</b>:
+    <br/>nin<b>e</b> - nin<b>th</b></p>
+    <h5>Исключения</h5>
+    <p>К исключениям относятся числительные 1, 2 и 3:</p>
+    <ul>
+      <li>one – first</li>
+      <li>two – second</li>
+      <li>three – third</li>
+    </ul>
+    <p>Обратите внимание, что в составном числительном (из нескольких слов) меняется только последнее слово, как и в русском языке.
+    <br/>Например:
+    <br/>thirty-one – thirty-<b>first</b> (тридцать <b>первый</b> — тридцать <b>первого</b>)
+    <br/>one hundred and eighty-<b>four</b> - one hundred and eighty-<b>fourth</b> (сто восемьдесят <b>четыре</b> - сто восемьдесят <b>четвёртый</b>)</p>
+  </div>
+  `,
+  "possessive-pronouns": ``,
+  "object-pronouns": ``,
+  "reflexive-pronouns": ``,
+  "passive-voice": ``,
+  "i-wish-v2": ``,
+  "conditional-real": ``,
+  "conditional-unreal": ``,
+  "to-be-forms": ``,
+  "modal-verbs": ``,
+  "present-simple": ``,
+  "present-continuous": ``,
+  "present-perfect": ``,
+  "past-simple": ``,
+  "past-continuous": ``,
+  "past-perfect": ``,
+  "future-simple": ``,
 };
