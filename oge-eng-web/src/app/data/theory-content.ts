@@ -1,3 +1,5 @@
+import styles from "@/app/theory/[category]/[topic]/TheoryTopicPage.module.css";
+
 export const theoryContent: Record<string, string> = {
   procedure: `
   <div>
@@ -12,12 +14,12 @@ export const theoryContent: Record<string, string> = {
     тему).
     </p>
     <p>Соответствие баллов ОГЭ отметкам:</p>
-    <p>
-      59-70 - «5»<br/>
-      46-58 - «4»<br/>
-      29-45 - «3»<br/>
-      0-28 - «2»
-    </p>
+    <ul>
+     <li>59-70 - «5»</li>
+     <li>46-58 - «4»</li>
+     <li>29-45 - «3»</li>
+     <li>0-28 - «2»</li>
+   </ul>
     <p>
       Письменная часть продолжается 120 минут (30 минут на аудирование+30 минут на чтение+30
       минут на грамматику и лексику+30 минут на письмо).<br/>
@@ -99,7 +101,7 @@ export const theoryContent: Record<string, string> = {
       <li>a t<b>oo</b>th – t<b>ee</b>th</li>
       <li>a g<b>oo</b>se – g<b>ee</b>se</li>
     </ul>
-</div>
+  </div>
   `,
   "ordinal-numerals": `
   <div>
@@ -128,20 +130,399 @@ export const theoryContent: Record<string, string> = {
     <br/>one hundred and eighty-<b>four</b> - one hundred and eighty-<b>fourth</b> (сто восемьдесят <b>четыре</b> - сто восемьдесят <b>четвёртый</b>)</p>
   </div>
   `,
-  "possessive-pronouns": ``,
-  "object-pronouns": ``,
-  "reflexive-pronouns": ``,
-  "passive-voice": ``,
-  "i-wish-v2": ``,
-  "conditional-real": ``,
-  "conditional-unreal": ``,
-  "to-be-forms": ``,
-  "modal-verbs": ``,
-  "present-simple": ``,
-  "present-continuous": ``,
-  "present-perfect": ``,
-  "past-simple": ``,
-  "past-continuous": ``,
-  "past-perfect": ``,
-  "future-simple": ``,
+  "possessive-pronouns": `
+  <div>
+    <p>Притяжательные местоимения отвечают на вопрос <b>Чей? Чья? Чьё? Чьи?</b>
+    <br/>Например: <b>my</b> room (<b>моя</b> комната), <b>his</b> phone (<b>его</b> телефон).</p>
+    <p>В английском языке у притяжательных местоимений нет рода, числа и падежа, то есть они не изменяются: <b>моя</b> комната — <b>my</b> room, <b>мои</b> комнаты — <b>my</b> rooms, <b>моей</b> комнаты — <b>my</b> room, <b>мой</b> телефон — <b>my</b> phone.</p>
+    <p>Притяжательные местоимения делятся на 2 группы в зависимости от места в предложении: </p>
+    <ul>
+      <li>Притяжательные местоимения, после которых стоит <i>существительное</i> (<b>my</b> <i>keys</i>, <b>his</b> <i>book</i>, <b>their</b> <i>money</i>).</li>
+      <li>Притяжательные местоимения, после которых нет существительного (The keys are <b>mine</b>, Whose book is this?-<b>His</b>, The money is <b>theirs</b>).</li>
+    </ul>
+    <table>
+      <thead>
+        <tr>
+          <th>Личное местоимение</th>
+          <th>Притяжательное местоимение + существительное</th>
+          <th>Притяжательное местоимение без существительного</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>I</td><td>My - мой</td><td><b>Mine</b></td>
+         </tr>
+        <tr>
+          <td>You</td><td>Your - твой</td><td>Your<b>s</b></td>
+        </tr>
+        <tr>
+          <td>He</td><td>His - его</td><td>His</td>
+        </tr>
+        <tr>
+          <td>She</td><td>Her - её</td><td>Her<b>s</b></td>
+        </tr>
+        <tr>
+          <td>It</td><td>Its - этого</td><td>Its</td>
+        </tr>
+        <tr>
+          <td>We</td><td>Our - наш</td><td>Our<b>s</b></td>
+        </tr>
+        <tr>
+          <td>They</td><td>Their - их</td><td>Their<b>s</b></td>
+        </tr>
+      </tbody>
+    </table> 
+  </div>
+  `,
+  "object-pronouns": `
+  <div>
+    <p>В английском языке у личных местоимений 2 падежа: именительный и объектный (косвенный: от родительного до предложного). </p>
+    <p>Местоимения в именительном падеже отвечают на вопросы Кто? Что? и в предложении являются <u>подлежащим</u>.
+    <br/>Например: <b><u>She</u></b> likes fruit. <b><u>We</u></b> walk our dog twice a day. Can <b><u>you</u></b> open the door?</p>
+    <p>Местоимения в косвенном падеже отвечают на вопросы Кого? Чего? Кому? Чему? Кем? Чем? О ком? О чём? и в предложении являются <span class="object">дополнением</span>.
+    <br/>Например: Help <b><span class="object">me</b></span>! Don't ask <b><span class="object">him</b></span>. They are waiting for <b><span class="object">us</b></span>.</p>
+    <table>
+      <tr><th>Именительный падеж</th><th>Объектный падеж</th></tr>
+      <tr><td>I</td><td>me</td></tr>
+      <tr><td>you</td><td>you</td></tr>
+      <tr><td>he</td><td>him</td></tr>
+      <tr><td>she</td><td>her</td></tr>
+      <tr><td>it</td><td>it</td></tr>
+      <tr><td>we</td><td>us</td></tr>
+      <tr><td>they</td><td>them</td></tr>
+    </table> 
+  </div>
+  `,
+  "reflexive-pronouns": `
+  <div>
+    <h5>Возвратные местоимения (Себя, сам)</h5>
+    <p>Возвратные местоимения используются, когда <u>подлежащее</u> и <b>дополнение</b> один и тот же человек/предмет.</p>
+    <p>Например:</p>
+    <ul>
+      <li><u>I</u> solved the problem <b>myself — <u>Я</u> решил задачу <b>сам</b>.</li>
+      <li><u>He</u> blames <b>himself — <u>Он</u> винит <b>себя</b>. (Сравните: <u>He</u> blames <b>her</b> — <u>Он</u> винит <b>её</b>).</li>
+      <li><u>We</u> can't do it <b>ourselves — <u>Мы</u> не можем сделать это <b>сами</b>.</li>
+    </ul>
+    <table>
+      <thead>
+        <tr><th>Личное местоимение</th><th>Возвратное местоимение</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>I</td><td>Myself</td></tr>
+        <tr><td>You - ты</td><td>Yourself</td></tr>
+        <tr><td>He</td><td>Himself</td></tr>
+        <tr><td>She</td><td>Herself</td></tr>
+        <tr><td>It</td><td>Itself</td></tr>
+        <tr><td>We</td><td>Ourselves</td></tr>
+        <tr><td>You - вы</td><td>Yourselves</td></tr>
+        <tr><td>They</td><td>Themselves</td></tr>
+      </tbody>
+    </table> 
+  </div>
+  `,
+  "passive-voice": `
+  <div>
+    <h5>Пассивный залог в настоящем и прошедшем</h5>
+    <p>В пассивном залоге <u>подлежащее</u> пассивно, то есть не выполняет действия, выраженного <b>сказуемым</b>.
+    <br/>Например: <u>Книга</u> <b>была написана</b> в 17-ом веке (книга не писала, её кто-то написал). — The <u>book</u> <b>was written</b> in the 17<sup>th</sup> century.</p>
+    <p>Пассивный залог используется, когда: </p>
+    <ul>
+      <li>объект важнее того, кто совершает действие: These phones <b>are made</b> in China / Эти телефоны <b>сделаны</b> в Китае. (Телефоны для нас важнее, чем тот, кто их сделал). </li>
+      <li>тот, кто совершает действие, неизвестен: My bike <b>was stolen</b> yesterday / Мой велосипед <b>был украден</b> вчера. (Мы не знаем, кто украл велосипед). </li>
+      <li>тот, кто совершает действие, и так понятен: Our tests <b>will be checked</b> tomorrow / Наши тесты <b>будут проверены</b> завтра. (Понятно, что наш учитель будет проверять тесты). </li>
+    </ul>
+    <p>Общая формула пассивного залога: <b>be + V3</b>. Чтобы употребить пассивный залог в нужном простом времени (Present Simple, Past Simple, Future Simple), возьмём подходящую форму глагола <b>be</b> (быть) из таблицы и добавим смысловой глагол в 3-ей форме.</p>
+    <table>
+      <thead>
+        <tr>
+          <th colspan="3"><b>Be</b> / быть</th>
+        </tr>
+      </thead>
+      <tr>
+        <th>Past Simple / Прошедшее Простое</th>
+        <th>Present Simple / Настоящее Простое</th>
+        <th>Future Simple / Будущее Простое</th>
+      </tr>
+      <tr>
+        <td><u>I/he/she/it</u> <b>was</b>
+        <br/><u>you/we/they</u> <b>were</b></td>
+        <td><u>I</u> <b>am</b><br/><u>he/she/it</u> <b>is</b><br/><u>you/we/they</u> <b>are</b></td>
+        <td><u>I/you/he/she/it/we/they</u> <b>will be</b></td>
+      </tr>
+    </table> 
+    <p>
+      <ul>
+        <li>Вчера мой <u>велосипед</u> <b>угнали</b>. Yesterday my <u>bike</u> <b>was stolen</b>. </li>
+        <li>Каждый год <u>Москву</u> <b>посещают</b> более миллиона туристов. Every year <u>Moscow</u> <b>is visited</b> by more than one million tourists. </li>
+        <li>В следующем году в нашем городе <b>построят</b> новый <u>стадион</u>. Next year a new <u>stadium</u> <b>will be built</b> in our city. </li>
+      </ul>
+    </p>
+    <p><i>Пассивный залог во временах групп Perfect и Continuous строится по-другому (глагол <b>be</b> ставится в формулу соответствующего времени), но это не встретится в данном экзамене.</i> </p>
+  </div>
+  `,
+  "i-wish-v2": `
+  <div>
+    <p>I wish ... — разновидность условного предложения. Возможны 2 варианта построения предложений:</p>
+    <p><u>I wish</u> he lived here</b> (<u>I wish</u> + <b>V2</b>) — жалеем о том, что он не живёт здесь сейчас.
+    <br/><u>I wish</u> he had lived here</b> (<u>I wish</u> + <b>had V3</b>) — жалеем о том, что он не жил здесь в прошлом.</p>
+    <p>В ОГЭ вам понадобится только формула <u>I wish</u> + <b>V2</b>, поэтому смело ставьте глагол после I wish во вторую форму.
+    <br/>Например: <u>I wish</u> I <b>could</b> speak French. <u>I wish</u> he <b>came</b> to visit us. <u>I wish</u> we <b>had</b> more money.</p>
+  </div>
+  `,
+  "conditional-real": `
+  <div>
+    <p>Условное предложение — сложноподчинённое предложение, обе части которого относятся к будущему времени. Ситуация реальная, условие может исполниться.
+    <br/>Например: Если <b>будет</b> хорошая погода, мы <b>пойдем</b> гулять.</p>
+    <p>В английском языке обе части также относятся к <b>будущему</b> времени, но глагол в части с «если» используется в <u>настоящем</u> времени (Present Simple). То есть: Если <u>есть</u> хорошая погода, мы <b>пойдем</b> гулять. If the weather <u>is</u> good, we <b>will go</b> for a walk. </p>
+    <p>Формула: <b>If + V/Vs, will V</b></p>
+  </div>
+  `,
+  "conditional-unreal": `
+  <div>
+    <p>Условное предложение — сложноподчинённое предложение, обе части которого относятся к настоящему времени. Ситуация нереальная, условие не может исполниться сейчас.
+    <br/>Например: Если бы у меня <b>была</b> сестра, мы бы <b>делили</b> комнату (сестры у меня нет). </p>
+    <p>В английском языке обе части также относятся к настоящему времени, но глагол в части с «если» используется в <u>прошедшем</u> времени (Past Simple), а в другой части используется <b>would + V</b>. То есть: If I <u>had</u> a sister, we <b>would share</b> a room. </p>
+    <p>Формула: <b>If + V2/Ved, would V</b></p>
+  </div>
+  `,
+  "to-be-forms": `
+  <div>
+    <p>Глагол <b>be</b> имеет особые формы спряжения. Чтобы выбрать нужную форму, обратите внимание на то, в каком времени предложение.</p>
+    <p>Примеры:</p>
+    <ul>
+      <li>I <u>passed</u> the exam that's why I <b>was</b> happy (предложение в прошедшем времени). </li>
+      <li>Thousands of tourists <u>visit</u> Italy every year as it <b>is</b> very famous (предложение в настоящем времени). </li>
+      <li>I <u>hope one day</u> people <b>will be</b> kinder (предложение о надеждах на будущее). </li>
+    </ul>
+    <table>
+      <thead>
+        <tr>
+          <th colspan="3"><b>Be</b> / быть</th>
+        </tr>
+      </thead>
+      <tr>
+        <th>Past Simple / Прошедшее Простое</th>
+        <th>Present Simple / Настоящее Простое</th>
+        <th>Future Simple / Будущее Простое</th>
+      </tr>
+      <tr>
+        <td><u>I/he/she/it</u> <b>was</b>
+        <br/><u>you/we/they</u> <b>were</b></td>
+        <td><u>I</u> <b>am</b><br/><u>he/she/it</u> <b>is</b><br/><u>you/we/they</u> <b>are</b></td>
+        <td><u>I/you/he/she/it/we/they</u> <b>will be</b></td>
+      </tr>
+    </table> 
+  </div>
+  `,
+  "modal-verbs": `
+  <div>
+    <p>Модальные глаголы выражают отношение говорящего к действию (совет, разрешение, обязанность и т.д.). К ним относятся <b>can, must, should, may, have to</b> и др.</p>
+    <p>
+      Модальные глаголы не изменяются, то есть, не добавляются -s, -ed, -ing.
+      <br/>После модальных глаголов следует <u>инфинитив</u>.
+      <br/>В вопросах модальный глагол ставится в начале предложения, в отрицании добавляется <b>not / -n't</b> после глагола; вспомогательные глаголы не нужны.
+    </p>
+    <p>Например:
+    <br/>We <b>can</b> <u>swim</u>. We <b>can not</b> <u>swim</u>. <b>Can</b> we <u>swim</u>? — настоящее время
+    <br/>We <b>could</b> <u>swim</u>. We <b>could not</b> <u>swim</u>. <b>Could</b> we <u>swim</u>? — прошедшее время
+    <br/>He <b>should</b> <u>sleep</u> more. He <b>shouldn't</b> <u>sleep</u> more. <b>Should</b> he <u>sleep</u> more?
+    <br/>They <b>must</b> <u>go</u>. They <b>mustn't</b> <u>go</u>. <b>Must</b> they <u>go</u>?</p>
+  </div>
+  `,
+  "present-simple": `
+  <div>
+    <table>
+      <tr>
+        <td>Время</td>
+        <td><h2>Present Simple</h2></td>
+      </tr>
+      <tr>
+        <td>Формула</td>
+        <td>
+          <table>
+            <thead>
+              <tr>
+                <th>&nbsp;</th>
+                <th>+</th>
+                <th>-</th>
+                <th>?</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><u>I/you/we/they</u></td>
+                <td>V</td>
+                <td>do not V/don't V</td>
+                <td>Do ___ V?</td>
+              </tr>
+              <tr>
+                <td><u>He/she/it</u></td>
+                <td>Vs</td>
+                <td>does not V/doesn't V</td>
+                <td>Does ___ V?</td>
+              </tr>
+            </tbody>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td>Употребление/примеры</td>
+        <td>
+          <p>Регулярные действия/привычки:</br>I <b>clean</b> my teeth <u>twice a day</u>.</br>She <b>swims</b> in the sea <u>every summer</u>.</p>
+          <p>Расписание:</br>The train <b>leaves</b> <u>at 7</u>.</br>The TV show <b>starts</b> <u>in 15 minutes</u></p>
+        </td>
+      </tr>
+      <tr>
+        <td>Слова-маркеры</td>
+        <td>Always, usually, sometimes, often, never, every day/week/month/year, once/twice/three times a day/week/month/year.</td>
+      </tr>
+    </table>
+  </div>
+  `,
+  "present-continuous": `
+  <div>
+    <h5>Present Continuous (Настоящее продолженное)</h5>
+    <p><b>Формула:</b> </p>
+    <ul>
+      <li><b>(+)</b> I <b>am Ving</b> | He/she/it <b>is Ving</b> | We/you/they <b>are Ving</b> </li>
+      <li><b>(-)</b> I <b>am not Ving</b> | He/she/it <b>is not Ving / isn't Ving</b> | We/you/they <b>are not Ving / aren't Ving</b> </li>
+      <li><b>(?)</b> <b>Am</b> I <b>Ving?</b> | <b>Is</b> he/she/it <b>Ving?</b> | <b>Are</b> we/you/they <b>Ving?</b> </li>
+    </ul>
+    <p><b>Употребление и примеры:</b> </p>
+    <ul>
+      <li><b>Прямо сейчас:</b> I am learning English tenses at the moment. </li>
+      <li><b>Планы на будущее:</b> We are visiting our grandparents at the weekend. </li>
+      <li><b>Раздражение:</b> She is always crying, I'm fed up with it! </li>
+      <li><b>Временные ситуации:</b> This week I am studying for my exams. </li>
+    </ul>
+    <p><b>Слова-маркеры:</b> At the moment, (right) now, always, constantly (раздражение), this week/month/year, today. </p>
+  </div>
+  `,
+  "present-perfect": `
+  <div>
+    <h5>Present Perfect (Настоящее совершённое)</h5>
+    <p><b>Формула:</b> </p>
+    <ul>
+      <li><b>(+)</b> I/you/we/they <b>have V3/Ved</b> | He/she/it <b>has V3/Ved</b> </li>
+      <li><b>(-)</b> I/you/we/they <b>have not V3/Ved / haven't V3/Ved</b> | He/she/it <b>has not V3/Ved / hasn't V3/Ved</b> </li>
+      <li><b>(?)</b> <b>Have</b> I/you/we/they <b>V3/Ved?</b> | <b>Has</b> he/she/it <b>V3/Ved?</b> </li>
+    </ul>
+    <p><b>Употребление и примеры:</b> </p>
+    <ul>
+      <li><b>Есть результат (время неизвестно/неважно):</b> I have lost my keys. She has broken the vase. </li>
+      <li><b>Действие произошло в период времени, который ещё не закончился:</b> Have you seen Mark today? She has been abroad this month. </li>
+    </ul>
+    <p><b>Слова-маркеры:</b> Already, yet, just, recently, lately, ever, never, today, this week/month/year. </p>
+  </div>
+  `,
+  "past-simple": `
+  <div>
+    <h5>Past Simple (Прошедшее простое)</h5>
+    <p><b>Формула:</b> </p>
+    <ul>
+      <li><b>(+)</b> I/you/we/they/he/she/it <b>Ved/V2</b> </li>
+      <li><b>(-)</b> I/you/we/they/he/she/it <b>did not V / didn't V</b> </li>
+      <li><b>(?)</b> <b>Did</b> I/you/we/they/he/she/it <b>V?</b> </li>
+    </ul>
+    <p><b>Употребление и примеры:</b> </p>
+    <ul>
+      <li><b>Действия в прошлом, часто с указанием времени (>=24 часа):</b> I visited Paris 5 years ago. She swam in the sea for the first time last summer. </li>
+      <li><b>Последовательные действия в прошлом:</b> Ann cleaned her teeth, had breakfast, got dressed and left for work. </li>
+    </ul>
+    <p><b>Слова-маркеры:</b> Yesterday, last week/month/year, 2 days/1 week/4 months/10 years ago, in 1995. </p>
+  </div>
+  `,
+  "past-continuous": `
+  <div>
+    <h5>Past Continuous (Прошедшее продолженное)</h5>
+    <p><b>Формула:</b> </p>
+    <ul>
+      <li><b>(+)</b> I/he/she/it <b>was Ving</b> | We/you/they <b>were Ving</b> </li>
+      <li><b>(-)</b> I/he/she/it <b>was not Ving / wasn't Ving</b> | We/you/they <b>were not Ving / weren't Ving</b> </li>
+      <li><b>(?)</b> <b>Was</b> I/he/she/it <b>Ving?</b> | <b>Were</b> we/you/they <b>Ving?</b> </li>
+    </ul>
+    <p><b>Употребление и примеры:</b> </p>
+    <ul>
+      <li><b>Действие в точное время в прошлом (<24 часов):</b> I was watching a movie yesterday at 2pm. This time last Friday we were driving to our dacha. </li>
+      <li><b>Действие в прошлом одновременно с другим действием.</b> Другое действие может быть ДЛИТЕЛЬНЫМ (Past Continuous) или коротким (Past Simple): Mum was reading a newspaper while dad WAS WATCHING the news. They were playing Monopoly when grandpa entered the room. </li>
+    </ul>
+    <p><b>Слова-маркеры:</b> This time yesterday/last Friday, last Sunday evening/at 4pm, when, while. </p>
+  </div>
+  `,
+  "past-perfect": `
+  <div>
+    <h5>Past Perfect (Прошедшее совершённое)</h5>
+    <p><b>Формула:</b> </p>
+    <ul>
+      <li><b>(+)</b> I/you/we/they/he/she/it <b>had V3/Ved</b> </li>
+      <li><b>(-)</b> I/you/we/they/he/she/it <b>had not V3/Ved / hadn't V3/Ved</b> </li>
+      <li><b>(?)</b> <b>Had</b> I/you/we/they/he/she/it <b>V3/Ved?</b> </li>
+    </ul>
+    <p><b>Употребление и примеры:</b> </p>
+    <ul>
+      <li><b>Действие ДО другого действия в прошлом:</b> By the time we came home, dad had already left. Yesterday I started reading the book I had bought. </li>
+      <li><b>Действие, являющееся причиной другого действия/СОСТОЯНИЯ в прошлом:</b> Mary was crying because she had failed the exam. Sam WAS HAPPY as he had won $100 000. </li>
+    </ul>
+    <p><b>Слова-маркеры:</b> Before, after, by last Wednesday / by 3am / by the time, because, as (для указания причины), until. </p>
+  </div>
+  `,
+  "future-simple": `
+  <div>
+    <h5>Future Simple (Будущее простое)</h5>
+    <p><b>Формула:</b> </p>
+    <ul>
+      <li><b>(+)</b> <b>will V</b> </li>
+      <li><b>(-)</b> <b>will not V / won't V</b> </li>
+      <li><b>(?)</b> <b>Will ... V?</b> </li>
+    </ul>
+    <p><b>Употребление и примеры:</b> </p>
+    <ul>
+      <li><b>Обещания/Надежды:</b> She promises she will come to visit us next week. I hope you will pass the exam. </li>
+      <li><b>Спонтанные решения:</b> Your bag looks heavy! I will carry it for you. </li>
+      <li><b>Предсказания из того, что мы знаем:</b> Jim is the smartest boy in class, he will get everything right on his test. </li>
+    </ul>
+    <p><b>Слова-маркеры:</b> Tomorrow, next Friday/week/month/year, in(через) a week/a month/5 years. </p>
+  </div>
+  `,
+  "adjectives-comparison": `
+  <div>
+    <p>В русском языке прилагательные изменяются по родам, числу и падежам (красивый, красивая, красивые, красивыми и т.д.). В английском языке прилагательные не изменяются. Однако можно образовать различные степени сравнения, как и в русском.</p>
+    <p>Степени сравнения образуются двумя способами: к коротким словам добавляем суффиксы <b>-er</b> (=более) и <b>-est</b> (самый), к длинным слова <b>more</b> (=более) и <b>most</b> (=самый).
+    <br/>Например: tall - tall<b>er</b> - the tall<b>est</b>, interesting - <b>more</b> interesting - the <b>most</b> interesting.</p>
+    <p>Короткие слова состоят из 1 слога (kind, slow, tall) или 2-х слогов, если оканчиваются на <b>-y</b> (happy, funny, crazy).  Все остальные слова длинные (peaceful, interesting, dangerous).</p>
+    <p>При образовании степеней сравнения коротких слов нужно помнить 3 правила написания:
+      <ol>
+        <li>Если слово оканчивается на согласная+гласная+согласная, то <b>последняя согласная</b> удваивается: thi<b>n</b> - thi<b>nn</b>er - the thi<b>nn</b>est.</li>
+        <li>Если слово оканчивается на <b>-y</b>, то <b>-y</b> заменяется на <b>i</b>: happ<b>y</b> - happ<b>i</b>er - the happ<b>i</b>est.</li>
+        <li>Если слово оканчивается на <b>-e</b>, то <b>-e</b> исчезает: nic<b>e</b> - nic<i>er</i> - the nic<i>est</i>.</li>
+      </ol>
+    </p>
+    <p>Есть 2 исключения, которые очень часто встречаются в экзамене. Их нужно запомнить.
+    <br/><b>Good – better – the best<br/>Bad – worse – the worst.</b></p>
+    <p>При выполнении заданий обращайте внимание на следующие слова:
+    <br/><i>than</i> после пропуска указывает на сравнительную степень (taller <i>than</i>, more interesting <i>than</i>);
+    <br/><i>the</i> перед пропуском указывает на превосходную степень (<i>the</i> tallest, <i>the</i> most interesting).</p>
+  </div>
+  `,
+  "would-v": `
+  <div> 
+    <h5>Would+V (пример косвенной речи)</h5>
+    <p>Косвенная речь — передача одним человеком речи другого.
+    <br/>Например: Мой друг сказал, что позвонит завтра.
+    <p>В русском языке глаголы <i>сказал, сообщила, объяснили</i> и т.д. не влияют на время глагола в самом высказывании.
+    <br/>Например: Катя сказала: «Мама <b>придёт</b> поздно» - Катя сказала, что мама <b>придёт</b> поздно.</p>
+    <p>В английском же глаголы в прошедшем времени <i>сказал, сообщила, объяснили</i> и т.д. как бы отодвигают высказывание назад, поэтому время глагола в высказывании тоже меняется на «более прошедшее». Чаще всего первая форма глагола меняется на вторую.</p>
+    <p>В таблице представлены наиболее употребимые формы глагола в косвенной речи. Постарайтесь понять логику изменений форм глаголов, а не заучивать их.</p>
+    <table>
+      <tr><th>Прямая речь</th><th>Косвенная речь</th><th>Пример предложения</th></tr>
+      <tr><td>Present Simple<br/><b>(V/Vs)</b></td><td>Past Simple<br/><b>(V2/Ved)</b></td><td>He said, ‘I <b>like</b> meat.’ → He said that he <b>liked</b> meat.</td></tr>
+      <tr><td>Future Simple<br/><b>(will V)*</b></td><td>Future in the past<br/><b>(would V)*</b></td><td>She exclaimed, ‘I <b>will cope</b> with it!’ → She exclaimed she <b>would cope</b> with that.*</td></tr>
+      <tr><td>Past Simple<br/><b>(V2/Ved)</b></td><td>Past Perfect<br/><b>(had V3)</b></td><td>We answered, ‘We <b>were</b> there yesterday.’ → We answered we <b>had been</b> there the day before.</td></tr>
+      <tr><td>Present Continuous<br/><b>(am/is/are Ving)</b></td><td>Past Continuous<br/><b>(was/were Ving)</b></td><td>They wondered, ‘<b>Are</b> you <b>working</b>?’ → They wondered if we <b>were working</b>.</td></tr>
+      <tr><td>Past Continuous<br/><b>(was/were Ving)</b></td><td>Past Perfect Continuous<br/><b>(had been Ving)</b></td><td>She said, ‘I <b>was working</b> at 7pm yesterday.’ → She said she <b>had been working</b> at 7pm the day before.</td></tr>
+      <tr><td>Present Perfect<br/><b>(have/has V3)</b></td><td>Past Perfect<br/><b>(had V3)</b></td><td>He said, ‘I <b>have lost</b> my credit card.’ → He said he <b>had lost</b> his credit card.</td></tr>
+    </table> 
+    <p><i>*В ОГЭ проверяется знание правил косвенной речи именно в Future Simple, т.е. при раскрытии скобок нужно писать <b>would V</b> (go → would go, be → would be, come → would come).</i></p>
+  </div>
+  `,
 };

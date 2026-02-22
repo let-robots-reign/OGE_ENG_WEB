@@ -102,11 +102,14 @@ export const trainingTopics = createTable("training_topic", (d) => ({
   isActive: d.boolean().default(true).notNull(),
 }));
 
-export const trainingTopicsRelations = relations(trainingTopics, ({ many }) => ({
-  audioTasks: many(audioTasksFirst),
-  readingTasks: many(readingTasksFirst),
-  uoeTasks: many(uoeTasks),
-}));
+export const trainingTopicsRelations = relations(
+  trainingTopics,
+  ({ many }) => ({
+    audioTasks: many(audioTasksFirst),
+    readingTasks: many(readingTasksFirst),
+    uoeTasks: many(uoeTasks),
+  }),
+);
 
 export const audioTasksFirst = createTable("audio_task_first", (d) => ({
   id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
@@ -117,14 +120,18 @@ export const audioTasksFirst = createTable("audio_task_first", (d) => ({
   topicId: d
     .integer()
     .references(() => trainingTopics.id, { onDelete: "set null" }),
+  isDeleted: d.boolean().default(false).notNull(),
 }));
 
-export const audioTasksFirstRelations = relations(audioTasksFirst, ({ one }) => ({
-  topic: one(trainingTopics, {
-    fields: [audioTasksFirst.topicId],
-    references: [trainingTopics.id],
+export const audioTasksFirstRelations = relations(
+  audioTasksFirst,
+  ({ one }) => ({
+    topic: one(trainingTopics, {
+      fields: [audioTasksFirst.topicId],
+      references: [trainingTopics.id],
+    }),
   }),
-}));
+);
 
 export const readingTasksFirst = createTable("reading_task_first", (d) => ({
   id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
@@ -135,6 +142,7 @@ export const readingTasksFirst = createTable("reading_task_first", (d) => ({
   topicId: d
     .integer()
     .references(() => trainingTopics.id, { onDelete: "set null" }),
+  isDeleted: d.boolean().default(false).notNull(),
 }));
 
 export const readingTasksFirstRelations = relations(
@@ -155,6 +163,7 @@ export const uoeTasks = createTable("uoe_task", (d) => ({
   topicId: d
     .integer()
     .references(() => trainingTopics.id, { onDelete: "set null" }),
+  isDeleted: d.boolean().default(false).notNull(),
 }));
 
 export const uoeTasksRelations = relations(uoeTasks, ({ one }) => ({
@@ -169,6 +178,7 @@ export const writingTasks = createTable("writing_task", (d) => ({
   topic: d.varchar({ length: 255 }).notNull(),
   task: d.text().notNull(),
   answer: d.text().notNull(),
+  isDeleted: d.boolean().default(false).notNull(),
 }));
 
 export const theoryArticles = createTable("theory_article", (d) => ({
@@ -191,5 +201,8 @@ export const userActivities = createTable("user_activity", (d) => ({
 }));
 
 export const userActivitiesRelations = relations(userActivities, ({ one }) => ({
-  user: one(users, { fields: [userActivities.userId], references: [users.id] }),
+  user: one(users, {
+    fields: [userActivities.userId],
+    references: [users.id],
+  }),
 }));

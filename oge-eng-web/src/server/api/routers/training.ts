@@ -8,7 +8,7 @@ import {
   writingTasks,
 } from "@/server/db/schema";
 import { shuffle } from "@/app/_utils/shuffle";
-import { eq, inArray, sql } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 export const trainingRouter = createTRPCRouter({
@@ -38,10 +38,14 @@ export const trainingRouter = createTRPCRouter({
         });
       }
 
-      const where =
+      const topicCondition =
         topic.title === "По всем темам"
           ? undefined
           : eq(uoeTasks.topicId, topicId);
+
+      const where = topicCondition
+        ? and(topicCondition, eq(uoeTasks.isDeleted, false))
+        : eq(uoeTasks.isDeleted, false);
 
       const tasks = await ctx.db
         .select()
@@ -99,7 +103,12 @@ export const trainingRouter = createTRPCRouter({
       const task = await ctx.db
         .select()
         .from(readingTasksFirst)
-        .where(eq(readingTasksFirst.topicId, input.topicId))
+        .where(
+          and(
+            eq(readingTasksFirst.topicId, input.topicId),
+            eq(readingTasksFirst.isDeleted, false),
+          ),
+        )
         .orderBy(sql`RANDOM()`)
         .limit(1)
         .then((res) => res[0]);
@@ -161,7 +170,10 @@ export const trainingRouter = createTRPCRouter({
 
   // --- Writing ---
   getWritingTraining: publicProcedure.query(async ({ ctx }) => {
-    const allTasks = await ctx.db.select().from(writingTasks);
+    const allTasks = await ctx.db
+      .select()
+      .from(writingTasks)
+      .where(eq(writingTasks.isDeleted, false));
 
     function getSubtasksByTopic(
       topic: string,
@@ -322,7 +334,12 @@ export const trainingRouter = createTRPCRouter({
       const task = await ctx.db
         .select()
         .from(audioTasksFirst)
-        .where(eq(audioTasksFirst.topicId, input.topicId))
+        .where(
+          and(
+            eq(audioTasksFirst.topicId, input.topicId),
+            eq(audioTasksFirst.isDeleted, false),
+          ),
+        )
         .orderBy(sql`RANDOM()`)
         .limit(1)
         .then((res) => res[0]);

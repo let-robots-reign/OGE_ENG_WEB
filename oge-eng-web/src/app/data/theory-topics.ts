@@ -31,7 +31,7 @@ export const theoryTopics = {
       { id: "past-perfect", title: "Прошедшее совершённое" },
       { id: "future-simple", title: "Будущее простое" },
       {
-        id: "comparative-adjectives",
+        id: "adjectives-comparison",
         title: "Степени сравнения прилагательных",
       },
       { id: "would-v", title: "Would + V" },

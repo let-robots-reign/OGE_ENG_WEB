@@ -15,6 +15,13 @@
       "when": 1768139501400,
       "tag": "0001_wide_captain_midlands",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1771257456542,
+      "tag": "0002_add_is_deleted_to_tasks",
+      "breakpoints": true
     }
   ]
 }

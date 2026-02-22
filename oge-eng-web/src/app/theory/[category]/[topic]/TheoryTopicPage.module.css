@@ -22,8 +22,16 @@
 
 .content h2 {
   font-size: 1.8rem;
-  margin-top: 2rem;
+  margin-top: 1rem;
   margin-bottom: 1rem;
+  font-weight: 700;
+}
+
+.content h5 {
+  font-size: 26px;
+  line-height: 32px;
+  font-weight: 700;
+  margin-bottom: 8px;
 }
 
 .content p {
@@ -36,9 +44,27 @@
   margin-bottom: 1rem;
 }
 
+.content ol {
+  list-style-type: auto;
+  margin-left: 2rem;
+  margin-bottom: 1rem;
+}
+
 .content code {
   background-color: #f4f4f4;
   padding: 0.2rem 0.4rem;
   border-radius: 4px;
   font-family: monospace;
+}
+
+.content table {
+  width: 100%;
+  border: 1px solid;
+  text-align: center;
+  margin: 28px 0;
+}
+
+.content table th, .content table td {
+  padding: 8px 4px;
+  border: 1px solid #000;
 }
