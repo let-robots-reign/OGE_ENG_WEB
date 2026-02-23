@@ -763,6 +763,16 @@ export const theoryContent: Record<string, React.ReactNode> = {
   ),
   "present-continuous": (
     <div>
+      <p>
+        Ниже приводятся основные обозначения, используемые в таблице:
+        <br />V = verb (глагол)
+        <br />
+        <span className="affirmative">+</span> = утвердительное предложение
+        <br />
+        <span className="negative">-</span> = отрицательное предложение
+        <br />
+        <span className="question">?</span> = вопросительное предложение
+      </p>
       <table>
         <tbody>
           <tr>
@@ -774,13 +784,13 @@ export const theoryContent: Record<string, React.ReactNode> = {
           <tr>
             <td>Формула</td>
             <td>
-              <table>
+              <table className="tense-table">
                 <thead>
                   <tr>
                     <th>&nbsp;</th>
-                    <th>+</th>
-                    <th>-</th>
-                    <th>?</th>
+                    <th className="affirmative">+</th>
+                    <th className="negative">-</th>
+                    <th className="question">?</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -788,25 +798,25 @@ export const theoryContent: Record<string, React.ReactNode> = {
                     <td>
                       <u>I</u>
                     </td>
-                    <td>am Ving</td>
-                    <td>am not Ving</td>
-                    <td>Am I Ving?</td>
+                    <td className="affirmative">am Ving</td>
+                    <td className="negative">am not Ving</td>
+                    <td className="question">Am I Ving?</td>
                   </tr>
                   <tr>
                     <td>
                       <u>He/she/it</u>
                     </td>
-                    <td>is Ving</td>
-                    <td>is not Ving / isn't Ving</td>
-                    <td>Is ___ Ving?</td>
+                    <td className="affirmative">is Ving</td>
+                    <td className="negative">is not Ving / isn't Ving</td>
+                    <td className="question">Is ___ Ving?</td>
                   </tr>
                   <tr>
                     <td>
                       <u>You/we/they</u>
                     </td>
-                    <td>are Ving</td>
-                    <td>are not Ving / aren't Ving</td>
-                    <td>Are ___ Ving?</td>
+                    <td className="affirmative">are Ving</td>
+                    <td className="negative">are not Ving / aren't Ving</td>
+                    <td className="question">Are ___ Ving?</td>
                   </tr>
                 </tbody>
               </table>
@@ -849,6 +859,16 @@ export const theoryContent: Record<string, React.ReactNode> = {
   ),
   "present-perfect": (
     <div>
+      <p>
+        Ниже приводятся основные обозначения, используемые в таблице:
+        <br />V = verb (глагол)
+        <br />
+        <span className="affirmative">+</span> = утвердительное предложение
+        <br />
+        <span className="negative">-</span> = отрицательное предложение
+        <br />
+        <span className="question">?</span> = вопросительное предложение
+      </p>
       <table>
         <tbody>
           <tr>
@@ -860,13 +880,13 @@ export const theoryContent: Record<string, React.ReactNode> = {
           <tr>
             <td>Формула</td>
             <td>
-              <table>
+              <table className="tense-table">
                 <thead>
                   <tr>
                     <th>&nbsp;</th>
-                    <th>+</th>
-                    <th>-</th>
-                    <th>?</th>
+                    <th className="affirmative">+</th>
+                    <th className="negative">-</th>
+                    <th className="question">?</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -874,17 +894,17 @@ export const theoryContent: Record<string, React.ReactNode> = {
                     <td>
                       <u>I/you/we/they</u>
                     </td>
-                    <td>have V3/Ved</td>
-                    <td>have not V3/Ved / haven't V3/Ved</td>
-                    <td>Have ___ V3/Ved?</td>
+                    <td className="affirmative">have V3/Ved</td>
+                    <td className="negative">have not V3/Ved / haven't V3/Ved</td>
+                    <td className="question">Have ___ V3/Ved?</td>
                   </tr>
                   <tr>
                     <td>
                       <u>He/she/it</u>
                     </td>
-                    <td>has V3/Ved</td>
-                    <td>has not V3/Ved / hasn't V3/Ved</td>
-                    <td>Has ___ V3/Ved?</td>
+                    <td className="affirmative">has V3/Ved</td>
+                    <td className="negative">has not V3/Ved / hasn't V3/Ved</td>
+                    <td className="question">Has ___ V3/Ved?</td>
                   </tr>
                 </tbody>
               </table>
@@ -924,6 +944,16 @@ export const theoryContent: Record<string, React.ReactNode> = {
   ),
   "past-simple": (
     <div>
+      <p>
+        Ниже приводятся основные обозначения, используемые в таблице:
+        <br />V = verb (глагол)
+        <br />
+        <span className="affirmative">+</span> = утвердительное предложение
+        <br />
+        <span className="negative">-</span> = отрицательное предложение
+        <br />
+        <span className="question">?</span> = вопросительное предложение
+      </p>
       <table>
         <tbody>
           <tr>
@@ -935,13 +965,13 @@ export const theoryContent: Record<string, React.ReactNode> = {
           <tr>
             <td>Формула</td>
             <td>
-              <table>
+              <table className="tense-table">
                 <thead>
                   <tr>
                     <th>&nbsp;</th>
-                    <th>+</th>
-                    <th>-</th>
-                    <th>?</th>
+                    <th className="affirmative">+</th>
+                    <th className="negative">-</th>
+                    <th className="question">?</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -949,9 +979,9 @@ export const theoryContent: Record<string, React.ReactNode> = {
                     <td>
                       <u>I/you/we/they/he/she/it</u>
                     </td>
-                    <td>V2/Ved</td>
-                    <td>did not V / didn't V</td>
-                    <td>Did ___ V?</td>
+                    <td className="affirmative">V2/Ved</td>
+                    <td className="negative">did not V / didn't V</td>
+                    <td className="question">Did ___ V?</td>
                   </tr>
                 </tbody>
               </table>
@@ -989,6 +1019,16 @@ export const theoryContent: Record<string, React.ReactNode> = {
   ),
   "past-continuous": (
     <div>
+      <p>
+        Ниже приводятся основные обозначения, используемые в таблице:
+        <br />V = verb (глагол)
+        <br />
+        <span className="affirmative">+</span> = утвердительное предложение
+        <br />
+        <span className="negative">-</span> = отрицательное предложение
+        <br />
+        <span className="question">?</span> = вопросительное предложение
+      </p>
       <table>
         <tbody>
           <tr>
@@ -1000,13 +1040,13 @@ export const theoryContent: Record<string, React.ReactNode> = {
           <tr>
             <td>Формула</td>
             <td>
-              <table>
+              <table className="tense-table">
                 <thead>
                   <tr>
                     <th>&nbsp;</th>
-                    <th>+</th>
-                    <th>-</th>
-                    <th>?</th>
+                    <th className="affirmative">+</th>
+                    <th className="negative">-</th>
+                    <th className="question">?</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1014,17 +1054,17 @@ export const theoryContent: Record<string, React.ReactNode> = {
                     <td>
                       <u>I/he/she/it</u>
                     </td>
-                    <td>was Ving</td>
-                    <td>was not Ving / wasn't Ving</td>
-                    <td>Was ___ Ving?</td>
+                    <td className="affirmative">was Ving</td>
+                    <td className="negative">was not Ving / wasn't Ving</td>
+                    <td className="question">Was ___ Ving?</td>
                   </tr>
                   <tr>
                     <td>
                       <u>You/we/they</u>
                     </td>
-                    <td>were Ving</td>
-                    <td>were not Ving / weren't Ving</td>
-                    <td>Were ___ Ving?</td>
+                    <td className="affirmative">were Ving</td>
+                    <td className="negative">were not Ving / weren't Ving</td>
+                    <td className="question">Were ___ Ving?</td>
                   </tr>
                 </tbody>
               </table>
@@ -1063,6 +1103,16 @@ export const theoryContent: Record<string, React.ReactNode> = {
   ),
   "past-perfect": (
     <div>
+      <p>
+        Ниже приводятся основные обозначения, используемые в таблице:
+        <br />V = verb (глагол)
+        <br />
+        <span className="affirmative">+</span> = утвердительное предложение
+        <br />
+        <span className="negative">-</span> = отрицательное предложение
+        <br />
+        <span className="question">?</span> = вопросительное предложение
+      </p>
       <table>
         <tbody>
           <tr>
@@ -1074,13 +1124,13 @@ export const theoryContent: Record<string, React.ReactNode> = {
           <tr>
             <td>Формула</td>
             <td>
-              <table>
+              <table className="tense-table">
                 <thead>
                   <tr>
                     <th>&nbsp;</th>
-                    <th>+</th>
-                    <th>-</th>
-                    <th>?</th>
+                    <th className="affirmative">+</th>
+                    <th className="negative">-</th>
+                    <th className="question">?</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1088,9 +1138,9 @@ export const theoryContent: Record<string, React.ReactNode> = {
                     <td>
                       <u>I/you/we/they/he/she/it</u>
                     </td>
-                    <td>had V3/Ved</td>
-                    <td>had not V3/Ved / hadn't V3/Ved</td>
-                    <td>Had ___ V3/Ved?</td>
+                    <td className="affirmative">had V3/Ved</td>
+                    <td className="negative">had not V3/Ved / hadn't V3/Ved</td>
+                    <td className="question">Had ___ V3/Ved?</td>
                   </tr>
                 </tbody>
               </table>
@@ -1131,6 +1181,16 @@ export const theoryContent: Record<string, React.ReactNode> = {
   ),
   "future-simple": (
     <div>
+      <p>
+        Ниже приводятся основные обозначения, используемые в таблице:
+        <br />V = verb (глагол)
+        <br />
+        <span className="affirmative">+</span> = утвердительное предложение
+        <br />
+        <span className="negative">-</span> = отрицательное предложение
+        <br />
+        <span className="question">?</span> = вопросительное предложение
+      </p>
       <table>
         <tbody>
           <tr>
@@ -1142,13 +1202,13 @@ export const theoryContent: Record<string, React.ReactNode> = {
           <tr>
             <td>Формула</td>
             <td>
-              <table>
+              <table className="tense-table">
                 <thead>
                   <tr>
                     <th>&nbsp;</th>
-                    <th>+</th>
-                    <th>-</th>
-                    <th>?</th>
+                    <th className="affirmative">+</th>
+                    <th className="negative">-</th>
+                    <th className="question">?</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1156,9 +1216,9 @@ export const theoryContent: Record<string, React.ReactNode> = {
                     <td>
                       <u>I/you/we/they/he/she/it</u>
                     </td>
-                    <td>will V</td>
-                    <td>will not V / won't V</td>
-                    <td>Will ___ V?</td>
+                    <td className="affirmative">will V</td>
+                    <td className="negative">will not V / won't V</td>
+                    <td className="question">Will ___ V?</td>
                   </tr>
                 </tbody>
               </table>
