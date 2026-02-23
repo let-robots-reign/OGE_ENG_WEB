@@ -381,107 +381,293 @@ export const theoryContent: Record<string, string> = {
   `,
   "present-continuous": `
   <div>
-    <h5>Present Continuous (Настоящее продолженное)</h5>
-    <p><b>Формула:</b> </p>
-    <ul>
-      <li><b>(+)</b> I <b>am Ving</b> | He/she/it <b>is Ving</b> | We/you/they <b>are Ving</b> </li>
-      <li><b>(-)</b> I <b>am not Ving</b> | He/she/it <b>is not Ving / isn't Ving</b> | We/you/they <b>are not Ving / aren't Ving</b> </li>
-      <li><b>(?)</b> <b>Am</b> I <b>Ving?</b> | <b>Is</b> he/she/it <b>Ving?</b> | <b>Are</b> we/you/they <b>Ving?</b> </li>
-    </ul>
-    <p><b>Употребление и примеры:</b> </p>
-    <ul>
-      <li><b>Прямо сейчас:</b> I am learning English tenses at the moment. </li>
-      <li><b>Планы на будущее:</b> We are visiting our grandparents at the weekend. </li>
-      <li><b>Раздражение:</b> She is always crying, I'm fed up with it! </li>
-      <li><b>Временные ситуации:</b> This week I am studying for my exams. </li>
-    </ul>
-    <p><b>Слова-маркеры:</b> At the moment, (right) now, always, constantly (раздражение), this week/month/year, today. </p>
+    <table>
+      <tr>
+        <td>Время</td>
+        <td><h2>Present Continuous</h2></td>
+      </tr>
+      <tr>
+        <td>Формула</td>
+        <td>
+          <table>
+            <thead>
+              <tr>
+                <th>&nbsp;</th>
+                <th>+</th>
+                <th>-</th>
+                <th>?</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><u>I</u></td>
+                <td>am Ving</td>
+                <td>am not Ving</td>
+                <td>Am I Ving?</td>
+              </tr>
+              <tr>
+                <td><u>He/she/it</u></td>
+                <td>is Ving</td>
+                <td>is not Ving / isn't Ving</td>
+                <td>Is ___ Ving?</td>
+              </tr>
+              <tr>
+                <td><u>You/we/they</u></td>
+                <td>are Ving</td>
+                <td>are not Ving / aren't Ving</td>
+                <td>Are ___ Ving?</td>
+              </tr>
+            </tbody>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td>Употребление/примеры</td>
+        <td>
+          <p><b>Прямо сейчас:</b><br/>I am learning English tenses at the moment.</p>
+          <p><b>Планы на будущее:</b><br/>We are visiting our grandparents at the weekend.</p>
+          <p><b>Раздражение:</b><br/>She is always crying, I'm fed up with it!</p>
+          <p><b>Временные ситуации:</b><br/>This week I am studying for my exams.</p>
+        </td>
+      </tr>
+      <tr>
+        <td>Слова-маркеры</td>
+        <td>At the moment, (right) now, always, constantly (раздражение), this week/month/year, today.</td>
+      </tr>
+    </table>
   </div>
   `,
   "present-perfect": `
   <div>
-    <h5>Present Perfect (Настоящее совершённое)</h5>
-    <p><b>Формула:</b> </p>
-    <ul>
-      <li><b>(+)</b> I/you/we/they <b>have V3/Ved</b> | He/she/it <b>has V3/Ved</b> </li>
-      <li><b>(-)</b> I/you/we/they <b>have not V3/Ved / haven't V3/Ved</b> | He/she/it <b>has not V3/Ved / hasn't V3/Ved</b> </li>
-      <li><b>(?)</b> <b>Have</b> I/you/we/they <b>V3/Ved?</b> | <b>Has</b> he/she/it <b>V3/Ved?</b> </li>
-    </ul>
-    <p><b>Употребление и примеры:</b> </p>
-    <ul>
-      <li><b>Есть результат (время неизвестно/неважно):</b> I have lost my keys. She has broken the vase. </li>
-      <li><b>Действие произошло в период времени, который ещё не закончился:</b> Have you seen Mark today? She has been abroad this month. </li>
-    </ul>
-    <p><b>Слова-маркеры:</b> Already, yet, just, recently, lately, ever, never, today, this week/month/year. </p>
+    <table>
+      <tr>
+        <td>Время</td>
+        <td><h2>Present Perfect</h2></td>
+      </tr>
+      <tr>
+        <td>Формула</td>
+        <td>
+          <table>
+            <thead>
+              <tr>
+                <th>&nbsp;</th>
+                <th>+</th>
+                <th>-</th>
+                <th>?</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><u>I/you/we/they</u></td>
+                <td>have V3/Ved</td>
+                <td>have not V3/Ved / haven't V3/Ved</td>
+                <td>Have ___ V3/Ved?</td>
+              </tr>
+              <tr>
+                <td><u>He/she/it</u></td>
+                <td>has V3/Ved</td>
+                <td>has not V3/Ved / hasn't V3/Ved</td>
+                <td>Has ___ V3/Ved?</td>
+              </tr>
+            </tbody>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td>Употребление/примеры</td>
+        <td>
+          <p><b>Есть результат (время неизвестно/неважно):</b><br/>I have lost my keys.<br/>She has broken the vase.</p>
+          <p><b>Действие произошло в период времени, который ещё не закончился:</b><br/>Have you seen Mark today?<br/>She has been abroad this month.</p>
+        </td>
+      </tr>
+      <tr>
+        <td>Слова-маркеры</td>
+        <td>Already, yet, just, recently, lately, ever, never, today, this week/month/year.</td>
+      </tr>
+    </table>
   </div>
   `,
   "past-simple": `
   <div>
-    <h5>Past Simple (Прошедшее простое)</h5>
-    <p><b>Формула:</b> </p>
-    <ul>
-      <li><b>(+)</b> I/you/we/they/he/she/it <b>Ved/V2</b> </li>
-      <li><b>(-)</b> I/you/we/they/he/she/it <b>did not V / didn't V</b> </li>
-      <li><b>(?)</b> <b>Did</b> I/you/we/they/he/she/it <b>V?</b> </li>
-    </ul>
-    <p><b>Употребление и примеры:</b> </p>
-    <ul>
-      <li><b>Действия в прошлом, часто с указанием времени (>=24 часа):</b> I visited Paris 5 years ago. She swam in the sea for the first time last summer. </li>
-      <li><b>Последовательные действия в прошлом:</b> Ann cleaned her teeth, had breakfast, got dressed and left for work. </li>
-    </ul>
-    <p><b>Слова-маркеры:</b> Yesterday, last week/month/year, 2 days/1 week/4 months/10 years ago, in 1995. </p>
+    <table>
+      <tr>
+        <td>Время</td>
+        <td><h2>Past Simple</h2></td>
+      </tr>
+      <tr>
+        <td>Формула</td>
+        <td>
+          <table>
+            <thead>
+              <tr>
+                <th>&nbsp;</th>
+                <th>+</th>
+                <th>-</th>
+                <th>?</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><u>I/you/we/they/he/she/it</u></td>
+                <td>V2/Ved</td>
+                <td>did not V / didn't V</td>
+                <td>Did ___ V?</td>
+              </tr>
+            </tbody>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td>Употребление/примеры</td>
+        <td>
+          <p><b>Действия в прошлом, часто с указанием времени (>=24 часа):</b><br/>I visited Paris 5 years ago.<br/>She swam in the sea for the first time last summer.</p>
+          <p><b>Последовательные действия в прошлом:</b><br/>Ann cleaned her teeth, had breakfast, got dressed and left for work.</p>
+        </td>
+      </tr>
+      <tr>
+        <td>Слова-маркеры</td>
+        <td>Yesterday, last week/month/year, 2 days/1 week/4 months/10 years ago, in 1995.</td>
+      </tr>
+    </table>
   </div>
   `,
   "past-continuous": `
   <div>
-    <h5>Past Continuous (Прошедшее продолженное)</h5>
-    <p><b>Формула:</b> </p>
-    <ul>
-      <li><b>(+)</b> I/he/she/it <b>was Ving</b> | We/you/they <b>were Ving</b> </li>
-      <li><b>(-)</b> I/he/she/it <b>was not Ving / wasn't Ving</b> | We/you/they <b>were not Ving / weren't Ving</b> </li>
-      <li><b>(?)</b> <b>Was</b> I/he/she/it <b>Ving?</b> | <b>Were</b> we/you/they <b>Ving?</b> </li>
-    </ul>
-    <p><b>Употребление и примеры:</b> </p>
-    <ul>
-      <li><b>Действие в точное время в прошлом (<24 часов):</b> I was watching a movie yesterday at 2pm. This time last Friday we were driving to our dacha. </li>
-      <li><b>Действие в прошлом одновременно с другим действием.</b> Другое действие может быть ДЛИТЕЛЬНЫМ (Past Continuous) или коротким (Past Simple): Mum was reading a newspaper while dad WAS WATCHING the news. They were playing Monopoly when grandpa entered the room. </li>
-    </ul>
-    <p><b>Слова-маркеры:</b> This time yesterday/last Friday, last Sunday evening/at 4pm, when, while. </p>
+    <table>
+      <tr>
+        <td>Время</td>
+        <td><h2>Past Continuous</h2></td>
+      </tr>
+      <tr>
+        <td>Формула</td>
+        <td>
+          <table>
+            <thead>
+              <tr>
+                <th>&nbsp;</th>
+                <th>+</th>
+                <th>-</th>
+                <th>?</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><u>I/he/she/it</u></td>
+                <td>was Ving</td>
+                <td>was not Ving / wasn't Ving</td>
+                <td>Was ___ Ving?</td>
+              </tr>
+              <tr>
+                <td><u>You/we/they</u></td>
+                <td>were Ving</td>
+                <td>were not Ving / weren't Ving</td>
+                <td>Were ___ Ving?</td>
+              </tr>
+            </tbody>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td>Употребление/примеры</td>
+        <td>
+          <p><b>Действие в точное время в прошлом (<24 часов):</b><br/>I was watching a movie yesterday at 2pm.<br/>This time last Friday we were driving to our dacha.</p>
+          <p><b>Действие в прошлом одновременно с другим действием.</b> Другое действие может быть ДЛИТЕЛЬНЫМ (Past Continuous) или коротким (Past Simple):<br/>Mum was reading a newspaper while dad WAS WATCHING the news.<br/>They were playing Monopoly when grandpa entered the room.</p>
+        </td>
+      </tr>
+      <tr>
+        <td>Слова-маркеры</td>
+        <td>This time yesterday/last Friday, last Sunday evening/at 4pm, when, while.</td>
+      </tr>
+    </table>
   </div>
   `,
   "past-perfect": `
   <div>
-    <h5>Past Perfect (Прошедшее совершённое)</h5>
-    <p><b>Формула:</b> </p>
-    <ul>
-      <li><b>(+)</b> I/you/we/they/he/she/it <b>had V3/Ved</b> </li>
-      <li><b>(-)</b> I/you/we/they/he/she/it <b>had not V3/Ved / hadn't V3/Ved</b> </li>
-      <li><b>(?)</b> <b>Had</b> I/you/we/they/he/she/it <b>V3/Ved?</b> </li>
-    </ul>
-    <p><b>Употребление и примеры:</b> </p>
-    <ul>
-      <li><b>Действие ДО другого действия в прошлом:</b> By the time we came home, dad had already left. Yesterday I started reading the book I had bought. </li>
-      <li><b>Действие, являющееся причиной другого действия/СОСТОЯНИЯ в прошлом:</b> Mary was crying because she had failed the exam. Sam WAS HAPPY as he had won $100 000. </li>
-    </ul>
-    <p><b>Слова-маркеры:</b> Before, after, by last Wednesday / by 3am / by the time, because, as (для указания причины), until. </p>
+    <table>
+      <tr>
+        <td>Время</td>
+        <td><h2>Past Perfect</h2></td>
+      </tr>
+      <tr>
+        <td>Формула</td>
+        <td>
+          <table>
+            <thead>
+              <tr>
+                <th>&nbsp;</th>
+                <th>+</th>
+                <th>-</th>
+                <th>?</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><u>I/you/we/they/he/she/it</u></td>
+                <td>had V3/Ved</td>
+                <td>had not V3/Ved / hadn't V3/Ved</td>
+                <td>Had ___ V3/Ved?</td>
+              </tr>
+            </tbody>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td>Употребление/примеры</td>
+        <td>
+          <p><b>Действие ДО другого действия в прошлом:</b><br/>By the time we came home, dad had already left.<br/>Yesterday I started reading the book I had bought.</p>
+          <p><b>Действие, являющееся причиной другого действия/СОСТОЯНИЯ в прошлом:</b><br/>Mary was crying because she had failed the exam.<br/>Sam WAS HAPPY as he had won $100 000.</p>
+        </td>
+      </tr>
+      <tr>
+        <td>Слова-маркеры</td>
+        <td>Before, after, by last Wednesday / by 3am / by the time, because, as (для указания причины), until.</td>
+      </tr>
+    </table>
   </div>
   `,
   "future-simple": `
   <div>
-    <h5>Future Simple (Будущее простое)</h5>
-    <p><b>Формула:</b> </p>
-    <ul>
-      <li><b>(+)</b> <b>will V</b> </li>
-      <li><b>(-)</b> <b>will not V / won't V</b> </li>
-      <li><b>(?)</b> <b>Will ... V?</b> </li>
-    </ul>
-    <p><b>Употребление и примеры:</b> </p>
-    <ul>
-      <li><b>Обещания/Надежды:</b> She promises she will come to visit us next week. I hope you will pass the exam. </li>
-      <li><b>Спонтанные решения:</b> Your bag looks heavy! I will carry it for you. </li>
-      <li><b>Предсказания из того, что мы знаем:</b> Jim is the smartest boy in class, he will get everything right on his test. </li>
-    </ul>
-    <p><b>Слова-маркеры:</b> Tomorrow, next Friday/week/month/year, in(через) a week/a month/5 years. </p>
+    <table>
+      <tr>
+        <td>Время</td>
+        <td><h2>Future Simple</h2></td>
+      </tr>
+      <tr>
+        <td>Формула</td>
+        <td>
+          <table>
+            <thead>
+              <tr>
+                <th>&nbsp;</th>
+                <th>+</th>
+                <th>-</th>
+                <th>?</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><u>I/you/we/they/he/she/it</u></td>
+                <td>will V</td>
+                <td>will not V / won't V</td>
+                <td>Will ___ V?</td>
+              </tr>
+            </tbody>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td>Употребление/примеры</td>
+        <td>
+          <p><b>Обещания/Надежды:</b><br/>She promises she will come to visit us next week.<br/>I hope you will pass the exam.</p>
+          <p><b>Спонтанные решения:</b><br/>Your bag looks heavy! I will carry it for you.</p>
+          <p><b>Предсказания из того, что мы знаем:</b><br/>Jim is the smartest boy in class, he will get everything right on his test.</p>
+        </td>
+      </tr>
+      <tr>
+        <td>Слова-маркеры</td>
+        <td>Tomorrow, next Friday/week/month/year, in(через) a week/a month/5 years.</td>
+      </tr>
+    </table>
   </div>
   `,
   "adjectives-comparison": `
