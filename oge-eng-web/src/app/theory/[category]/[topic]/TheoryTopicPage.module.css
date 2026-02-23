@@ -1,5 +1,5 @@
 .container {
-  max-width: 800px;
+  max-width: 900px;
   margin: 16px auto 32px auto;
   padding: 0 16px;
   position: relative;
@@ -64,7 +64,8 @@
   margin: 28px 0;
 }
 
-.content table th, .content table td {
+.content table th,
+.content table td {
   padding: 8px 4px;
   border: 1px solid #000;
 }
@@ -91,4 +92,22 @@
 
 .content :global(.question) {
   color: gray;
+}
+
+.trainingButton {
+  display: block;
+  width: 100%;
+  text-align: center;
+  margin: 20px auto 0;
+  padding: 12px 24px;
+  background-color: #42b983;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: opacity 0.2s ease;
+}
+
+.trainingButton:hover {
+  opacity: 0.8;
 }

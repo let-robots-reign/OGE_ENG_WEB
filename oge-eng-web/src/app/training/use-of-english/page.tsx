@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { api } from "@/trpc/react";
 import { TrainingPage } from "@/app/_components/TrainingPage";
@@ -15,6 +15,10 @@ export default function UseOfEnglishPage() {
   const topicId = Number(searchParams.get("topic"));
 
   const cardRefs = useRef<UseOfEnglishCardRef[]>([]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const { data, isLoading } = api.training.getUoeTraining.useQuery(
     { topicId },

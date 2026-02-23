@@ -3,14 +3,15 @@ import { theoryContent } from "@/app/data/theory-content";
 import { notFound } from "next/navigation";
 import styles from "./TheoryTopicPage.module.css";
 import { BackButton } from "@/app/_components/BackButton";
+import { api } from "@/trpc/server";
+import Link from "next/link";
 
 export function generateStaticParams() {
   const params: { category: CategorySlug; topic: string }[] = [];
   for (const category in theoryTopics) {
-    const categorySlug = category as CategorySlug;
-    theoryTopics[categorySlug].topics.forEach((topic) => {
+    (theoryTopics[category]?.topics ?? []).forEach((topic) => {
       if (theoryContent[topic.id]) {
-        params.push({ category: categorySlug, topic: topic.id });
+        params.push({ category, topic: topic.id });
       }
     });
   }
@@ -27,22 +28,36 @@ interface TheoryTopicPageProps {
 export default async function TheoryTopicPage({
   params,
 }: TheoryTopicPageProps) {
-  const { topic } = await params;
+  const { category, topic } = await params;
   const content = theoryContent[topic];
 
-  if (!content) {
+  const topicData = theoryTopics[category]?.topics.find((t) => t.id === topic);
+
+  if (!content || !topicData) {
     notFound();
   }
 
-  const topicData = Object.values(theoryTopics)
-    .flatMap((category) => category.topics)
-    .find((t) => t.id === topic);
+  let trainingTopic;
+
+  if (topicData.trainingTopicTitle) {
+    trainingTopic = await api.training.getTopicByTopicTitle(
+      topicData.trainingTopicTitle,
+    );
+  }
 
   return (
     <main className={styles.container}>
       <BackButton />
-      <h1 className={styles.title}>{topicData?.title}</h1>
+      <h1 className={styles.title}>{topicData.title}</h1>
       <div className={styles.content}>{content}</div>
+      {trainingTopic && (
+        <Link
+          href={`/training/use-of-english?topic=${trainingTopic.id}`}
+          className={styles.trainingButton}
+        >
+          Перейти к упражнениям на тему &quot;{trainingTopic.title}&quot;
+        </Link>
+      )}
     </main>
   );
 }

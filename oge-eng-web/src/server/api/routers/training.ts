@@ -20,6 +20,14 @@ export const trainingRouter = createTRPCRouter({
       });
     }),
 
+  getTopicByTopicTitle: publicProcedure
+    .input(z.string())
+    .query(({ ctx, input }) => {
+      return ctx.db.query.trainingTopics.findFirst({
+        where: eq(trainingTopics.title, input),
+      });
+    }),
+
   // --- Use of English ---
   getUoeTraining: publicProcedure
     .input(z.object({ topicId: z.number(), batchSize: z.number().default(10) }))
