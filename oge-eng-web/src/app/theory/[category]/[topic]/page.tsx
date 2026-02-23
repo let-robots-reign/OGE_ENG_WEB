@@ -42,10 +42,7 @@ export default async function TheoryTopicPage({
     <main className={styles.container}>
       <BackButton />
       <h1 className={styles.title}>{topicData?.title}</h1>
-      <div
-        className={styles.content}
-        dangerouslySetInnerHTML={{ __html: content }}
-      />
+      <div className={styles.content}>{content}</div>
     </main>
   );
 }

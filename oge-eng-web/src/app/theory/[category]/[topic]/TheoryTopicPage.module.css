@@ -68,3 +68,27 @@
   padding: 8px 4px;
   border: 1px solid #000;
 }
+
+.content :global(.tense-table) {
+  border: none;
+}
+
+.content :global(.tense-table td) {
+  border: none;
+}
+
+.content :global(.tense-table th) {
+  border: none;
+}
+
+.content :global(.affirmative) {
+  color: limegreen;
+}
+
+.content :global(.negative) {
+  color: red;
+}
+
+.content :global(.question) {
+  color: gray;
+}
