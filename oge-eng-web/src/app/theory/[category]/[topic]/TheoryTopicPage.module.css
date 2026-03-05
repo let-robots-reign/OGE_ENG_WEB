@@ -111,3 +111,11 @@
 .trainingButton:hover {
   opacity: 0.8;
 }
+
+@media (max-width: 768px) {
+  .content table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}
