@@ -8,6 +8,8 @@ export async function generateStaticParams() {
   return [{ key: "audio" }, { key: "reading" }, { key: "use-of-english" }];
 }
 
+const NOT_COMPLETED_TOPICS = ["Задание 5", "Задания 6-11", "Задания 13-19"];
+
 export default async function TopicsPage({
   params,
 }: {
@@ -30,6 +32,7 @@ export default async function TopicsPage({
             key={topic.id}
             topic={topic}
             baseClickLink={`/training/${key}`}
+            isNotCompleted={NOT_COMPLETED_TOPICS.includes(topic.title)}
           />
         ))}
       </div>
