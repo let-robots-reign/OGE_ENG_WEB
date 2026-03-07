@@ -96,7 +96,7 @@ export default function ListeningPage() {
       >
         <ListeningTask
           ref={taskRef}
-          audioUrl={data.task.audioUrl}
+          audioUrl={"/audio/topic1/" + data.task.audioUrl}
           questions={data.task.questions}
         />
       </TrainingPage>
