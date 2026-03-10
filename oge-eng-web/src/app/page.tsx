@@ -31,6 +31,13 @@ export default function HomePage() {
         urlSuffix: "",
       },
     ],
+    diagnostics: [
+      {
+        key: "initial",
+        title: "Первоначальная грамматическая диагностика",
+        image: "ic_diagnostics.svg",
+      },
+    ],
     theory: [
       {
         key: "general",
@@ -61,7 +68,11 @@ export default function HomePage() {
               href={`/training/${key}${urlSuffix}`}
               className={styles.trainingLink}
             >
-              <TrainingCard title={title} image={image} />
+              <TrainingCard
+                className="grid-cols-[1fr_2fr]"
+                title={title}
+                image={image}
+              />
             </Link>
           ))}
         </div>
@@ -76,6 +87,24 @@ export default function HomePage() {
               className={styles.theoryLink}
             >
               <TheoryCard title={title} image={image} />
+            </Link>
+          ))}
+        </div>
+      </div>
+      <div className={styles.mainPageSection}>
+        <p className={styles.sectionName}>Диагностика</p>
+        <div className={styles.trainingsGrid}>
+          {cards.diagnostics.map(({ key, title, image }) => (
+            <Link
+              key={key}
+              href={`/diagnostics/${key}`}
+              className={styles.trainingLink}
+            >
+              <TrainingCard
+                className="grid-cols-[1fr_3fr]"
+                title={title}
+                image={image}
+              />
             </Link>
           ))}
         </div>

@@ -8,7 +8,7 @@ import {
   writingTasks,
 } from "@/server/db/schema";
 import { shuffle } from "@/app/_utils/shuffle";
-import { and, eq, inArray, sql } from "drizzle-orm";
+import { and, eq, inArray, sql, ne } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 export const trainingRouter = createTRPCRouter({
@@ -46,10 +46,20 @@ export const trainingRouter = createTRPCRouter({
         });
       }
 
-      const topicCondition =
-        topic.title === "По всем темам"
-          ? undefined
-          : eq(uoeTasks.topicId, topicId);
+      let topicCondition;
+
+      if (topic.title === "По всем темам") {
+        // "По всем темам" includes only grammar, not word formation
+        const wordFormationTopic = await ctx.db.query.trainingTopics.findFirst({
+          where: eq(trainingTopics.title, "Словообразование"),
+          columns: { id: true },
+        });
+        if (wordFormationTopic) {
+          topicCondition = ne(uoeTasks.topicId, wordFormationTopic.id);
+        }
+      } else {
+        topicCondition = eq(uoeTasks.topicId, topicId);
+      }
 
       const where = topicCondition
         ? and(topicCondition, eq(uoeTasks.isDeleted, false))

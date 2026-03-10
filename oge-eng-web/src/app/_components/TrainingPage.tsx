@@ -15,6 +15,7 @@ type TrainingPageProps = {
   isChecked: boolean;
   resultText: string;
   explanationComponent?: ReactNode;
+  dismissText?: string;
 };
 
 export function TrainingPage({
@@ -26,6 +27,7 @@ export function TrainingPage({
   isChecked,
   resultText,
   explanationComponent,
+  dismissText,
 }: TrainingPageProps) {
   const router = useRouter();
   const [showInstruction, setShowInstruction] = useState(true);
@@ -86,12 +88,6 @@ export function TrainingPage({
         <Modal title={resultText} onClose={() => setShowResult(false)}>
           <div>
             <p>Вы можете посмотреть свои ошибки и правильные ответы.</p>
-            <button
-              className={`${styles.btn} ${styles.primary} ${styles.btnBlock} ${styles.btnCentered}`}
-              onClick={() => setShowResult(false)}
-            >
-              ОК
-            </button>
             {explanationComponent && (
               <button
                 className={`${styles.btn} ${styles.primary} ${styles.btnBlock} ${styles.btnCentered}`}
@@ -100,6 +96,12 @@ export function TrainingPage({
                 Пояснение
               </button>
             )}
+            <button
+              className={`${styles.btn} ${styles.primary} ${styles.btnBlock} ${styles.btnCentered}`}
+              onClick={() => setShowResult(false)}
+            >
+              {dismissText ?? "Закрыть"}
+            </button>
           </div>
         </Modal>
       )}

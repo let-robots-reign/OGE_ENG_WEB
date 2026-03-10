@@ -96,6 +96,7 @@ export default function UseOfEnglishPage() {
         isChecking={isChecking}
         isChecked={isChecked}
         resultText={resultText}
+        dismissText="OK"
       >
         {data.tasks.map((task, i) => (
           <UseOfEnglishCard

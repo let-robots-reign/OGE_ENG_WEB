@@ -69,7 +69,7 @@
 
 .letterAnswers {
   display: grid;
-  grid-template-columns: repeat(8, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   max-width: 70%;
   margin: 16px auto 0 auto;
   gap: 4px;
