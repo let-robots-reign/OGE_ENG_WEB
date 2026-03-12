@@ -2,8 +2,6 @@
 
 import React from "react";
 
-import styles from "@/app/theory/[category]/[topic]/TheoryTopicPage.module.css";
-
 export const theoryContent: Record<string, React.ReactNode> = {
   procedure: (
     <div>
@@ -895,7 +893,9 @@ export const theoryContent: Record<string, React.ReactNode> = {
                       <u>I/you/we/they</u>
                     </td>
                     <td className="affirmative">have V3/Ved</td>
-                    <td className="negative">have not V3/Ved / haven't V3/Ved</td>
+                    <td className="negative">
+                      have not V3/Ved / haven't V3/Ved
+                    </td>
                     <td className="question">Have ___ V3/Ved?</td>
                   </tr>
                   <tr>

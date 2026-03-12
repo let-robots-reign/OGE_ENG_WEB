@@ -33,7 +33,7 @@ export default function HomePage() {
     ],
     diagnostics: [
       {
-        key: "initial",
+        key: "grammar",
         title: "Первоначальная грамматическая диагностика",
         image: "ic_diagnostics.svg",
       },
@@ -97,7 +97,7 @@ export default function HomePage() {
           {cards.diagnostics.map(({ key, title, image }) => (
             <Link
               key={key}
-              href={`/diagnostics/${key}`}
+              href={`/diagnostic/${key}`}
               className={styles.trainingLink}
             >
               <TrainingCard

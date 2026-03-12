@@ -4,7 +4,7 @@ import clsx from "clsx";
 
 type TrainingHeaderProps = {
   topic: string;
-  onShowInstruction: () => void;
+  onShowInstruction?: () => void;
 };
 
 export function TrainingHeader({
@@ -16,12 +16,14 @@ export function TrainingHeader({
       <BackButton />
       <div className={`${styles.card} ${styles.trainingHeader}`}>
         <p className={styles.trainingHeader__title}>{topic}</p>
-        <button
-          className={clsx(styles.btn, styles.primary)}
-          onClick={onShowInstruction}
-        >
-          Инструкция
-        </button>
+        {onShowInstruction && (
+          <button
+            className={clsx(styles.btn, styles.primary)}
+            onClick={onShowInstruction}
+          >
+            Инструкция
+          </button>
+        )}
       </div>
     </>
   );
