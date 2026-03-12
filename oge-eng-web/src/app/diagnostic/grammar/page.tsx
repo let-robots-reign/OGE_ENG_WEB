@@ -2,6 +2,8 @@
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
+import ReactMarkdown from "react-markdown";
+import rehypeRaw from "rehype-raw";
 import { part1Questions, part2Questions } from "./data";
 import {
   GrammarTask1,
@@ -13,11 +15,27 @@ import {
 } from "@/app/_components/diagnostics/initial/GrammarTask2";
 import styles from "@/app/_components/TrainingPage.module.css";
 import { TrainingHeader } from "@/app/_components/TrainingHeader";
+import { ReactDOMServer } from "next/dist/server/route-modules/app-page/vendored/ssr/entrypoints";
 
 interface Answers {
   part1: Record<number, string[]>;
   part2: Record<number, string>;
 }
+
+// Define the expected API response structure
+interface ApiFeedbackResponse {
+  feedback: string;
+  error?: string;
+  details?: string;
+}
+
+// Helper function to parse custom tags and replace them with HTML spans
+const processFeedback = (text: string): string => {
+  if (!text) return "";
+  return text
+    .replace(/CORRECT\[(.*?)\]/g, `<span class="${styles.correctAnswer}">$1</span>`)
+    .replace(/INCORRECT\[(.*?)\]/g, `<span class="${styles.incorrectAnswer}">$1</span>`);
+};
 
 export default function GrammarDiagnosticPage() {
   const router = useRouter();
@@ -26,6 +44,10 @@ export default function GrammarDiagnosticPage() {
     part1: {},
     part2: {},
   });
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [feedback, setFeedback] = useState("");
+  const [error, setError] = useState<string | null>(null);
 
   const task1Refs = useRef<Record<number, GrammarTask1Ref>>({});
   const task2Refs = useRef<Record<number, GrammarTask2Ref>>({});
@@ -44,10 +66,53 @@ export default function GrammarDiagnosticPage() {
     }));
   };
 
-  const handleSubmit = () => {
-    // Здесь будет логика отправки ответов на сервер
-    console.log("Submitting answers:", answers);
-    router.push("/");
+  const handleSubmit = async () => {
+    setIsLoading(true);
+    setError(null);
+    const payload = {
+      part1: part1Questions.map((q) => {
+        const userAnswers = answers.part1[q.id] ?? [];
+        let answerIndex = 0;
+        const newText = q.text.replace(/_____________/g, () => {
+          const userAnswer = userAnswers[answerIndex] ?? "[empty]";
+          answerIndex++;
+          return userAnswer;
+        });
+        return { ...q, userAnswer: newText, originalText: q.text };
+      }),
+      part2: part2Questions.map((q) => ({
+        ...q,
+        text: ReactDOMServer.renderToStaticMarkup(q.text),
+        userTranslation: answers.part2[q.id] ?? "",
+      })),
+    };
+
+    try {
+      const response = await fetch("/api/groq", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      // Use the defined type for the response body for type safety
+      const result = (await response.json()) as ApiFeedbackResponse;
+
+      if (!response.ok) {
+        throw new Error(
+          result.error ?? `An error occurred: ${response.statusText}`,
+        );
+      }
+
+      setFeedback(result.feedback);
+      setIsSubmitted(true);
+      window.scrollTo(0, 0);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "An unknown error occurred.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleNextPart = () => {
@@ -59,6 +124,31 @@ export default function GrammarDiagnosticPage() {
     setCurrentPart(1);
     window.scrollTo(0, 0);
   };
+
+  if (isSubmitted) {
+    const processedFeedback = processFeedback(feedback);
+    return (
+      <main className={styles.trainingPage}>
+        <TrainingHeader topic="Результаты диагностики" />
+        <div className={styles.resultsContainer}>
+          <h2 className={styles.sectionTitle}>Ваш персональный фидбек</h2>
+          <div className={styles.feedbackContent}>
+            <ReactMarkdown rehypePlugins={[rehypeRaw]}>
+              {processedFeedback}
+            </ReactMarkdown>
+          </div>
+          <div className={styles.buttonsGroup}>
+            <button
+              className={`${styles.btn} ${styles.secondary}`}
+              onClick={() => router.push("/")}
+            >
+              На главную
+            </button>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className={styles.trainingPage}>
@@ -112,6 +202,8 @@ export default function GrammarDiagnosticPage() {
         </div>
       )}
 
+      {error && <p className={styles.errorText}>{error}</p>}
+
       <div className={styles.buttonsGroup}>
         {currentPart === 1 && (
           <>
@@ -134,8 +226,9 @@ export default function GrammarDiagnosticPage() {
             <button
               className={`${styles.btn} ${styles.primary}`}
               onClick={handleSubmit}
+              disabled={isLoading}
             >
-              Отправить
+              {isLoading ? "Анализируем..." : "Отправить"}
             </button>
             <button
               className={`${styles.btn} ${styles.secondary}`}

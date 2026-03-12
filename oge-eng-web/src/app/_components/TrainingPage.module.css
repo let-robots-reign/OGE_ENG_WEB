@@ -79,3 +79,36 @@
   text-align: center;
   font-weight: 300;
 }
+
+.correctAnswer {
+  color: #28a745; /* Зеленый */
+  font-weight: bold;
+}
+
+.incorrectAnswer {
+  color: #dc3545; /* Красный */
+  font-style: italic;
+}
+
+
+.feedbackContent {
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 16px;
+  white-space: pre-wrap; /* This will respect newlines in the markdown */
+  margin-bottom: 20px;
+}
+
+.feedbackContent h1, .feedbackContent h2, .feedbackContent h3  {
+  font-size: 28px;
+  line-height: 36px;
+  font-weight: 800;
+  margin: 8px 0;
+}
+
+.errorText {
+    color: #dc3545;
+    text-align: center;
+    margin-top: 10px;
+}
