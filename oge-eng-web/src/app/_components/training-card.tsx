@@ -7,9 +7,15 @@ interface TrainingCardProps {
   image: string;
   progress?: number;
   className?: string;
+  isBeta?: boolean;
 }
 
-export function TrainingCard({ title, image, className }: TrainingCardProps) {
+export function TrainingCard({
+  title,
+  image,
+  className,
+  isBeta,
+}: TrainingCardProps) {
   return (
     <div className={clsx(styles.card, styles.trainingCard, className)}>
       <div className={styles.trainingCard__left}>
@@ -22,6 +28,7 @@ export function TrainingCard({ title, image, className }: TrainingCardProps) {
         />
       </div>
       <div className={styles.trainingCard__center}>{title}</div>
+      {isBeta && <div className={styles.trainingCard__isBeta}>бета-версия</div>}
     </div>
   );
 }

@@ -104,6 +104,7 @@ export default function HomePage() {
                 className="grid-cols-[1fr_3fr]"
                 title={title}
                 image={image}
+                isBeta
               />
             </Link>
           ))}
