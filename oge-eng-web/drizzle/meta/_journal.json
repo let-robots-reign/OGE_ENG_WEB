@@ -22,6 +22,13 @@
       "when": 1771257456542,
       "tag": "0002_add_is_deleted_to_tasks",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1772919363467,
+      "tag": "0003_hashed_password",
+      "breakpoints": true
     }
   ]
 }

@@ -1,0 +1,109 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+}
+
+.title {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+}
+
+.formWrapper {
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 10px;
+  width: min(50%, 800px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 12px;
+}
+
+.input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+  font-size: 1rem;
+}
+
+.button {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+  background-color: #fff;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.2s;
+}
+
+.button:hover {
+  background-color: #f0f0f0;
+}
+
+.error {
+  color: red;
+  margin-bottom: 1rem;
+  text-align: center;
+  min-height: 24px;
+}
+
+.fieldError {
+  color: red;
+  font-size: 0.875rem;
+}
+
+.divider {
+  text-align: center;
+  margin-bottom: 1rem;
+  color: #666;
+}
+
+.signin {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.signin a {
+  color: #0070f3;
+  text-decoration: none;
+}
+
+.signin a:hover {
+  text-decoration: underline;
+}
+
+
+.signup {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.signup a {
+  color: #0070f3;
+  text-decoration: none;
+}
+
+.signup a:hover {
+  text-decoration: underline;
+}

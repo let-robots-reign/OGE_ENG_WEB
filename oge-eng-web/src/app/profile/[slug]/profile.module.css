@@ -1,0 +1,24 @@
+.profile {
+  text-align: center;
+  height: 80vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+}
+
+.profile h2 {
+  font-size: 32px;
+  line-height: 36px;
+  margin-bottom: 20px;
+}
+
+.profile h4 {
+  font-size: 26px;
+  line-height: 28px;
+  margin-bottom: 20px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: #3eaf7c;
+}

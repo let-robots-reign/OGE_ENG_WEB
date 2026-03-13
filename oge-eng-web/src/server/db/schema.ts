@@ -3,11 +3,7 @@ import {
   index,
   pgTableCreator,
   primaryKey,
-  text,
-  timestamp,
-  varchar,
-  integer,
-  boolean,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { type AdapterAccount } from "next-auth/adapters";
 
@@ -15,23 +11,30 @@ export const createTable = pgTableCreator((name) => name);
 
 // --- AUTH TABLES ---
 
-export const users = createTable("user", (d) => ({
-  id: d
-    .varchar({ length: 255 })
-    .notNull()
-    .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
-  name: d.varchar({ length: 255 }),
-  email: d.varchar({ length: 255 }).notNull(),
-  emailVerified: d
-    .timestamp({
-      mode: "date",
-      withTimezone: true,
-    })
-    .$defaultFn(() => new Date()),
-  image: d.varchar({ length: 255 }),
-  role: d.varchar({ length: 50 }).default("user"),
-}));
+export const users = createTable(
+  "user",
+  (d) => ({
+    id: d
+      .varchar({ length: 255 })
+      .notNull()
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    name: d.varchar({ length: 255 }),
+    email: d.varchar({ length: 255 }).notNull(),
+    hashedPassword: d.text(),
+    emailVerified: d
+      .timestamp({
+        mode: "date",
+        withTimezone: true,
+      })
+      .$defaultFn(() => new Date()),
+    image: d.varchar({ length: 255 }),
+    role: d.varchar({ length: 50 }).default("user"),
+  }),
+  (t) => ({
+    emailIdx: uniqueIndex("email_idx").on(t.email),
+  }),
+);
 
 export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),

@@ -14,7 +14,6 @@ export async function Header() {
       <ul className={styles.navbarMenu}>
         {session?.user ? (
           <>
-            {/* Add admin check here if needed */}
             <li>
               <Link
                 href={`/profile/${session.user.id}`}
@@ -31,16 +30,16 @@ export async function Header() {
           </>
         ) : (
           <>
-            {/*<li>*/}
-            {/*  <Link href="/api/auth/signin" className={styles.navLink}>*/}
-            {/*    Войти*/}
-            {/*  </Link>*/}
-            {/*</li>*/}
-            {/*<li>*/}
-            {/*  <Link href="/api/auth/signin" className={styles.navLink}>*/}
-            {/*    Регистрация*/}
-            {/*  </Link>*/}
-            {/*</li>*/}
+            <li>
+              <Link href="/api/auth/signin" className={styles.navLink}>
+                Войти
+              </Link>
+            </li>
+            <li>
+              <Link href="/auth/signup" className={styles.navLink}>
+                Регистрация
+              </Link>
+            </li>
           </>
         )}
       </ul>
