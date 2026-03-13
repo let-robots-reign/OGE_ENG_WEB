@@ -33,8 +33,14 @@ interface ApiFeedbackResponse {
 const processFeedback = (text: string): string => {
   if (!text) return "";
   return text
-    .replace(/CORRECT\[(.*?)\]/g, `<span class="${styles.correctAnswer}">$1</span>`)
-    .replace(/INCORRECT\[(.*?)\]/g, `<span class="${styles.incorrectAnswer}">$1</span>`);
+    .replace(
+      /CORRECT\[(.*?)\]/g,
+      `<span class="${styles.correctAnswer}">$1</span>`,
+    )
+    .replace(
+      /INCORRECT\[(.*?)\]/g,
+      `<span class="${styles.incorrectAnswer}">$1</span>`,
+    );
 };
 
 export default function GrammarDiagnosticPage() {
@@ -70,20 +76,15 @@ export default function GrammarDiagnosticPage() {
     setIsLoading(true);
     setError(null);
     const payload = {
-      part1: part1Questions.map((q) => {
-        const userAnswers = answers.part1[q.id] ?? [];
-        let answerIndex = 0;
-        const newText = q.text.replace(/_____________/g, () => {
-          const userAnswer = userAnswers[answerIndex] ?? "[empty]";
-          answerIndex++;
-          return userAnswer;
-        });
-        return { ...q, userAnswer: newText, originalText: q.text };
-      }),
+      part1: part1Questions.map((q) => ({
+        id: q.id,
+        text: q.text, // The original text with blanks and hints
+        userAnswers: answers.part1[q.id]?.map((a) => a || "пусто") ?? [], // The user's answers as a clean array
+      })),
       part2: part2Questions.map((q) => ({
         ...q,
         text: ReactDOMServer.renderToStaticMarkup(q.text),
-        userTranslation: answers.part2[q.id] ?? "",
+        userTranslation: answers.part2[q.id] ?? "пусто",
       })),
     };
 
