@@ -8,6 +8,7 @@ import { Header } from "./_components/header";
 import { Footer } from "./_components/footer";
 
 import styles from "./page.module.css";
+import { AuthProvider } from "./_components/auth-provider";
 
 export const metadata: Metadata = {
   title: "ОГЭ Английский",
@@ -27,9 +28,11 @@ export default function RootLayout({
     <html lang="en" className={inter.variable}>
       <body>
         <TRPCReactProvider>
-          <Header />
-          <main className={styles.main}>{children}</main>
-          <Footer />
+          <AuthProvider>
+            <Header />
+            <main className={styles.main}>{children}</main>
+            <Footer />
+          </AuthProvider>
         </TRPCReactProvider>
       </body>
     </html>

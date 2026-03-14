@@ -24,6 +24,11 @@
   padding: 8px;
   text-decoration: none;
   color: #2c3e50;
+  transition: color 0.2s ease-in-out;
+}
+
+.navbarLogo:hover {
+  color: #42b983;
 }
 
 .navLink {
@@ -35,10 +40,53 @@
   text-decoration: none;
   color: #2c3e50;
   font-family: inherit;
+  transition: color 0.2s ease-in-out;
 }
 
 .navLink:hover {
-  color: #007CC7;
+  color: #42b983;
+}
+
+.modalActions {
+  display: flex;
+  column-gap: 16px;
+  justify-content: center;
+}
+
+/* TODO: make base button styles or button component */
+.btn {
+  width: 100%;
+  color: #42b983;
+  position: relative;
+  place-content: center;
+  place-items: center;
+  border-radius: 16px;
+  letter-spacing: 0.05em;
+  border: 1px solid #42b983;
+  text-decoration: none;
+  text-transform: uppercase;
+  padding: 0.5rem 1.5rem;
+  white-space: nowrap;
+  font-weight: 700;
+  outline: none;
+  background: #fff;
+  cursor: pointer;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.btn:hover {
+  opacity: 0.8;
+}
+
+.btn.primary {
+  background: #42b983;
+  color: #fff;
+}
+
+.btn.secondary {
+  background: #ccc;
+  border-color: #ccc;
+  color: #fff;
 }
 
 
