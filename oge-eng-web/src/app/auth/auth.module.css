@@ -61,9 +61,20 @@
   background-color: #f0f0f0;
 }
 
+.button_submit {
+  background-color: #3eaf7c;
+  border-color: #3eaf7c;
+  color: #fff;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.button_submit:hover {
+  background-color: #3eaf7c;
+  opacity: 0.8;
+}
+
 .error {
   color: red;
-  margin-bottom: 1rem;
   text-align: center;
   min-height: 24px;
 }
@@ -74,9 +85,46 @@
 }
 
 .divider {
-  text-align: center;
+  display: grid;
+	grid-template-columns: 1fr max-content 1fr;
+	align-items: center;
+	gap: 0.5rem;
   margin-bottom: 1rem;
-  color: #666;
+}
+
+.divider::before, .divider::after {
+  content: '';
+	height: 1px;
+	background-color: #CBD5E1;
+}
+
+.providers {
+  display: flex;
+  column-gap: 12px;
+  justify-content: center;
+}
+
+.providerButton {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 8px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  transition: border-color 0.2s ease-in-out;
+
+  &:hover {
+    border-color: #3eaf7c;
+  }
+}
+
+.providerImage {
+  width: 100%;
+  height: 100%;
 }
 
 .signin {

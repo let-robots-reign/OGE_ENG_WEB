@@ -8,6 +8,8 @@ import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { type z } from "zod";
 import { SignupSchema } from "./schema";
+import clsx from "clsx";
+import { SocialProviders } from "@/app/auth/_components/social-providers";
 
 type SimpleProvider = {
   id: string;
@@ -147,23 +149,15 @@ export function SignUpForm({ providers }: { providers: SimpleProvider[] }) {
             <p className={styles.fieldError}>{errors.password}</p>
           )}
         </div>
-        <button type="submit" className={styles.button}>
+        <button
+          type="submit"
+          className={clsx(styles.button, styles.button_submit)}
+        >
           Зарегистрироваться
         </button>
       </form>
       <div className={styles.divider}>или</div>
-      {providers
-        .filter((provider) => provider.id !== "credentials")
-        .map((provider) => (
-          <div key={provider.name}>
-            <button
-              onClick={() => void signIn(provider.id)}
-              className={styles.button}
-            >
-              Регистрация через {provider.name}
-            </button>
-          </div>
-        ))}
+      <SocialProviders providers={providers} />
       <p className={styles.signin}>
         Уже есть аккаунт? <Link href="/auth/signin">Войти</Link>
       </p>

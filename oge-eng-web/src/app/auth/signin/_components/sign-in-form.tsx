@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import styles from "@/app/auth/auth.module.css";
 import clsx from "clsx";
+import { SocialProviders } from "@/app/auth/_components/social-providers";
 
 type SimpleProvider = {
   id: string;
@@ -59,7 +60,10 @@ export function SignInForm({ providers }: { providers: SimpleProvider[] }) {
             className={styles.input}
           />
         </div>
-        <button type="submit" className={styles.button}>
+        <button
+          type="submit"
+          className={clsx(styles.button, styles.button_submit)}
+        >
           Войти
         </button>
         <p className={clsx(styles.error, "mt-2", !error && "opacity-0")}>
@@ -67,18 +71,7 @@ export function SignInForm({ providers }: { providers: SimpleProvider[] }) {
         </p>
       </form>
       <div className={styles.divider}>или</div>
-      {providers
-        .filter((provider) => provider.id !== "credentials")
-        .map((provider) => (
-          <div key={provider.name}>
-            <button
-              onClick={() => void signIn(provider.id)}
-              className={styles.button}
-            >
-              Войти через {provider.name}
-            </button>
-          </div>
-        ))}
+      <SocialProviders providers={providers} />
       <p className={styles.signup}>
         Нет аккаунта? <Link href="/auth/signup">Зарегистрироваться</Link>
       </p>
