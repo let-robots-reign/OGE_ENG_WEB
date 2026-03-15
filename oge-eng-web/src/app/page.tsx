@@ -1,9 +1,20 @@
+"use client";
+
 import Link from "next/link";
 import { TrainingCard } from "./_components/training-card";
 import { TheoryCard } from "./_components/theory-card";
 import styles from "./page.module.css";
+import headerStyles from "./_components/Header.module.css";
+import { useSession } from "next-auth/react";
+import { useState } from "react";
+import { Modal } from "./_components/Modal";
+import { useRouter } from "next/navigation";
 
 export default function HomePage() {
+  const { data: session } = useSession();
+  const router = useRouter();
+  const [showModal, setShowModal] = useState(false);
+
   const cards = {
     training: [
       {
@@ -57,59 +68,91 @@ export default function HomePage() {
     ],
   };
 
+  const handleDiagnosticsClick = (e: React.MouseEvent, key: string) => {
+    if (!session) {
+      e.preventDefault();
+      setShowModal(true);
+    }
+  };
+
   return (
-    <div className={styles.mainPageSections}>
-      <div className={styles.mainPageSection}>
-        <p className={styles.sectionName}>Тренировки</p>
-        <div className={styles.trainingsGrid}>
-          {cards.training.map(({ key, title, image, urlSuffix }) => (
-            <Link
-              key={key}
-              href={`/training/${key}${urlSuffix}`}
-              className={styles.trainingLink}
-            >
-              <TrainingCard
-                className="grid-cols-[1fr_2fr]"
-                title={title}
-                image={image}
-              />
-            </Link>
-          ))}
+    <>
+      <div className={styles.mainPageSections}>
+        <div className={styles.mainPageSection}>
+          <p className={styles.sectionName}>Тренировки</p>
+          <div className={styles.trainingsGrid}>
+            {cards.training.map(({ key, title, image, urlSuffix }) => (
+              <Link
+                key={key}
+                href={`/training/${key}${urlSuffix}`}
+                className={styles.trainingLink}
+              >
+                <TrainingCard
+                  className="grid-cols-[1fr_2fr]"
+                  title={title}
+                  image={image}
+                />
+              </Link>
+            ))}
+          </div>
+        </div>
+        <div className={styles.mainPageSection}>
+          <p className={styles.sectionName}>Теория</p>
+          <div className={styles.theoryGrid}>
+            {cards.theory.map(({ key, title, image }) => (
+              <Link
+                key={key}
+                href={`/theory/${key}`}
+                className={styles.theoryLink}
+              >
+                <TheoryCard title={title} image={image} />
+              </Link>
+            ))}
+          </div>
+        </div>
+        <div className={styles.mainPageSection}>
+          <p className={styles.sectionName}>Диагностика</p>
+          <div className={styles.trainingsGrid}>
+            {cards.diagnostics.map(({ key, title, image }) => (
+              <Link
+                key={key}
+                href={`/diagnostics/${key}`}
+                className={styles.trainingLink}
+                onClick={(e) => handleDiagnosticsClick(e, key)}
+              >
+                <TrainingCard
+                  className="grid-cols-[1fr_3fr]"
+                  title={title}
+                  image={image}
+                  isBeta
+                />
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
-      <div className={styles.mainPageSection}>
-        <p className={styles.sectionName}>Теория</p>
-        <div className={styles.theoryGrid}>
-          {cards.theory.map(({ key, title, image }) => (
-            <Link
-              key={key}
-              href={`/theory/${key}`}
-              className={styles.theoryLink}
+      {showModal && (
+        <Modal
+          className={styles.loginRequiredModal}
+          title="Доступно только авторизованным пользователям"
+          onClose={() => setShowModal(false)}
+        >
+          <div className={headerStyles.modalActions}>
+            <button
+              onClick={() => router.push("/auth/signin")}
+              className={`${headerStyles.btn} ${headerStyles.primary}`}
             >
-              <TheoryCard title={title} image={image} />
-            </Link>
-          ))}
-        </div>
-      </div>
-      <div className={styles.mainPageSection}>
-        <p className={styles.sectionName}>Диагностика</p>
-        <div className={styles.trainingsGrid}>
-          {cards.diagnostics.map(({ key, title, image }) => (
-            <Link
-              key={key}
-              href={`/diagnostics/${key}`}
-              className={styles.trainingLink}
+              Войти
+            </button>
+            <button
+              onClick={() => setShowModal(false)}
+              className={`${headerStyles.btn} ${headerStyles.secondary}`}
             >
-              <TrainingCard
-                className="grid-cols-[1fr_3fr]"
-                title={title}
-                image={image}
-                isBeta
-              />
-            </Link>
-          ))}
-        </div>
-      </div>
-    </div>
+              Отмена
+            </button>
+          </div>
+        </Modal>
+      )}
+    </>
   );
 }

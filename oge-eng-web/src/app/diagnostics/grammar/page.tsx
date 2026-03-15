@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
@@ -14,7 +14,11 @@ import {
   type GrammarTask2Ref,
 } from "@/app/_components/diagnostics/initial/GrammarTask2";
 import styles from "@/app/_components/TrainingPage.module.css";
+import homeStyles from "@/app/page.module.css";
+import headerStyles from "@/app/_components/Header.module.css";
 import { TrainingHeader } from "@/app/_components/TrainingHeader";
+import { useSession } from "next-auth/react";
+import { Modal } from "@/app/_components/Modal";
 import { ReactDOMServer } from "next/dist/server/route-modules/app-page/vendored/ssr/entrypoints";
 
 interface Answers {
@@ -45,6 +49,8 @@ const processFeedback = (text: string): string => {
 
 export default function GrammarDiagnosticPage() {
   const router = useRouter();
+  const { data: session, status } = useSession();
+  const [showModal, setShowModal] = useState(false);
   const [currentPart, setCurrentPart] = useState(1);
   const [answers, setAnswers] = useState<Answers>({
     part1: {},
@@ -57,6 +63,12 @@ export default function GrammarDiagnosticPage() {
 
   const task1Refs = useRef<Record<number, GrammarTask1Ref>>({});
   const task2Refs = useRef<Record<number, GrammarTask2Ref>>({});
+
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      setShowModal(true);
+    }
+  }, [status]);
 
   const handlePart1AnswerChange = (id: number, answer: string[]) => {
     setAnswers((prev) => ({
@@ -132,6 +144,35 @@ export default function GrammarDiagnosticPage() {
     setCurrentPart(1);
     window.scrollTo(0, 0);
   };
+
+  if (status === "loading") {
+    return <></>;
+  }
+
+  if (showModal) {
+    return (
+      <Modal
+        title="Доступно только авторизованным пользователям"
+        onClose={() => router.push("/")}
+        className={homeStyles.loginRequiredModal}
+      >
+        <div className={headerStyles.modalActions}>
+          <button
+            onClick={() => router.push("/auth/signin")}
+            className={`${headerStyles.btn} ${headerStyles.primary}`}
+          >
+            Войти
+          </button>
+          <button
+            onClick={() => router.push("/")}
+            className={`${headerStyles.btn} ${headerStyles.secondary}`}
+          >
+            На главную
+          </button>
+        </div>
+      </Modal>
+    );
+  }
 
   if (isSubmitted) {
     const processedFeedback = processFeedback(feedback);
