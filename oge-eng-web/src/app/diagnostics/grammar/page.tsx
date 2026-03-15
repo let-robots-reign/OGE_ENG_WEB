@@ -34,12 +34,12 @@ const processFeedback = (text: string): string => {
   if (!text) return "";
   return text
     .replace(
-      /CORRECT\[(.*?)\]/g,
-      `<span class="${styles.correctAnswer}">$1</span>`,
-    )
-    .replace(
       /INCORRECT\[(.*?)\]/g,
       `<span class="${styles.incorrectAnswer}">$1</span>`,
+    )
+    .replace(
+      /CORRECT\[(.*?)\]/g,
+      `<span class="${styles.correctAnswer}">$1</span>`,
     );
 };
 
@@ -72,6 +72,9 @@ export default function GrammarDiagnosticPage() {
     }));
   };
 
+  const normalizeAnswer = (answer: string) =>
+    answer.toLowerCase().trim().replace(/’/g, "'").replace(/\s+/g, " ");
+
   const handleSubmit = async () => {
     setIsLoading(true);
     setError(null);
@@ -79,12 +82,16 @@ export default function GrammarDiagnosticPage() {
       part1: part1Questions.map((q) => ({
         id: q.id,
         text: q.text, // The original text with blanks and hints
-        userAnswers: answers.part1[q.id]?.map((a) => a || "пусто") ?? [], // The user's answers as a clean array
+        userAnswers:
+          answers.part1[q.id]?.map((a) => normalizeAnswer(a) || "") ?? [], // The user's answers as a clean array
+        checkResults: q.correctAnswers.map((corA, index) =>
+          corA.includes(answers.part1[q.id]?.[index] ?? ""),
+        ),
       })),
       part2: part2Questions.map((q) => ({
         ...q,
         text: ReactDOMServer.renderToStaticMarkup(q.text),
-        userTranslation: answers.part2[q.id] ?? "пусто",
+        userTranslation: answers.part2[q.id] ?? "",
       })),
     };
 
@@ -182,7 +189,7 @@ export default function GrammarDiagnosticPage() {
       {currentPart === 2 && (
         <div>
           <h2 className={styles.sectionTitle}>
-            Часть 2: Переведите предложения
+            Часть 2
             <br />
             <i>
               Translate the following sentences into English. Pay attention to

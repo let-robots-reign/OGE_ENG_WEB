@@ -2,60 +2,86 @@ export const part1Questions = [
   {
     id: 1,
     text: "_____________ (not / touch) the dog! It has sharp _____________ (tooth).",
+    correctAnswers: [["do not touch", "don't touch"], ["teeth"]],
   },
   {
     id: 2,
     text: "This book is _____________ (my), but where is _____________ (your)?",
+    correctAnswers: [["mine"], ["yours"]],
   },
   {
     id: 3,
     text: "If I _____________ (have) a million dollars, I _____________ (travel) the world.",
+    correctAnswers: [["had"], ["would travel"]],
   },
   {
     id: 4,
     text: "She _____________ (not / can) come to the phone right now. She _____________ (have) a shower.",
+    correctAnswers: [["cannot", "can't"], ["is having"]],
   },
   {
     id: 5,
     text: "Every evening, dinner at this hotel _____________ (cook) by _____________ (famous) Italian chef.",
+    correctAnswers: [["is cooked"], ["the most famous"]],
   },
-  { id: 6, text: "Mount Everest is _____________ (high) mountain on Earth." },
+  {
+    id: 6,
+    text: "Mount Everest is _____________ (high) mountain on Earth.",
+    correctAnswers: [["the highest"]],
+  },
   {
     id: 7,
     text: "If it _____________ (not / rain) tomorrow, we _____________ (go) to the beach.",
+    correctAnswers: [["does not rain"], ["will go"]],
   },
-  { id: 8, text: "I feel great! I _____________ (finish) my work already." },
+  {
+    id: 8,
+    text: "I feel great! I _____________ (finish) my work already.",
+    correctAnswers: [["have finished"]],
+  },
   {
     id: 9,
     text: "I like both of _____________ (that) _____________ (dress), but I _____________ (think) the blue one is _____________ (pretty) than the red one.",
+    correctAnswers: [["those"], ["dresses"], ["think"], ["prettier"]],
   },
   {
     id: 10,
     text: "Please, don't tell _____________ (they) about the surprise _____________ (party). I promised _____________ (not / tell) anyone.",
+    correctAnswers: [["them"], ["party"], ["I will not tell", "I won't tell"]],
   },
   {
     id: 11,
     text: "My little sister hopes she _____________ (dress) _____________ (she) without any help next year.",
+    correctAnswers: [["will dress"], ["herself"]],
   },
   {
     id: 12,
     text: "I _____________ (see) Mike while he _____________ (wait) for the bus.",
+    correctAnswers: [["saw"], ["was waiting"]],
   },
   {
     id: 13,
     text: "By the time we arrived at the cinema, the film _____________ (start).",
+    correctAnswers: [["has started", "has already started"]],
   },
   {
     id: 14,
     text: "They are looking forward to _____________ (see) _____________ (we) at the party.",
+    correctAnswers: [["seeing"], ["us"]],
   },
   {
     id: 15,
     text: "Is this _____________ (we) room? - No, it’s _____________ (their). _____________ (our) is on the _____________ (3) floor.",
+    correctAnswers: [["our"], ["theirs"], ["ours"], ["third"]],
   },
   {
     id: 16,
     text: "What _____________ (you / do) tonight? - I _____________ (stay) home because I have to finish _____________ (clean) my room.",
+    correctAnswers: [
+      ["are you doing"],
+      ["am staying", "'m staying"],
+      ["cleaning"],
+    ],
   },
 ];
 
@@ -67,7 +93,7 @@ export const part2Questions = [
         <b>Эти люди</b> – мои друзья. Посмотри на <b>них</b>!
       </p>
     ),
-    topics: "Personal pronouns, Demonstrative pronouns",
+    topics: ["Personal pronouns", "Demonstrative pronouns"],
   },
   {
     id: 2,
@@ -76,7 +102,7 @@ export const part2Questions = [
         Кот <b>не ловил мышей</b> на прошлой неделе.
       </p>
     ),
-    topics: "Past Simple, Plural nouns",
+    topics: ["Past Simple", "Plural nouns"],
   },
   {
     id: 3,
@@ -87,7 +113,12 @@ export const part2Questions = [
         четверг.
       </p>
     ),
-    topics: "Present Perfect, Past Simple, Reflexive pronouns, Reported speech",
+    topics: [
+      "Present Perfect",
+      "Past Simple",
+      "Reflexive pronouns",
+      "Reported speech",
+    ],
   },
   {
     id: 4,
@@ -96,7 +127,7 @@ export const part2Questions = [
         Мы <b>пойдём</b> в парк, если завтра <b>будет</b> солнечно.
       </p>
     ),
-    topics: "Future Simple, Conditional 1",
+    topics: ["Future Simple", "Conditional 1"],
   },
   {
     id: 5,
@@ -106,7 +137,7 @@ export const part2Questions = [
         <b>бы занимался</b> спортом.
       </p>
     ),
-    topics: "Conditional 2",
+    topics: ["Conditional 2"],
   },
   {
     id: 6,
@@ -115,7 +146,7 @@ export const part2Questions = [
         <b>Те печенья испекла</b> моя бабушка.
       </p>
     ),
-    topics: "Demonstrative pronouns, Past Simple",
+    topics: ["Demonstrative pronouns", "Past Simple"],
   },
   {
     id: 7,
@@ -124,7 +155,7 @@ export const part2Questions = [
         <b>Мамина</b> подруга сказала, что <b>придёт позже</b>.
       </p>
     ),
-    topics: "Possessive case, Reported speech",
+    topics: ["Possessive case", "Reported speech"],
   },
   {
     id: 8,
@@ -133,7 +164,7 @@ export const part2Questions = [
         Это <b>самый плохой</b> фильм, который я когда-либо <b>видел</b>.
       </p>
     ),
-    topics: "Superlative adjectives, Present Perfect",
+    topics: ["Superlative adjectives", "Present Perfect"],
   },
   {
     id: 9,
@@ -143,7 +174,7 @@ export const part2Questions = [
         <b>очень мало</b>.
       </p>
     ),
-    topics: "Would like, Countable/uncountable nouns",
+    topics: ["Would like", "Countable/uncountable nouns"],
   },
   {
     id: 10,
@@ -152,7 +183,7 @@ export const part2Questions = [
         Мы <b>собираемся переехать</b> в новый дом в следующем году.
       </p>
     ),
-    topics: "To be going to",
+    topics: ["To be going to"],
   },
   {
     id: 11,
@@ -161,7 +192,7 @@ export const part2Questions = [
         Он опоздал на автобус, потому что <b>проспал</b>.
       </p>
     ),
-    topics: "Past Simple",
+    topics: ["Past Simple"],
   },
   {
     id: 12,
@@ -170,7 +201,7 @@ export const part2Questions = [
         В холодильнике <b>очень мало</b> яблок.
       </p>
     ),
-    topics: "There is/there are, Countable/uncountable nouns",
+    topics: ["There is/there are", "Countable/uncountable nouns"],
   },
   {
     id: 13,
@@ -180,7 +211,7 @@ export const part2Questions = [
         коллегами из других <b>стран</b> в офисе.
       </p>
     ),
-    topics: "Present Simple, Present Continuous",
+    topics: ["Present Simple", "Present Continuous"],
   },
   {
     id: 14,
@@ -189,7 +220,7 @@ export const part2Questions = [
         Я бы хотела(=I wish), чтобы у меня <b>была более комфортная</b> комната.
       </p>
     ),
-    topics: "I wish",
+    topics: ["I wish"],
   },
   {
     id: 15,
@@ -198,6 +229,6 @@ export const part2Questions = [
         Здесь <b>холоднее</b>, чем вчера. - Правда? Я <b>закрою</b> окно.
       </p>
     ),
-    topics: "Comparative adjectives, Future Simple (spontaneous decision)",
+    topics: ["Comparative adjectives", "Future Simple (spontaneous decision)"],
   },
 ];

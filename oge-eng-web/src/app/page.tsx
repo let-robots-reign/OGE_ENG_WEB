@@ -97,7 +97,7 @@ export default function HomePage() {
           {cards.diagnostics.map(({ key, title, image }) => (
             <Link
               key={key}
-              href={`/diagnostic/${key}`}
+              href={`/diagnostics/${key}`}
               className={styles.trainingLink}
             >
               <TrainingCard

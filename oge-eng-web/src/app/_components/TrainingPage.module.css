@@ -87,7 +87,7 @@
 
 .incorrectAnswer {
   color: #dc3545; /* Красный */
-  font-style: italic;
+  font-weight: bold;
 }
 
 
