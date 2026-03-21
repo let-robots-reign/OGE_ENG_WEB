@@ -1,24 +1,7 @@
-import { type NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import Groq from "groq-sdk";
-import systemPrompt from "@/app/api/groq/system-prompt";
-
-// Define the expected payload structure for type safety
-interface Part1Payload {
-  id: number;
-  text: string; // The original text with blanks and hints, e.g., "I ___ (go) to school."
-  userAnswers: string[]; // A clean array of user's answers, e.g., ["went"]
-}
-
-interface Part2Payload {
-  id: number;
-  text: string;
-  userTranslation: string;
-}
-
-interface GroqApiPayload {
-  part1: Part1Payload[];
-  part2: Part2Payload[];
-}
+import { diagnosticsSystemPrompt } from "@/server/api/lib/prompts/diagnostics";
 
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
@@ -249,46 +232,66 @@ const testUserAnswers = {
   ],
 };
 
-export async function POST(req: NextRequest) {
-  try {
-    // Use the defined type for the request body for type safety
-    const body = (await req.json()) as GroqApiPayload;
-    // const userAnswers = JSON.stringify(body, null, 2);
-    const userAnswers = JSON.stringify(testUserAnswers, null, 2);
+const part1Schema = z.array(
+  z.object({
+    id: z.number(),
+    text: z.string(),
+    userAnswers: z.array(z.string()),
+    correctAnswers: z.array(z.array(z.string())),
+    checkResults: z.array(z.boolean()),
+  }),
+);
 
-    const chatCompletion = await groq.chat.completions.create({
-      messages: [
-        {
-          role: "system",
-          content: systemPrompt,
-        },
-        {
-          role: "user",
-          content: `Вот ответы студента на диагностический тест по грамматике. Пожалуйста, предоставь свой отзыв на основе инструкций.\n\n\`\`\`json\n${userAnswers}\n\`\`\``,
-        },
-      ],
-      model: "llama-3.3-70b-versatile",
-      temperature: 0.15,
-      top_p: 0.9,
-      presence_penalty: 0,
-      frequency_penalty: 0,
-      max_completion_tokens: 8000,
-      stream: false,
-    });
+const part2Schema = z.array(
+  z.object({
+    id: z.number(),
+    text: z.string(),
+    userTranslation: z.string(),
+    topics: z.array(z.string()),
+  }),
+);
 
-    const aiResponse =
-      chatCompletion.choices[0]?.message?.content ??
-      "Не удалось получить ответ от AI.";
+export const diagnosticsRouter = createTRPCRouter({
+  checkGrammar: publicProcedure
+    .input(z.object({ part1: part1Schema, part2: part2Schema }))
+    .mutation(async ({ input }) => {
+      // const userAnswers = JSON.stringify(input, null, 2);
+      const userAnswers = JSON.stringify(testUserAnswers, null, 2);
 
-    return NextResponse.json({ feedback: aiResponse });
-  } catch (error) {
-    console.error("Error in GROQ API route:", error);
-    // It's good practice to hide detailed errors in production
-    const errorMessage =
-      error instanceof Error ? error.message : "An unknown error occurred";
-    return NextResponse.json(
-      { error: "Internal Server Error", details: errorMessage },
-      { status: 500 },
-    );
-  }
-}
+      console.log("here", userAnswers);
+
+      try {
+        const completion = await groq.chat.completions.create({
+          messages: [
+            {
+              role: "system",
+              content: diagnosticsSystemPrompt,
+            },
+            {
+              role: "user",
+              content: `Вот ответы студента на диагностический тест по грамматике. Пожалуйста, предоставь свой отзыв на основе инструкций.\n\n\`\`\`json\n${userAnswers}\n\`\`\``,
+            },
+          ],
+          model: "llama-3.3-70b-versatile",
+          temperature: 0.15,
+          top_p: 0.9,
+          presence_penalty: 0,
+          frequency_penalty: 0,
+          max_completion_tokens: 8000,
+          stream: false,
+        });
+
+        const feedback = completion.choices[0]?.message?.content;
+        if (!feedback) {
+          throw new Error("Failed to get feedback from the AI model.");
+        }
+
+        return { feedback };
+      } catch (error) {
+        console.error("Error calling Groq API:", error);
+        throw new Error(
+          "Произошла ошибка во время анализа диагностики, попробуйте позднее",
+        );
+      }
+    }),
+});

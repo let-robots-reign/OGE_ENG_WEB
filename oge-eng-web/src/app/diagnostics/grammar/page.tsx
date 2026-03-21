@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
+import { api } from "@/trpc/react";
 import { part1Questions, part2Questions } from "./data";
 import {
   GrammarTask1,
@@ -26,14 +27,6 @@ interface Answers {
   part2: Record<number, string>;
 }
 
-// Define the expected API response structure
-interface ApiFeedbackResponse {
-  feedback: string;
-  error?: string;
-  details?: string;
-}
-
-// Helper function to parse custom tags and replace them with HTML spans
 const processFeedback = (text: string): string => {
   if (!text) return "";
   return text
@@ -49,7 +42,7 @@ const processFeedback = (text: string): string => {
 
 export default function GrammarDiagnosticPage() {
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const [showModal, setShowModal] = useState(false);
   const [currentPart, setCurrentPart] = useState(1);
   const [answers, setAnswers] = useState<Answers>({
@@ -57,9 +50,7 @@ export default function GrammarDiagnosticPage() {
     part2: {},
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [feedback, setFeedback] = useState("");
-  const [error, setError] = useState<string | null>(null);
 
   const task1Refs = useRef<Record<number, GrammarTask1Ref>>({});
   const task2Refs = useRef<Record<number, GrammarTask2Ref>>({});
@@ -69,6 +60,14 @@ export default function GrammarDiagnosticPage() {
       setShowModal(true);
     }
   }, [status]);
+
+  const checkGrammarMutation = api.diagnostics.checkGrammar.useMutation({
+    onSuccess: (data) => {
+      setFeedback(data.feedback);
+      setIsSubmitted(true);
+      window.scrollTo(0, 0);
+    },
+  });
 
   const handlePart1AnswerChange = (id: number, answer: string[]) => {
     setAnswers((prev) => ({
@@ -87,15 +86,14 @@ export default function GrammarDiagnosticPage() {
   const normalizeAnswer = (answer: string) =>
     answer.toLowerCase().trim().replace(/’/g, "'").replace(/\s+/g, " ");
 
-  const handleSubmit = async () => {
-    setIsLoading(true);
-    setError(null);
+  const handleSubmit = () => {
     const payload = {
       part1: part1Questions.map((q) => ({
         id: q.id,
-        text: q.text, // The original text with blanks and hints
+        text: q.text,
         userAnswers:
-          answers.part1[q.id]?.map((a) => normalizeAnswer(a) || "") ?? [], // The user's answers as a clean array
+          answers.part1[q.id]?.map((a) => normalizeAnswer(a) || "") ?? [],
+        correctAnswers: q.correctAnswers,
         checkResults: q.correctAnswers.map((corA, index) =>
           corA.includes(answers.part1[q.id]?.[index] ?? ""),
         ),
@@ -106,33 +104,7 @@ export default function GrammarDiagnosticPage() {
         userTranslation: answers.part2[q.id] ?? "",
       })),
     };
-
-    try {
-      const response = await fetch("/api/groq", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      // Use the defined type for the response body for type safety
-      const result = (await response.json()) as ApiFeedbackResponse;
-
-      if (!response.ok) {
-        throw new Error(
-          result.error ?? `An error occurred: ${response.statusText}`,
-        );
-      }
-
-      setFeedback(result.feedback);
-      setIsSubmitted(true);
-      window.scrollTo(0, 0);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "An unknown error occurred.");
-    } finally {
-      setIsLoading(false);
-    }
+    checkGrammarMutation.mutate(payload);
   };
 
   const handleNextPart = () => {
@@ -251,7 +223,9 @@ export default function GrammarDiagnosticPage() {
         </div>
       )}
 
-      {error && <p className={styles.errorText}>{error}</p>}
+      {checkGrammarMutation.error && (
+        <p className={styles.errorText}>{checkGrammarMutation.error.message}</p>
+      )}
 
       <div className={styles.buttonsGroup}>
         {currentPart === 1 && (
@@ -275,9 +249,9 @@ export default function GrammarDiagnosticPage() {
             <button
               className={`${styles.btn} ${styles.primary}`}
               onClick={handleSubmit}
-              disabled={isLoading}
+              disabled={checkGrammarMutation.isPending}
             >
-              {isLoading ? "Анализируем..." : "Отправить"}
+              {checkGrammarMutation.isPending ? "Анализируем..." : "Отправить"}
             </button>
             <button
               className={`${styles.btn} ${styles.secondary}`}

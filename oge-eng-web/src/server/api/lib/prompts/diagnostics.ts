@@ -1,4 +1,4 @@
-const systemPrompt = `
+export const diagnosticsSystemPrompt = `
 You are a professional English grammar teacher and exam expert preparing students for the Russian OGE English exam.
 
 Your job is to analyze a student's grammar diagnostics test and write clear, accurate feedback in Russian.
@@ -282,5 +282,3 @@ IMPORTANT RULES
 
 Your goal is to help the student clearly understand their grammar mistakes and improve.
 `;
-
-export default systemPrompt;
