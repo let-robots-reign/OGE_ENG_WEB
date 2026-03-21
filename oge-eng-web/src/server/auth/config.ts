@@ -2,6 +2,7 @@ import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import bcrypt from "bcrypt";
 import { eq } from "drizzle-orm";
 import { type DefaultSession, type NextAuthConfig } from "next-auth";
+import { type JWT } from "next-auth/jwt";
 import CredentialsProvider from "next-auth/providers/credentials";
 import DiscordProvider from "next-auth/providers/discord";
 import GoogleProvider from "next-auth/providers/google";
@@ -10,6 +11,7 @@ import YandexProvider from "next-auth/providers/yandex";
 import { db } from "@/server/db";
 import {
   accounts,
+  roleEnum,
   sessions,
   users,
   verificationTokens,
@@ -25,15 +27,19 @@ declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
       id: string;
-      // ...other properties
-      // role: UserRole;
+      role: (typeof roleEnum.enumValues)[number] | null;
     } & DefaultSession["user"];
   }
 
-  // interface User {
-  //   // ...other properties
-  //   // role: UserRole;
-  // }
+  interface User {
+    role: (typeof roleEnum.enumValues)[number] | null;
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    role: (typeof roleEnum.enumValues)[number] | null;
+  }
 }
 
 /**
@@ -109,11 +115,27 @@ export const authConfig = {
     verificationTokensTable: verificationTokens,
   }),
   callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        // On initial sign in, user object is available
+        token.role = user.role;
+      } else if (token.sub) {
+        // On subsequent calls, fetch user from DB to keep role updated
+        const dbUser = await db.query.users.findFirst({
+          where: eq(users.id, token.sub),
+        });
+        if (dbUser) {
+          token.role = dbUser.role;
+        }
+      }
+      return token;
+    },
     session: ({ session, token }) => ({
       ...session,
       user: {
         ...session.user,
-        id: token.sub,
+        id: token.sub!,
+        role: token.role,
       },
     }),
   },

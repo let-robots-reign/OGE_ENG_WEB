@@ -24,7 +24,7 @@ export async function signup(data: SignupData): Promise<SignupResult> {
     };
   }
 
-  const { name, email, password } = validationResult.data;
+  const { name, email, password, role } = validationResult.data;
 
   const existingUser = await db.query.users.findFirst({
     where: eq(users.email, email),
@@ -43,9 +43,8 @@ export async function signup(data: SignupData): Promise<SignupResult> {
     name,
     email,
     hashedPassword,
+    role,
   });
-
-  console.log("here", name, email, hashedPassword);
 
   return { success: true };
 }

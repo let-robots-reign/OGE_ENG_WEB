@@ -17,13 +17,15 @@ type SimpleProvider = {
 };
 
 type FormFields = z.infer<typeof SignupSchema>;
+type FormErrors = Partial<Record<keyof FormFields, string>>;
 
 export function SignUpForm({ providers }: { providers: SimpleProvider[] }) {
   const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errors, setErrors] = useState<Partial<FormFields>>({});
+  const [role, setRole] = useState<"student" | "teacher">("student");
+  const [errors, setErrors] = useState<FormErrors>({});
   const [serverError, setServerError] = useState<string | null>(null);
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -75,10 +77,15 @@ export function SignUpForm({ providers }: { providers: SimpleProvider[] }) {
     e.preventDefault();
     setServerError(null);
 
-    const validationResult = SignupSchema.safeParse({ name, email, password });
+    const validationResult = SignupSchema.safeParse({
+      name,
+      email,
+      password,
+      role,
+    });
 
     if (!validationResult.success) {
-      const newErrors: Partial<FormFields> = {};
+      const newErrors: FormErrors = {};
       for (const issue of validationResult.error.issues) {
         newErrors[issue.path[0] as keyof FormFields] = issue.message;
       }
@@ -88,7 +95,7 @@ export function SignUpForm({ providers }: { providers: SimpleProvider[] }) {
 
     setErrors({}); // Clear errors on successful client validation
 
-    const result = await signup({ name, email, password });
+    const result = await signup({ name, email, password, role });
 
     if (!result.success) {
       setServerError(result.error ?? "Произошла ошибка");
@@ -149,6 +156,28 @@ export function SignUpForm({ providers }: { providers: SimpleProvider[] }) {
             <p className={styles.fieldError}>{errors.password}</p>
           )}
         </div>
+        <div className={styles.inputGroup}>
+          <div className={styles.buttonGroup}>
+            <div
+              className={clsx(
+                styles.buttonGroupItem,
+                role === "student" && styles.active,
+              )}
+              onClick={() => setRole("student")}
+            >
+              Я ученик
+            </div>
+            <div
+              className={clsx(
+                styles.buttonGroupItem,
+                role === "teacher" && styles.active,
+              )}
+              onClick={() => setRole("teacher")}
+            >
+              Я учитель
+            </div>
+          </div>
+        </div>
         <button
           type="submit"
           className={clsx(styles.button, styles.button_submit)}
@@ -157,7 +186,7 @@ export function SignUpForm({ providers }: { providers: SimpleProvider[] }) {
         </button>
       </form>
       <div className={styles.divider}>или</div>
-      <SocialProviders providers={providers} />
+      <SocialProviders providers={providers} role={role} />
       <p className={styles.signin}>
         Уже есть аккаунт? <Link href="/auth/signin">Войти</Link>
       </p>

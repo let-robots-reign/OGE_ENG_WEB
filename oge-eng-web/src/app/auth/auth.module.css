@@ -44,6 +44,11 @@
   border: 1px solid #ccc;
   border-radius: 0.25rem;
   font-size: 1rem;
+  transition: border-color 0.2s ease-in-out;
+}
+
+.input:focus {
+  outline-color: #3eaf7c;
 }
 
 .button {
@@ -62,7 +67,7 @@
 }
 
 .button_submit {
-  background-color: #3eaf7c;
+    background-color: #3eaf7c;
   border-color: #3eaf7c;
   color: #fff;
   transition: opacity 0.2s ease-in-out;
@@ -77,6 +82,7 @@
   color: red;
   text-align: center;
   min-height: 24px;
+  margin-bottom: 12px;
 }
 
 .fieldError {
@@ -154,4 +160,32 @@
 
 .signup a:hover {
   text-decoration: underline;
+}
+
+.buttonGroup {
+  display: flex;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+  overflow: hidden;
+}
+
+.buttonGroupItem {
+  flex: 1;
+  padding: 0.4rem;
+  text-align: center;
+  cursor: pointer;
+  background-color: #fff;
+  transition: background-color 0.2s, color 0.2s;
+  user-select: none;
+}
+
+.buttonGroupItem:not(:last-child) {
+  border-right: 1px solid #ccc;
+}
+
+.buttonGroupItem.active {
+  background-color: #007cc7;
+  color: #fff;
+  border-color: #007cc7;
 }

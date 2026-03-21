@@ -1,6 +1,7 @@
 import { relations } from "drizzle-orm";
 import {
   index,
+  pgEnum,
   pgTableCreator,
   primaryKey,
   uniqueIndex,
@@ -8,6 +9,8 @@ import {
 import { type AdapterAccount } from "next-auth/adapters";
 
 export const createTable = pgTableCreator((name) => name);
+
+export const roleEnum = pgEnum("role", ["student", "teacher", "admin"]);
 
 // --- AUTH TABLES ---
 
@@ -29,7 +32,7 @@ export const users = createTable(
       })
       .$defaultFn(() => new Date()),
     image: d.varchar({ length: 255 }),
-    role: d.varchar({ length: 50 }).default("user"),
+    role: roleEnum("role"),
   }),
   (t) => ({
     emailIdx: uniqueIndex("email_idx").on(t.email),

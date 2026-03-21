@@ -6,4 +6,5 @@ export const SignupSchema = z.object({
   password: z
     .string()
     .min(6, { message: "Пароль должен содержать не менее 6 символов" }),
+  role: z.enum(["student", "teacher"]),
 });

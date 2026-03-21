@@ -29,6 +29,13 @@
       "when": 1772919363467,
       "tag": "0003_hashed_password",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1774099275045,
+      "tag": "0004_user_role",
+      "breakpoints": true
     }
   ]
 }

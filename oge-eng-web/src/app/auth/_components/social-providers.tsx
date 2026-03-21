@@ -8,7 +8,20 @@ type SimpleProvider = {
   name: string;
 };
 
-export function SocialProviders({ providers }: { providers: SimpleProvider[] }) {
+export function SocialProviders({
+  providers,
+  role,
+}: {
+  providers: SimpleProvider[];
+  role?: "student" | "teacher";
+}) {
+  const handleSignIn = (providerId: string) => {
+    if (role) {
+      sessionStorage.setItem("selectedRole", role);
+    }
+    void signIn(providerId, { redirectTo: "/" });
+  };
+
   return (
     <div className={styles.providers}>
       {providers
@@ -19,7 +32,7 @@ export function SocialProviders({ providers }: { providers: SimpleProvider[] }) 
               src={`/oauth/${provider.id}.svg`}
               alt={provider.name}
               className={styles.providerImage}
-              onClick={() => void signIn(provider.id)}
+              onClick={() => handleSignIn(provider.id)}
             />
           </div>
         ))}
