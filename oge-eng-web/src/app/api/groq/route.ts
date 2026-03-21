@@ -169,19 +169,19 @@ const testUserAnswers = {
         "Reflexive pronouns",
         "Reported speech",
       ],
-      userTranslation: "пусто",
+      userTranslation: "",
     },
     {
       id: 4,
       text: "<p>Мы <b>пойдём</b> в парк, если завтра <b>будет</b> солнечно.</p>",
       topics: ["Future Simple", "Conditional 1"],
-      userTranslation: "пусто",
+      userTranslation: "",
     },
     {
       id: 5,
       text: "<p>Если <b>бы</b> у меня <b>было</b> больше свободного времени, я <b>бы занимался</b> спортом.</p>",
       topics: ["Conditional 2"],
-      userTranslation: "пусто",
+      userTranslation: "",
     },
     {
       id: 6,
@@ -193,7 +193,7 @@ const testUserAnswers = {
       id: 7,
       text: "<p><b>Мамина</b> подруга сказала, что <b>придёт позже</b>.</p>",
       topics: ["Possessive case", "Reported speech"],
-      userTranslation: "пусто",
+      userTranslation: "",
     },
     {
       id: 8,
@@ -205,19 +205,19 @@ const testUserAnswers = {
       id: 9,
       text: "<p>Я бы хотел <b>добавить немного</b> сахара. - Извини, у нас осталось <b>очень мало</b>.</p>",
       topics: ["Would like", "Countable/uncountable nouns"],
-      userTranslation: "пусто",
+      userTranslation: "",
     },
     {
       id: 10,
       text: "<p>Мы <b>собираемся переехать</b> в новый дом в следующем году.</p>",
       topics: ["To be going to"],
-      userTranslation: "пусто",
+      userTranslation: "",
     },
     {
       id: 11,
       text: "<p>Он опоздал на автобус, потому что <b>проспал</b>.</p>",
       topics: ["Past Simple"],
-      userTranslation: "пусто",
+      userTranslation: "",
     },
     {
       id: 12,
@@ -229,7 +229,7 @@ const testUserAnswers = {
       id: 13,
       text: "<p>Обычно он <b>работает</b> из дома, но сегодня он <b>встречается</b> с коллегами из других <b>стран</b> в офисе.</p>",
       topics: ["Present Simple", "Present Continuous"],
-      userTranslation: "пусто",
+      userTranslation: "",
     },
     {
       id: 14,
@@ -244,7 +244,7 @@ const testUserAnswers = {
         "Comparative adjectives",
         "Future Simple (spontaneous decision)",
       ],
-      userTranslation: "пусто",
+      userTranslation: "",
     },
   ],
 };

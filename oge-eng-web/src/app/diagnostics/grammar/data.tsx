@@ -17,7 +17,10 @@ export const part1Questions = [
   {
     id: 4,
     text: "She _____________ (not / can) come to the phone right now. She _____________ (have) a shower.",
-    correctAnswers: [["cannot", "can't"], ["is having"]],
+    correctAnswers: [
+      ["cannot", "can't"],
+      ["is having", "'s having"],
+    ],
   },
   {
     id: 5,
@@ -32,12 +35,15 @@ export const part1Questions = [
   {
     id: 7,
     text: "If it _____________ (not / rain) tomorrow, we _____________ (go) to the beach.",
-    correctAnswers: [["does not rain"], ["will go"]],
+    correctAnswers: [
+      ["does not rain", "doesn't rain"],
+      ["will go", "'ll go"],
+    ],
   },
   {
     id: 8,
     text: "I feel great! I _____________ (finish) my work already.",
-    correctAnswers: [["have finished"]],
+    correctAnswers: [["have finished", "'ve finished"]],
   },
   {
     id: 9,
@@ -46,8 +52,8 @@ export const part1Questions = [
   },
   {
     id: 10,
-    text: "Please, don't tell _____________ (they) about the surprise _____________ (party). I promised _____________ (not / tell) anyone.",
-    correctAnswers: [["them"], ["party"], ["I will not tell", "I won't tell"]],
+    text: "Please, don't tell _____________ (they) about the surprise _____________ (party). I promised I _____________ (not / tell) anyone.",
+    correctAnswers: [["them"], ["parties"], ["will not tell", "won't tell"]],
   },
   {
     id: 11,
@@ -62,7 +68,7 @@ export const part1Questions = [
   {
     id: 13,
     text: "By the time we arrived at the cinema, the film _____________ (start).",
-    correctAnswers: [["has started", "has already started"]],
+    correctAnswers: [["had started"]],
   },
   {
     id: 14,
