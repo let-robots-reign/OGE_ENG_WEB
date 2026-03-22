@@ -21,24 +21,12 @@ import { TrainingHeader } from "@/app/_components/TrainingHeader";
 import { useSession } from "next-auth/react";
 import { Modal } from "@/app/_components/Modal";
 import { ReactDOMServer } from "next/dist/server/route-modules/app-page/vendored/ssr/entrypoints";
+import { processFeedback } from "@/app/_utils/_diagnostics";
 
 interface Answers {
   part1: Record<number, string[]>;
   part2: Record<number, string>;
 }
-
-const processFeedback = (text: string): string => {
-  if (!text) return "";
-  return text
-    .replace(
-      /INCORRECT\[(.*?)\]/g,
-      `<span class="${styles.incorrectAnswer}">$1</span>`,
-    )
-    .replace(
-      /CORRECT\[(.*?)\]/g,
-      `<span class="${styles.correctAnswer}">$1</span>`,
-    );
-};
 
 export default function GrammarDiagnosticPage() {
   const router = useRouter();
@@ -168,7 +156,7 @@ export default function GrammarDiagnosticPage() {
     return (
       <main className={styles.trainingPage}>
         <TrainingHeader topic="Результаты диагностики" />
-        <div className={styles.resultsContainer}>
+        <div>
           <h2 className={styles.sectionTitle}>Ваш персональный фидбек</h2>
           <div className={styles.feedbackContent}>
             <ReactMarkdown rehypePlugins={[rehypeRaw]}>

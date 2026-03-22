@@ -15,6 +15,13 @@ export async function Header() {
       <ul className={styles.navbarMenu}>
         {session?.user ? (
           <>
+            {session.user.role === "admin" && (
+              <li>
+                <Link href="/admin" className={styles.navLink}>
+                  Админка
+                </Link>
+              </li>
+            )}
             <li>
               <Link
                 href={`/profile/${session.user.id}`}

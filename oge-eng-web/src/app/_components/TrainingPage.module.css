@@ -92,10 +92,9 @@
 
 
 .feedbackContent {
-  background-color: #f9f9f9;
-  border: 1px solid #ddd;
+  background-color: #fff;
   border-radius: 8px;
-  padding: 16px;
+  padding: 1.5rem;
   white-space: pre-wrap; /* This will respect newlines in the markdown */
   margin-bottom: 20px;
 }
