@@ -2,16 +2,26 @@
 
 import { useState } from "react";
 import { useSession } from "next-auth/react";
-import { notFound } from "next/navigation";
+import { notFound, useRouter, useSearchParams } from "next/navigation";
 import { api } from "@/trpc/react";
 import styles from "@/app/admin/Admin.module.css";
 import Link from "next/link";
+import { z } from "zod";
 
-type Tab = "training" | "diagnostics";
+const tabsOptions = z.enum(["training", "diagnostics"]);
+type Tab = z.infer<typeof tabsOptions>;
 
 export default function AdminPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const tabParam = searchParams.get("tab");
+
   const { data: session, status } = useSession();
-  const [activeTab, setActiveTab] = useState<Tab>("training");
+
+  const parsedTab = tabsOptions.safeParse(tabParam);
+  const [activeTab, setActiveTab] = useState<Tab>(
+    parsedTab.success ? parsedTab.data : "training",
+  );
 
   const hasAccess =
     status === "authenticated" && session?.user?.role === "admin";
@@ -34,6 +44,11 @@ export default function AdminPage() {
     notFound();
   }
 
+  const handleTabChange = (tab: Tab) => {
+    setActiveTab(tab);
+    router.push(`/admin?tab=${tab}`, { scroll: false });
+  };
+
   const isLoading = isLoadingTraining || isLoadingDiagnostics;
 
   return (
@@ -44,7 +59,7 @@ export default function AdminPage() {
           className={`${styles.tab} ${
             activeTab === "training" ? styles.active : ""
           }`}
-          onClick={() => setActiveTab("training")}
+          onClick={() => handleTabChange("training")}
         >
           Тренировки
         </button>
@@ -52,7 +67,7 @@ export default function AdminPage() {
           className={`${styles.tab} ${
             activeTab === "diagnostics" ? styles.active : ""
           }`}
-          onClick={() => setActiveTab("diagnostics")}
+          onClick={() => handleTabChange("diagnostics")}
         >
           Диагностика
         </button>
