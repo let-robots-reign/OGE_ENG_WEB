@@ -43,13 +43,21 @@ export default function GrammarDiagnosticPage() {
   const task1Refs = useRef<Record<number, GrammarTask1Ref>>({});
   const task2Refs = useRef<Record<number, GrammarTask2Ref>>({});
 
+  const { data: hasCompleted, isLoading: isLoadingCompletionStatus } =
+    api.diagnostics.hasCompletedDiagnostics.useQuery(undefined, {
+      enabled: status === "authenticated",
+    });
+
   const logResultMutation = api.training.logResult.useMutation();
 
   useEffect(() => {
     if (status === "unauthenticated") {
       setShowModal(true);
     }
-  }, [status]);
+    if (hasCompleted) {
+      router.push("/");
+    }
+  }, [status, hasCompleted, router]);
 
   const checkGrammarMutation = api.diagnostics.checkGrammar.useMutation({
     onSuccess: (data) => {
@@ -122,8 +130,8 @@ export default function GrammarDiagnosticPage() {
     window.scrollTo(0, 0);
   };
 
-  if (status === "loading") {
-    return <></>;
+  if (status === "loading" || isLoadingCompletionStatus) {
+    return <div className="text-white">Загрузка...</div>;
   }
 
   if (showModal) {

@@ -4,8 +4,18 @@ import { TheoryCard } from "./_components/theory-card";
 import styles from "./page.module.css";
 import { DiagnosticsCard } from "./_components/DiagnosticsCard";
 import { RoleUpdater } from "./_components/role-updater";
+import { api } from "@/trpc/server";
+import { auth } from "@/server/auth";
+import clsx from "clsx";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const session = await auth();
+  let hasCompletedDiagnostics = false;
+
+  if (session?.user) {
+    hasCompletedDiagnostics = await api.diagnostics.hasCompletedDiagnostics();
+  }
+
   const cards = {
     training: [
       {
@@ -99,7 +109,11 @@ export default function HomePage() {
           <p className={styles.sectionName}>Диагностика</p>
           <div className={styles.trainingsGrid}>
             {cards.diagnostics.map((card) => (
-              <DiagnosticsCard key={card.key} card={card} />
+              <DiagnosticsCard
+                key={card.key}
+                card={card}
+                disabled={hasCompletedDiagnostics}
+              />
             ))}
           </div>
         </div>

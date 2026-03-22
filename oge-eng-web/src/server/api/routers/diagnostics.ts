@@ -1,7 +1,13 @@
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "@/server/api/trpc";
 import Groq from "groq-sdk";
 import { diagnosticsSystemPrompt } from "@/server/api/lib/prompts/diagnostics";
+import { userResults } from "@/server/db/schema";
+import { and, eq } from "drizzle-orm";
 
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
@@ -252,6 +258,16 @@ const part2Schema = z.array(
 );
 
 export const diagnosticsRouter = createTRPCRouter({
+  hasCompletedDiagnostics: protectedProcedure.query(async ({ ctx }) => {
+    const result = await ctx.db.query.userResults.findFirst({
+      where: and(
+        eq(userResults.userId, ctx.session.user.id),
+        eq(userResults.activityType, "diagnostics"),
+      ),
+    });
+    return !!result;
+  }),
+
   checkGrammar: publicProcedure
     .input(z.object({ part1: part1Schema, part2: part2Schema }))
     .mutation(async ({ input }) => {

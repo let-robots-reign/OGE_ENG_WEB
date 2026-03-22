@@ -8,6 +8,7 @@ import { TrainingCard } from "./training-card";
 import { Modal } from "./Modal";
 import styles from "@/app/page.module.css";
 import headerStyles from "./Header.module.css";
+import clsx from "clsx";
 
 interface DiagnosticsCardProps {
   card: {
@@ -15,14 +16,23 @@ interface DiagnosticsCardProps {
     title: string;
     image: string;
   };
+  disabled?: boolean;
 }
 
-export function DiagnosticsCard({ card }: DiagnosticsCardProps) {
+export function DiagnosticsCard({ card, disabled }: DiagnosticsCardProps) {
   const { data: session } = useSession();
   const router = useRouter();
   const [showModal, setShowModal] = useState(false);
 
   const handleDiagnosticsClick = (e: React.MouseEvent) => {
+    if (disabled) {
+      window.alert(
+        "Вы уже прошли диагностику. Продолжайте проходить тренировки и изучать теорию, чтобы подготовиться к экзамену.",
+      );
+      e.preventDefault();
+      return;
+    }
+
     if (!session) {
       e.preventDefault();
       setShowModal(true);
@@ -33,11 +43,16 @@ export function DiagnosticsCard({ card }: DiagnosticsCardProps) {
     <>
       <Link
         href={`/diagnostics/${card.key}`}
-        className={styles.trainingLink}
+        className={`${styles.trainingLink} ${
+          disabled ? styles.disabledLink : ""
+        }`}
         onClick={handleDiagnosticsClick}
       >
         <TrainingCard
-          className="grid-cols-[1fr_3fr]"
+          className={clsx(
+            "grid-cols-[1fr_3fr]",
+            disabled && styles.disabledCard,
+          )}
           title={card.title}
           image={card.image}
           isBeta

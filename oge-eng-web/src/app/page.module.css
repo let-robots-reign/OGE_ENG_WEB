@@ -41,3 +41,17 @@
 .loginRequiredModal h3 {
   font-size: 1.3rem;
 }
+
+.disabledLink {
+  cursor: default;
+}
+
+.disabledCard {
+  filter: brightness(0.4);
+  user-select: none;
+}
+
+div.disabledCard:hover {
+  box-shadow: 2px 3px 10px rgba(0, 0, 0, 0.2);
+  cursor: default;
+}
