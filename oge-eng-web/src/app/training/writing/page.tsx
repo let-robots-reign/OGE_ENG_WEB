@@ -8,9 +8,12 @@ import {
   type WritingTaskRef,
 } from "@/app/_components/WritingTask";
 import styles from "@/app/_components/TrainingPage.module.css";
+import { useSession } from "next-auth/react";
 
 export default function WritingPage() {
   const taskRef = useRef<WritingTaskRef>(null);
+
+  const { data: session } = useSession();
 
   const { data, isLoading } = api.training.getWritingTraining.useQuery(
     undefined,
@@ -20,7 +23,12 @@ export default function WritingPage() {
     },
   );
 
+  const { data: topicData } =
+    api.training.getTopicByTopicTitle.useQuery("Письмо Упражнения");
+  const topicId = topicData?.id;
+
   const checkAnswersMutation = api.training.checkWritingTraining.useMutation();
+  const logResultMutation = api.training.logResult.useMutation();
 
   const [isChecking, setIsChecking] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
@@ -47,9 +55,18 @@ export default function WritingPage() {
       fullAnswersCorrectness: result.fullAnswersCorrectness,
     });
 
-    setResultText(`Ваш результат: ${result.correctCount}/${result.total}`);
+    const resultRatio = `${result.correctCount}/${result.total}`;
+    setResultText(`Ваш результат: ${resultRatio}`);
     setIsChecking(false);
     setIsChecked(true);
+
+    if (session?.user && topicId) {
+      logResultMutation.mutate({
+        activityId: topicId,
+        activityType: "training",
+        result: resultRatio,
+      });
+    }
   };
 
   const instruction = useMemo(

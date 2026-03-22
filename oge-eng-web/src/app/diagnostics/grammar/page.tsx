@@ -42,7 +42,7 @@ const processFeedback = (text: string): string => {
 
 export default function GrammarDiagnosticPage() {
   const router = useRouter();
-  const { status } = useSession();
+  const { data: session, status } = useSession();
   const [showModal, setShowModal] = useState(false);
   const [currentPart, setCurrentPart] = useState(1);
   const [answers, setAnswers] = useState<Answers>({
@@ -55,6 +55,8 @@ export default function GrammarDiagnosticPage() {
   const task1Refs = useRef<Record<number, GrammarTask1Ref>>({});
   const task2Refs = useRef<Record<number, GrammarTask2Ref>>({});
 
+  const logResultMutation = api.training.logResult.useMutation();
+
   useEffect(() => {
     if (status === "unauthenticated") {
       setShowModal(true);
@@ -66,6 +68,21 @@ export default function GrammarDiagnosticPage() {
       setFeedback(data.feedback);
       setIsSubmitted(true);
       window.scrollTo(0, 0);
+
+      if (session?.user) {
+        logResultMutation.mutate({
+          /*
+          TODO: list of diagnostics is not stored in the DB yet
+          Setting activityId: 1 here to satisfy the table's schema
+          When there are more diagnostics types and they are stored in the DB,
+          set ID of the current diagnostics here
+           */
+          activityId: 1,
+          activityType: "diagnostics",
+          result: "",
+          details: { userAnswers: answers, feedback: data.feedback },
+        });
+      }
     },
   });
 

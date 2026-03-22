@@ -165,7 +165,8 @@ Explain the rule briefly.
 
 If the entire task was skipped:
 
-Ответ пропущен.  
+Ответ пропущен.
+ 
 Правильный ответ: (show correct answers and explain the grammar rule).
 
 After explaining mistakes, when possible, show the fully corrected sentence.
@@ -211,6 +212,7 @@ Then provide ONE short example sentence using this grammar rule.
 If translation is empty:
 
 Ответ пропущен.  
+
 Правильный ответ: (provide correct translation)
 
 Explain the grammar topic briefly and give one example.

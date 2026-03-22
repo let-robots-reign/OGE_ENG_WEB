@@ -11,6 +11,11 @@ import { type AdapterAccount } from "next-auth/adapters";
 export const createTable = pgTableCreator((name) => name);
 
 export const roleEnum = pgEnum("role", ["student", "teacher", "admin"]);
+export const activityTypeEnum = pgEnum("activity_type", [
+  "training",
+  "mock_exam",
+  "diagnostics",
+]);
 
 // --- AUTH TABLES ---
 
@@ -41,7 +46,7 @@ export const users = createTable(
 
 export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
-  userActivities: many(userActivities),
+  userResults: many(userResults),
 }));
 
 export const accounts = createTable(
@@ -114,6 +119,7 @@ export const trainingTopicsRelations = relations(
     audioTasks: many(audioTasksFirst),
     readingTasks: many(readingTasksFirst),
     uoeTasks: many(uoeTasks),
+    writingTasks: many(writingTasks),
   }),
 );
 
@@ -185,6 +191,16 @@ export const writingTasks = createTable("writing_task", (d) => ({
   task: d.text().notNull(),
   answer: d.text().notNull(),
   isDeleted: d.boolean().default(false).notNull(),
+  topicId: d.integer().references(() => trainingTopics.id, {
+    onDelete: "set null",
+  }),
+}));
+
+export const writingTasksRelations = relations(writingTasks, ({ one }) => ({
+  topic: one(trainingTopics, {
+    fields: [writingTasks.topicId],
+    references: [trainingTopics.id],
+  }),
 }));
 
 export const theoryArticles = createTable("theory_article", (d) => ({
@@ -194,21 +210,25 @@ export const theoryArticles = createTable("theory_article", (d) => ({
   content: d.text().notNull(),
 }));
 
-export const userActivities = createTable("user_activity", (d) => ({
+export const userResults = createTable("user_result", (d) => ({
   id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
   userId: d
     .varchar({ length: 255 })
     .notNull()
-    .references(() => users.id),
-  task: d.text().notNull(),
-  result: d.text().notNull(),
-  experience: d.integer().notNull(),
-  date: d.timestamp({ withTimezone: true }).$defaultFn(() => new Date()),
+    .references(() => users.id, { onDelete: "cascade" }),
+  activityType: activityTypeEnum("activity_type").notNull(),
+  activityId: d.integer().notNull(),
+  result: d.varchar({ length: 255 }).notNull(),
+  details: d.jsonb("details"),
+  createdAt: d
+    .timestamp({ withTimezone: true })
+    .notNull()
+    .$defaultFn(() => new Date()),
 }));
 
-export const userActivitiesRelations = relations(userActivities, ({ one }) => ({
+export const userResultsRelations = relations(userResults, ({ one }) => ({
   user: one(users, {
-    fields: [userActivities.userId],
+    fields: [userResults.userId],
     references: [users.id],
   }),
 }));

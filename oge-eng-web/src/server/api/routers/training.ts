@@ -1,10 +1,16 @@
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "@/server/api/trpc";
+import {
+  activityTypeEnum,
   audioTasksFirst,
   readingTasksFirst,
   trainingTopics,
   uoeTasks,
+  userResults,
   writingTasks,
 } from "@/server/db/schema";
 import { shuffle } from "@/app/_utils/shuffle";
@@ -25,6 +31,25 @@ export const trainingRouter = createTRPCRouter({
     .query(({ ctx, input }) => {
       return ctx.db.query.trainingTopics.findFirst({
         where: eq(trainingTopics.title, input),
+      });
+    }),
+
+  logResult: protectedProcedure
+    .input(
+      z.object({
+        activityId: z.number(),
+        activityType: z.enum(activityTypeEnum.enumValues),
+        result: z.string(),
+        details: z.any().optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db.insert(userResults).values({
+        userId: ctx.session.user.id,
+        activityId: input.activityId,
+        activityType: input.activityType,
+        result: input.result,
+        details: input.details,
       });
     }),
 

@@ -10,12 +10,15 @@ import {
 } from "@/app/_components/ReadingTask";
 import { TrainingExplanation } from "@/app/_components/TrainingExplanation";
 import styles from "@/app/_components/TrainingPage.module.css";
+import { useSession } from "next-auth/react";
 
 export default function ReadingPage() {
   const searchParams = useSearchParams();
   const topicId = Number(searchParams.get("topic"));
 
   const taskRef = useRef<ReadingTaskRef>(null);
+
+  const { data: session } = useSession();
 
   const { data, isLoading } = api.training.getReadingTraining.useQuery(
     { topicId },
@@ -27,6 +30,7 @@ export default function ReadingPage() {
   );
 
   const checkAnswersMutation = api.training.checkReadingTraining.useMutation();
+  const logResultMutation = api.training.logResult.useMutation();
 
   const [isChecking, setIsChecking] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
@@ -48,7 +52,9 @@ export default function ReadingPage() {
 
     taskRef.current?.showCorrectAnswers(userAnswers, result.correctAnswers);
 
-    setResultText(`Ваш результат: ${result.correctCount}/${result.total}`);
+    const resultRatio = `${result.correctCount}/${result.total}`;
+    setResultText(`Ваш результат: ${resultRatio}`);
+
     if (result.explanation) {
       setExplanationComponent(
         <TrainingExplanation
@@ -61,6 +67,14 @@ export default function ReadingPage() {
     }
     setIsChecking(false);
     setIsChecked(true);
+
+    if (session?.user) {
+      logResultMutation.mutate({
+        activityId: topicId,
+        activityType: "training",
+        result: resultRatio,
+      });
+    }
   };
 
   const instruction = useMemo(

@@ -9,12 +9,15 @@ import {
   type UseOfEnglishCardRef,
 } from "@/app/_components/UseOfEnglishCard";
 import styles from "@/app/_components/TrainingPage.module.css";
+import { useSession } from "next-auth/react";
 
 export default function UseOfEnglishPage() {
   const searchParams = useSearchParams();
   const topicId = Number(searchParams.get("topic"));
 
   const cardRefs = useRef<UseOfEnglishCardRef[]>([]);
+
+  const { data: session } = useSession();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -30,6 +33,7 @@ export default function UseOfEnglishPage() {
   );
 
   const checkAnswersMutation = api.training.checkUoeTraining.useMutation();
+  const logResultMutation = api.training.logResult.useMutation();
 
   const [isChecking, setIsChecking] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
@@ -58,9 +62,18 @@ export default function UseOfEnglishPage() {
       }
     });
 
-    setResultText(`Ваш результат: ${result.correctCount}/${result.total}`);
+    const resultRatio = `${result.correctCount}/${result.total}`;
+    setResultText(`Ваш результат: ${resultRatio}`);
     setIsChecking(false);
     setIsChecked(true);
+
+    if (session?.user) {
+      logResultMutation.mutate({
+        activityId: topicId,
+        activityType: "training",
+        result: resultRatio,
+      });
+    }
   };
 
   const instruction = useMemo(
