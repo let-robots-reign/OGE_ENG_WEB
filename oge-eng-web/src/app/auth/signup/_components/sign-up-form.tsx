@@ -10,6 +10,7 @@ import { type z } from "zod";
 import { SignupSchema } from "./schema";
 import clsx from "clsx";
 import { SocialProviders } from "@/app/auth/_components/social-providers";
+import posthog from "posthog-js";
 
 type SimpleProvider = {
   id: string;
@@ -107,6 +108,8 @@ export function SignUpForm({ providers }: { providers: SimpleProvider[] }) {
       });
 
       if (signInResult?.ok) {
+        posthog.identify(email, { name, email, role });
+        posthog.capture("user_signed_up", { role, method: "credentials" });
         router.push("/");
         router.refresh();
       } else {

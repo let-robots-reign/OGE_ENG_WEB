@@ -10,6 +10,7 @@ import {
 } from "@/app/_components/UseOfEnglishCard";
 import styles from "@/app/_components/TrainingPage.module.css";
 import { useSession } from "next-auth/react";
+import posthog from "posthog-js";
 
 export default function UseOfEnglishPage() {
   const searchParams = useSearchParams();
@@ -66,6 +67,15 @@ export default function UseOfEnglishPage() {
     setResultText(`Ваш результат: ${resultRatio}`);
     setIsChecking(false);
     setIsChecked(true);
+
+    posthog.capture("training_completed", {
+      training_type: "use_of_english",
+      topic: data.topicTitle,
+      topic_id: topicId,
+      correct_count: result.correctCount,
+      total: result.total,
+      result: resultRatio,
+    });
 
     if (session?.user) {
       logResultMutation.mutate({

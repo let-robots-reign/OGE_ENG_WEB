@@ -22,6 +22,7 @@ import { useSession } from "next-auth/react";
 import { Modal } from "@/app/_components/Modal";
 import { ReactDOMServer } from "next/dist/server/route-modules/app-page/vendored/ssr/entrypoints";
 import { processFeedback } from "@/app/_utils/_diagnostics";
+import posthog from "posthog-js";
 
 interface Answers {
   part1: Record<number, string[]>;
@@ -64,6 +65,10 @@ export default function GrammarDiagnosticPage() {
       setFeedback(data.feedback);
       setIsSubmitted(true);
       window.scrollTo(0, 0);
+
+      posthog.capture("diagnostics_completed", {
+        diagnostics_type: "grammar",
+      });
 
       if (session?.user) {
         logResultMutation.mutate({
@@ -117,6 +122,11 @@ export default function GrammarDiagnosticPage() {
         userTranslation: answers.part2[q.id] ?? "",
       })),
     };
+    posthog.capture("diagnostics_submitted", {
+      diagnostics_type: "grammar",
+      part1_answers_count: Object.keys(answers.part1).length,
+      part2_answers_count: Object.keys(answers.part2).length,
+    });
     checkGrammarMutation.mutate(payload);
   };
 

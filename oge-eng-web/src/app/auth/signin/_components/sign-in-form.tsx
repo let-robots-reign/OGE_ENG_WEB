@@ -7,6 +7,7 @@ import { useState } from "react";
 import styles from "@/app/auth/auth.module.css";
 import clsx from "clsx";
 import { SocialProviders } from "@/app/auth/_components/social-providers";
+import posthog from "posthog-js";
 
 type SimpleProvider = {
   id: string;
@@ -32,6 +33,8 @@ export function SignInForm({ providers }: { providers: SimpleProvider[] }) {
     if (result?.error) {
       setError("Неверная почта или пароль");
     } else {
+      posthog.identify(email, { email });
+      posthog.capture("user_signed_in", { method: "credentials" });
       router.push("/");
       router.refresh();
     }

@@ -11,6 +11,7 @@ import {
 import { ListeningExplanation } from "@/app/_components/ListeningExplanation";
 import styles from "@/app/_components/TrainingPage.module.css";
 import { useSession } from "next-auth/react";
+import posthog from "posthog-js";
 
 export default function ListeningPage() {
   const searchParams = useSearchParams();
@@ -66,6 +67,15 @@ export default function ListeningPage() {
     }
     setIsChecking(false);
     setIsChecked(true);
+
+    posthog.capture("training_completed", {
+      training_type: "listening",
+      topic: data.topicTitle,
+      topic_id: topicId,
+      correct_count: result.correctCount,
+      total: result.total,
+      result: resultRatio,
+    });
 
     if (session?.user) {
       logResultMutation.mutate({

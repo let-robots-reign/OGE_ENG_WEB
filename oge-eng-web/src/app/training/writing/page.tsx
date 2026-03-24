@@ -9,6 +9,7 @@ import {
 } from "@/app/_components/WritingTask";
 import styles from "@/app/_components/TrainingPage.module.css";
 import { useSession } from "next-auth/react";
+import posthog from "posthog-js";
 
 export default function WritingPage() {
   const taskRef = useRef<WritingTaskRef>(null);
@@ -59,6 +60,14 @@ export default function WritingPage() {
     setResultText(`Ваш результат: ${resultRatio}`);
     setIsChecking(false);
     setIsChecked(true);
+
+    posthog.capture("training_completed", {
+      training_type: "writing",
+      topic: data.topicTitle,
+      correct_count: result.correctCount,
+      total: result.total,
+      result: resultRatio,
+    });
 
     if (session?.user && topicId) {
       logResultMutation.mutate({

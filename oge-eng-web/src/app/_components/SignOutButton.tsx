@@ -4,11 +4,14 @@ import { useState } from "react";
 import { signOut } from "next-auth/react";
 import { Modal } from "./Modal";
 import styles from "./Header.module.css";
+import posthog from "posthog-js";
 
 export function SignOutButton() {
   const [showModal, setShowModal] = useState(false);
 
   const handleSignOut = () => {
+    posthog.capture("user_signed_out");
+    posthog.reset();
     void signOut({ redirectTo: "/" });
   };
 

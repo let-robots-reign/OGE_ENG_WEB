@@ -11,6 +11,7 @@ import {
 import { TrainingExplanation } from "@/app/_components/TrainingExplanation";
 import styles from "@/app/_components/TrainingPage.module.css";
 import { useSession } from "next-auth/react";
+import posthog from "posthog-js";
 
 export default function ReadingPage() {
   const searchParams = useSearchParams();
@@ -67,6 +68,15 @@ export default function ReadingPage() {
     }
     setIsChecking(false);
     setIsChecked(true);
+
+    posthog.capture("training_completed", {
+      training_type: "reading",
+      topic: data.topicTitle,
+      topic_id: topicId,
+      correct_count: result.correctCount,
+      total: result.total,
+      result: resultRatio,
+    });
 
     if (session?.user) {
       logResultMutation.mutate({
