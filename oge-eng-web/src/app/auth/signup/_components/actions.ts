@@ -1,6 +1,6 @@
 "use server";
 
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { type z } from "zod";
 import { db } from "@/server/db";
 import { users } from "@/server/db/schema";
