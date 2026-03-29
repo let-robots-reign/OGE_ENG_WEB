@@ -5,6 +5,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - GROQ_API_KEY=${GROQ_API_KEY}
     restart: always
     depends_on:
       - db
