@@ -141,7 +141,7 @@ export default function GrammarDiagnosticPage() {
   };
 
   if (status === "loading" || isLoadingCompletionStatus) {
-    return <div className="text-white">Загрузка...</div>;
+    return <></>;
   }
 
   if (showModal) {

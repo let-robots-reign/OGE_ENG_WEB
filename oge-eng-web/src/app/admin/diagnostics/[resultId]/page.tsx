@@ -31,7 +31,7 @@ export default function DiagnosticResultPage({
   );
 
   if (status === "loading" || isLoading) {
-    return <div className="text-white">Загрузка...</div>;
+    return <></>;
   }
 
   if (!hasAccess) {

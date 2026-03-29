@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useImperativeHandle, forwardRef } from "react";
-import styles from "../../UseOfEnglishCard.module.css";
+import styles from "@/app/_components/UseOfEnglishCard.module.css";
 
 type GrammarTask2Props = {
   id: number;
