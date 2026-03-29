@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useMemo } from "react";
+import { useRef, useState, useMemo, Suspense } from "react";
 import { api } from "@/trpc/react";
 import { TrainingPage } from "@/app/_components/TrainingPage";
 import {
@@ -12,6 +12,14 @@ import { useSession } from "next-auth/react";
 import posthog from "posthog-js";
 
 export default function WritingPage() {
+  return (
+    <Suspense fallback={<div className="text-white">Загрузка...</div>}>
+      <WritingContent />
+    </Suspense>
+  );
+}
+
+function WritingContent() {
   const taskRef = useRef<WritingTaskRef>(null);
 
   const { data: session } = useSession();

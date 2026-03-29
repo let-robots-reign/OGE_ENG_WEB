@@ -44,3 +44,9 @@ yarn-error.log*
 
 # idea files
 .idea
+
+# my own draft files
+*.csv
+material
+backup.sql
+commands.txt

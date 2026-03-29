@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useMemo } from "react";
+import { useRef, useState, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { api } from "@/trpc/react";
 import { TrainingPage } from "@/app/_components/TrainingPage";
@@ -14,6 +14,14 @@ import { useSession } from "next-auth/react";
 import posthog from "posthog-js";
 
 export default function ReadingPage() {
+  return (
+    <Suspense fallback={<div className="text-white">Загрузка...</div>}>
+      <ReadingContent />
+    </Suspense>
+  );
+}
+
+function ReadingContent() {
   const searchParams = useSearchParams();
   const topicId = Number(searchParams.get("topic"));
 

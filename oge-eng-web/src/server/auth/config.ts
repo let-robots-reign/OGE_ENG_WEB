@@ -113,7 +113,7 @@ export const authConfig = {
     accountsTable: accounts,
     sessionsTable: sessions,
     verificationTokensTable: verificationTokens,
-  }),
+  }) as NonNullable<NextAuthConfig["adapter"]>,
   callbacks: {
     async jwt({ token, user }) {
       if (user) {

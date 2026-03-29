@@ -227,7 +227,8 @@ export const trainingRouter = createTRPCRouter({
       withOptions?: false,
     ): { id: number; task: string; topic: string }[];
 
-    function getSubtasksByTopic(topic: string, withOptions = false) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    function getSubtasksByTopic(topic: string, withOptions = false): any[] {
       const tasks = allTasks.filter((task) => task.topic === topic);
       if (withOptions) {
         return tasks.map((task) => {

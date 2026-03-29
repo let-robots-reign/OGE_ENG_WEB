@@ -31,9 +31,9 @@ export function ListeningExplanation({
 
   const getOptionText = (
     questionIndex: number,
-    optionIndex: number | null,
+    optionIndex: number | null | undefined,
   ) => {
-    if (optionIndex === null) return "Нет ответа";
+    if (optionIndex === null || optionIndex === undefined) return "Нет ответа";
     return questions[questionIndex]?.options[optionIndex - 1] ?? "Нет ответа";
   };
 

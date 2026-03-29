@@ -1,5 +1,6 @@
 "use client";
 
+import { use } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter, notFound } from "next/navigation";
 import { api } from "@/trpc/react";
@@ -10,10 +11,11 @@ import { TrainingHeader } from "@/app/_components/TrainingHeader";
 import { processFeedback } from "@/app/_utils/_diagnostics";
 
 export default function DiagnosticResultPage({
-  params: { resultId: resultIdString },
+  params,
 }: {
-  params: { resultId: string };
+  params: Promise<{ resultId: string }>;
 }) {
+  const { resultId: resultIdString } = use(params);
   const router = useRouter();
   const { data: session, status } = useSession();
   const resultId = Number(resultIdString);

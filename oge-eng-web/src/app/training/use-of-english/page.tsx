@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { api } from "@/trpc/react";
 import { TrainingPage } from "@/app/_components/TrainingPage";
@@ -13,6 +13,14 @@ import { useSession } from "next-auth/react";
 import posthog from "posthog-js";
 
 export default function UseOfEnglishPage() {
+  return (
+    <Suspense fallback={<div className="text-white">Загрузка...</div>}>
+      <UseOfEnglishContent />
+    </Suspense>
+  );
+}
+
+function UseOfEnglishContent() {
   const searchParams = useSearchParams();
   const topicId = Number(searchParams.get("topic"));
 
@@ -41,6 +49,7 @@ export default function UseOfEnglishPage() {
   const [resultText, setResultText] = useState("");
 
   const handleCheck = async () => {
+    if (!data) return;
     setIsChecking(true);
     const answers = cardRefs.current.map((ref) => ref.getAnswerData());
     const result = await checkAnswersMutation.mutateAsync({ answers });

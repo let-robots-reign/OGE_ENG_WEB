@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { notFound, useRouter, useSearchParams } from "next/navigation";
 import { api } from "@/trpc/react";
@@ -12,6 +12,14 @@ const tabsOptions = z.enum(["training", "diagnostics"]);
 type Tab = z.infer<typeof tabsOptions>;
 
 export default function AdminPage() {
+  return (
+    <Suspense fallback={<div className="text-white">Загрузка...</div>}>
+      <AdminContent />
+    </Suspense>
+  );
+}
+
+function AdminContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const tabParam = searchParams.get("tab");
