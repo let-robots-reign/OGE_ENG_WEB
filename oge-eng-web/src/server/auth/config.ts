@@ -48,6 +48,7 @@ declare module "next-auth/jwt" {
  * @see https://next-auth.js.org/configuration/options
  */
 export const authConfig = {
+  trustHost: true,
   pages: {
     signIn: "/auth/signin",
   },
