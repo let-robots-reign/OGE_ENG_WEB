@@ -291,7 +291,7 @@ export const diagnosticsRouter = createTRPCRouter({
           top_p: 0.9,
           presence_penalty: 0,
           frequency_penalty: 0,
-          max_completion_tokens: 8000,
+          max_completion_tokens: 6000,
           stream: false,
         });
 
@@ -303,8 +303,18 @@ export const diagnosticsRouter = createTRPCRouter({
         return { feedback };
       } catch (error) {
         console.error("Error calling Groq API:", error);
+        // Проверяем, не является ли ошибка лимитом Groq (413)
+        const isRateLimit = error instanceof Error && error.message.includes('413');
+
+        if (isRateLimit) {
+          throw new Error(
+            "Сейчас проверяется слишком много работ 😅 Пожалуйста, подождите немного и нажмите кнопку снова."
+          );
+        }
+
+        // Для всех остальных ошибок (500, таймауты и т.д.)
         throw new Error(
-          "Произошла ошибка во время анализа диагностики, попробуйте позднее",
+          "Произошла ошибка во время анализа диагностики. Попробуйте позднее."
         );
       }
     }),

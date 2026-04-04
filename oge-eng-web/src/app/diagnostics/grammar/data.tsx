@@ -99,7 +99,7 @@ export const part2Questions = [
         <b>Эти люди</b> – мои друзья. Посмотри на <b>них</b>!
       </p>
     ),
-    topics: ["Personal pronouns", "Demonstrative pronouns"],
+    topics: ["Personal pronouns", "Demonstrative pronouns", "to be"],
   },
   {
     id: 2,
@@ -108,7 +108,7 @@ export const part2Questions = [
         Кот <b>не ловил мышей</b> на прошлой неделе.
       </p>
     ),
-    topics: ["Past Simple", "Plural nouns"],
+    topics: ["Past Simple", "Plural nouns", 'Articles'],
   },
   {
     id: 3,
@@ -152,7 +152,7 @@ export const part2Questions = [
         <b>Те печенья испекла</b> моя бабушка.
       </p>
     ),
-    topics: ["Demonstrative pronouns", "Past Simple"],
+    topics: ["Demonstrative pronouns", "Past Simple", "Passive Voice'"],
   },
   {
     id: 7,
@@ -161,7 +161,7 @@ export const part2Questions = [
         <b>Мамина</b> подруга сказала, что <b>придёт позже</b>.
       </p>
     ),
-    topics: ["Possessive case", "Reported speech"],
+    topics: ["Possessive case", "Reported speech", "Comparative Adverbs"],
   },
   {
     id: 8,
@@ -170,7 +170,7 @@ export const part2Questions = [
         Это <b>самый плохой</b> фильм, который я когда-либо <b>видел</b>.
       </p>
     ),
-    topics: ["Superlative adjectives", "Present Perfect"],
+    topics: ["Superlative adjectives", "Present Perfect", "to be"],
   },
   {
     id: 9,
@@ -180,7 +180,7 @@ export const part2Questions = [
         <b>очень мало</b>.
       </p>
     ),
-    topics: ["Would like", "Countable/uncountable nouns"],
+    topics: ["Would like", "Countable/uncountable nouns", "a little / a few", 'little / few'],
   },
   {
     id: 10,
@@ -198,7 +198,7 @@ export const part2Questions = [
         Он опоздал на автобус, потому что <b>проспал</b>.
       </p>
     ),
-    topics: ["Past Simple"],
+    topics: ["Past Simple", 'Past Perfect', 'Articles'],
   },
   {
     id: 12,
@@ -207,7 +207,7 @@ export const part2Questions = [
         В холодильнике <b>очень мало</b> яблок.
       </p>
     ),
-    topics: ["There is/there are", "Countable/uncountable nouns"],
+    topics: ["There is/there are", "Countable/uncountable nouns", 'few / little'],
   },
   {
     id: 13,
@@ -226,7 +226,7 @@ export const part2Questions = [
         Я бы хотела(=I wish), чтобы у меня <b>была более комфортная</b> комната.
       </p>
     ),
-    topics: ["I wish"],
+    topics: ["I wish", 'comparative adjectives'],
   },
   {
     id: 15,
