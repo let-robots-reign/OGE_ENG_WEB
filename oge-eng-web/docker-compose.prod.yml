@@ -29,6 +29,8 @@ services:
         condition: service_healthy
     env_file:
       - .env
+    environment:
+      - AUTH_URL=https://oge-eng.ru
 
   db:
     image: postgres:15-alpine
