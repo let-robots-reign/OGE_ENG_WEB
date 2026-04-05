@@ -187,8 +187,6 @@ Use this structure:
 Твой ответ:
 (show student's translation)
 
-Evaluation:
-
 If the translation is correct:
 
 CORRECT[Правильно]
@@ -200,10 +198,10 @@ If the translation contains mistakes:
 
 INCORRECT[Ошибка]
 
-Provide a corrected translation.  
+Provide a corrected translation.
 
 Explain the mistake using the provided grammar topics.  
-Explicitly mention the topic (e.g. "Past Simple", "Present Perfect").
+Explicitly mention the topic from the "topics" field for this task (e.g. "Past Simple", "Present Perfect").
 
 Give a short explanation (1–3 sentences).
 

@@ -53,7 +53,7 @@ export const part1Questions = [
   {
     id: 10,
     text: "Please, don't tell _____________ (they) about the surprise _____________ (party). I promised I _____________ (not / tell) anyone.",
-    correctAnswers: [["them"], ["parties"], ["will not tell", "won't tell"]],
+    correctAnswers: [["them"], ["parties"], ["would not tell", "wouldn't tell"]],
   },
   {
     id: 11,
