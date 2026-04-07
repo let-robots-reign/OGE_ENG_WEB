@@ -20,6 +20,8 @@ export const env = createEnv({
     DISCORD_CLIENT_SECRET: z.string(),
     DATABASE_URL: z.string().url(),
     GROQ_API_KEY: z.string(),
+    CEREBRAS_API_KEY: z.string(),
+    GEMINI_API_KEY: z.string(),
     SENTRY_AUTH_TOKEN: z.string(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
@@ -52,6 +54,8 @@ export const env = createEnv({
     DISCORD_CLIENT_SECRET: process.env.DISCORD_CLIENT_SECRET,
     DATABASE_URL: process.env.DATABASE_URL,
     GROQ_API_KEY: process.env.GROQ_API_KEY,
+    CEREBRAS_API_KEY: process.env.CEREBRAS_API_KEY,
+    GEMINI_API_KEY: process.env.GEMINI_API_KEY,
     SENTRY_AUTH_TOKEN: process.env.SENTRY_AUTH_TOKEN,
     NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN:
       process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN,

@@ -66,3 +66,28 @@
     width: 90%;
   }
 }
+
+@media (max-width: 768px) {
+  .modal {
+    padding: 1.5rem;
+  }
+
+  .modal__title {
+    font-size: 1.2rem;
+  }
+
+  .modal__content {
+    font-size: 16px;
+  }
+
+  .modal__content button {
+    min-width: 80px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 576px) {
+  .modal {
+    padding: 1rem;
+  }
+}

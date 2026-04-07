@@ -55,3 +55,15 @@ div.disabledCard:hover {
   box-shadow: 2px 3px 10px rgba(0, 0, 0, 0.2);
   cursor: default;
 }
+
+@media (max-width: 768px) {
+  .main {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .main {
+    padding: 1rem;
+  }
+}

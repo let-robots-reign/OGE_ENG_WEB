@@ -45,8 +45,10 @@ yarn-error.log*
 # idea files
 .idea
 
+.vscode
+
 # my own draft files
 *.csv
 material
-backup.sql
+*.sql
 commands.txt

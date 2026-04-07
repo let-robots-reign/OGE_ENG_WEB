@@ -51,4 +51,11 @@
     max-width: 350px;
     margin: 0 auto;
   }
+
+  .trainingCard__isBeta {
+    font-size: 14px;
+    padding: 6px 16px;
+    bottom: -10px;
+    right: -10px;
+  }
 }
