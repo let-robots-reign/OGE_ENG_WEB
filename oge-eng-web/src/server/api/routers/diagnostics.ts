@@ -12,17 +12,29 @@ import { Cerebras } from "@cerebras/cerebras_cloud_sdk";
 import { GoogleGenAI } from "@google/genai";
 import { env } from "@/env";
 
-const groq = new Groq({
-  apiKey: env.GROQ_API_KEY,
-});
+let groqClient: Groq | null = null;
+const getGroq = () => {
+  if (!groqClient) {
+    groqClient = new Groq({ apiKey: env.GROQ_API_KEY });
+  }
+  return groqClient;
+};
 
-const cerebras = new Cerebras({
-  apiKey: env.CEREBRAS_API_KEY,
-});
+let cerebrasClient: Cerebras | null = null;
+const getCerebras = () => {
+  if (!cerebrasClient) {
+    cerebrasClient = new Cerebras({ apiKey: env.CEREBRAS_API_KEY });
+  }
+  return cerebrasClient;
+};
 
-const gemini = new GoogleGenAI({
-  apiKey: env.GEMINI_API_KEY,
-});
+let geminiClient: GoogleGenAI | null = null;
+const getGemini = () => {
+  if (!geminiClient) {
+    geminiClient = new GoogleGenAI({ apiKey: env.GEMINI_API_KEY });
+  }
+  return geminiClient;
+};
 
 // const testUserAnswers = {
 //   part1: [
@@ -291,7 +303,7 @@ export const diagnosticsRouter = createTRPCRouter({
 
       // 1. First try with Cerebras
       try {
-        const completion = await cerebras.chat.completions.create({
+        const completion = await getCerebras().chat.completions.create({
           messages: [
             {
               role: "system",
@@ -319,7 +331,7 @@ export const diagnosticsRouter = createTRPCRouter({
       // 2. If Cerebras failed, trying Gemini
       if (!feedback) {
         try {
-          const result = await gemini.models.generateContent({
+          const result = await getGemini().models.generateContent({
             model: "gemini-2.5-flash",
             contents: [{ role: "user", parts: [{ text: userMessage }] }],
             config: {
@@ -342,7 +354,7 @@ export const diagnosticsRouter = createTRPCRouter({
       // 3. Last chance to get feedback using Groq
       if (!feedback) {
         try {
-          const completion = await groq.chat.completions.create({
+          const completion = await getGroq().chat.completions.create({
             messages: [
               {
                 role: "system",
