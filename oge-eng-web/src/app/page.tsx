@@ -6,7 +6,6 @@ import { DiagnosticsCard } from "./_components/DiagnosticsCard";
 import { RoleUpdater } from "./_components/role-updater";
 import { api } from "@/trpc/server";
 import { auth } from "@/server/auth";
-import clsx from "clsx";
 
 export default async function HomePage() {
   const session = await auth();
