@@ -14,25 +14,19 @@ import { env } from "@/env";
 
 let groqClient: Groq | null = null;
 const getGroq = () => {
-  if (!groqClient) {
-    groqClient = new Groq({ apiKey: env.GROQ_API_KEY });
-  }
+  groqClient ??= new Groq({ apiKey: env.GROQ_API_KEY });
   return groqClient;
 };
 
 let cerebrasClient: Cerebras | null = null;
 const getCerebras = () => {
-  if (!cerebrasClient) {
-    cerebrasClient = new Cerebras({ apiKey: env.CEREBRAS_API_KEY });
-  }
+  cerebrasClient ??= new Cerebras({ apiKey: env.CEREBRAS_API_KEY });
   return cerebrasClient;
 };
 
 let geminiClient: GoogleGenAI | null = null;
 const getGemini = () => {
-  if (!geminiClient) {
-    geminiClient = new GoogleGenAI({ apiKey: env.GEMINI_API_KEY });
-  }
+  geminiClient ??= new GoogleGenAI({ apiKey: env.GEMINI_API_KEY });
   return geminiClient;
 };
 
