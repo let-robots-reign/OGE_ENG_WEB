@@ -15,7 +15,7 @@
   background-color: #fff;
   padding: 2rem;
   border-radius: 10px;
-  width: min(50%, 800px);
+  width: min(95%, 800px);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -67,7 +67,7 @@
 }
 
 .button_submit {
-    background-color: #3eaf7c;
+  background-color: #3eaf7c;
   border-color: #3eaf7c;
   color: #fff;
   transition: opacity 0.2s ease-in-out;
@@ -92,16 +92,17 @@
 
 .divider {
   display: grid;
-	grid-template-columns: 1fr max-content 1fr;
-	align-items: center;
-	gap: 0.5rem;
+  grid-template-columns: 1fr max-content 1fr;
+  align-items: center;
+  gap: 0.5rem;
   margin-bottom: 1rem;
 }
 
-.divider::before, .divider::after {
+.divider::before,
+.divider::after {
   content: '';
-	height: 1px;
-	background-color: #CBD5E1;
+  height: 1px;
+  background-color: #CBD5E1;
 }
 
 .providers {
@@ -188,4 +189,140 @@
   background-color: #007cc7;
   color: #fff;
   border-color: #007cc7;
+}
+
+@media (max-width: 768px) {
+  .formWrapper {
+    padding: 1.5rem 1rem;
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .form {
+    max-width: 250px;
+  }
+
+  .input {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .button {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .button_submit {
+    padding: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .error {
+    font-size: 0.8rem;
+  }
+
+  .fieldError {
+    font-size: 0.8rem;
+  }
+
+  .divider {
+    margin-bottom: 0.5rem;
+  }
+
+  .providers {
+    column-gap: 8px;
+  }
+
+  .providerButton {
+    width: 36px;
+    height: 36px;
+    padding: 6px;
+  }
+
+  .signin {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .signup {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+  }
+
+  .buttonGroup {
+    border-radius: 0.25rem;
+  }
+
+  .buttonGroupItem {
+    padding: 0.3rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .title {
+    font-size: 1.2rem;
+  }
+
+  .form {
+    max-width: 200px;
+  }
+
+  .input {
+    padding: 0.4rem;
+    font-size: 0.85rem;
+  }
+
+  .button {
+    padding: 0.4rem;
+    font-size: 0.85rem;
+  }
+
+  .button_submit {
+    padding: 0.4rem;
+    font-size: 0.85rem;
+  }
+
+  .error {
+    font-size: 0.75rem;
+  }
+
+  .fieldError {
+    font-size: 0.75rem;
+  }
+
+  .divider {
+    margin-bottom: 0.4rem;
+  }
+
+  .providers {
+    column-gap: 6px;
+  }
+
+  .providerButton {
+    width: 32px;
+    height: 32px;
+    padding: 4px;
+  }
+
+  .signin {
+    margin-top: 0.4rem;
+    font-size: 0.85rem;
+  }
+
+  .signup {
+    margin-top: 0.4rem;
+    font-size: 0.85rem;
+  }
+
+  .buttonGroup {
+    border-radius: 0.25rem;
+  }
+
+  .buttonGroupItem {
+    padding: 0.25rem;
+    font-size: 0.85rem;
+  }
 }
