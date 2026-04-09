@@ -14,6 +14,10 @@ export const metadata: Metadata = {
   title: "ОГЭ Английский",
   description: "Лучшее приложение для подготовки к ОГЭ по английскому языку",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
+  verification: {
+    google: "vU3ku1o6ZUuyrHVW7aaSrPMjfit3xUR3cjTtJmj1YNQ",
+    yandex: "c0b21efd1c574856"
+  },
 };
 
 const inter = Inter({
