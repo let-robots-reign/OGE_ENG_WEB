@@ -6,6 +6,8 @@ services:
       context: .
       dockerfile: Dockerfile
       target: builder
+      secrets:
+        - app_env_secret
     env_file:
       - .env
     depends_on:
@@ -17,6 +19,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      secrets:
+        - app_env_secret
     restart: always
     depends_on:
       migrator:
@@ -71,3 +75,7 @@ services:
 
 volumes:
   postgres_data:
+
+secrets:
+  app_env_secret:
+    file: .env

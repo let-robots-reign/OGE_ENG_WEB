@@ -28,6 +28,7 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED 1
 
 RUN \
+    --mount=type=secret,id=app_env_secret,target=/app/.env \
     if [ -f yarn.lock ]; then SKIP_ENV_VALIDATION=1 yarn build; \
     elif [ -f package-lock.json ]; then SKIP_ENV_VALIDATION=1 npm run build; \
     elif [ -f pnpm-lock.yaml ]; then npm install -g pnpm && SKIP_ENV_VALIDATION=1 pnpm run build; \
