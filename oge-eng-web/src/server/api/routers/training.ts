@@ -117,9 +117,10 @@ export const trainingRouter = createTRPCRouter({
       });
       const results = answers.map((userAnswer) => {
         const correctTask = correctTasks.find((t) => t.id === userAnswer.id);
+        const acceptedAnswers = correctTask?.answer.split("/") ?? [];
         return {
           id: userAnswer.id,
-          isCorrect: correctTask?.answer === userAnswer.answer,
+          isCorrect: acceptedAnswers.includes(userAnswer.answer),
           correctAnswer: correctTask?.answer,
         };
       });

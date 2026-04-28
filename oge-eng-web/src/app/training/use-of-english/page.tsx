@@ -64,7 +64,7 @@ function UseOfEnglishContent() {
         if (task) {
           cardRef?.setQuestion(
             task.task.replace(
-              "_".repeat(18),
+              /_+/,
               `<strong>${res.correctAnswer}</strong>`,
             ),
           );
