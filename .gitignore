@@ -44,11 +44,9 @@ yarn-error.log*
 
 # idea files
 .idea
-
 .vscode
+.claude
+.pnpm-store
 
 # my own draft files
-*.csv
-material
-*.sql
-commands.txt
+draft
