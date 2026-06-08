@@ -297,7 +297,7 @@ export const diagnosticsRouter = createTRPCRouter({
 
       // 1. First try with Cerebras
       try {
-        const completion = await getCerebras().chat.completions.create({
+        const completion = (await getCerebras().chat.completions.create({
           messages: [
             {
               role: "system",
@@ -308,10 +308,9 @@ export const diagnosticsRouter = createTRPCRouter({
               content: userMessage,
             },
           ],
-          model: "qwen-3-235b-a22b-instruct-2507",
+          model: "gpt-oss-120b",
           temperature: 0.15,
-          max_completion_tokens: 6000,
-        }) as { choices?: Array<{ message?: { content?: string | null } }> };
+        })) as { choices?: Array<{ message?: { content?: string | null } }> };
 
         const content = completion.choices?.[0]?.message?.content;
         if (content) {
