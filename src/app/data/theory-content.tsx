@@ -1458,4 +1458,285 @@ export const theoryContent: Record<string, React.ReactNode> = {
       </p>
     </div>
   ),
+  "writing-algorithm": (
+    <div>
+      <p>Для написания успешного письма необходимо:</p>
+      <ol>
+        <li>
+          <b>Соблюдать объём 100-120 (+-10%) слов</b>, то есть допустимо 90-132
+          слова. Если написано менее 90 слов, Вы получаете 0 баллов за письмо.
+          Если написано более 132 слов, все слова после 120-го зачёркиваются, то
+          есть окончание письма у Вас отсутствует.
+          <br />
+          Артикли (<i>a, an, the</i>), местоимения (<i>I, it, he</i> и др.),
+          предлоги (<i>for, in, at</i> и др.) и другие короткие слова тоже
+          учитываются. Числа (<i>1989, 27, 24/05/2019</i>) тоже считаются за
+          одно слово.
+        </li>
+        <li>
+          <b>Соблюдать структуру письма</b>. Для этого нужно заучить наизусть
+          фразы-клише (начало и конец письма) и знать их порядок.
+        </li>
+        <li>
+          <b>Использовать несколько слов-связок</b>.
+        </li>
+        <li>
+          <b>Дать полные ответы на 3 заданных вопроса</b>.
+        </li>
+        <li>
+          <b>
+            Использовать разнообразную лексику и грамматику уровня 9 класса и
+            неформальный стиль письма
+          </b>{" "}
+          (сокращенные формы: <i>it's, we're, can't</i> и др; фразовые глаголы:{" "}
+          <i>let down, get on, give up</i> и др; идиомы:{" "}
+          <i>drop a line, have a ball</i> и др).
+        </li>
+      </ol>
+      <p>
+        <i>
+          Самые распространенные фразы-клише и слова-связки можно найти в других
+          теоретических карточках.
+        </i>
+      </p>
+    </div>
+  ),
+  "cliche-phrases": (
+    <div>
+      <div className="border-line bg-surface-2 my-6 rounded-xl border p-5 sm:p-6">
+        <div className="mb-4 text-right">
+          <div className="font-medium">Moscow*, Russia</div>
+          <div className="font-medium">May 24th**, 2019</div>
+        </div>
+        <div className="space-y-4">
+          <div className="font-medium">Dear Ben***,</div>
+          <div className="pl-4 leading-relaxed sm:pl-6">
+            Thank you for your recent letter. I was glad to hear from you again.
+          </div>
+          <div className="pl-4 leading-relaxed sm:pl-6">
+            In your letter you asked me about ...
+          </div>
+          <div className="pl-4 leading-relaxed sm:pl-6">
+            Hope to hear from you soon.
+          </div>
+          <div>
+            <div className="font-medium">Best wishes,</div>
+            <div className="font-medium">Sasha****</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="text-ink-3 mb-6 space-y-1 text-[14px]">
+        <div>* Ваш город</div>
+        <div>** Дата Вашего экзамена</div>
+        <div>*** Имя, которое указано в задании</div>
+        <div>**** Ваше имя</div>
+      </div>
+
+      <h5>Образец письма, иллюстрирующий структуру:</h5>
+
+      <div className="border-line bg-surface-2 my-4 rounded-xl border p-5 italic sm:p-6">
+        <div className="mb-4 text-right">
+          <div>Moscow, Russia</div>
+          <div>May 24th, 2019</div>
+        </div>
+        <div className="space-y-4">
+          <div>Dear Ben,</div>
+          <div className="pl-4 leading-relaxed sm:pl-6">
+            Thank you for your recent letter. I was glad to hear from you again.
+          </div>
+          <div className="pl-4 leading-relaxed sm:pl-6">
+            In your letter you asked me about my future job. Well, I’d like to
+            become a programmer as I believe it’s one of the most important
+            professions today. Besides learning how to code, I will need to use
+            English a lot because with the help of English I can get access to
+            information for programmers written in English. Also, I will be able
+            to cooperate with people from all over the world. However, my
+            parents don’t agree with my choice. They advise me to be an
+            accountant as they believe it brings much more money.
+          </div>
+          <div className="pl-4 leading-relaxed sm:pl-6">
+            Hope to hear from you soon.
+          </div>
+          <div>
+            <div>Best wishes,</div>
+            <div>Sasha</div>
+          </div>
+        </div>
+      </div>
+
+      <p className="mt-6">
+        Обратите внимание, что после адреса, даты и Вашего имени точка{" "}
+        <b>НЕ СТАВИТСЯ</b>. После приветствия (<i>Ben</i>) и пожелания перед
+        Вашим именем ставится запятая.
+      </p>
+      <p>
+        Каждая часть письма начинается с красной строки или после пропуска
+        строки (на Ваше усмотрение).
+      </p>
+    </div>
+  ),
+  "linking-words": (
+    <div>
+      <p>
+        Использование слов-связок делает Ваше письмо логичным и связным, что
+        напрямую влияет на критерий «Организация текста». Постарайтесь
+        использовать как минимум 3-4 разных слова-связки в своём письме.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Слова-связки в английском</th>
+            <th>Русский эквивалент</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <b>also</b>
+            </td>
+            <td>также</td>
+          </tr>
+          <tr>
+            <td>
+              <b>besides</b>
+            </td>
+            <td>кроме того</td>
+          </tr>
+          <tr>
+            <td>
+              <b>however</b>
+            </td>
+            <td>однако</td>
+          </tr>
+          <tr>
+            <td>
+              <b>unfortunately</b>
+            </td>
+            <td>к сожалению</td>
+          </tr>
+          <tr>
+            <td>
+              <b>because</b>
+            </td>
+            <td>потому что</td>
+          </tr>
+          <tr>
+            <td>
+              <b>so</b>
+            </td>
+            <td>так что</td>
+          </tr>
+          <tr>
+            <td>
+              <b>but</b>
+            </td>
+            <td>но</td>
+          </tr>
+          <tr>
+            <td>
+              <b>and</b>
+            </td>
+            <td>и</td>
+          </tr>
+          <tr>
+            <td>
+              <b>well</b>
+            </td>
+            <td>что ж, ну</td>
+          </tr>
+          <tr>
+            <td>
+              <b>actually</b>
+            </td>
+            <td>вообще-то</td>
+          </tr>
+          <tr>
+            <td>
+              <b>for example</b>
+            </td>
+            <td>например</td>
+          </tr>
+          <tr>
+            <td>
+              <b>speaking about...</b>
+            </td>
+            <td>говоря о...</td>
+          </tr>
+          <tr>
+            <td>
+              <b>as for...</b>
+            </td>
+            <td>что касается...</td>
+          </tr>
+          <tr>
+            <td>
+              <b>since</b>
+            </td>
+            <td>с (какого-то момента), так как</td>
+          </tr>
+          <tr>
+            <td>
+              <b>when</b>
+            </td>
+            <td>когда</td>
+          </tr>
+          <tr>
+            <td>
+              <b>firstly</b>
+            </td>
+            <td>во-первых</td>
+          </tr>
+          <tr>
+            <td>
+              <b>secondly</b>
+            </td>
+            <td>во-вторых</td>
+          </tr>
+          <tr>
+            <td>
+              <b>finally</b>
+            </td>
+            <td>наконец-то</td>
+          </tr>
+          <tr>
+            <td>
+              <b>though</b>
+            </td>
+            <td>хотя, однако</td>
+          </tr>
+          <tr>
+            <td>
+              <b>as a result</b>
+            </td>
+            <td>в результате</td>
+          </tr>
+          <tr>
+            <td>
+              <b>as</b>
+            </td>
+            <td>так как</td>
+          </tr>
+          <tr>
+            <td>
+              <b>what's more</b>
+            </td>
+            <td>кроме того</td>
+          </tr>
+          <tr>
+            <td>
+              <b>because of</b>
+            </td>
+            <td>из-за</td>
+          </tr>
+          <tr>
+            <td>
+              <b>that's why</b>
+            </td>
+            <td>поэтому</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  ),
 };

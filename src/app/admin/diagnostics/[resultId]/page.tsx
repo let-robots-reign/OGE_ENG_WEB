@@ -1,70 +1,57 @@
-"use client";
+import { notFound } from "next/navigation";
+import { auth } from "@/server/auth";
+import { api } from "@/trpc/server";
+import { SectionSubHeader } from "@/app/_components/training/shared/training-sub-header";
+import { DiagnosticFeedback } from "@/app/_components/diagnostics/grammar/diagnostic-feedback";
 
-import { use } from "react";
-import { useSession } from "next-auth/react";
-import { useRouter, notFound } from "next/navigation";
-import { api } from "@/trpc/react";
-import ReactMarkdown from "react-markdown";
-import rehypeRaw from "rehype-raw";
-import styles from "@/app/_components/TrainingPage.module.css";
-import { TrainingHeader } from "@/app/_components/TrainingHeader";
-import { processFeedback } from "@/app/_utils/_diagnostics";
-
-export default function DiagnosticResultPage({
+export default async function DiagnosticResultPage({
   params,
 }: {
   params: Promise<{ resultId: string }>;
 }) {
-  const { resultId: resultIdString } = use(params);
-  const router = useRouter();
-  const { data: session, status } = useSession();
-  const resultId = Number(resultIdString);
-
-  const hasAccess =
-    status === "authenticated" && session?.user?.role === "admin";
-
-  const { data: result, isLoading } = api.admin.getResultById.useQuery(
-    { id: resultId },
-    {
-      enabled: !isNaN(resultId) && hasAccess,
-    },
-  );
-
-  if (status === "loading" || isLoading) {
-    return <></>;
-  }
-
-  if (!hasAccess) {
+  const session = await auth();
+  if (session?.user?.role !== "admin") {
     notFound();
   }
 
-  if (!result) {
-    return <div className="text-white">Результат не найден.</div>;
+  const { resultId } = await params;
+  const id = Number(resultId);
+  if (!Number.isInteger(id)) {
+    notFound();
   }
 
-  const processedFeedback = processFeedback(result.details.feedback);
+  const result = await api.admin.getResultById({ id });
+  if (!result) {
+    notFound();
+  }
+
+  const completedAt = new Intl.DateTimeFormat("ru-RU", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(result.createdAt);
 
   return (
-    <main className={styles.trainingPage}>
-      <TrainingHeader topic="Результаты диагностики" />
-      <div>
-        <h2 className={styles.sectionTitle}>
-          Фидбек по диагностике для {result.user?.name} ({result.user?.email})
-        </h2>
-        <div className={styles.feedbackContent}>
-          <ReactMarkdown rehypePlugins={[rehypeRaw]}>
-            {processedFeedback}
-          </ReactMarkdown>
-        </div>
-        <div className={styles.buttonsGroup}>
-          <button
-            className={`${styles.btn} ${styles.secondary}`}
-            onClick={() => router.back()}
-          >
-            Назад
-          </button>
+    <>
+      <SectionSubHeader
+        section="админка · диагностика"
+        title={result.user?.name ?? result.user?.email ?? "Пользователь"}
+        backHref="/admin?tab=diagnostics"
+      />
+      <div className="px-5 pt-8 pb-16 sm:px-8 lg:px-14">
+        <div className="mx-auto max-w-[820px]">
+          <div className="text-ink-3 mb-5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[13.5px]">
+            <span className="text-ink font-medium">{result.user?.name}</span>
+            <span>·</span>
+            <span>{result.user?.email}</span>
+            <span>·</span>
+            <span className="font-mono text-[12.5px]">{completedAt}</span>
+          </div>
+          <DiagnosticFeedback feedback={result.details.feedback} />
         </div>
       </div>
-    </main>
+    </>
   );
 }

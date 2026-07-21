@@ -1,17 +1,22 @@
 import { DrizzleAdapter } from "@auth/drizzle-adapter";
 import bcrypt from "bcryptjs";
 import { eq } from "drizzle-orm";
-import { type DefaultSession, type NextAuthConfig } from "next-auth";
+import {
+  type DefaultSession,
+  type NextAuthConfig,
+  customFetch,
+} from "next-auth";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { type JWT } from "next-auth/jwt";
 import CredentialsProvider from "next-auth/providers/credentials";
-import DiscordProvider from "next-auth/providers/discord";
-import GoogleProvider from "next-auth/providers/google";
 import YandexProvider from "next-auth/providers/yandex";
+import VkProvider from "next-auth/providers/vk";
+import { cookies } from "next/headers";
 
 import { db } from "@/server/db";
 import {
   accounts,
-  roleEnum,
+  type roleEnum,
   sessions,
   users,
   verificationTokens,
@@ -40,6 +45,15 @@ declare module "next-auth/jwt" {
   interface JWT {
     role: (typeof roleEnum.enumValues)[number] | null;
   }
+}
+
+interface VkIdProfile {
+  user_id: number;
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  avatar?: string;
+  photo?: string;
 }
 
 /**
@@ -84,19 +98,78 @@ export const authConfig = {
         return user;
       },
     }),
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      allowDangerousEmailAccountLinking: true,
-    }),
     YandexProvider({
       clientId: process.env.YANDEX_CLIENT_ID,
       clientSecret: process.env.YANDEX_CLIENT_SECRET,
       allowDangerousEmailAccountLinking: true,
     }),
-    DiscordProvider({
-      clientId: process.env.DISCORD_CLIENT_ID,
-      clientSecret: process.env.DISCORD_CLIENT_SECRET,
+    VkProvider({
+      clientId: process.env.VK_CLIENT_ID,
+      clientSecret: process.env.VK_CLIENT_SECRET,
+      checks: ["state", "pkce"],
+      authorization: {
+        url: "https://id.vk.ru/authorize",
+        params: { scope: "email", response_type: "code" },
+      },
+      token: {
+        url: "https://id.vk.ru/oauth2/auth",
+        conform: async (response: Response) => {
+          const data = (await response.json()) as Record<string, unknown>;
+          return new Response(
+            JSON.stringify({
+              ...data,
+              token_type: (data.token_type as string | undefined) ?? "bearer",
+            }),
+            { headers: response.headers },
+          );
+        },
+      },
+      userinfo: {
+        url: "https://id.vk.ru/oauth2/user_info",
+        async request({ tokens }: { tokens: { access_token?: string } }) {
+          if (!tokens.access_token) {
+            throw new Error("Missing access token for VK userinfo request");
+          }
+          const res = await fetch("https://id.vk.ru/oauth2/user_info", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams({
+              client_id: process.env.VK_CLIENT_ID!,
+              access_token: tokens.access_token,
+            }),
+          });
+          const data = (await res.json()) as {
+            user?: VkIdProfile;
+          } & VkIdProfile;
+          return data.user ?? data;
+        },
+      },
+      profile(profile: VkIdProfile) {
+        return {
+          id: profile.user_id.toString(),
+          name: [profile.first_name, profile.last_name]
+            .filter(Boolean)
+            .join(" "),
+          email: profile.email ?? `${profile.user_id}@vk.com`,
+          image: profile.avatar ?? profile.photo ?? null,
+          role: null,
+        };
+      },
+      [customFetch]: async (url, options) => {
+        if (
+          url === "https://id.vk.ru/oauth2/auth" &&
+          options?.body instanceof URLSearchParams
+        ) {
+          const cookieStore = await cookies();
+          const deviceId = cookieStore.get("vk_device_id")?.value;
+          if (deviceId) {
+            options.body.set("device_id", deviceId);
+          }
+        }
+        return fetch(url, options);
+      },
       allowDangerousEmailAccountLinking: true,
     }),
     /**

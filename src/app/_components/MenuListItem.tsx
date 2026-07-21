@@ -36,9 +36,9 @@ export function MenuListItem({
     </div>
   );
 
-  return (
-    isNotCompleted ? (
-      <div>{menuListItemContent}</div>
-    ) : <Link href={itemClickLink}>{menuListItemContent}</Link>
+  return isNotCompleted ? (
+    <div>{menuListItemContent}</div>
+  ) : (
+    <Link href={itemClickLink}>{menuListItemContent}</Link>
   );
 }

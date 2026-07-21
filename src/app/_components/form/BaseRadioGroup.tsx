@@ -1,6 +1,6 @@
 "use client";
 
-import { BaseRadio } from './BaseRadio';
+import { BaseRadio } from "./BaseRadio";
 
 type BaseRadioGroupProps = {
   options: (string | number)[];
@@ -26,7 +26,10 @@ export const BaseRadioGroup = ({
       {options.map((option) => (
         <div
           key={option}
-          style={{ display: vertical ? 'block' : 'inline-block', marginRight: vertical ? 0 : '20px' }}
+          style={{
+            display: vertical ? "block" : "inline-block",
+            marginRight: vertical ? 0 : "20px",
+          }}
         >
           <BaseRadio
             value={option}

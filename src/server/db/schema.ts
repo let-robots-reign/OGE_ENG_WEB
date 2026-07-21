@@ -38,6 +38,11 @@ export const users = createTable(
       .$defaultFn(() => new Date()),
     image: d.varchar({ length: 255 }),
     role: roleEnum("role"),
+    telegramUsername: d.varchar({ length: 255 }),
+    school: d.varchar({ length: 255 }),
+    examPointsGoal: d.integer(),
+    notificationsWeekly: d.boolean().default(true).notNull(),
+    notificationsMarketing: d.boolean().default(false).notNull(),
   }),
   (t) => ({
     emailIdx: uniqueIndex("email_idx").on(t.email),
@@ -219,6 +224,8 @@ export const userResults = createTable("user_result", (d) => ({
   activityType: activityTypeEnum("activity_type").notNull(),
   activityId: d.integer().notNull(),
   result: d.varchar({ length: 255 }).notNull(),
+  taskId: d.integer(),
+  timeSpent: d.integer(),
   details: d.jsonb("details"),
   createdAt: d
     .timestamp({ withTimezone: true })

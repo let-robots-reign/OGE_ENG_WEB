@@ -43,6 +43,20 @@
       "when": 1774186074003,
       "tag": "0005_user_results",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1780318761234,
+      "tag": "0006_user_results_additional_fields",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1782579667275,
+      "tag": "0007_additional_user_fields",
+      "breakpoints": true
     }
   ]
 }

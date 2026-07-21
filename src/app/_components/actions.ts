@@ -14,10 +14,7 @@ export async function updateRole(
   }
 
   try {
-    await db
-      .update(users)
-      .set({ role })
-      .where(eq(users.id, session.user.id));
+    await db.update(users).set({ role }).where(eq(users.id, session.user.id));
     return { success: true };
   } catch {
     return { success: false };

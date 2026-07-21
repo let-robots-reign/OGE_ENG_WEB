@@ -55,9 +55,7 @@ export function ListeningExplanation({
               </span>
             </p>
             {!isCorrect && (
-              <p>
-                Правильный ответ: {getOptionText(index, correctAnswer)}
-              </p>
+              <p>Правильный ответ: {getOptionText(index, correctAnswer)}</p>
             )}
             <p>
               <b>Пояснение:</b>

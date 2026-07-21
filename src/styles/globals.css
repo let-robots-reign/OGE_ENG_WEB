@@ -1,6 +1,158 @@
 @import "tailwindcss";
 
-body {
-  font-family: var(--font-main), Roboto, ui-sans-serif, system-ui, sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+/* Class-based dark mode: `dark:` variants apply when <html> (or an ancestor)
+   carries the `dark` class. The toggle in the header sets this class. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Map next/font CSS variables → Tailwind font utilities */
+@theme inline {
+  --font-sans: var(--font-geist);
+  --font-display: var(--font-spectral);
+}
+
+/* Design system tokens — light theme is the default.
+   Dark overrides live in the `:root.dark` block below; because every token is
+   referenced as `var(--color-*)`, flipping the variables there re-themes the
+   whole app without touching component markup. */
+@theme {
+  --font-mono: "Geist Mono", "SF Mono", Menlo, ui-monospace, monospace;
+
+  /* Palette */
+  --color-bg: #f6f7fb;
+  --color-surface: #ffffff;
+  --color-surface-2: #f0f2f8;
+  --color-surface-3: #e8ebf5;
+  --color-ink: #0a1733;
+  --color-ink-2: #2b3658;
+  --color-ink-3: #6b7493;
+  --color-ink-4: #a3aac3;
+  --color-on-ink: #ffffff; /* text/icons sitting on a filled --ink surface */
+  --color-on-ink-soft: rgba(255, 255, 255, 0.15); /* subtle fill on a filled --ink control */
+  --color-on-ink-muted: rgba(255, 255, 255, 0.55); /* secondary text on a filled --ink control */
+  --color-ink-hover: #1a2a4d; /* hover state for filled --ink buttons */
+  --color-ink-panel: #0a1733; /* deliberately-dark banners/panels (white text in both themes) */
+  --color-line: #e7eaf3;
+  --color-line-2: #dde1ed;
+  --color-accent: #4f46ff;
+  --color-accent-soft: #ecebff;
+  --color-accent-line: #d9d7ff;
+  --color-accent-2: #ff5b3a;
+  --color-accent-2-soft: #ffece6;
+  --color-ok: #1aa463;
+  --color-ok-soft: #e3f7ec;
+  --color-warn: #d97706;
+  --color-warn-soft: #fff3e0;
+  --color-err: #dc2626;
+  --color-err-soft: #fde8e8;
+
+  /* Tone tints — used by training / category / theory cards.
+     bg + matching ink, kept as tokens so they flip in dark mode too. */
+  --color-tone-indigo: #eeedff;
+  --color-tone-indigo-ink: #4f46ff;
+  --color-tone-warm: #ffeee6;
+  --color-tone-warm-ink: #c14a25;
+  --color-tone-mint: #e3f5ec;
+  --color-tone-mint-ink: #1aa463;
+  --color-tone-sand: #f3eee0;
+  --color-tone-sand-ink: #7a6326;
+
+  /* Radius */
+  --radius-xs: 8px;
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+  --radius-xl: 28px;
+  --radius-pill: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(10, 23, 51, 0.04), 0 1px 1px rgba(10, 23, 51, 0.03);
+  --shadow-md: 0 4px 14px rgba(10, 23, 51, 0.06), 0 1px 2px rgba(10, 23, 51, 0.04);
+  --shadow-lg: 0 18px 48px -16px rgba(10, 23, 51, 0.18), 0 4px 12px rgba(10, 23, 51, 0.06);
+}
+
+/* Dark theme — palette from Claude Design "Dark Mode" tokens, derived from the
+   light tokens above (deep navy-black surfaces, inverted ink, brightened accent).
+   `:root.dark` beats `:root` on specificity, so it reliably overrides @theme. */
+:root.dark {
+  --color-bg: #070b16;
+  --color-surface: #101627;
+  --color-surface-2: #182034;
+  --color-surface-3: #202941;
+  --color-ink: #f4f6fc;
+  --color-ink-2: #c4cbe0;
+  --color-ink-3: #8b94b3;
+  --color-ink-4: #5b647f;
+  --color-on-ink: #070b16;
+  --color-on-ink-soft: rgba(7, 11, 22, 0.1);
+  --color-on-ink-muted: rgba(7, 11, 22, 0.65);
+  --color-ink-hover: #dfe4f3;
+  --color-ink-panel: #182034; /* dark banners become a raised surface, not near-white */
+  --color-line: #222b44;
+  --color-line-2: #2c3650;
+  --color-accent: #6b63ff;
+  --color-accent-soft: #1e1f4d;
+  --color-accent-line: #3a37a0;
+  --color-accent-2: #ff6a4d;
+  --color-accent-2-soft: #3a1c17;
+  --color-ok: #2fd17e;
+  --color-ok-soft: #11331f;
+  --color-warn: #f5a623;
+  --color-warn-soft: #38280c;
+  --color-err: #f1556a;
+  --color-err-soft: #381820;
+
+  --color-tone-indigo: #1e1f4d;
+  --color-tone-indigo-ink: #b3aeff;
+  --color-tone-warm: #3a1c17;
+  --color-tone-warm-ink: #ff9e80;
+  --color-tone-mint: #11331f;
+  --color-tone-mint-ink: #2fd17e;
+  --color-tone-sand: #2e2713;
+  --color-tone-sand-ink: #cdb37a;
+
+  /* Deeper shadows for dark surfaces */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 24px 60px -18px rgba(0, 0, 0, 0.7), 0 4px 14px rgba(0, 0, 0, 0.4);
+
+  color-scheme: dark;
+}
+
+/* Base — inside @layer base so Tailwind utilities can override */
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "ss01", "cv11";
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease;
+  }
+
+  a {
+    text-decoration: none;
+  }
+}
+
+/* Diagnostics feedback inline highlights — injected as raw HTML in the
+   AI markdown, so these need to be stable global classes (not Tailwind
+   utilities that could be tree-shaken). */
+.fb-correct {
+  color: var(--color-ok);
+  font-weight: 600;
+}
+
+.fb-incorrect {
+  color: var(--color-err);
+  font-weight: 600;
 }

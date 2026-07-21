@@ -4,7 +4,7 @@ import styles from "./TheoryCard.module.css";
 interface TheoryCardProps {
   title: string;
   image: string;
-};
+}
 
 export function TheoryCard({ title, image }: TheoryCardProps) {
   return (

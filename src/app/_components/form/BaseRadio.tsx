@@ -1,7 +1,7 @@
 "use client";
 
-import { type InputHTMLAttributes } from 'react';
-import styles from './form.module.css';
+import { type InputHTMLAttributes } from "react";
+import styles from "./form.module.css";
 
 type BaseRadioProps = InputHTMLAttributes<HTMLInputElement> & {
   label: string;
@@ -31,7 +31,7 @@ export const BaseRadio = ({
         return styles.invalid;
       }
     }
-    return '';
+    return "";
   };
 
   return (

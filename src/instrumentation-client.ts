@@ -26,5 +26,6 @@ posthog.init(process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN!, {
   ui_host: "https://eu.posthog.com",
   defaults: "2026-01-30",
   capture_exceptions: true,
+  disable_surveys: true,
   debug: process.env.NODE_ENV === "development",
 });

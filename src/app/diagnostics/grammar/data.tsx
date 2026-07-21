@@ -53,7 +53,11 @@ export const part1Questions = [
   {
     id: 10,
     text: "Please, don't tell _____________ (they) about the surprise _____________ (party). I promised I _____________ (not / tell) anyone.",
-    correctAnswers: [["them"], ["parties"], ["would not tell", "wouldn't tell"]],
+    correctAnswers: [
+      ["them"],
+      ["parties"],
+      ["would not tell", "wouldn't tell"],
+    ],
   },
   {
     id: 11,
@@ -94,31 +98,17 @@ export const part1Questions = [
 export const part2Questions = [
   {
     id: 1,
-    text: (
-      <p>
-        <b>Эти люди</b> – мои друзья. Посмотри на <b>них</b>!
-      </p>
-    ),
+    text: "**Эти люди** – мои друзья. Посмотри на **них**!",
     topics: ["Personal pronouns", "Demonstrative pronouns", "to be"],
   },
   {
     id: 2,
-    text: (
-      <p>
-        Кот <b>не ловил мышей</b> на прошлой неделе.
-      </p>
-    ),
-    topics: ["Past Simple", "Plural nouns", 'Articles'],
+    text: "Кот **не ловил мышей** на прошлой неделе.",
+    topics: ["Past Simple", "Plural nouns", "Articles"],
   },
   {
     id: 3,
-    text: (
-      <p>
-        Они когда-нибудь <b>покупали</b> билеты <b>сами</b>? - Да. Брат сказал,
-        что они <b>потратили слишком много</b> денег на билеты в кино <b>в</b>{" "}
-        четверг.
-      </p>
-    ),
+    text: "Они когда-нибудь **покупали** билеты **сами**? - Да. Брат сказал, что они **потратили слишком много** денег на билеты в кино **в** четверг.",
     topics: [
       "Present Perfect",
       "Past Simple",
@@ -128,113 +118,71 @@ export const part2Questions = [
   },
   {
     id: 4,
-    text: (
-      <p>
-        Мы <b>пойдём</b> в парк, если завтра <b>будет</b> солнечно.
-      </p>
-    ),
+    text: "Мы **пойдём** в парк, если завтра **будет** солнечно.",
     topics: ["Future Simple", "Conditional 1"],
   },
   {
     id: 5,
-    text: (
-      <p>
-        Если <b>бы</b> у меня <b>было</b> больше свободного времени, я{" "}
-        <b>бы занимался</b> спортом.
-      </p>
-    ),
+    text: "Если **бы** у меня **было** больше свободного времени, я **бы занимался** спортом.",
     topics: ["Conditional 2"],
   },
   {
     id: 6,
-    text: (
-      <p>
-        <b>Те печенья испекла</b> моя бабушка.
-      </p>
-    ),
+    text: "**Те печенья испекла** моя бабушка.",
     topics: ["Demonstrative pronouns", "Past Simple", "Passive Voice'"],
   },
   {
     id: 7,
-    text: (
-      <p>
-        <b>Мамина</b> подруга сказала, что <b>придёт позже</b>.
-      </p>
-    ),
+    text: "**Мамина** подруга сказала, что **придёт позже**.",
     topics: ["Possessive case", "Reported speech", "Comparative Adverbs"],
   },
   {
     id: 8,
-    text: (
-      <p>
-        Это <b>самый плохой</b> фильм, который я когда-либо <b>видел</b>.
-      </p>
-    ),
+    text: "Это **самый плохой** фильм, который я когда-либо **видел**.",
     topics: ["Superlative adjectives", "Present Perfect", "to be"],
   },
   {
     id: 9,
-    text: (
-      <p>
-        Я бы хотел <b>добавить немного</b> сахара. - Извини, у нас осталось{" "}
-        <b>очень мало</b>.
-      </p>
-    ),
-    topics: ["Would like", "Countable/uncountable nouns", "a little / a few", 'little / few'],
+    text: "Я бы хотел **добавить немного** сахара. - Извини, у нас осталось **очень мало**.",
+    topics: [
+      "Would like",
+      "Countable/uncountable nouns",
+      "a little / a few",
+      "little / few",
+    ],
   },
   {
     id: 10,
-    text: (
-      <p>
-        Мы <b>собираемся переехать</b> в новый дом в следующем году.
-      </p>
-    ),
+    text: "Мы **собираемся переехать** в новый дом в следующем году.",
     topics: ["To be going to"],
   },
   {
     id: 11,
-    text: (
-      <p>
-        Он опоздал на автобус, потому что <b>проспал</b>.
-      </p>
-    ),
-    topics: ["Past Simple", 'Past Perfect', 'Articles'],
+    text: "Он опоздал на автобус, потому что **проспал**.",
+    topics: ["Past Simple", "Past Perfect", "Articles"],
   },
   {
     id: 12,
-    text: (
-      <p>
-        В холодильнике <b>очень мало</b> яблок.
-      </p>
-    ),
-    topics: ["There is/there are", "Countable/uncountable nouns", 'few / little'],
+    text: "В холодильнике **очень мало** яблок.",
+    topics: [
+      "There is/there are",
+      "Countable/uncountable nouns",
+      "few / little",
+    ],
   },
   {
     id: 13,
-    text: (
-      <p>
-        Обычно он <b>работает</b> из дома, но сегодня он <b>встречается</b> с
-        коллегами из других <b>стран</b> в офисе.
-      </p>
-    ),
+    text: "Обычно он **работает** из дома, но сегодня он **встречается** с коллегами из других **стран** в офисе.",
     topics: ["Present Simple", "Present Continuous"],
   },
   {
     id: 14,
-    text: (
-      <p>
-        Я бы хотела(=I wish), чтобы у меня <b>была более комфортная</b> комната.
-      </p>
-    ),
-    topics: ["I wish", 'comparative adjectives'],
+    text: "Я бы хотела(=I wish), чтобы у меня **была более комфортная** комната.",
+    topics: ["I wish", "comparative adjectives"],
   },
   {
     id: 15,
-    text: (
-      <p>
-        Здесь <b>холоднее</b>, чем вчера. - Правда? Я <b>закрою</b> окно.
-      </p>
-    ),
+    text: "Здесь **холоднее**, чем вчера. - Правда? Я **закрою** окно.",
     topics: ["Comparative adjectives", "Future Simple (spontaneous decision)"],
   },
 ];

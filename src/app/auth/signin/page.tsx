@@ -4,7 +4,8 @@ import { redirect } from "next/navigation";
 import { auth, authConfig } from "@/server/auth";
 
 import { SignInForm } from "./_components/sign-in-form";
-import styles from "@/app/auth/auth.module.css";
+import { AuthSplitLayout } from "../_components/auth-split-layout";
+import { RightPanelSignIn } from "../_components/right-panel-signin";
 import { type CommonProviderOptions } from "next-auth/providers";
 
 export default async function SignInPage() {
@@ -22,13 +23,10 @@ export default async function SignInPage() {
   );
 
   return (
-    <div className={styles.container}>
-      <div className={styles.formWrapper}>
-        <h1 className={styles.title}>Войти</h1>
-        <Suspense fallback={<div>Загрузка...</div>}>
-          <SignInForm providers={providers} />
-        </Suspense>
-      </div>
-    </div>
+    <AuthSplitLayout rightPanel={<RightPanelSignIn />}>
+      <Suspense fallback={<div>Загрузка...</div>}>
+        <SignInForm providers={providers} />
+      </Suspense>
+    </AuthSplitLayout>
   );
 }

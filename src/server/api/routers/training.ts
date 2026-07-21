@@ -14,24 +14,176 @@ import {
   writingTasks,
 } from "@/server/db/schema";
 import { shuffle } from "@/app/_utils/shuffle";
-import { and, eq, inArray, sql, ne } from "drizzle-orm";
+import { and, eq, inArray, isNotNull, notInArray, sql, ne } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 export const trainingRouter = createTRPCRouter({
   getTopicsByCategory: publicProcedure
     .input(z.object({ category: z.string() }))
-    .query(({ ctx, input }) => {
-      return ctx.db.query.trainingTopics.findMany({
+    .query(async ({ ctx, input }) => {
+      const topics = await ctx.db.query.trainingTopics.findMany({
         where: eq(trainingTopics.category, input.category),
       });
+
+      const userId = ctx.session?.user?.id;
+      if (!userId || topics.length === 0) {
+        return topics.map((t) => ({
+          ...t,
+          progress: null,
+          score: null,
+        }));
+      }
+
+      const topicIds = topics.map((t) => t.id);
+
+      const getProgressForTasks = async (
+        activeTasks: { id: number; topicId: number | null }[],
+      ) => {
+        const activeTasksByTopic = new Map<number, Set<number>>();
+        for (const task of activeTasks) {
+          if (task.topicId !== null) {
+            if (!activeTasksByTopic.has(task.topicId)) {
+              activeTasksByTopic.set(task.topicId, new Set());
+            }
+            activeTasksByTopic.get(task.topicId)!.add(task.id);
+          }
+        }
+
+        // Fetch completed tasks by user for these topics
+        const completedResults = await ctx.db
+          .select({
+            activityId: userResults.activityId,
+            taskId: userResults.taskId,
+          })
+          .from(userResults)
+          .where(
+            and(
+              eq(userResults.userId, userId),
+              eq(userResults.activityType, "training"),
+              inArray(userResults.activityId, topicIds),
+              isNotNull(userResults.taskId),
+            ),
+          );
+
+        const completedTasksByTopic = new Map<number, Set<number>>();
+        for (const res of completedResults) {
+          const topicId = res.activityId;
+          const taskId = res.taskId!;
+          if (!completedTasksByTopic.has(topicId)) {
+            completedTasksByTopic.set(topicId, new Set());
+          }
+          if (activeTasksByTopic.get(topicId)?.has(taskId)) {
+            completedTasksByTopic.get(topicId)!.add(taskId);
+          }
+        }
+
+        return topics.map((t) => {
+          const totalCount = activeTasksByTopic.get(t.id)?.size ?? 0;
+          const completedCount = completedTasksByTopic.get(t.id)?.size ?? 0;
+          const progress = totalCount > 0 ? completedCount / totalCount : 0;
+          return {
+            ...t,
+            progress,
+            score: null,
+          };
+        });
+      };
+
+      if (input.category === "audio") {
+        const tasks = await ctx.db
+          .select({
+            id: audioTasksFirst.id,
+            topicId: audioTasksFirst.topicId,
+          })
+          .from(audioTasksFirst)
+          .where(
+            and(
+              eq(audioTasksFirst.isDeleted, false),
+              inArray(audioTasksFirst.topicId, topicIds),
+            ),
+          );
+
+        return getProgressForTasks(tasks);
+      }
+
+      if (input.category === "reading") {
+        const tasks = await ctx.db
+          .select({
+            id: readingTasksFirst.id,
+            topicId: readingTasksFirst.topicId,
+          })
+          .from(readingTasksFirst)
+          .where(
+            and(
+              eq(readingTasksFirst.isDeleted, false),
+              inArray(readingTasksFirst.topicId, topicIds),
+            ),
+          );
+
+        return getProgressForTasks(tasks);
+      }
+
+      if (input.category === "use-of-english") {
+        const results = await ctx.db
+          .select({
+            activityId: userResults.activityId,
+            result: userResults.result,
+          })
+          .from(userResults)
+          .where(
+            and(
+              eq(userResults.userId, userId),
+              eq(userResults.activityType, "training"),
+              inArray(userResults.activityId, topicIds),
+            ),
+          );
+
+        const scoresByTopic = new Map<number, number[]>();
+        for (const res of results) {
+          const topicId = res.activityId;
+          const parts = res.result.split("/");
+          if (parts.length === 2 && parts[0] !== undefined) {
+            const correctCount = parseInt(parts[0], 10);
+            if (!isNaN(correctCount)) {
+              if (!scoresByTopic.has(topicId)) {
+                scoresByTopic.set(topicId, []);
+              }
+              scoresByTopic.get(topicId)!.push(correctCount);
+            }
+          }
+        }
+
+        return topics.map((t) => {
+          const scores = scoresByTopic.get(t.id);
+          let averageScore: number | null = null;
+          if (scores && scores.length > 0) {
+            const sum = scores.reduce((a, b) => a + b, 0);
+            const avg = sum / scores.length;
+            averageScore = Math.round(avg * 10) / 10;
+          }
+          return {
+            ...t,
+            progress: null,
+            score: averageScore,
+          };
+        });
+      }
+
+      return topics.map((t) => ({
+        ...t,
+        progress: null,
+        score: null,
+      }));
     }),
 
   getTopicByTopicTitle: publicProcedure
     .input(z.string())
-    .query(({ ctx, input }) => {
-      return ctx.db.query.trainingTopics.findFirst({
-        where: eq(trainingTopics.title, input),
-      });
+    .query(async ({ ctx, input }) => {
+      return (
+        (await ctx.db.query.trainingTopics.findFirst({
+          where: eq(trainingTopics.title, input),
+        })) ?? null
+      );
     }),
 
   logResult: protectedProcedure
@@ -40,6 +192,8 @@ export const trainingRouter = createTRPCRouter({
         activityId: z.number(),
         activityType: z.enum(activityTypeEnum.enumValues),
         result: z.string(),
+        taskId: z.number().optional(),
+        timeSpent: z.number().optional(),
         details: z.any().optional(),
       }),
     )
@@ -49,6 +203,8 @@ export const trainingRouter = createTRPCRouter({
         activityId: input.activityId,
         activityType: input.activityType,
         result: input.result,
+        taskId: input.taskId,
+        timeSpent: input.timeSpent,
         details: input.details,
       });
     }),
@@ -144,15 +300,47 @@ export const trainingRouter = createTRPCRouter({
         });
       }
 
-      const task = await ctx.db
+      const baseWhere = and(
+        eq(readingTasksFirst.topicId, input.topicId),
+        eq(readingTasksFirst.isDeleted, false),
+      );
+
+      const userId = ctx.session?.user?.id;
+
+      let task;
+      if (userId) {
+        task = await ctx.db
+          .select()
+          .from(readingTasksFirst)
+          .where(
+            and(
+              baseWhere,
+              notInArray(
+                readingTasksFirst.id,
+                ctx.db
+                  .select({ id: userResults.taskId })
+                  .from(userResults)
+                  .where(
+                    and(
+                      eq(userResults.userId, userId),
+                      eq(userResults.activityId, input.topicId),
+                      eq(userResults.activityType, "training"),
+                      isNotNull(userResults.taskId),
+                    ),
+                  ),
+              ),
+            ),
+          )
+          .orderBy(sql`RANDOM()`)
+          .limit(1)
+          .then((res) => res[0]);
+      }
+
+      // Fallback: unauthenticated, or every task has been completed
+      task ??= await ctx.db
         .select()
         .from(readingTasksFirst)
-        .where(
-          and(
-            eq(readingTasksFirst.topicId, input.topicId),
-            eq(readingTasksFirst.isDeleted, false),
-          ),
-        )
+        .where(baseWhere)
         .orderBy(sql`RANDOM()`)
         .limit(1)
         .then((res) => res[0]);
@@ -376,15 +564,47 @@ export const trainingRouter = createTRPCRouter({
         });
       }
 
-      const task = await ctx.db
+      const baseWhere = and(
+        eq(audioTasksFirst.topicId, input.topicId),
+        eq(audioTasksFirst.isDeleted, false),
+      );
+
+      const userId = ctx.session?.user?.id;
+
+      let task;
+      if (userId) {
+        task = await ctx.db
+          .select()
+          .from(audioTasksFirst)
+          .where(
+            and(
+              baseWhere,
+              notInArray(
+                audioTasksFirst.id,
+                ctx.db
+                  .select({ id: userResults.taskId })
+                  .from(userResults)
+                  .where(
+                    and(
+                      eq(userResults.userId, userId),
+                      eq(userResults.activityId, input.topicId),
+                      eq(userResults.activityType, "training"),
+                      isNotNull(userResults.taskId),
+                    ),
+                  ),
+              ),
+            ),
+          )
+          .orderBy(sql`RANDOM()`)
+          .limit(1)
+          .then((res) => res[0]);
+      }
+
+      // Fallback: unauthenticated, or every task has been completed
+      task ??= await ctx.db
         .select()
         .from(audioTasksFirst)
-        .where(
-          and(
-            eq(audioTasksFirst.topicId, input.topicId),
-            eq(audioTasksFirst.isDeleted, false),
-          ),
-        )
+        .where(baseWhere)
         .orderBy(sql`RANDOM()`)
         .limit(1)
         .then((res) => res[0]);
