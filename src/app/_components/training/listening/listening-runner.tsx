@@ -141,7 +141,7 @@ export function ListeningRunner() {
     const correctN = correctAnswers[i];
     return {
       badge: String(i + 1),
-      title: q.question,
+      title: q.questionText,
       userLabel: userN ? (q.options[userN - 1] ?? "—") : "Нет ответа",
       correctLabel: correctN ? (q.options[correctN - 1] ?? "—") : undefined,
       isCorrect: userN === correctN,
@@ -212,7 +212,7 @@ export function ListeningRunner() {
             <MCQuestion
               key={i}
               idx={i + 1}
-              question={q.question}
+              question={q.questionText}
               options={q.options}
               value={answers[i] ?? null}
               onChange={(optNum) => setAnswer(i, optNum)}

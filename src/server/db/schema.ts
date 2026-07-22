@@ -5,8 +5,9 @@ import {
   pgTableCreator,
   primaryKey,
   uniqueIndex,
+  jsonb,
 } from "drizzle-orm/pg-core";
-import { type AdapterAccount } from "next-auth/adapters";
+import type { AdapterAccount } from "next-auth/adapters";
 
 export const createTable = pgTableCreator((name) => name);
 
@@ -128,6 +129,16 @@ export const trainingTopicsRelations = relations(
   }),
 );
 
+export interface AudioTaskQuestion {
+  questionText: string;
+  options: string[];
+}
+
+export interface AudioTaskExplanation {
+  text: string;
+  highlightedText?: string;
+}
+
 export const audioTasksFirst = createTable("audio_task_first", (d) => ({
   id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
   task: d.text().notNull(),
@@ -138,6 +149,9 @@ export const audioTasksFirst = createTable("audio_task_first", (d) => ({
     .integer()
     .references(() => trainingTopics.id, { onDelete: "set null" }),
   isDeleted: d.boolean().default(false).notNull(),
+  questionsJson: d.jsonb("questions_json").$type<AudioTaskQuestion[]>(),
+  answersJson: d.jsonb("answers_json").$type<number[]>(),
+  explanationsJson: d.jsonb("explanations_json").$type<AudioTaskExplanation[]>(),
 }));
 
 export const audioTasksFirstRelations = relations(
@@ -150,6 +164,11 @@ export const audioTasksFirstRelations = relations(
   }),
 );
 
+export interface ReadingTaskExplanation {
+  text: string;
+  highlightedText?: string;
+}
+
 export const readingTasksFirst = createTable("reading_task_first", (d) => ({
   id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
   text: d.text().notNull(),
@@ -160,6 +179,10 @@ export const readingTasksFirst = createTable("reading_task_first", (d) => ({
     .integer()
     .references(() => trainingTopics.id, { onDelete: "set null" }),
   isDeleted: d.boolean().default(false).notNull(),
+  textsJson: d.jsonb("texts_json").$type<string[]>(),
+  headingsJson: d.jsonb("headings_json").$type<string[]>(),
+  answersJson: d.jsonb("answers_json").$type<number[]>(),
+  explanationsJson: d.jsonb("explanations_json").$type<ReadingTaskExplanation[]>(),
 }));
 
 export const readingTasksFirstRelations = relations(

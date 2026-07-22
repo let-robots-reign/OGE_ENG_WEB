@@ -215,7 +215,7 @@ describe("Training Runners Integration Suite", () => {
             audioUrl: "test.mp3",
             questions: [
               {
-                question: "Where is Bob?",
+                questionText: "Where is Bob?",
                 options: ["Home", "School", "Work"],
               },
             ],
@@ -228,7 +228,7 @@ describe("Training Runners Integration Suite", () => {
         correctCount: 1,
         total: 1,
         correctAnswers: [1],
-        explanation: ["Bob is at Home."],
+        explanation: [{ text: "Bob is at Home." }],
       });
 
       render(<ListeningRunner />);
@@ -260,7 +260,7 @@ describe("Training Runners Integration Suite", () => {
           topicTitle: "Reading Matching Topic",
           task: {
             id: 301,
-            headings: ["Extra Heading", "Heading 1", "Heading 2"], // heading[0] is skipped
+            headings: ["Heading 1", "Heading 2"],
             texts: ["Paragraph A details", "Paragraph B details"],
           },
         },
@@ -271,7 +271,10 @@ describe("Training Runners Integration Suite", () => {
         correctCount: 2,
         total: 2,
         correctAnswers: [1, 2],
-        explanation: "Matches correctly",
+        explanation: [
+          { text: "Matches correctly 1" },
+          { text: "Matches correctly 2" },
+        ],
       });
 
       render(<ReadingRunner />);

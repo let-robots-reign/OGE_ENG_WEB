@@ -8,21 +8,15 @@ export interface ReviewItem {
   userLabel: string;
   correctLabel?: string;
   isCorrect: boolean;
-  explanation?: string;
+  explanation?: {
+    text: string;
+    highlightedText?: string;
+  };
 }
 
 interface ReviewModalProps {
   items: ReviewItem[];
   onClose: () => void;
-}
-
-function injectAccentTag(
-  text: string,
-  accentChar: string,
-  tag: string,
-): string {
-  const regex = new RegExp(`\\${accentChar}(.*?)\\${accentChar}`, "g");
-  return text.replace(regex, `<${tag}>$1</${tag}>`);
 }
 
 export function ReviewModal({ items, onClose }: ReviewModalProps) {
@@ -54,9 +48,18 @@ export function ReviewModal({ items, onClose }: ReviewModalProps) {
 
       <div className="flex flex-col gap-5 px-8 py-6">
         {items.map((item, index) => {
-          const html = item.explanation
-            ? injectAccentTag(item.explanation, "|", "strong")
-            : "";
+          let html = "";
+          if (item.explanation) {
+            const { text, highlightedText } = item.explanation;
+            const formatText = (s: string) => s.replace(/\n/g, "<br />");
+
+            if (highlightedText && text.includes(highlightedText)) {
+              const parts = text.split(highlightedText);
+              html = `${formatText(parts[0] ?? "")}<strong>${formatText(highlightedText)}</strong>${formatText(parts[1] ?? "")}`;
+            } else {
+              html = formatText(text);
+            }
+          }
 
           return (
             <div

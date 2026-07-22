@@ -353,13 +353,13 @@ export const trainingRouter = createTRPCRouter({
       }
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { answer, explanation, ...rest } = task;
+      const { answer, explanation, task: _, text: __, ...rest } = task;
 
       return {
         task: {
           ...rest,
-          headings: task.task.split("\n"),
-          texts: task.text.split("\n"),
+          headings: task.headingsJson ?? [],
+          texts: task.textsJson ?? [],
         },
         topicTitle: topic.title,
       };
@@ -384,7 +384,7 @@ export const trainingRouter = createTRPCRouter({
         });
       }
 
-      const correctAnswers = task.answer.split(" ").map(Number);
+      const correctAnswers = task.answersJson ?? [];
 
       const results = input.answers.map(
         (userAnswer, i) => userAnswer === correctAnswers[i],
@@ -396,7 +396,7 @@ export const trainingRouter = createTRPCRouter({
         results,
         correctCount,
         total: correctAnswers.length,
-        explanation: task.explanation,
+        explanation: task.explanationsJson ?? [],
       };
     }),
 
@@ -617,17 +617,12 @@ export const trainingRouter = createTRPCRouter({
       }
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { answer, explanation, ...rest } = task;
-
-      const questions = task.task.split("\n").map((q) => {
-        const [question, ...options] = q.split("/option/");
-        return { question, options };
-      });
+      const { answer, explanation, task: _, ...rest } = task;
 
       return {
         task: {
           ...rest,
-          questions,
+          questions: task.questionsJson ?? [],
         },
         topicTitle: topic.title,
       };
@@ -652,7 +647,7 @@ export const trainingRouter = createTRPCRouter({
         });
       }
 
-      const correctAnswers = task.answer.split(" ").map(Number);
+      const correctAnswers = task.answersJson ?? [];
 
       const results = input.answers.map(
         (userAnswer, i) => userAnswer === correctAnswers[i],
@@ -664,7 +659,7 @@ export const trainingRouter = createTRPCRouter({
         results,
         correctCount,
         total: correctAnswers.length,
-        explanation: task.explanation.split("---"),
+        explanation: task.explanationsJson ?? [],
       };
     }),
 });

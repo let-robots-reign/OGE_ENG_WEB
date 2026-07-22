@@ -204,7 +204,10 @@ describe("Training UI Utils Suite", () => {
         userLabel: "My answer",
         correctLabel: "Correct answer",
         isCorrect: false,
-        explanation: "Detail |why|",
+        explanation: {
+          text: "Detail why",
+          highlightedText: "why",
+        },
       },
     ];
     render(<ReviewModal items={items} onClose={() => {}} />);

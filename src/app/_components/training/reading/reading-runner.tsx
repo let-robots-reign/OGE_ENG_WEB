@@ -51,8 +51,7 @@ export function ReadingRunner() {
   const texts = data?.task.texts ?? [];
   const total = texts.length;
   const headings = (data?.task.headings ?? [])
-    .slice(1)
-    .map((raw, i) => ({ n: i + 1, q: stripPrefix(raw) }));
+    .map((raw, i) => ({ n: i + 1, q: raw }));
 
   const { seconds: elapsedSec, reset: resetTimer } = useElapsedTimer(
     !!data && !checked,
@@ -180,7 +179,7 @@ export function ReadingRunner() {
     .map((v, i) => (v !== null ? i + 1 : 0))
     .filter(Boolean);
 
-  const explanationParts = result ? result.explanation.split("\n---") : [];
+  const explanationParts = result ? result.explanation : [];
   const reviewItems: ReviewItem[] = texts.map((_, i) => {
     const userN = assigned[i];
     const correctN = correctAnswers[i];
@@ -192,7 +191,7 @@ export function ReadingRunner() {
         ? `№${correctN} — ${headingQ(correctN) ?? ""}`
         : undefined,
       isCorrect: userN === correctN,
-      explanation: explanationParts[i]?.trim(),
+      explanation: explanationParts[i],
     };
   });
 

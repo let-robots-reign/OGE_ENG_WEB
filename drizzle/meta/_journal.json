@@ -57,6 +57,13 @@
       "when": 1782579667275,
       "tag": "0007_additional_user_fields",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1784647463249,
+      "tag": "0008_add_temp_jsonb_columns",
+      "breakpoints": true
     }
   ]
 }
