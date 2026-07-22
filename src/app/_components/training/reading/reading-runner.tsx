@@ -18,7 +18,6 @@ import { formatClock } from "@/app/_utils/formatClock";
 
 const BACK_HREF = "/training/reading/topics";
 const letterOf = (i: number) => String.fromCharCode(65 + i);
-const stripPrefix = (s: string) => s.replace(/^\s*\d+\.\s*/, "").trim();
 
 export function ReadingRunner() {
   const searchParams = useSearchParams();

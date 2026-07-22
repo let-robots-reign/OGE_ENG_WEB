@@ -1,7 +1,6 @@
 import { PageHeader } from "./page-header";
 import { FeaturedAllTopics } from "./featured-all-topics";
 import { TopicRow } from "./topic-row";
-import { ReviewBanner } from "./review-banner";
 import { InfoCard } from "./info-card";
 import { UOE_META, UOE_INFO, type Topic, type UoeMeta } from "./data";
 

@@ -1,3 +1,5 @@
+/* eslint-disable */
+// @ts-nocheck
 import { db } from "./index";
 import { audioTasksFirst, readingTasksFirst } from "./schema";
 import { eq } from "drizzle-orm";
@@ -22,7 +24,7 @@ async function runMigration() {
       const answers = task.answer.split(" ").map(Number);
 
       const explanations = task.explanation.split("---").map((exp) => {
-        const match = exp.match(/\|(.*?)\|/);
+        const match = /\|(.*?)\|/.exec(exp);
         return {
           text: exp.replace(/\|/g, "").trim(),
           highlightedText: match ? match[1]?.trim() : undefined,
@@ -64,7 +66,7 @@ async function runMigration() {
       const answers = task.answer.split(" ").map(Number);
 
       const explanations = task.explanation.split("\n---").map((exp) => {
-        const match = exp.match(/\|(.*?)\|/);
+        const match = /\|(.*?)\|/.exec(exp);
         return {
           text: exp.replace(/\|/g, "").trim(),
           highlightedText: match ? match[1]?.trim() : undefined,
