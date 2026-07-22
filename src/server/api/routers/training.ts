@@ -352,14 +352,11 @@ export const trainingRouter = createTRPCRouter({
         });
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { answer, explanation, task: _, text: __, ...rest } = task;
-
       return {
         task: {
-          ...rest,
-          headings: task.headingsJson ?? [],
-          texts: task.textsJson ?? [],
+          ...task,
+          headings: task.headings ?? [],
+          texts: task.texts ?? [],
         },
         topicTitle: topic.title,
       };
@@ -384,7 +381,7 @@ export const trainingRouter = createTRPCRouter({
         });
       }
 
-      const correctAnswers = task.answersJson ?? [];
+      const correctAnswers = task.answers ?? [];
 
       const results = input.answers.map(
         (userAnswer, i) => userAnswer === correctAnswers[i],
@@ -396,7 +393,7 @@ export const trainingRouter = createTRPCRouter({
         results,
         correctCount,
         total: correctAnswers.length,
-        explanation: task.explanationsJson ?? [],
+        explanation: task.explanations ?? [],
       };
     }),
 
@@ -616,13 +613,10 @@ export const trainingRouter = createTRPCRouter({
         });
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { answer, explanation, task: _, ...rest } = task;
-
       return {
         task: {
-          ...rest,
-          questions: task.questionsJson ?? [],
+          ...task,
+          questions: task.questions ?? [],
         },
         topicTitle: topic.title,
       };
@@ -647,7 +641,7 @@ export const trainingRouter = createTRPCRouter({
         });
       }
 
-      const correctAnswers = task.answersJson ?? [];
+      const correctAnswers = task.answers ?? [];
 
       const results = input.answers.map(
         (userAnswer, i) => userAnswer === correctAnswers[i],
@@ -659,7 +653,7 @@ export const trainingRouter = createTRPCRouter({
         results,
         correctCount,
         total: correctAnswers.length,
-        explanation: task.explanationsJson ?? [],
+        explanation: task.explanations ?? [],
       };
     }),
 });

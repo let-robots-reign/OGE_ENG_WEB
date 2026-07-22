@@ -64,6 +64,13 @@
       "when": 1784647463249,
       "tag": "0008_add_temp_jsonb_columns",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1784693696156,
+      "tag": "0009_finalize_jsonb_columns",
+      "breakpoints": true
     }
   ]
 }

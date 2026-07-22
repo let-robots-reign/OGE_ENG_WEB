@@ -5,7 +5,6 @@ import {
   pgTableCreator,
   primaryKey,
   uniqueIndex,
-  jsonb,
 } from "drizzle-orm/pg-core";
 import type { AdapterAccount } from "next-auth/adapters";
 
@@ -141,17 +140,14 @@ export interface AudioTaskExplanation {
 
 export const audioTasksFirst = createTable("audio_task_first", (d) => ({
   id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
-  task: d.text().notNull(),
-  answer: d.text().notNull(),
-  explanation: d.text().notNull(),
   audioUrl: d.varchar({ length: 255 }).notNull(),
   topicId: d
     .integer()
     .references(() => trainingTopics.id, { onDelete: "set null" }),
   isDeleted: d.boolean().default(false).notNull(),
-  questionsJson: d.jsonb("questions_json").$type<AudioTaskQuestion[]>(),
-  answersJson: d.jsonb("answers_json").$type<number[]>(),
-  explanationsJson: d.jsonb("explanations_json").$type<AudioTaskExplanation[]>(),
+  questions: d.jsonb("questions").$type<AudioTaskQuestion[]>().notNull(),
+  answers: d.jsonb("answers").$type<number[]>().notNull(),
+  explanations: d.jsonb("explanations").$type<AudioTaskExplanation[]>().notNull(),
 }));
 
 export const audioTasksFirstRelations = relations(
@@ -171,18 +167,14 @@ export interface ReadingTaskExplanation {
 
 export const readingTasksFirst = createTable("reading_task_first", (d) => ({
   id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
-  text: d.text().notNull(),
-  task: d.text().notNull(),
-  answer: d.text().notNull(),
-  explanation: d.text().notNull(),
   topicId: d
     .integer()
     .references(() => trainingTopics.id, { onDelete: "set null" }),
   isDeleted: d.boolean().default(false).notNull(),
-  textsJson: d.jsonb("texts_json").$type<string[]>(),
-  headingsJson: d.jsonb("headings_json").$type<string[]>(),
-  answersJson: d.jsonb("answers_json").$type<number[]>(),
-  explanationsJson: d.jsonb("explanations_json").$type<ReadingTaskExplanation[]>(),
+  texts: d.jsonb("texts").$type<string[]>().notNull(),
+  headings: d.jsonb("headings").$type<string[]>().notNull(),
+  answers: d.jsonb("answers").$type<number[]>().notNull(),
+  explanations: d.jsonb("explanations").$type<ReadingTaskExplanation[]>().notNull(),
 }));
 
 export const readingTasksFirstRelations = relations(
