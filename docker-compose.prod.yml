@@ -3,25 +3,16 @@ version: '3.8'
 
 services:
   migrator:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: builder
-      secrets:
-        - app_env_secret
+    image: ${IMAGE_NAME:-ghcr.io/let-robots-reign/oge-eng-web:latest}
     env_file:
       - .env
     depends_on:
       db:
         condition: service_healthy
-    command: npm run db:migrate
+    command: ["migrate.mjs"]
 
   web:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      secrets:
-        - app_env_secret
+    image: ${IMAGE_NAME:-ghcr.io/let-robots-reign/oge-eng-web:latest}
     restart: always
     depends_on:
       migrator:
@@ -77,6 +68,3 @@ services:
 volumes:
   postgres_data:
 
-secrets:
-  app_env_secret:
-    file: .env

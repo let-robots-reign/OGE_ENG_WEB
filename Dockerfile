@@ -28,7 +28,6 @@ COPY . .
 ENV NEXT_TELEMETRY_DISABLED 1
 
 RUN \
-    --mount=type=secret,id=app_env_secret,target=/app/.env \
     if [ -f yarn.lock ]; then SKIP_ENV_VALIDATION=1 yarn build; \
     elif [ -f package-lock.json ]; then SKIP_ENV_VALIDATION=1 npm run build; \
     elif [ -f pnpm-lock.yaml ]; then npm install -g pnpm && SKIP_ENV_VALIDATION=1 pnpm run build; \
@@ -50,6 +49,8 @@ COPY --from=builder /app/package.json ./package.json
 
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/drizzle ./drizzle
+COPY --from=builder /app/migrate.mjs ./migrate.mjs
 
 EXPOSE 3000
 ENV PORT 3000
