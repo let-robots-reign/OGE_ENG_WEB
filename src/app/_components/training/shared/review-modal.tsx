@@ -53,9 +53,24 @@ export function ReviewModal({ items, onClose }: ReviewModalProps) {
             const { text, highlightedText } = item.explanation;
             const formatText = (s: string) => s.replace(/\n/g, "<br />");
 
-            if (highlightedText && text.includes(highlightedText)) {
-              const parts = text.split(highlightedText);
-              html = `${formatText(parts[0] ?? "")}<strong>${formatText(highlightedText)}</strong>${formatText(parts[1] ?? "")}`;
+            if (highlightedText?.trim()) {
+              const phrases = highlightedText
+                .split(/[\n;]+/)
+                .map((p) => p.trim())
+                .filter(Boolean);
+
+              if (phrases.length > 0) {
+                phrases.sort((a, b) => b.length - a.length);
+                const escapedPhrases = phrases.map((p) =>
+                  p.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+                );
+                const regex = new RegExp(`(${escapedPhrases.join("|")})`, "gi");
+
+                const highlighted = text.replace(regex, "<strong>$1</strong>");
+                html = formatText(highlighted);
+              } else {
+                html = formatText(text);
+              }
             } else {
               html = formatText(text);
             }

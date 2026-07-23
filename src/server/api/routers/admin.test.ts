@@ -1,9 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/unbound-method */
 import { vi } from "vitest";
 
+const mockInsertValues = vi.fn();
+const mockUpdateSet = vi.fn();
+
 vi.mock("@/server/db", () => ({
   db: {
     select: vi.fn(),
+    insert: vi.fn(() => ({
+      values: mockInsertValues,
+    })),
+    update: vi.fn(() => ({
+      set: mockUpdateSet,
+    })),
     query: {
       userResults: {
         findMany: vi.fn(),
@@ -11,6 +20,10 @@ vi.mock("@/server/db", () => ({
       },
       trainingTopics: {
         findMany: vi.fn(),
+      },
+      audioTasksFirst: {
+        findMany: vi.fn(),
+        findFirst: vi.fn(),
       },
     },
   },
@@ -21,6 +34,14 @@ vi.mock("@/server/db", () => ({
   },
   users: {
     id: "users_id",
+  },
+  audioTasksFirst: {
+    id: "audio_tasks_first_id",
+    isDeleted: "audio_tasks_first_is_deleted",
+  },
+  trainingTopics: {
+    id: "training_topics_id",
+    category: "training_topics_category",
   },
 }));
 
@@ -159,4 +180,69 @@ describe("Admin Router tRPC Procedures", () => {
       expect(res).toBeNull();
     });
   });
+
+  describe("Audio Task CRUD Procedures", () => {
+    const adminCaller = createCaller({
+      db: db as any,
+      session: { user: { id: "admin-1", role: "admin" }, expires: "" },
+      headers: new Headers(),
+    });
+
+    it("getAudioTopics should fetch audio topics", async () => {
+      vi.mocked(db.query.trainingTopics.findMany).mockResolvedValue([
+        { id: 1, title: "Weather", category: "audio" },
+      ] as any);
+
+      const topics = await adminCaller.getAudioTopics();
+      expect(topics).toHaveLength(1);
+      expect(topics[0]!.title).toBe("Weather");
+    });
+
+    it("getAudioTasks should return paginated list of non-deleted tasks", async () => {
+      vi.mocked(db.query.audioTasksFirst.findMany).mockResolvedValue([
+        {
+          id: 10,
+          audioUrl: "/audio1.mp3",
+          topic: { title: "Hobbies" },
+          questions: [{ questionText: "What is your hobby?" }],
+        },
+      ] as any);
+
+      const res = await adminCaller.getAudioTasks({ page: 1, pageSize: 10 });
+      expect(res.items).toHaveLength(1);
+      expect(res.totalCount).toBe(1);
+      expect(res.items[0]!.id).toBe(10);
+    });
+
+    it("createAudioTask should insert new audio task", async () => {
+      const mockReturning = vi.fn().mockResolvedValue([{ id: 100 }]);
+      mockInsertValues.mockReturnValue({ returning: mockReturning });
+
+      const res = await adminCaller.createAudioTask({
+        topicId: 1,
+        audioUrl: "/uploads/audio/test.mp3",
+        questions: [
+          {
+            questionText: "Question 1",
+            options: ["Opt 1", "Opt 2"],
+          },
+        ],
+        answers: [0],
+        explanations: [{ text: "Explanation 1" }],
+      });
+
+      expect(mockInsertValues).toHaveBeenCalled();
+      expect(res).toEqual({ id: 100 });
+    });
+
+    it("deleteAudioTasks should perform soft delete setting isDeleted to true", async () => {
+      const mockWhere = vi.fn().mockResolvedValue([]);
+      mockUpdateSet.mockReturnValue({ where: mockWhere });
+
+      const res = await adminCaller.deleteAudioTasks({ ids: [10, 20] });
+      expect(mockUpdateSet).toHaveBeenCalledWith({ isDeleted: true });
+      expect(res).toEqual({ success: true, deletedCount: 2 });
+    });
+  });
 });
+

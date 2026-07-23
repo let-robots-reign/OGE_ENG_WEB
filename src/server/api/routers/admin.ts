@@ -1,11 +1,33 @@
 import { z } from "zod";
 import { adminProcedure, createTRPCRouter } from "@/server/api/trpc";
-import { userResults } from "@/server/db/schema";
-import { eq } from "drizzle-orm";
+import { audioTasksFirst, trainingTopics, userResults } from "@/server/db/schema";
+import { and, eq, inArray } from "drizzle-orm";
 
 const diagnosticDetailsSchema = z.object({
   feedback: z.string(),
   userAnswers: z.any(),
+});
+
+export const audioTaskInputSchema = z.object({
+  topicId: z.number({ required_error: "Выберите тему" }),
+  audioUrl: z.string().min(1, "Укажите ссылку или загрузите файл"),
+  questions: z
+    .array(
+      z.object({
+        questionText: z.string().min(1, "Текст вопроса не может быть пустым"),
+        options: z
+          .array(z.string().min(1, "Текст варианта не может быть пустым"))
+          .min(2, "Минимум 2 варианта ответа"),
+      }),
+    )
+    .min(1, "Минимум 1 вопрос"),
+  answers: z.array(z.number()),
+  explanations: z.array(
+    z.object({
+      text: z.string().min(1, "Пояснение обязательно"),
+      highlightedText: z.string().optional(),
+    }),
+  ),
 });
 
 export const adminRouter = createTRPCRouter({
@@ -82,4 +104,145 @@ export const adminRouter = createTRPCRouter({
         details: diagnosticDetailsSchema.parse(result.details),
       };
     }),
+
+  getAudioTopics: adminProcedure.query(async ({ ctx }) => {
+    return await ctx.db.query.trainingTopics.findMany({
+      where: eq(trainingTopics.category, "audio"),
+      orderBy: (trainingTopics, { asc }) => [asc(trainingTopics.title)],
+    });
+  }),
+
+  getAudioTasks: adminProcedure
+    .input(
+      z.object({
+        page: z.number().min(1).default(1),
+        pageSize: z.number().min(1).max(100).default(10),
+        search: z.string().optional(),
+        topicId: z.number().optional(),
+        sortBy: z.enum(["id", "topicTitle"]).default("id"),
+        sortOrder: z.enum(["asc", "desc"]).default("desc"),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const { page, pageSize, search, topicId, sortBy, sortOrder } = input;
+      const offset = (page - 1) * pageSize;
+
+      const conditions = [eq(audioTasksFirst.isDeleted, false)];
+      if (topicId) {
+        conditions.push(eq(audioTasksFirst.topicId, topicId));
+      }
+
+      let tasks = await ctx.db.query.audioTasksFirst.findMany({
+        where: and(...conditions),
+        with: {
+          topic: true,
+        },
+        orderBy: (audioTasksFirst, { asc, desc }) =>
+          sortOrder === "asc"
+            ? [asc(audioTasksFirst.id)]
+            : [desc(audioTasksFirst.id)],
+      });
+
+      if (search && search.trim() !== "") {
+        const term = search.trim().toLowerCase();
+        tasks = tasks.filter((t) => {
+          const topicTitle = t.topic?.title?.toLowerCase() ?? "";
+          const idStr = t.id.toString();
+          const matchesQuestion = t.questions?.some((q) =>
+            q.questionText.toLowerCase().includes(term),
+          );
+          return topicTitle.includes(term) || idStr.includes(term) || matchesQuestion;
+        });
+      }
+
+      if (sortBy === "topicTitle") {
+        tasks.sort((a, b) => {
+          const titleA = a.topic?.title ?? "";
+          const titleB = b.topic?.title ?? "";
+          return sortOrder === "asc"
+            ? titleA.localeCompare(titleB, "ru")
+            : titleB.localeCompare(titleA, "ru");
+        });
+      }
+
+      const totalCount = tasks.length;
+      const paginatedTasks = tasks.slice(offset, offset + pageSize);
+
+      return {
+        items: paginatedTasks,
+        totalCount,
+        page,
+        pageSize,
+        totalPages: Math.max(1, Math.ceil(totalCount / pageSize)),
+      };
+    }),
+
+  getAudioTaskById: adminProcedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const task = await ctx.db.query.audioTasksFirst.findFirst({
+        where: and(
+          eq(audioTasksFirst.id, input.id),
+          eq(audioTasksFirst.isDeleted, false),
+        ),
+        with: {
+          topic: true,
+        },
+      });
+
+      if (!task) return null;
+      return task;
+    }),
+
+  createAudioTask: adminProcedure
+    .input(audioTaskInputSchema)
+    .mutation(async ({ ctx, input }) => {
+      const [inserted] = await ctx.db
+        .insert(audioTasksFirst)
+        .values({
+          topicId: input.topicId,
+          audioUrl: input.audioUrl,
+          questions: input.questions,
+          answers: input.answers,
+          explanations: input.explanations,
+          isDeleted: false,
+        })
+        .returning();
+
+      return inserted;
+    }),
+
+  updateAudioTask: adminProcedure
+    .input(
+      audioTaskInputSchema.extend({
+        id: z.number(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const [updated] = await ctx.db
+        .update(audioTasksFirst)
+        .set({
+          topicId: input.topicId,
+          audioUrl: input.audioUrl,
+          questions: input.questions,
+          answers: input.answers,
+          explanations: input.explanations,
+        })
+        .where(eq(audioTasksFirst.id, input.id))
+        .returning();
+
+      return updated;
+    }),
+
+  deleteAudioTasks: adminProcedure
+    .input(z.object({ ids: z.array(z.number()).min(1) }))
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db
+        .update(audioTasksFirst)
+        .set({ isDeleted: true })
+        .where(inArray(audioTasksFirst.id, input.ids));
+
+      return { success: true, deletedCount: input.ids.length };
+    }),
 });
+

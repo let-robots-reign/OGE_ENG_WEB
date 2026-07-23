@@ -1,18 +1,12 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { z } from "zod";
 import { api } from "@/trpc/react";
 
 const tabsOptions = z.enum(["training", "diagnostics"]);
 type Tab = z.infer<typeof tabsOptions>;
-
-const TABS: { id: Tab; label: string }[] = [
-  { id: "training", label: "Тренировки" },
-  { id: "diagnostics", label: "Диагностика" },
-];
 
 // Category pill tones mirror the subject tones used on home/profile.
 const CATEGORY_META: Record<string, { label: string; bg: string; fg: string }> =
@@ -118,13 +112,10 @@ function StateRow({
 }
 
 export function AdminView() {
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   const parsedTab = tabsOptions.safeParse(searchParams.get("tab"));
-  const [activeTab, setActiveTab] = useState<Tab>(
-    parsedTab.success ? parsedTab.data : "training",
-  );
+  const activeTab: Tab = parsedTab.success ? parsedTab.data : "training";
 
   const { data: trainingData, isLoading: isLoadingTraining } =
     api.admin.getTrainingResults.useQuery(undefined, {
@@ -136,48 +127,20 @@ export function AdminView() {
       enabled: activeTab === "diagnostics",
     });
 
-  const handleTabChange = (tab: Tab) => {
-    setActiveTab(tab);
-    router.push(`/admin?tab=${tab}`, { scroll: false });
-  };
-
   const rowCount =
     activeTab === "training" ? trainingData?.length : diagnosticsData?.length;
 
   return (
-    <div className="px-5 pt-10 pb-16 sm:px-8 lg:px-14">
+    <div className="px-2 pt-4 pb-16 sm:px-4 lg:px-8">
       <div className="mx-auto max-w-[1200px]">
         {/* Header */}
-        <div className="mb-8">
-          <div className="text-ink-3 mb-3 inline-flex items-center gap-2 text-[12.5px] font-medium tracking-[0.12em] uppercase">
-            <span className="bg-accent h-1.5 w-1.5 rounded-full" />
-            панель управления
-          </div>
-          <h1 className="font-display text-[38px] leading-none tracking-[-0.03em] sm:text-[52px]">
-            История действий
-          </h1>
-          <p className="text-ink-3 mt-3 max-w-[520px] text-[15px] leading-relaxed">
-            Результаты тренировок и диагностик всех пользователей.
-          </p>
-        </div>
-
-        {/* Tabs */}
-        <div className="mb-6 flex items-center justify-between gap-3">
-          <div className="flex gap-1.5">
-            {TABS.map((t) => (
-              <button
-                key={t.id}
-                type="button"
-                onClick={() => handleTabChange(t.id)}
-                className={`rounded-pill h-10 px-5 text-[14.5px] font-medium transition-colors ${
-                  activeTab === t.id
-                    ? "bg-ink text-on-ink"
-                    : "bg-surface text-ink-2 border-line-2 hover:bg-surface-2 border"
-                }`}
-              >
-                {t.label}
-              </button>
-            ))}
+        <div className="mb-6 flex items-end justify-between">
+          <div>
+            <h1 className="font-display text-[32px] leading-none tracking-[-0.03em] sm:text-[44px]">
+              {activeTab === "training"
+                ? "Результаты тренировок"
+                : "Результаты диагностик"}
+            </h1>
           </div>
           {rowCount != null && (
             <div className="text-ink-3 font-mono text-[13px]">
