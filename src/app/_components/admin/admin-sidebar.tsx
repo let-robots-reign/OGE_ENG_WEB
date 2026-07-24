@@ -98,11 +98,10 @@ export function AdminSidebar({
         },
         {
           label: "Чтение",
-          href: "#",
-          disabled: true,
-          activeMatch: () => false,
+          href: "/admin/tasks/reading",
+          activeMatch: (path) => path.startsWith("/admin/tasks/reading"),
           icon: (
-            <span className="flex h-5 w-5 shrink-0 items-center justify-center opacity-40 [&>svg]:h-5 [&>svg]:w-5">
+            <span className="flex h-5 w-5 shrink-0 items-center justify-center [&>svg]:h-5 [&>svg]:w-5">
               <IconBook />
             </span>
           ),

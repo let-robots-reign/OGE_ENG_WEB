@@ -236,23 +236,18 @@ export function AudioTaskFormView({ taskId }: { taskId?: number }) {
   return (
     <form onSubmit={handleSubmit} className="mx-auto max-w-[900px] space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between border-line pb-4 border-b">
-        <div>
-          <div className="text-ink-3 mb-1 text-[12px] font-medium uppercase tracking-[0.12em]">
-            {isEditMode ? `Редактирование #${taskId}` : "Создание задания"}
-          </div>
-          <h1 className="font-display text-[28px] tracking-tight sm:text-[34px]">
-            {isEditMode
-              ? `Задание по аудированию #${taskId}`
-              : "Новое задание по аудированию"}
-          </h1>
-        </div>
+      <div>
         <Link
           href="/admin/tasks/audio"
-          className="border-line text-ink hover:bg-surface rounded-lg border px-4 py-2 text-[14px] font-medium transition-colors"
+          className="text-ink-3 hover:text-ink inline-flex items-center gap-1.5 text-xs font-medium transition-colors mb-1"
         >
-          ← Отмена
+          ← Назад к списку заданий
         </Link>
+        <h1 className="font-display text-[28px] tracking-tight sm:text-[34px]">
+          {isEditMode
+            ? `Редактирование задания по аудированию #${taskId}`
+            : "Новое задание по аудированию"}
+        </h1>
       </div>
 
       {formError && (

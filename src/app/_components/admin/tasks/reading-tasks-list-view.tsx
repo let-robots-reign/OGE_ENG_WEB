@@ -1,75 +1,16 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { api } from "@/trpc/react";
 import { CustomSelect } from "@/app/_components/ui/custom-select";
-import { normalizeAudioUrl } from "@/app/_utils/audio";
 import {
   AdminHeader,
   AdminPagination,
   AdminDeleteModal,
 } from "@/app/_components/admin/admin-table-controls";
 
-function CompactAudioPlayer({ src }: { src: string }) {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const audioRef = useRef<HTMLAudioElement>(null);
-
-  const fullUrl = normalizeAudioUrl(src);
-
-  const togglePlay = () => {
-    if (!audioRef.current) return;
-    if (isPlaying) {
-      audioRef.current.pause();
-      setIsPlaying(false);
-    } else {
-      void audioRef.current.play();
-      setIsPlaying(true);
-    }
-  };
-
-  return (
-    <div className="flex items-center gap-2">
-      <audio
-        ref={audioRef}
-        src={fullUrl}
-        onEnded={() => setIsPlaying(false)}
-        onPause={() => setIsPlaying(false)}
-        onPlay={() => setIsPlaying(true)}
-        preload="metadata"
-      />
-      <button
-        type="button"
-        onClick={togglePlay}
-        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors ${
-          isPlaying
-            ? "bg-accent text-white"
-            : "bg-surface-2 text-ink hover:bg-surface-3"
-        }`}
-        title={isPlaying ? "Пауза" : "Воспроизвести"}
-      >
-        {isPlaying ? (
-          <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24">
-            <rect x="6" y="4" width="4" height="16" rx="1" />
-            <rect x="14" y="4" width="4" height="16" rx="1" />
-          </svg>
-        ) : (
-          <svg className="ml-0.5 h-3.5 w-3.5 fill-current" viewBox="0 0 24 24">
-            <path d="M8 5v14l11-7z" />
-          </svg>
-        )}
-      </button>
-      <span
-        className="text-ink-3 max-w-[110px] truncate font-mono text-[12px]"
-        title={src}
-      >
-        {src.split("/").pop() ?? "аудио"}
-      </span>
-    </div>
-  );
-}
-
-export function AudioTasksListView() {
+export function ReadingTasksListView() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [search, setSearch] = useState("");
@@ -84,9 +25,9 @@ export function AudioTasksListView() {
 
   const utils = api.useUtils();
 
-  const { data: topics } = api.admin.getAudioTopics.useQuery();
+  const { data: topics } = api.admin.getReadingTopics.useQuery();
 
-  const { data, isLoading, isFetching } = api.admin.getAudioTasks.useQuery({
+  const { data, isLoading, isFetching } = api.admin.getReadingTasks.useQuery({
     page,
     pageSize,
     search,
@@ -95,12 +36,12 @@ export function AudioTasksListView() {
     sortOrder,
   });
 
-  const deleteMutation = api.admin.deleteAudioTasks.useMutation({
+  const deleteMutation = api.admin.deleteReadingTasks.useMutation({
     onSuccess: async () => {
       setSelectedIds([]);
       setDeleteConfirmId(null);
       setIsDeletingModalOpen(false);
-      await utils.admin.getAudioTasks.invalidate();
+      await utils.admin.getReadingTasks.invalidate();
     },
   });
 
@@ -110,7 +51,7 @@ export function AudioTasksListView() {
 
   const handleSelectAll = (checked: boolean) => {
     if (checked && tasks) {
-      setSelectedIds(tasks.map((item) => item.id));
+      setSelectedIds(tasks.map((t) => t.id));
     } else {
       setSelectedIds([]);
     }
@@ -150,9 +91,9 @@ export function AudioTasksListView() {
     <div className="mx-auto max-w-[1200px] space-y-6">
       {/* Header */}
       <AdminHeader
-        title="Аудирование"
-        description="Список всех активных заданий тренировки «Аудирование»."
-        createHref="/admin/tasks/audio/new"
+        title="Чтение"
+        description="Список всех активных заданий тренировки «Чтение»."
+        createHref="/admin/tasks/reading/create"
       />
 
       {/* Controls Bar */}
@@ -180,7 +121,7 @@ export function AudioTasksListView() {
                 setSearch(e.target.value);
                 setPage(1);
               }}
-              placeholder="Поиск по теме, тексту вопроса или ID..."
+              placeholder="Поиск по теме, тексту или ID..."
               className="bg-surface-2 border-line text-ink placeholder:text-ink-4 focus:ring-accent/50 w-full rounded-lg border py-2 pr-4 pl-10 text-[14px] focus:ring-2 focus:outline-hidden"
             />
           </div>
@@ -189,7 +130,7 @@ export function AudioTasksListView() {
           <div className="flex flex-wrap items-center gap-2">
             <CustomSelect
               options={[
-                { value: 0, label: "Все темы аудирования" },
+                { value: 0, label: "Все темы чтения" },
                 ...(topics?.map((t) => ({ value: t.id, label: t.title })) ??
                   []),
               ]}
@@ -273,37 +214,31 @@ export function AudioTasksListView() {
                     )}
                   </div>
                 </th>
-                <th className="px-4 py-3.5">Задание</th>
-                <th className="w-40 px-4 py-3.5">Аудиозапись</th>
+                <th className="px-4 py-3.5">Превью текста</th>
                 <th className="w-28 px-4 py-3.5 text-right">Действия</th>
               </tr>
             </thead>
             <tbody className="divide-line divide-y">
               {isLoading || isFetching ? (
                 <tr>
-                  <td colSpan={6} className="text-ink-3 py-12 text-center">
+                  <td colSpan={5} className="text-ink-3 py-12 text-center">
                     Загрузка заданий...
                   </td>
                 </tr>
               ) : tasks.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="text-ink-3 py-12 text-center">
+                  <td colSpan={5} className="text-ink-3 py-12 text-center">
                     Задания не найдены.
                   </td>
                 </tr>
               ) : (
                 tasks.map((task) => {
+                  const firstText = task.texts?.[0] ?? "";
+                  const previewText =
+                    firstText.length > 180
+                      ? `${firstText.slice(0, 180)}...`
+                      : firstText;
                   const isSelected = selectedIds.includes(task.id);
-                  const fullTaskText = task.questions
-                    ?.map((q) => q.questionText)
-                    .filter(Boolean)
-                    .join(" ");
-
-                  const taskPreview = fullTaskText
-                    ? fullTaskText.length > 200
-                      ? fullTaskText.slice(0, 200) + "..."
-                      : fullTaskText
-                    : "—";
 
                   return (
                     <tr
@@ -328,16 +263,13 @@ export function AudioTasksListView() {
                       <td className="text-ink px-4 py-3.5 font-medium">
                         {task.topic?.title ?? "—"}
                       </td>
-                      <td className="text-ink-2 max-w-[340px] px-4 py-3.5 text-[13.5px] leading-snug">
-                        {taskPreview}
-                      </td>
-                      <td className="px-4 py-3.5">
-                        <CompactAudioPlayer src={task.audioUrl} />
+                      <td className="text-ink-2 max-w-[400px] px-4 py-3.5 text-[13.5px] leading-snug">
+                        {previewText || "(Пустой текст)"}
                       </td>
                       <td className="px-4 py-3.5 text-right">
                         <div className="flex items-center justify-end gap-2">
                           <Link
-                            href={`/admin/tasks/audio/${task.id}`}
+                            href={`/admin/tasks/reading/${task.id}`}
                             className="text-ink-3 hover:bg-surface-2 hover:text-ink rounded-lg p-1.5 transition-colors"
                             title="Редактировать"
                           >
