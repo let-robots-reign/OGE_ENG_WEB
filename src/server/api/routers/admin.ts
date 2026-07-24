@@ -4,6 +4,7 @@ import {
   audioTasksFirst,
   readingTasksFirst,
   trainingTopics,
+  uoeTasks,
   userResults,
 } from "@/server/db/schema";
 import { and, eq, inArray } from "drizzle-orm";
@@ -11,6 +12,13 @@ import { and, eq, inArray } from "drizzle-orm";
 const diagnosticDetailsSchema = z.object({
   feedback: z.string(),
   userAnswers: z.any(),
+});
+
+export const uoeTaskInputSchema = z.object({
+  topicId: z.number({ required_error: "Выберите тему" }),
+  task: z.string().min(1, "Введите предложение / задание"),
+  origin: z.string().min(1, "Введите начальное слово"),
+  answer: z.string().min(1, "Введите правильный ответ"),
 });
 
 export const audioTaskInputSchema = z.object({
@@ -411,6 +419,149 @@ export const adminRouter = createTRPCRouter({
         .update(readingTasksFirst)
         .set({ isDeleted: true })
         .where(inArray(readingTasksFirst.id, input.ids));
+
+      return { success: true, deletedCount: input.ids.length };
+    }),
+
+  getUoeTopics: adminProcedure.query(async ({ ctx }) => {
+    return await ctx.db.query.trainingTopics.findMany({
+      where: eq(trainingTopics.category, "use-of-english"),
+      orderBy: (topics, { asc }) => [asc(topics.title)],
+    });
+  }),
+
+  getUoeTasks: adminProcedure
+    .input(
+      z.object({
+        page: z.number().min(1).default(1),
+        pageSize: z.number().min(1).max(100).default(10),
+        search: z.string().optional(),
+        topicId: z.number().optional(),
+        sortBy: z.enum(["id", "topicTitle"]).default("id"),
+        sortOrder: z.enum(["asc", "desc"]).default("desc"),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const { page, pageSize, search, topicId, sortBy, sortOrder } = input;
+      const offset = (page - 1) * pageSize;
+
+      let tasks = await ctx.db.query.uoeTasks.findMany({
+        where: and(
+          eq(uoeTasks.isDeleted, false),
+          topicId !== undefined ? eq(uoeTasks.topicId, topicId) : undefined,
+        ),
+        with: {
+          topic: true,
+        },
+        orderBy: (tasksTable, { asc, desc }) => [
+          sortOrder === "asc"
+            ? asc(tasksTable[sortBy === "topicTitle" ? "id" : sortBy])
+            : desc(tasksTable[sortBy === "topicTitle" ? "id" : sortBy]),
+        ],
+      });
+
+      if (search && search.trim() !== "") {
+        const term = search.toLowerCase().trim();
+        tasks = tasks.filter((t) => {
+          const topicTitle = t.topic?.title?.toLowerCase() ?? "";
+          const idStr = t.id.toString();
+          const taskStr = t.task.toLowerCase();
+          const originStr = t.origin.toLowerCase();
+          const answerStr = t.answer.toLowerCase();
+          return (
+            topicTitle.includes(term) ||
+            idStr.includes(term) ||
+            taskStr.includes(term) ||
+            originStr.includes(term) ||
+            answerStr.includes(term)
+          );
+        });
+      }
+
+      if (sortBy === "topicTitle") {
+        tasks.sort((a, b) => {
+          const titleA = a.topic?.title ?? "";
+          const titleB = b.topic?.title ?? "";
+          return sortOrder === "asc"
+            ? titleA.localeCompare(titleB, "ru")
+            : titleB.localeCompare(titleA, "ru");
+        });
+      }
+
+      const totalCount = tasks.length;
+      const paginatedTasks = tasks.slice(offset, offset + pageSize);
+
+      return {
+        items: paginatedTasks,
+        totalCount,
+        page,
+        pageSize,
+        totalPages: Math.max(1, Math.ceil(totalCount / pageSize)),
+      };
+    }),
+
+  getUoeTaskById: adminProcedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const task = await ctx.db.query.uoeTasks.findFirst({
+        where: and(
+          eq(uoeTasks.id, input.id),
+          eq(uoeTasks.isDeleted, false),
+        ),
+        with: {
+          topic: true,
+        },
+      });
+
+      if (!task) return null;
+      return task;
+    }),
+
+  createUoeTask: adminProcedure
+    .input(uoeTaskInputSchema)
+    .mutation(async ({ ctx, input }) => {
+      const [inserted] = await ctx.db
+        .insert(uoeTasks)
+        .values({
+          topicId: input.topicId,
+          task: input.task.trim(),
+          origin: input.origin.trim().toUpperCase(),
+          answer: input.answer.trim().toUpperCase(),
+          isDeleted: false,
+        })
+        .returning();
+
+      return inserted;
+    }),
+
+  updateUoeTask: adminProcedure
+    .input(
+      uoeTaskInputSchema.extend({
+        id: z.number(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const [updated] = await ctx.db
+        .update(uoeTasks)
+        .set({
+          topicId: input.topicId,
+          task: input.task.trim(),
+          origin: input.origin.trim().toUpperCase(),
+          answer: input.answer.trim().toUpperCase(),
+        })
+        .where(eq(uoeTasks.id, input.id))
+        .returning();
+
+      return updated;
+    }),
+
+  deleteUoeTasks: adminProcedure
+    .input(z.object({ ids: z.array(z.number()).min(1) }))
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db
+        .update(uoeTasks)
+        .set({ isDeleted: true })
+        .where(inArray(uoeTasks.id, input.ids));
 
       return { success: true, deletedCount: input.ids.length };
     }),

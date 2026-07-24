@@ -108,11 +108,10 @@ export function AdminSidebar({
         },
         {
           label: "Языковой материал",
-          href: "#",
-          disabled: true,
-          activeMatch: () => false,
+          href: "/admin/tasks/uoe",
+          activeMatch: (path) => path.startsWith("/admin/tasks/uoe"),
           icon: (
-            <span className="flex h-5 w-5 shrink-0 items-center justify-center opacity-40 [&>svg]:h-5 [&>svg]:w-5">
+            <span className="flex h-5 w-5 shrink-0 items-center justify-center [&>svg]:h-5 [&>svg]:w-5">
               <IconGrammar />
             </span>
           ),
