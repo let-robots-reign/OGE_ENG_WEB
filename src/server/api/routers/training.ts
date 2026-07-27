@@ -6,7 +6,7 @@ import {
 } from "@/server/api/trpc";
 import {
   activityTypeEnum,
-  audioTasksFirst,
+  audioTasks,
   readingTasksFirst,
   trainingTopics,
   uoeTasks,
@@ -92,14 +92,14 @@ export const trainingRouter = createTRPCRouter({
       if (input.category === "audio") {
         const tasks = await ctx.db
           .select({
-            id: audioTasksFirst.id,
-            topicId: audioTasksFirst.topicId,
+            id: audioTasks.id,
+            topicId: audioTasks.topicId,
           })
-          .from(audioTasksFirst)
+          .from(audioTasks)
           .where(
             and(
-              eq(audioTasksFirst.isDeleted, false),
-              inArray(audioTasksFirst.topicId, topicIds),
+              eq(audioTasks.isDeleted, false),
+              inArray(audioTasks.topicId, topicIds),
             ),
           );
 
@@ -562,8 +562,8 @@ export const trainingRouter = createTRPCRouter({
       }
 
       const baseWhere = and(
-        eq(audioTasksFirst.topicId, input.topicId),
-        eq(audioTasksFirst.isDeleted, false),
+        eq(audioTasks.topicId, input.topicId),
+        eq(audioTasks.isDeleted, false),
       );
 
       const userId = ctx.session?.user?.id;
@@ -572,12 +572,12 @@ export const trainingRouter = createTRPCRouter({
       if (userId) {
         task = await ctx.db
           .select()
-          .from(audioTasksFirst)
+          .from(audioTasks)
           .where(
             and(
               baseWhere,
               notInArray(
-                audioTasksFirst.id,
+                audioTasks.id,
                 ctx.db
                   .select({ id: userResults.taskId })
                   .from(userResults)
@@ -600,7 +600,7 @@ export const trainingRouter = createTRPCRouter({
       // Fallback: unauthenticated, or every task has been completed
       task ??= await ctx.db
         .select()
-        .from(audioTasksFirst)
+        .from(audioTasks)
         .where(baseWhere)
         .orderBy(sql`RANDOM()`)
         .limit(1)
@@ -630,8 +630,8 @@ export const trainingRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const task = await ctx.db.query.audioTasksFirst.findFirst({
-        where: eq(audioTasksFirst.id, input.id),
+      const task = await ctx.db.query.audioTasks.findFirst({
+        where: eq(audioTasks.id, input.id),
       });
 
       if (!task) {

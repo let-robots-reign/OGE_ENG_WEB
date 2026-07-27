@@ -6,8 +6,10 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import posthog from "posthog-js";
 import { api } from "@/trpc/react";
+import type { AudioTaskQuestion } from "@/server/db/schema";
 import { AudioPlayer } from "./audio-player";
-import { MCQuestion } from "./mc-question";
+import { MultipleChoiceTask } from "./multiple-choice-task";
+import { MatchingTask } from "./matching-task";
 import { Modal } from "@/app/_components/Modal";
 import { ResultModal } from "../shared/result-modal";
 import { ReviewModal, type ReviewItem } from "../shared/review-modal";
@@ -15,7 +17,9 @@ import { ProgressDots } from "../shared/progress-dots";
 import { TrainingSubHeader } from "../shared/training-sub-header";
 import { useElapsedTimer } from "@/app/_composables/use-elapsed-timer";
 import { formatClock } from "@/app/_utils/formatClock";
+
 const BACK_HREF = "/training/audio/topics";
+const SPEAKERS = ["A", "B", "C", "D", "E"] as const;
 
 export function ListeningRunner() {
   const searchParams = useSearchParams();
@@ -44,8 +48,11 @@ export function ListeningRunner() {
   const [showReview, setShowReview] = useState(false);
 
   const taskId = data?.task.id;
+  const taskType = (data?.task.taskType ?? "multiple_choice") as
+    | "multiple_choice"
+    | "matching";
   const questions = data?.task.questions ?? [];
-  const total = questions.length;
+  const total = taskType === "matching" ? 5 : questions.length;
 
   const { seconds: elapsedSec, reset: resetTimer } = useElapsedTimer(
     !!data && !checked,
@@ -65,10 +72,10 @@ export function ListeningRunner() {
   const answeredCount = answers.filter((v) => v !== null).length;
   const isChecking = checkMutation.isPending;
 
-  const setAnswer = (qIndex: number, optNum: number) => {
+  const setAnswer = (index: number, val: number | null) => {
     setAnswers((prev) => {
       const next = [...prev];
-      next[qIndex] = optNum;
+      next[index] = val;
       return next;
     });
   };
@@ -131,23 +138,44 @@ export function ListeningRunner() {
 
   const correctAnswers = result?.correctAnswers ?? [];
   const correctIndices = checked
-    ? questions
-        .map((_, i) => (answers[i] === correctAnswers[i] ? i + 1 : 0))
-        .filter(Boolean)
+    ? Array.from({ length: total }, (_, i) =>
+        answers[i] === correctAnswers[i] ? i + 1 : 0,
+      ).filter(Boolean)
     : [];
 
-  const reviewItems: ReviewItem[] = questions.map((q, i) => {
-    const userN = answers[i];
-    const correctN = correctAnswers[i];
-    return {
-      badge: String(i + 1),
-      title: q.questionText,
-      userLabel: userN ? (q.options[userN - 1] ?? "—") : "Нет ответа",
-      correctLabel: correctN ? (q.options[correctN - 1] ?? "—") : undefined,
-      isCorrect: userN === correctN,
-      explanation: result?.explanation[i],
-    };
-  });
+  const reviewItems: ReviewItem[] =
+    taskType === "matching"
+      ? SPEAKERS.map((sp, i) => {
+          const userN = answers[i];
+          const correctN = correctAnswers[i];
+          const rubrics = (questions as string[]) ?? [];
+          return {
+            badge: sp,
+            title: `Высказывание говорящего ${sp}`,
+            userLabel: userN
+              ? `${userN}. ${rubrics[userN - 1] ?? "—"}`
+              : "Нет ответа",
+            correctLabel: correctN
+              ? `${correctN}. ${rubrics[correctN - 1] ?? "—"}`
+              : undefined,
+            isCorrect: userN === correctN,
+            explanation: result?.explanation[i],
+          };
+        })
+      : (questions as AudioTaskQuestion[]).map((q, i) => {
+          const userN = answers[i];
+          const correctN = correctAnswers[i];
+          return {
+            badge: String(i + 1),
+            title: q.questionText,
+            userLabel: userN ? (q.options[userN - 1] ?? "—") : "Нет ответа",
+            correctLabel: correctN
+              ? (q.options[correctN - 1] ?? "—")
+              : undefined,
+            isCorrect: userN === correctN,
+            explanation: result?.explanation[i],
+          };
+        });
 
   return (
     <>
@@ -169,12 +197,14 @@ export function ListeningRunner() {
               инструкция
             </div>
             <h1 className="font-display mt-2.5 text-[28px] leading-[1.05] tracking-[-0.025em] sm:text-[44px]">
-              Вы услышите четыре коротких текста, обозначенных буквами А, B, C,
-              D.
+              {taskType === "matching"
+                ? "Вы услышите пять высказываний, обозначенных буквами А, B, C, D, E."
+                : "Вы услышите четыре коротких текста, обозначенных буквами А, B, C, D."}
             </h1>
             <p className="text-ink-3 mt-3.5 text-[15px] leading-relaxed">
-              В заданиях 1–4 запишите цифру 1, 2 или 3, соответствующую
-              выбранному варианту ответа.
+              {taskType === "matching"
+                ? "В задании 5 подберите к каждому высказыванию соответствующую рубрику из списка 1–6. Каждую рубрику можно использовать только один раз."
+                : "В заданиях 1–4 запишите цифру 1, 2 или 3, соответствующую выбранному варианту ответа."}
             </p>
           </div>
         ) : (
@@ -207,20 +237,23 @@ export function ListeningRunner() {
 
         <div className="h-7" />
 
-        <div className="flex flex-col gap-3.5">
-          {questions.map((q, i) => (
-            <MCQuestion
-              key={i}
-              idx={i + 1}
-              question={q.questionText}
-              options={q.options}
-              value={answers[i] ?? null}
-              onChange={(optNum) => setAnswer(i, optNum)}
-              checked={checked}
-              correct={correctAnswers[i]}
-            />
-          ))}
-        </div>
+        {taskType === "matching" ? (
+          <MatchingTask
+            rubrics={questions as string[]}
+            answers={answers}
+            setAnswer={(idx, val) => setAnswer(idx, val)}
+            checked={checked}
+            correctAnswers={correctAnswers}
+          />
+        ) : (
+          <MultipleChoiceTask
+            questions={questions as AudioTaskQuestion[]}
+            answers={answers}
+            setAnswer={(idx, optNum) => setAnswer(idx, optNum)}
+            checked={checked}
+            correctAnswers={correctAnswers}
+          />
+        )}
 
         <div className="bg-surface border-line mt-8 flex flex-col gap-4 rounded-lg border p-5 sm:flex-row sm:items-center sm:justify-between">
           <ProgressDots
@@ -282,9 +315,9 @@ export function ListeningRunner() {
               Инструкция
             </div>
             <p className="text-ink-2 text-[15px] leading-relaxed">
-              Вы услышите четыре коротких текста, обозначенных буквами А, B, C,
-              D. В заданиях 1–4 запишите в поле ответа цифру 1, 2 или 3,
-              соответствующую выбранному Вами варианту ответа.
+              {taskType === "matching"
+                ? "Вы услышите пять высказываний, обозначенных буквами А, B, C, D, E. В задании 5 подберите к каждому высказыванию соответствующую рубрику из списка 1–6. Каждую рубрику можно использовать только один раз. Вы услышите запись дважды."
+                : "Вы услышите четыре коротких текста, обозначенных буквами А, B, C, D. В заданиях 1–4 запишите в поле ответа цифру 1, 2 или 3, соответствующую выбранному Вами варианту ответа."}
             </p>
             <button
               type="button"

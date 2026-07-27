@@ -250,6 +250,62 @@ describe("Training Runners Integration Suite", () => {
         });
       });
     });
+
+    it("should render matching task 5 rubrics and submit speaker answers A-E", async () => {
+      const mockQuery = vi.spyOn(api.training.getListeningTraining, "useQuery");
+      mockQuery.mockReturnValue({
+        data: {
+          topicTitle: "Listening Task 5 Topic",
+          task: {
+            id: 202,
+            taskType: "matching",
+            audioUrl: "test5.mp3",
+            questions: [
+              "1. Individual and economical",
+              "2. Varied and spicy",
+              "3. Enjoyable and unifying",
+              "4. Creative and engaging",
+              "5. Healthy and nutritious",
+              "6. Stressful and time-consuming",
+            ],
+          },
+        },
+        isLoading: false,
+      } as any);
+
+      mockCheckListening.mockResolvedValue({
+        correctCount: 5,
+        total: 5,
+        correctAnswers: [1, 2, 3, 4, 5],
+        explanation: Array(5).fill({ text: "Explanation" }),
+      });
+
+      render(<ListeningRunner />);
+
+      expect(screen.getByText("Listening Task 5 Topic")).toBeInTheDocument();
+      expect(
+        screen.getByText("1. Individual and economical"),
+      ).toBeInTheDocument();
+
+      const selects = screen.getAllByRole("combobox");
+      expect(selects).toHaveLength(5);
+
+      fireEvent.change(selects[0]!, { target: { value: "1" } });
+      fireEvent.change(selects[1]!, { target: { value: "2" } });
+      fireEvent.change(selects[2]!, { target: { value: "3" } });
+      fireEvent.change(selects[3]!, { target: { value: "4" } });
+      fireEvent.change(selects[4]!, { target: { value: "5" } });
+
+      const checkBtn = screen.getByText("Проверить ответы →");
+      fireEvent.click(checkBtn);
+
+      await waitFor(() => {
+        expect(mockCheckListening).toHaveBeenCalledWith({
+          id: 202,
+          answers: [1, 2, 3, 4, 5],
+        });
+      });
+    });
   });
 
   describe("ReadingRunner Flow", () => {

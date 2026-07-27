@@ -121,7 +121,7 @@ export const trainingTopics = createTable("training_topic", (d) => ({
 export const trainingTopicsRelations = relations(
   trainingTopics,
   ({ many }) => ({
-    audioTasks: many(audioTasksFirst),
+    audioTasks: many(audioTasks),
     readingTasks: many(readingTasksFirst),
     uoeTasks: many(uoeTasks),
     writingTasks: many(writingTasks),
@@ -138,27 +138,31 @@ export interface AudioTaskExplanation {
   highlightedText?: string;
 }
 
-export const audioTasksFirst = createTable("audio_task_first", (d) => ({
+export const audioTasks = createTable("audio_task", (d) => ({
   id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
   audioUrl: d.varchar({ length: 255 }).notNull(),
   topicId: d
     .integer()
     .references(() => trainingTopics.id, { onDelete: "set null" }),
+  taskType: d.varchar({ length: 255 }).default("multiple_choice").notNull(),
   isDeleted: d.boolean().default(false).notNull(),
-  questions: d.jsonb("questions").$type<AudioTaskQuestion[]>().notNull(),
+  questions: d
+    .jsonb("questions")
+    .$type<AudioTaskQuestion[] | string[]>()
+    .notNull(),
   answers: d.jsonb("answers").$type<number[]>().notNull(),
-  explanations: d.jsonb("explanations").$type<AudioTaskExplanation[]>().notNull(),
+  explanations: d
+    .jsonb("explanations")
+    .$type<AudioTaskExplanation[]>()
+    .notNull(),
 }));
 
-export const audioTasksFirstRelations = relations(
-  audioTasksFirst,
-  ({ one }) => ({
-    topic: one(trainingTopics, {
-      fields: [audioTasksFirst.topicId],
-      references: [trainingTopics.id],
-    }),
+export const audioTasksRelations = relations(audioTasks, ({ one }) => ({
+  topic: one(trainingTopics, {
+    fields: [audioTasks.topicId],
+    references: [trainingTopics.id],
   }),
-);
+}));
 
 export interface ReadingTaskExplanation {
   text: string;
@@ -174,7 +178,10 @@ export const readingTasksFirst = createTable("reading_task_first", (d) => ({
   texts: d.jsonb("texts").$type<string[]>().notNull(),
   headings: d.jsonb("headings").$type<string[]>().notNull(),
   answers: d.jsonb("answers").$type<number[]>().notNull(),
-  explanations: d.jsonb("explanations").$type<ReadingTaskExplanation[]>().notNull(),
+  explanations: d
+    .jsonb("explanations")
+    .$type<ReadingTaskExplanation[]>()
+    .notNull(),
 }));
 
 export const readingTasksFirstRelations = relations(
