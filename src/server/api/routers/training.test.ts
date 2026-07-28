@@ -302,7 +302,7 @@ describe("Training Router tRPC Procedures", () => {
       expect(res.results).toEqual([false, false, false]);
     });
 
-    it("should check standard multiple_choice audio task correctly", async () => {
+    it("should check standard multiple_choice audio task correctly even when answers are sent as stringified numbers", async () => {
       vi.mocked(db.query.audioTasks.findFirst).mockResolvedValue({
         id: 52,
         taskType: "multiple_choice",
@@ -318,7 +318,7 @@ describe("Training Router tRPC Procedures", () => {
 
       const res = await caller.checkListeningTraining({
         id: 52,
-        answers: [1, 3, 3, null],
+        answers: ["1", "3", 3, null],
       });
 
       expect(res.total).toBe(4);

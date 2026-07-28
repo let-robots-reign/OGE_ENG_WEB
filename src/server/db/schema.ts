@@ -150,7 +150,10 @@ export const audioTasks = createTable("audio_task", (d) => ({
     .jsonb("questions")
     .$type<AudioTaskQuestion[] | string[]>()
     .notNull(),
-  answers: d.jsonb("answers").$type<number[]>().notNull(),
+  answers: d
+    .jsonb("answers")
+    .$type<(number | string | string[])[]>()
+    .notNull(),
   explanations: d
     .jsonb("explanations")
     .$type<AudioTaskExplanation[]>()

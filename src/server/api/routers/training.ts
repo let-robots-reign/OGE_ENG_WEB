@@ -642,8 +642,7 @@ export const trainingRouter = createTRPCRouter({
       }
 
       if (task.taskType === "gap_fill") {
-        const correctAnswers =
-          (task.answers as unknown as (string | string[])[]) ?? [];
+        const correctAnswers = task.answers ?? [];
         const results = correctAnswers.map((rawCorrect, i) => {
           const userAns = input.answers[i];
           const normUser = (userAns ?? "").toString().trim().toUpperCase();
@@ -668,9 +667,11 @@ export const trainingRouter = createTRPCRouter({
 
       const correctAnswers = task.answers ?? [];
 
-      const results = correctAnswers.map(
-        (correct, i) => input.answers[i] === correct,
-      );
+      const results = correctAnswers.map((correct, i) => {
+        const userAns = input.answers[i];
+        if (userAns === null || userAns === undefined) return false;
+        return Number(userAns) === Number(correct);
+      });
       const correctCount = results.filter(Boolean).length;
 
       return {
