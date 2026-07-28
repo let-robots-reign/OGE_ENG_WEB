@@ -1,5 +1,4 @@
 export const NOT_COMPLETED_TOPICS = [
-  "Задания 6-11",
   "Задания 13-19",
 ] as const;
 

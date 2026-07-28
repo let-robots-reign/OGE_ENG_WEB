@@ -306,6 +306,61 @@ describe("Training Runners Integration Suite", () => {
         });
       });
     });
+
+    it("should render gap_fill tasks 6-11 and submit upper-case trimmed answers", async () => {
+      const mockQuery = vi.spyOn(api.training.getListeningTraining, "useQuery");
+      mockQuery.mockReturnValue({
+        data: {
+          topicTitle: "Listening Tasks 6-11 Topic",
+          task: {
+            id: 203,
+            taskType: "gap_fill",
+            audioUrl: "test6.mp3",
+            questions: [
+              "Age of the respondent ______________________ years old",
+              "Date of birth ____________________, 30th, 2004",
+              "Favourite sports activity _____________________________",
+              "The school subject he/she is good at _______",
+              "Foreign language(s) __________________________",
+              "Career plans _________________________",
+            ],
+          },
+        },
+        isLoading: false,
+      } as any);
+
+      mockCheckListening.mockResolvedValue({
+        correctCount: 6,
+        total: 6,
+        correctAnswers: ["FIFTEEN", "MAY", "SWIMMING", "MATHS", "FRENCH", "DOCTOR"],
+        explanation: Array(6).fill({ text: "Explanation" }),
+      });
+
+      render(<ListeningRunner />);
+
+      expect(screen.getByText("Listening Tasks 6-11 Topic")).toBeInTheDocument();
+      expect(screen.getByText("Age of the respondent")).toBeInTheDocument();
+
+      const inputs = screen.getAllByRole("textbox");
+      expect(inputs).toHaveLength(6);
+
+      fireEvent.change(inputs[0]!, { target: { value: "fifteen" } });
+      fireEvent.change(inputs[1]!, { target: { value: "may" } });
+      fireEvent.change(inputs[2]!, { target: { value: "swimming" } });
+      fireEvent.change(inputs[3]!, { target: { value: "maths" } });
+      fireEvent.change(inputs[4]!, { target: { value: "french" } });
+      fireEvent.change(inputs[5]!, { target: { value: "doctor" } });
+
+      const checkBtn = screen.getByText("Проверить ответы →");
+      fireEvent.click(checkBtn);
+
+      await waitFor(() => {
+        expect(mockCheckListening).toHaveBeenCalledWith({
+          id: 203,
+          answers: ["FIFTEEN", "MAY", "SWIMMING", "MATHS", "FRENCH", "DOCTOR"],
+        });
+      });
+    });
   });
 
   describe("ReadingRunner Flow", () => {

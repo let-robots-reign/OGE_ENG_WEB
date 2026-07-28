@@ -626,7 +626,7 @@ export const trainingRouter = createTRPCRouter({
     .input(
       z.object({
         id: z.number(),
-        answers: z.array(z.number().nullable()),
+        answers: z.array(z.union([z.number(), z.string()]).nullable()),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -641,10 +641,35 @@ export const trainingRouter = createTRPCRouter({
         });
       }
 
+      if (task.taskType === "gap_fill") {
+        const correctAnswers =
+          (task.answers as unknown as (string | string[])[]) ?? [];
+        const results = correctAnswers.map((rawCorrect, i) => {
+          const userAns = input.answers[i];
+          const normUser = (userAns ?? "").toString().trim().toUpperCase();
+          if (normUser === "") return false;
+
+          const candidates = Array.isArray(rawCorrect)
+            ? rawCorrect.map((c) => c.toString().trim().toUpperCase())
+            : [(rawCorrect ?? "").toString().trim().toUpperCase()];
+
+          return candidates.includes(normUser);
+        });
+        const correctCount = results.filter(Boolean).length;
+
+        return {
+          correctAnswers,
+          results,
+          correctCount,
+          total: correctAnswers.length,
+          explanation: task.explanations ?? [],
+        };
+      }
+
       const correctAnswers = task.answers ?? [];
 
-      const results = input.answers.map(
-        (userAnswer, i) => userAnswer === correctAnswers[i],
+      const results = correctAnswers.map(
+        (correct, i) => input.answers[i] === correct,
       );
       const correctCount = results.filter(Boolean).length;
 

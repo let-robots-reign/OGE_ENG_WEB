@@ -51,13 +51,26 @@ export function ReviewModal({ items, onClose }: ReviewModalProps) {
           let html = "";
           if (item.explanation) {
             const { text, highlightedText } = item.explanation;
-            const formatText = (s: string) => s.replace(/\n/g, "<br />");
 
-            if (highlightedText && text.includes(highlightedText)) {
-              const parts = text.split(highlightedText);
-              html = `${formatText(parts[0] ?? "")}<strong>${formatText(highlightedText)}</strong>${formatText(parts[1] ?? "")}`;
+            if (highlightedText?.trim()) {
+              const escaped = highlightedText.replace(
+                /[.*+?^${}()|[\]\\]/g,
+                "\\$&",
+              );
+              const regex = new RegExp(escaped, "gi");
+              const parts = text.split(regex);
+              const matches = text.match(regex) ?? [];
+
+              html = parts.reduce((acc, part, i) => {
+                const formattedPart = part.replace(/\n/g, "<br />");
+                const match = matches[i];
+                const formattedMatch = match
+                  ? `<strong>${match.replace(/\n/g, "<br />")}</strong>`
+                  : "";
+                return acc + formattedPart + formattedMatch;
+              }, "");
             } else {
-              html = formatText(text);
+              html = text.replace(/\n/g, "<br />");
             }
           }
 
