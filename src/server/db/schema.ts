@@ -138,22 +138,25 @@ export interface AudioTaskExplanation {
   highlightedText?: string;
 }
 
+export type AudioTaskType = "multiple_choice" | "matching" | "gap_fill";
+
 export const audioTasks = createTable("audio_task", (d) => ({
   id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
   audioUrl: d.varchar({ length: 255 }).notNull(),
   topicId: d
     .integer()
     .references(() => trainingTopics.id, { onDelete: "set null" }),
-  taskType: d.varchar({ length: 255 }).default("multiple_choice").notNull(),
+  taskType: d
+    .varchar({ length: 255 })
+    .$type<AudioTaskType>()
+    .default("multiple_choice")
+    .notNull(),
   isDeleted: d.boolean().default(false).notNull(),
   questions: d
     .jsonb("questions")
     .$type<AudioTaskQuestion[] | string[]>()
     .notNull(),
-  answers: d
-    .jsonb("answers")
-    .$type<(number | string | string[])[]>()
-    .notNull(),
+  answers: d.jsonb("answers").$type<(number | string | string[])[]>().notNull(),
   explanations: d
     .jsonb("explanations")
     .$type<AudioTaskExplanation[]>()

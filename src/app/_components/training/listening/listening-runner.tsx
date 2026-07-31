@@ -6,10 +6,14 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import posthog from "posthog-js";
 import { api } from "@/trpc/react";
-import type { AudioTaskQuestion } from "@/server/db/schema";
+import type { AudioTaskQuestion, AudioTaskType } from "@/server/db/schema";
+import {
+  formatGapFillAnswer,
+  normalizeGapFillAnswer,
+} from "@/app/_utils/gapFill";
 import { AudioPlayer } from "./audio-player";
 import { MultipleChoiceTask } from "./multiple-choice-task";
-import { MatchingTask } from "./matching-task";
+import { MatchingTask, SPEAKERS } from "./matching-task";
 import { GapFillTask } from "./gap-fill-task";
 import { Modal } from "@/app/_components/Modal";
 import { ResultModal } from "../shared/result-modal";
@@ -20,7 +24,6 @@ import { useElapsedTimer } from "@/app/_composables/use-elapsed-timer";
 import { formatClock } from "@/app/_utils/formatClock";
 
 const BACK_HREF = "/training/audio/topics";
-const SPEAKERS = ["A", "B", "C", "D", "E"] as const;
 
 export function ListeningRunner() {
   const searchParams = useSearchParams();
@@ -49,12 +52,10 @@ export function ListeningRunner() {
   const [showReview, setShowReview] = useState(false);
 
   const taskId = data?.task.id;
-  const taskType = (data?.task.taskType ?? "multiple_choice") as
-    | "multiple_choice"
-    | "matching"
-    | "gap_fill";
+  const taskType: AudioTaskType = data?.task.taskType ?? "multiple_choice";
   const questions = data?.task.questions ?? [];
-  const total = taskType === "matching" ? 5 : questions.length;
+  // Task 5 lists 6 rubrics but is answered by 5 speakers.
+  const total = taskType === "matching" ? SPEAKERS.length : questions.length;
 
   const { seconds: elapsedSec, reset: resetTimer } = useElapsedTimer(
     !!data && !checked,
@@ -139,19 +140,11 @@ export function ListeningRunner() {
   }
 
   const correctAnswers = result?.correctAnswers ?? [];
+  // The server already graded every answer — reuse its verdict so the badges,
+  // the score and the review modal can never disagree with each other.
+  const results = result?.results ?? [];
   const correctIndices = checked
-    ? Array.from({ length: total }, (_, i) => {
-        if (taskType === "gap_fill") {
-          const userVal = (answers[i] ?? "").toString().trim().toUpperCase();
-          const rawCorrect = correctAnswers[i];
-          const candidates = Array.isArray(rawCorrect)
-            ? rawCorrect.map((c) => c.toString().trim().toUpperCase())
-            : [(rawCorrect ?? "").toString().trim().toUpperCase()];
-
-          return userVal !== "" && candidates.includes(userVal) ? i + 1 : 0;
-        }
-        return answers[i] === correctAnswers[i] ? i + 1 : 0;
-      }).filter(Boolean)
+    ? results.map((isCorrect, i) => (isCorrect ? i + 1 : 0)).filter(Boolean)
     : [];
 
   const reviewItems: ReviewItem[] =
@@ -159,7 +152,7 @@ export function ListeningRunner() {
       ? SPEAKERS.map((sp, i) => {
           const userN = answers[i] as number | null;
           const correctN = correctAnswers[i] as number;
-          const rubrics = (questions as string[]) ?? [];
+          const rubrics = questions as string[];
           return {
             badge: sp,
             title: `Высказывание говорящего ${sp}`,
@@ -169,32 +162,19 @@ export function ListeningRunner() {
             correctLabel: correctN
               ? `${correctN}. ${rubrics[correctN - 1] ?? "—"}`
               : undefined,
-            isCorrect: userN === correctN,
+            isCorrect: results[i] ?? false,
             explanation: result?.explanation[i],
           };
         })
       : taskType === "gap_fill"
-        ? (questions as string[]).map((qTemplate, i) => {
-            const userVal = (answers[i] ?? "").toString().trim().toUpperCase();
-            const rawCorrect = correctAnswers[i];
-            const candidates = Array.isArray(rawCorrect)
-              ? rawCorrect.map((c) => c.toString().trim().toUpperCase())
-              : [(rawCorrect ?? "").toString().trim().toUpperCase()];
-
-            const displayCorrect = Array.isArray(rawCorrect)
-              ? rawCorrect.join(" / ")
-              : (rawCorrect ?? "").toString();
-
-            const isCorrect = userVal !== "" && candidates.includes(userVal);
-            return {
-              badge: String(6 + i),
-              title: qTemplate.replace(/_{2,}/, "[...]"),
-              userLabel: userVal || "Нет ответа",
-              correctLabel: displayCorrect,
-              isCorrect,
-              explanation: result?.explanation[i],
-            };
-          })
+        ? (questions as string[]).map((qTemplate, i) => ({
+            badge: String(6 + i),
+            title: qTemplate.replace(/_{2,}/g, "[...]"),
+            userLabel: normalizeGapFillAnswer(answers[i]) || "Нет ответа",
+            correctLabel: formatGapFillAnswer(correctAnswers[i]),
+            isCorrect: results[i] ?? false,
+            explanation: result?.explanation[i],
+          }))
         : (questions as AudioTaskQuestion[]).map((q, i) => {
             const userN = answers[i] as number | null;
             const correctN = correctAnswers[i] as number;
@@ -205,7 +185,7 @@ export function ListeningRunner() {
               correctLabel: correctN
                 ? (q.options[correctN - 1] ?? "—")
                 : undefined,
-              isCorrect: userN === correctN,
+              isCorrect: results[i] ?? false,
               explanation: result?.explanation[i],
             };
           });

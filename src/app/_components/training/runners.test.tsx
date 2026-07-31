@@ -228,6 +228,7 @@ describe("Training Runners Integration Suite", () => {
         correctCount: 1,
         total: 1,
         correctAnswers: [1],
+        results: [true],
         explanation: [{ text: "Bob is at Home." }],
       });
 
@@ -277,6 +278,7 @@ describe("Training Runners Integration Suite", () => {
         correctCount: 5,
         total: 5,
         correctAnswers: [1, 2, 3, 4, 5],
+        results: Array(5).fill(true),
         explanation: Array(5).fill({ text: "Explanation" }),
       });
 
@@ -332,13 +334,23 @@ describe("Training Runners Integration Suite", () => {
       mockCheckListening.mockResolvedValue({
         correctCount: 6,
         total: 6,
-        correctAnswers: ["FIFTEEN", "MAY", "SWIMMING", "MATHS", "FRENCH", "DOCTOR"],
+        correctAnswers: [
+          "FIFTEEN",
+          "MAY",
+          "SWIMMING",
+          "MATHS",
+          "FRENCH",
+          "DOCTOR",
+        ],
+        results: Array(6).fill(true),
         explanation: Array(6).fill({ text: "Explanation" }),
       });
 
       render(<ListeningRunner />);
 
-      expect(screen.getByText("Listening Tasks 6-11 Topic")).toBeInTheDocument();
+      expect(
+        screen.getByText("Listening Tasks 6-11 Topic"),
+      ).toBeInTheDocument();
       expect(screen.getByText("Age of the respondent")).toBeInTheDocument();
 
       const inputs = screen.getAllByRole("textbox");

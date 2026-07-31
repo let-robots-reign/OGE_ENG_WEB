@@ -8,7 +8,9 @@ interface MatchingTaskProps {
   correctAnswers: number[];
 }
 
-const SPEAKERS = ["A", "B", "C", "D", "E"] as const;
+export const SPEAKERS = ["A", "B", "C", "D", "E"] as const;
+
+const RUBRIC_NUMBERS = [1, 2, 3, 4, 5, 6] as const;
 
 export function MatchingTask({
   rubrics,
@@ -69,7 +71,7 @@ export function MatchingTask({
         </div>
 
         <div className="overflow-x-auto">
-          <table className="border-line table-fixed w-full min-w-[550px] border-collapse text-center">
+          <table className="border-line w-full min-w-[550px] table-fixed border-collapse text-center">
             <thead>
               <tr className="bg-surface-2 border-line border-b">
                 <th className="border-line text-ink-2 w-32 border-r p-3 text-left text-[14px] font-medium">
@@ -111,6 +113,7 @@ export function MatchingTask({
                       <div className="flex flex-col items-center justify-center gap-1">
                         <select
                           disabled={checked}
+                          aria-label={`Рубрика для говорящего ${sp}`}
                           value={userVal ?? ""}
                           onChange={(e) => {
                             const val = e.target.value
@@ -118,7 +121,7 @@ export function MatchingTask({
                               : null;
                             setAnswer(idx, val);
                           }}
-                          className={`bg-surface-1 border-line-2 focus:border-accent text-ink-1 font-display h-11 w-full max-w-[120px] rounded-md border text-center text-[16px] font-medium outline-none transition-all disabled:cursor-not-allowed disabled:opacity-90 ${
+                          className={`bg-surface-1 border-line-2 focus:border-accent text-ink-1 font-display h-11 w-full max-w-[120px] rounded-md border text-center text-[16px] font-medium transition-all outline-none disabled:cursor-not-allowed disabled:opacity-90 ${
                             isCorrect
                               ? "border-emerald-500 text-emerald-600 dark:text-emerald-400"
                               : isWrong
@@ -127,8 +130,16 @@ export function MatchingTask({
                           }`}
                         >
                           <option value="">—</option>
-                          {[1, 2, 3, 4, 5, 6].map((num) => (
-                            <option key={num} value={num}>
+                          {RUBRIC_NUMBERS.map((num) => (
+                            <option
+                              key={num}
+                              value={num}
+                              // Each rubric may be used only once (task 5 rule),
+                              // so hide the ones another speaker already took.
+                              disabled={
+                                assignedSpeakersMap.has(num) && userVal !== num
+                              }
+                            >
                               {num}
                             </option>
                           ))}

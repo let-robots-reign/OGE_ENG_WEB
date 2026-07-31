@@ -1,10 +1,14 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("Training — Audio (Listening) E2E Suite", () => {
-  test("audio topics page displays 'Задания 6-11' as active topic", async ({ page }) => {
+  test("audio topics page displays 'Задания 6-11' as active topic", async ({
+    page,
+  }) => {
     await page.goto("/training/audio/topics");
 
-    await expect(page.getByRole("heading", { name: "Аудирование" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Аудирование" }),
+    ).toBeVisible();
 
     // Verify all 3 audio task cards are rendered
     await expect(page.getByText("Задания 1–4")).toBeVisible();
@@ -17,7 +21,9 @@ test.describe("Training — Audio (Listening) E2E Suite", () => {
     await expect(gapFillCard).not.toHaveClass(/pointer-events-none/);
   });
 
-  test("clicking 'Задания 6-11' card navigates to audio runner with gap_fill interface", async ({ page }) => {
+  test("clicking 'Задания 6-11' card navigates to audio runner with gap_fill interface", async ({
+    page,
+  }) => {
     await page.goto("/training/audio/topics");
 
     const gapFillCard = page.locator("a", { hasText: "Задания 6–11" });
@@ -33,37 +39,60 @@ test.describe("Training — Audio (Listening) E2E Suite", () => {
     ).toBeVisible();
   });
 
-  test("gap_fill runner allows filling text inputs and interacting with instructions modal", async ({ page }) => {
+  test("gap_fill runner allows filling text inputs and interacting with instructions modal", async ({
+    page,
+  }) => {
     await page.goto("/training/audio/topics");
 
     // Click "Задания 6-11"
     await page.locator("a", { hasText: "Задания 6–11" }).click();
     await page.waitForURL(/\/training\/audio\?topic=\d+/);
 
-    // Open instruction modal
+    // Open instruction modal. The shared Modal has no dialog role, so scope
+    // assertions to its container instead.
     const infoBtn = page.getByRole("button", { name: /инструкция/i });
-    if (await infoBtn.isVisible()) {
-      await infoBtn.click();
-      await expect(page.getByRole("dialog")).toBeVisible();
-      await expect(page.getByText(/занесите данные в таблицу/i)).toBeVisible();
+    await expect(infoBtn).toBeVisible();
+    await infoBtn.click();
 
-      // Close modal
-      await page.getByRole("button", { name: "ОК" }).click();
-      await expect(page.getByRole("dialog")).not.toBeVisible();
-    }
+    const modal = page.locator(".modal");
+    await expect(modal).toBeVisible();
+    // Wording unique to the modal — the gap-fill instructions also appear in
+    // the page heading and above the answer table.
+    await expect(modal.getByText(/вы услышите запись дважды/i)).toBeVisible();
 
-    // Verify presence of input textboxes for gap fill questions
+    // Close modal
+    await modal.getByRole("button", { name: "ОК" }).click();
+    await expect(modal).toBeHidden();
+
+    // Tasks 6–11 are six gaps, each with its own labelled input.
     const textboxes = page.getByRole("textbox");
-    const count = await textboxes.count();
+    await expect(textboxes).toHaveCount(6);
 
-    if (count > 0) {
-      // Type in the first gap input
-      await textboxes.first().fill("fifteen");
-      await expect(textboxes.first()).toHaveValue("FIFTEEN");
+    // Input is upper-cased as the student types.
+    await textboxes.first().fill("fifteen");
+    await expect(textboxes.first()).toHaveValue("FIFTEEN");
 
-      // Verify check button is enabled once an answer is entered
-      const checkBtn = page.getByRole("button", { name: /проверить ответы/i });
-      await expect(checkBtn).toBeEnabled();
-    }
+    // Verify check button is enabled once an answer is entered
+    const checkBtn = page.getByRole("button", { name: /проверить ответы/i });
+    await expect(checkBtn).toBeEnabled();
+  });
+
+  test("matching runner enforces that each rubric is used only once", async ({
+    page,
+  }) => {
+    await page.goto("/training/audio/topics");
+
+    await page.locator("a", { hasText: "Задание 5" }).click();
+    await page.waitForURL(/\/training\/audio\?topic=\d+/);
+
+    // Five speakers A–E, each answered with a rubric number.
+    const selects = page.getByRole("combobox");
+    await expect(selects).toHaveCount(5);
+
+    await selects.first().selectOption("1");
+
+    // Rubric 1 is now spoken for, so speaker B cannot reuse it.
+    await expect(selects.nth(1).locator('option[value="1"]')).toBeDisabled();
+    await expect(selects.nth(1).locator('option[value="2"]')).toBeEnabled();
   });
 });

@@ -14,6 +14,7 @@ import {
   writingTasks,
 } from "@/server/db/schema";
 import { shuffle } from "@/app/_utils/shuffle";
+import { isGapFillAnswerCorrect } from "@/app/_utils/gapFill";
 import { and, eq, inArray, isNotNull, notInArray, sql, ne } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
@@ -643,17 +644,9 @@ export const trainingRouter = createTRPCRouter({
 
       if (task.taskType === "gap_fill") {
         const correctAnswers = task.answers ?? [];
-        const results = correctAnswers.map((rawCorrect, i) => {
-          const userAns = input.answers[i];
-          const normUser = (userAns ?? "").toString().trim().toUpperCase();
-          if (normUser === "") return false;
-
-          const candidates = Array.isArray(rawCorrect)
-            ? rawCorrect.map((c) => c.toString().trim().toUpperCase())
-            : [(rawCorrect ?? "").toString().trim().toUpperCase()];
-
-          return candidates.includes(normUser);
-        });
+        const results = correctAnswers.map((rawCorrect, i) =>
+          isGapFillAnswerCorrect(input.answers[i], rawCorrect),
+        );
         const correctCount = results.filter(Boolean).length;
 
         return {

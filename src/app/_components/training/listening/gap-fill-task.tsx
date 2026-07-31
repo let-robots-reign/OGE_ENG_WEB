@@ -1,11 +1,17 @@
 "use client";
 
+import {
+  formatGapFillAnswer,
+  isGapFillAnswerCorrect,
+  type GapFillCorrectAnswer,
+} from "@/app/_utils/gapFill";
+
 interface GapFillTaskProps {
   questions: string[];
   answers: (string | null)[];
   setAnswer: (questionIdx: number, val: string | null) => void;
   checked: boolean;
-  correctAnswers: (string | string[] | number)[];
+  correctAnswers: GapFillCorrectAnswer[];
 }
 
 export function GapFillTask({
@@ -27,24 +33,15 @@ export function GapFillTask({
             const taskNum = 6 + idx;
             const parts = qTemplate.split(/_{2,}/);
             const prefix = parts[0] ?? "";
-            const suffix = parts.slice(1).join("") ?? "";
+            const suffix = parts.slice(1).join("");
 
             const userVal = answers[idx] ?? "";
             const rawCorrect = correctAnswers[idx];
-            const candidates = Array.isArray(rawCorrect)
-              ? rawCorrect.map((c) => c.toString().trim().toUpperCase())
-              : [(rawCorrect ?? "").toString().trim().toUpperCase()];
-
-            const displayCorrect = Array.isArray(rawCorrect)
-              ? rawCorrect.join(" / ")
-              : (rawCorrect ?? "").toString();
-
-            const normUser = userVal.trim().toUpperCase();
+            const displayCorrect = formatGapFillAnswer(rawCorrect);
 
             const isCorrect =
-              checked && normUser !== "" && candidates.includes(normUser);
-            const isWrong =
-              checked && (!normUser || !candidates.includes(normUser));
+              checked && isGapFillAnswerCorrect(userVal, rawCorrect);
+            const isWrong = checked && !isCorrect;
 
             return (
               <div
@@ -61,6 +58,7 @@ export function GapFillTask({
                   <input
                     type="text"
                     disabled={checked}
+                    aria-label={`Ответ на задание ${taskNum}`}
                     value={userVal}
                     onChange={(e) => {
                       const val = e.target.value.toUpperCase();
@@ -71,7 +69,7 @@ export function GapFillTask({
                       setAnswer(idx, val ? val : null);
                     }}
                     placeholder="..."
-                    className={`bg-surface-1 border-line-2 focus:border-accent font-mono text-ink-1 h-10 w-44 rounded-md border px-3 text-center text-[15px] font-bold uppercase outline-none transition-all disabled:cursor-not-allowed disabled:opacity-90 sm:w-52 ${
+                    className={`bg-surface-1 border-line-2 focus:border-accent text-ink-1 h-10 w-44 rounded-md border px-3 text-center font-mono text-[15px] font-bold uppercase transition-all outline-none disabled:cursor-not-allowed disabled:opacity-90 sm:w-52 ${
                       isCorrect
                         ? "border-emerald-500 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
                         : isWrong
