@@ -212,7 +212,8 @@ describe("Training Runners Integration Suite", () => {
           topicTitle: "Listening Topic",
           task: {
             id: 201,
-            audioUrl: "test.mp3",
+            audioUrl: "/audio/topic1/test.mp3",
+            total: 1,
             questions: [
               {
                 questionText: "Where is Bob?",
@@ -228,6 +229,7 @@ describe("Training Runners Integration Suite", () => {
         correctCount: 1,
         total: 1,
         correctAnswers: [1],
+        results: [true],
         explanation: [{ text: "Bob is at Home." }],
       });
 
@@ -247,6 +249,131 @@ describe("Training Runners Integration Suite", () => {
         expect(mockCheckListening).toHaveBeenCalledWith({
           id: 201,
           answers: [1],
+        });
+      });
+    });
+
+    it("should render matching task 5 rubrics and submit speaker answers A-E", async () => {
+      const mockQuery = vi.spyOn(api.training.getListeningTraining, "useQuery");
+      mockQuery.mockReturnValue({
+        data: {
+          topicTitle: "Listening Task 5 Topic",
+          task: {
+            id: 202,
+            taskType: "matching",
+            audioUrl: "/audio/topic1/test5.mp3",
+            // Six rubrics, but only five speakers to answer for.
+            total: 5,
+            questions: [
+              "1. Individual and economical",
+              "2. Varied and spicy",
+              "3. Enjoyable and unifying",
+              "4. Creative and engaging",
+              "5. Healthy and nutritious",
+              "6. Stressful and time-consuming",
+            ],
+          },
+        },
+        isLoading: false,
+      } as any);
+
+      mockCheckListening.mockResolvedValue({
+        correctCount: 5,
+        total: 5,
+        correctAnswers: [1, 2, 3, 4, 5],
+        results: Array(5).fill(true),
+        explanation: Array(5).fill({ text: "Explanation" }),
+      });
+
+      render(<ListeningRunner />);
+
+      expect(screen.getByText("Listening Task 5 Topic")).toBeInTheDocument();
+      expect(
+        screen.getByText("1. Individual and economical"),
+      ).toBeInTheDocument();
+
+      const selects = screen.getAllByRole("combobox");
+      expect(selects).toHaveLength(5);
+
+      fireEvent.change(selects[0]!, { target: { value: "1" } });
+      fireEvent.change(selects[1]!, { target: { value: "2" } });
+      fireEvent.change(selects[2]!, { target: { value: "3" } });
+      fireEvent.change(selects[3]!, { target: { value: "4" } });
+      fireEvent.change(selects[4]!, { target: { value: "5" } });
+
+      const checkBtn = screen.getByText("Проверить ответы →");
+      fireEvent.click(checkBtn);
+
+      await waitFor(() => {
+        expect(mockCheckListening).toHaveBeenCalledWith({
+          id: 202,
+          answers: [1, 2, 3, 4, 5],
+        });
+      });
+    });
+
+    it("should render gap_fill tasks 6-11 and submit upper-case trimmed answers", async () => {
+      const mockQuery = vi.spyOn(api.training.getListeningTraining, "useQuery");
+      mockQuery.mockReturnValue({
+        data: {
+          topicTitle: "Listening Tasks 6-11 Topic",
+          task: {
+            id: 203,
+            taskType: "gap_fill",
+            audioUrl: "/audio/topic1/test6.mp3",
+            total: 6,
+            questions: [
+              "Age of the respondent ______________________ years old",
+              "Date of birth ____________________, 30th, 2004",
+              "Favourite sports activity _____________________________",
+              "The school subject he/she is good at _______",
+              "Foreign language(s) __________________________",
+              "Career plans _________________________",
+            ],
+          },
+        },
+        isLoading: false,
+      } as any);
+
+      mockCheckListening.mockResolvedValue({
+        correctCount: 6,
+        total: 6,
+        correctAnswers: [
+          "FIFTEEN",
+          "MAY",
+          "SWIMMING",
+          "MATHS",
+          "FRENCH",
+          "DOCTOR",
+        ],
+        results: Array(6).fill(true),
+        explanation: Array(6).fill({ text: "Explanation" }),
+      });
+
+      render(<ListeningRunner />);
+
+      expect(
+        screen.getByText("Listening Tasks 6-11 Topic"),
+      ).toBeInTheDocument();
+      expect(screen.getByText("Age of the respondent")).toBeInTheDocument();
+
+      const inputs = screen.getAllByRole("textbox");
+      expect(inputs).toHaveLength(6);
+
+      fireEvent.change(inputs[0]!, { target: { value: "fifteen" } });
+      fireEvent.change(inputs[1]!, { target: { value: "may" } });
+      fireEvent.change(inputs[2]!, { target: { value: "swimming" } });
+      fireEvent.change(inputs[3]!, { target: { value: "maths" } });
+      fireEvent.change(inputs[4]!, { target: { value: "french" } });
+      fireEvent.change(inputs[5]!, { target: { value: "doctor" } });
+
+      const checkBtn = screen.getByText("Проверить ответы →");
+      fireEvent.click(checkBtn);
+
+      await waitFor(() => {
+        expect(mockCheckListening).toHaveBeenCalledWith({
+          id: 203,
+          answers: ["FIFTEEN", "MAY", "SWIMMING", "MATHS", "FRENCH", "DOCTOR"],
         });
       });
     });

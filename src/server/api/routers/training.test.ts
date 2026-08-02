@@ -13,6 +13,9 @@ vi.mock("@/server/db", () => ({
       uoeTasks: {
         findMany: vi.fn(),
       },
+      audioTasks: {
+        findFirst: vi.fn(),
+      },
     },
   },
   trainingTopics: {
@@ -221,6 +224,126 @@ describe("Training Router tRPC Procedures", () => {
       ).rejects.toThrow(
         new TRPCError({
           code: "UNAUTHORIZED",
+        }),
+      );
+    });
+  });
+
+  describe("checkListeningTraining", () => {
+    it("should check gap_fill listening task correctly with string answers normalization", async () => {
+      vi.mocked(db.query.audioTasks.findFirst).mockResolvedValue({
+        id: 50,
+        taskType: "gap_fill",
+        answers: ["FIFTEEN", "MAY", "SWIMMING"],
+        explanations: [{ text: "Exp 1" }, { text: "Exp 2" }, { text: "Exp 3" }],
+      } as any);
+
+      const caller = createCaller({
+        db: db as any,
+        session: null,
+        headers: new Headers(),
+      });
+
+      const res = await caller.checkListeningTraining({
+        id: 50,
+        answers: ["  fifteen  ", "may", "FOOTBALL"],
+      });
+
+      expect(res.total).toBe(3);
+      expect(res.correctCount).toBe(2);
+      expect(res.results).toEqual([true, true, false]);
+    });
+
+    it("should check gap_fill correctly when answers are provided as array of variants string[][]", async () => {
+      vi.mocked(db.query.audioTasks.findFirst).mockResolvedValue({
+        id: 55,
+        taskType: "gap_fill",
+        answers: [["FIFTEEN", "15"], ["MAY"], ["MATHS", "MATH"]],
+        explanations: [],
+      } as any);
+
+      const caller = createCaller({
+        db: db as any,
+        session: null,
+        headers: new Headers(),
+      });
+
+      const res = await caller.checkListeningTraining({
+        id: 55,
+        answers: ["15", "may", "math"],
+      });
+
+      expect(res.total).toBe(3);
+      expect(res.correctCount).toBe(3);
+      expect(res.results).toEqual([true, true, true]);
+    });
+
+    it("should return 0 correct count when all user answers are null or empty strings", async () => {
+      vi.mocked(db.query.audioTasks.findFirst).mockResolvedValue({
+        id: 51,
+        taskType: "gap_fill",
+        answers: ["FIFTEEN", "MAY", "SWIMMING"],
+        explanations: [],
+      } as any);
+
+      const caller = createCaller({
+        db: db as any,
+        session: null,
+        headers: new Headers(),
+      });
+
+      const res = await caller.checkListeningTraining({
+        id: 51,
+        answers: [null, "", "   "],
+      });
+
+      expect(res.total).toBe(3);
+      expect(res.correctCount).toBe(0);
+      expect(res.results).toEqual([false, false, false]);
+    });
+
+    it("should check standard multiple_choice audio task correctly even when answers are sent as stringified numbers", async () => {
+      vi.mocked(db.query.audioTasks.findFirst).mockResolvedValue({
+        id: 52,
+        taskType: "multiple_choice",
+        answers: [1, 2, 3, 1],
+        explanations: [{ text: "Exp" }],
+      } as any);
+
+      const caller = createCaller({
+        db: db as any,
+        session: null,
+        headers: new Headers(),
+      });
+
+      const res = await caller.checkListeningTraining({
+        id: 52,
+        answers: ["1", "3", 3, null],
+      });
+
+      expect(res.total).toBe(4);
+      expect(res.correctCount).toBe(2);
+      expect(res.results).toEqual([true, false, true, false]);
+    });
+
+    it("should throw NOT_FOUND error when audio task does not exist", async () => {
+      vi.mocked(db.query.audioTasks.findFirst).mockResolvedValue(null as any);
+
+      const caller = createCaller({
+        db: db as any,
+        session: null,
+        headers: new Headers(),
+      });
+
+      await expect(
+        caller.checkListeningTraining({
+          id: 999,
+          answers: [1, 2],
+        }),
+      ).rejects.toThrow(
+        new TRPCError({
+          code: "NOT_FOUND",
+          message: "Task not found for checking.",
         }),
       );
     });
