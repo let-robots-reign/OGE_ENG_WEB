@@ -567,12 +567,26 @@ export const trainingRouter = createTRPCRouter({
         eq(audioTasks.isDeleted, false),
       );
 
+      // Everything the runner needs to render the task — deliberately without
+      // `answers`/`explanations`, which would hand the student the answer key.
+      // `total` is the answer count, taken in SQL so the answers stay in the DB.
+      const taskColumns = {
+        id: audioTasks.id,
+        audioUrl: audioTasks.audioUrl,
+        topicId: audioTasks.topicId,
+        taskType: audioTasks.taskType,
+        questions: audioTasks.questions,
+        total: sql<number>`jsonb_array_length(${audioTasks.answers})`.mapWith(
+          Number,
+        ),
+      };
+
       const userId = ctx.session?.user?.id;
 
       let task;
       if (userId) {
         task = await ctx.db
-          .select()
+          .select(taskColumns)
           .from(audioTasks)
           .where(
             and(
@@ -600,7 +614,7 @@ export const trainingRouter = createTRPCRouter({
 
       // Fallback: unauthenticated, or every task has been completed
       task ??= await ctx.db
-        .select()
+        .select(taskColumns)
         .from(audioTasks)
         .where(baseWhere)
         .orderBy(sql`RANDOM()`)
@@ -627,7 +641,9 @@ export const trainingRouter = createTRPCRouter({
     .input(
       z.object({
         id: z.number(),
-        answers: z.array(z.union([z.number(), z.string()]).nullable()),
+        answers: z
+          .array(z.union([z.number(), z.string().max(100)]).nullable())
+          .max(20),
       }),
     )
     .mutation(async ({ ctx, input }) => {

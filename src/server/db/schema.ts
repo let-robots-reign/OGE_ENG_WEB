@@ -140,6 +140,14 @@ export interface AudioTaskExplanation {
 
 export type AudioTaskType = "multiple_choice" | "matching" | "gap_fill";
 
+// The `questions` column holds a different shape per task type, which a single
+// jsonb column cannot express. Consumers pair the two fields into this union
+// once and then narrow on `taskType` instead of casting at every use site.
+export type AudioTaskContent =
+  | { taskType: "multiple_choice"; questions: AudioTaskQuestion[] }
+  | { taskType: "matching"; questions: string[] }
+  | { taskType: "gap_fill"; questions: string[] };
+
 export const audioTasks = createTable("audio_task", (d) => ({
   id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
   audioUrl: d.varchar({ length: 255 }).notNull(),

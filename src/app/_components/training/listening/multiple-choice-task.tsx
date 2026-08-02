@@ -9,6 +9,9 @@ interface MultipleChoiceTaskProps {
   setAnswer: (qIndex: number, optNum: number) => void;
   checked: boolean;
   correctAnswers: number[];
+  // Per-question verdicts from the server, so a card can never colour itself
+  // differently from the score the student is shown.
+  results: boolean[];
 }
 
 export function MultipleChoiceTask({
@@ -17,6 +20,7 @@ export function MultipleChoiceTask({
   setAnswer,
   checked,
   correctAnswers,
+  results,
 }: MultipleChoiceTaskProps) {
   return (
     <div className="flex flex-col gap-3.5">
@@ -30,6 +34,7 @@ export function MultipleChoiceTask({
           onChange={(optNum) => setAnswer(i, optNum)}
           checked={checked}
           correct={correctAnswers[i]}
+          isCorrect={results[i] ?? false}
         />
       ))}
     </div>

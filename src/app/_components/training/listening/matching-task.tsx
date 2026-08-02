@@ -6,11 +6,21 @@ interface MatchingTaskProps {
   setAnswer: (speakerIdx: number, rubricNum: number | null) => void;
   checked: boolean;
   correctAnswers: number[];
+  // Per-speaker verdicts from the server, so the cells can never colour
+  // themselves differently from the score the student is shown.
+  results: boolean[];
+  speakerCount: number;
 }
 
-export const SPEAKERS = ["A", "B", "C", "D", "E"] as const;
+const SPEAKER_LETTERS = "ABCDEFGHIJ";
 
-const RUBRIC_NUMBERS = [1, 2, 3, 4, 5, 6] as const;
+// Speakers are labelled A, B, C… — how many there are comes from the task data
+// rather than a constant, since it is the answer count that defines the task.
+export const speakersFor = (count: number): string[] =>
+  Array.from(
+    { length: Math.max(count, 0) },
+    (_, i) => SPEAKER_LETTERS[i] ?? String(i + 1),
+  );
 
 export function MatchingTask({
   rubrics,
@@ -18,21 +28,27 @@ export function MatchingTask({
   setAnswer,
   checked,
   correctAnswers,
+  results,
+  speakerCount,
 }: MatchingTaskProps) {
+  const speakers = speakersFor(speakerCount);
+  const rubricNumbers = rubrics.map((_, i) => i + 1);
+
   // Find which speakers are assigned to which rubric
   const assignedSpeakersMap = new Map<number, string>();
   answers.forEach((val, speakerIdx) => {
-    if (val !== null) {
-      assignedSpeakersMap.set(val, SPEAKERS[speakerIdx]!);
+    const speaker = speakers[speakerIdx];
+    if (val !== null && speaker) {
+      assignedSpeakersMap.set(val, speaker);
     }
   });
 
   return (
     <div className="flex flex-col gap-6">
-      {/* List of 6 Rubrics */}
+      {/* List of rubrics */}
       <div className="bg-surface border-line rounded-lg border p-5 sm:p-6">
         <div className="text-ink-3 mb-4 text-[12px] font-medium tracking-[0.1em] uppercase">
-          Список рубрик (1–6)
+          Список рубрик (1–{rubrics.length})
         </div>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {rubrics.map((rubricText, i) => {
@@ -67,7 +83,8 @@ export function MatchingTask({
       {/* Answer Table (Exam Style) */}
       <div className="bg-surface border-line rounded-lg border p-5 sm:p-6">
         <div className="text-ink-3 mb-3 text-[12px] font-medium tracking-[0.1em] uppercase">
-          Бланк ответов (выберите цифру рубрики 1–6 для каждого говорящего)
+          Бланк ответов (выберите цифру рубрики 1–{rubrics.length} для каждого
+          говорящего)
         </div>
 
         <div className="overflow-x-auto">
@@ -77,11 +94,13 @@ export function MatchingTask({
                 <th className="border-line text-ink-2 w-32 border-r p-3 text-left text-[14px] font-medium">
                   Говорящий
                 </th>
-                {SPEAKERS.map((sp) => (
+                {speakers.map((sp) => (
                   <th
                     key={sp}
                     className="border-line font-display text-ink-1 border-r p-3 text-[18px] font-semibold uppercase last:border-r-0"
-                    style={{ width: "calc((100% - 128px) / 5)" }}
+                    style={{
+                      width: `calc((100% - 128px) / ${speakers.length})`,
+                    }}
                   >
                     {sp}
                   </th>
@@ -93,11 +112,11 @@ export function MatchingTask({
                 <td className="border-line text-ink-1 font-display border-r p-3 text-left text-[14px] font-medium">
                   Рубрика
                 </td>
-                {SPEAKERS.map((sp, idx) => {
+                {speakers.map((sp, idx) => {
                   const userVal = answers[idx] ?? null;
                   const correctVal = correctAnswers[idx];
-                  const isCorrect = checked && userVal === correctVal;
-                  const isWrong = checked && userVal !== correctVal;
+                  const isCorrect = checked && (results[idx] ?? false);
+                  const isWrong = checked && !isCorrect;
 
                   return (
                     <td
@@ -130,7 +149,7 @@ export function MatchingTask({
                           }`}
                         >
                           <option value="">—</option>
-                          {RUBRIC_NUMBERS.map((num) => (
+                          {rubricNumbers.map((num) => (
                             <option
                               key={num}
                               value={num}

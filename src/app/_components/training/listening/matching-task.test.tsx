@@ -20,6 +20,8 @@ describe("MatchingTask Component", () => {
         setAnswer={vi.fn()}
         checked={false}
         correctAnswers={[1, 2, 3, 4, 5]}
+        results={[]}
+        speakerCount={5}
       />,
     );
 
@@ -38,6 +40,8 @@ describe("MatchingTask Component", () => {
         setAnswer={vi.fn()}
         checked={false}
         correctAnswers={[1, 2, 3, 4, 5]}
+        results={[]}
+        speakerCount={5}
       />,
     );
 
@@ -63,6 +67,8 @@ describe("MatchingTask Component", () => {
         setAnswer={setAnswer}
         checked={false}
         correctAnswers={[1, 2, 3, 4, 5]}
+        results={[]}
+        speakerCount={5}
       />,
     );
 
@@ -81,6 +87,8 @@ describe("MatchingTask Component", () => {
         setAnswer={vi.fn()}
         checked={false}
         correctAnswers={[1, 2, 3, 4, 5]}
+        results={[]}
+        speakerCount={5}
       />,
     );
 
@@ -100,6 +108,8 @@ describe("MatchingTask Component", () => {
         setAnswer={vi.fn()}
         checked={true}
         correctAnswers={[1, 2, 3, 4, 6]}
+        results={[true, true, true, true, false]}
+        speakerCount={5}
       />,
     );
 
@@ -109,5 +119,50 @@ describe("MatchingTask Component", () => {
 
     // The wrong speaker E gets the expected rubric spelled out.
     expect(screen.getByText("Правильно: 6")).toBeInTheDocument();
+  });
+
+  it("should colour cells from the server verdict, not its own comparison", () => {
+    // The server graded every speaker correct. A cell that re-derived the
+    // verdict by comparing its own value would paint all five red instead.
+    render(
+      <MatchingTask
+        rubrics={rubrics}
+        answers={[1, 2, 3, 4, 5]}
+        setAnswer={vi.fn()}
+        checked={true}
+        correctAnswers={[9, 9, 9, 9, 9]}
+        results={[true, true, true, true, true]}
+        speakerCount={5}
+      />,
+    );
+
+    screen
+      .getAllByRole("combobox")
+      .forEach((select) => expect(select).toHaveClass("border-emerald-500"));
+    // No cell offers a correction, which a local comparison would have done.
+    expect(screen.queryByText("Правильно: 9")).not.toBeInTheDocument();
+  });
+
+  it("should render only as many speakers as the task expects", () => {
+    render(
+      <MatchingTask
+        rubrics={["One", "Two", "Three", "Four"]}
+        answers={Array(3).fill(null)}
+        setAnswer={vi.fn()}
+        checked={false}
+        correctAnswers={[1, 2, 3]}
+        results={[]}
+        speakerCount={3}
+      />,
+    );
+
+    expect(screen.getAllByRole("combobox")).toHaveLength(3);
+    expect(
+      screen.getByRole("combobox", { name: "Рубрика для говорящего C" }),
+    ).toBeInTheDocument();
+    // Four rubrics means four selectable numbers, plus the empty placeholder.
+    expect(
+      within(screen.getAllByRole("combobox")[0]!).getAllByRole("option"),
+    ).toHaveLength(5);
   });
 });

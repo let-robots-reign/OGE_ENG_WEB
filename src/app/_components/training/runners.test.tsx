@@ -212,7 +212,8 @@ describe("Training Runners Integration Suite", () => {
           topicTitle: "Listening Topic",
           task: {
             id: 201,
-            audioUrl: "test.mp3",
+            audioUrl: "/audio/topic1/test.mp3",
+            total: 1,
             questions: [
               {
                 questionText: "Where is Bob?",
@@ -260,7 +261,9 @@ describe("Training Runners Integration Suite", () => {
           task: {
             id: 202,
             taskType: "matching",
-            audioUrl: "test5.mp3",
+            audioUrl: "/audio/topic1/test5.mp3",
+            // Six rubrics, but only five speakers to answer for.
+            total: 5,
             questions: [
               "1. Individual and economical",
               "2. Varied and spicy",
@@ -317,7 +320,8 @@ describe("Training Runners Integration Suite", () => {
           task: {
             id: 203,
             taskType: "gap_fill",
-            audioUrl: "test6.mp3",
+            audioUrl: "/audio/topic1/test6.mp3",
+            total: 6,
             questions: [
               "Age of the respondent ______________________ years old",
               "Date of birth ____________________, 30th, 2004",

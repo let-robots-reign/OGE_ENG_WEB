@@ -6,14 +6,18 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import posthog from "posthog-js";
 import { api } from "@/trpc/react";
-import type { AudioTaskQuestion, AudioTaskType } from "@/server/db/schema";
+import type {
+  AudioTaskContent,
+  AudioTaskQuestion,
+  AudioTaskType,
+} from "@/server/db/schema";
 import {
   formatGapFillAnswer,
   normalizeGapFillAnswer,
 } from "@/app/_utils/gapFill";
 import { AudioPlayer } from "./audio-player";
 import { MultipleChoiceTask } from "./multiple-choice-task";
-import { MatchingTask, SPEAKERS } from "./matching-task";
+import { MatchingTask, speakersFor } from "./matching-task";
 import { GapFillTask } from "./gap-fill-task";
 import { Modal } from "@/app/_components/Modal";
 import { ResultModal } from "../shared/result-modal";
@@ -24,6 +28,37 @@ import { useElapsedTimer } from "@/app/_composables/use-elapsed-timer";
 import { formatClock } from "@/app/_utils/formatClock";
 
 const BACK_HREF = "/training/audio/topics";
+
+const INSTRUCTIONS: Record<
+  AudioTaskType,
+  { heading: string; hint: string; full: string }
+> = {
+  multiple_choice: {
+    heading:
+      "Вы услышите четыре коротких текста, обозначенных буквами А, B, C, D.",
+    hint: "В заданиях 1–4 запишите цифру 1, 2 или 3, соответствующую выбранному варианту ответа.",
+    full: "Вы услышите четыре коротких текста, обозначенных буквами А, B, C, D. В заданиях 1–4 запишите в поле ответа цифру 1, 2 или 3, соответствующую выбранному Вами варианту ответа.",
+  },
+  matching: {
+    heading:
+      "Вы услышите пять высказываний, обозначенных буквами А, B, C, D, E.",
+    hint: "В задании 5 подберите к каждому высказыванию соответствующую рубрику из списка 1–6. Каждую рубрику можно использовать только один раз.",
+    full: "Вы услышите пять высказываний, обозначенных буквами А, B, C, D, E. В задании 5 подберите к каждому высказыванию соответствующую рубрику из списка 1–6. Каждую рубрику можно использовать только один раз. Вы услышите запись дважды.",
+  },
+  gap_fill: {
+    heading: "Вы услышите интервью. Занесите данные в таблицу.",
+    hint: "В заданиях 6–11 впишите не более одного слова (без артиклей) из прозвучавшего текста. Числа необходимо записывать буквами.",
+    full: "Вы услышите интервью. Занесите данные в таблицу. Вы можете вписать не более одного слова (без артиклей) из прозвучавшего текста. Числа необходимо записывать буквами. Вы услышите запись дважды.",
+  },
+};
+
+// A single jsonb column cannot correlate `taskType` with the shape of
+// `questions`, so pair them once here and let every consumer below narrow on
+// the discriminant instead of casting at each use site.
+const asContent = (
+  taskType: AudioTaskType,
+  questions: AudioTaskQuestion[] | string[],
+): AudioTaskContent => ({ taskType, questions }) as AudioTaskContent;
 
 export function ListeningRunner() {
   const searchParams = useSearchParams();
@@ -52,10 +87,14 @@ export function ListeningRunner() {
   const [showReview, setShowReview] = useState(false);
 
   const taskId = data?.task.id;
-  const taskType: AudioTaskType = data?.task.taskType ?? "multiple_choice";
-  const questions = data?.task.questions ?? [];
-  // Task 5 lists 6 rubrics but is answered by 5 speakers.
-  const total = taskType === "matching" ? SPEAKERS.length : questions.length;
+  const content = asContent(
+    data?.task.taskType ?? "multiple_choice",
+    data?.task.questions ?? [],
+  );
+  const instructions = INSTRUCTIONS[content.taskType];
+  // The number of answers the task expects, which is not always the number of
+  // questions shown — task 5 lists 6 rubrics but is answered by 5 speakers.
+  const total = data?.task.total ?? 0;
 
   const { seconds: elapsedSec, reset: resetTimer } = useElapsedTimer(
     !!data && !checked,
@@ -140,6 +179,10 @@ export function ListeningRunner() {
   }
 
   const correctAnswers = result?.correctAnswers ?? [];
+  // Rubric and option numbers may come back from jsonb as strings. The server
+  // compares them numerically, so coerce here too rather than letting the
+  // highlighted "correct" option disagree with the score.
+  const numericCorrect = correctAnswers.map((v) => Number(v));
   // The server already graded every answer — reuse its verdict so the badges,
   // the score and the review modal can never disagree with each other.
   const results = result?.results ?? [];
@@ -147,48 +190,48 @@ export function ListeningRunner() {
     ? results.map((isCorrect, i) => (isCorrect ? i + 1 : 0)).filter(Boolean)
     : [];
 
-  const reviewItems: ReviewItem[] =
-    taskType === "matching"
-      ? SPEAKERS.map((sp, i) => {
-          const userN = answers[i] as number | null;
-          const correctN = correctAnswers[i] as number;
-          const rubrics = questions as string[];
-          return {
-            badge: sp,
-            title: `Высказывание говорящего ${sp}`,
-            userLabel: userN
-              ? `${userN}. ${rubrics[userN - 1] ?? "—"}`
-              : "Нет ответа",
-            correctLabel: correctN
-              ? `${correctN}. ${rubrics[correctN - 1] ?? "—"}`
-              : undefined,
-            isCorrect: results[i] ?? false,
-            explanation: result?.explanation[i],
-          };
-        })
-      : taskType === "gap_fill"
-        ? (questions as string[]).map((qTemplate, i) => ({
-            badge: String(6 + i),
-            title: qTemplate.replace(/_{2,}/g, "[...]"),
-            userLabel: normalizeGapFillAnswer(answers[i]) || "Нет ответа",
-            correctLabel: formatGapFillAnswer(correctAnswers[i]),
-            isCorrect: results[i] ?? false,
-            explanation: result?.explanation[i],
-          }))
-        : (questions as AudioTaskQuestion[]).map((q, i) => {
-            const userN = answers[i] as number | null;
-            const correctN = correctAnswers[i] as number;
-            return {
-              badge: String(i + 1),
-              title: q.questionText,
-              userLabel: userN ? (q.options[userN - 1] ?? "—") : "Нет ответа",
-              correctLabel: correctN
-                ? (q.options[correctN - 1] ?? "—")
-                : undefined,
-              isCorrect: results[i] ?? false,
-              explanation: result?.explanation[i],
-            };
-          });
+  let reviewItems: ReviewItem[];
+  if (content.taskType === "matching") {
+    const rubrics = content.questions;
+    reviewItems = speakersFor(total).map((sp, i) => {
+      const userN = answers[i] as number | null;
+      const correctN = numericCorrect[i];
+      return {
+        badge: sp,
+        title: `Высказывание говорящего ${sp}`,
+        userLabel: userN
+          ? `${userN}. ${rubrics[userN - 1] ?? "—"}`
+          : "Нет ответа",
+        correctLabel: correctN
+          ? `${correctN}. ${rubrics[correctN - 1] ?? "—"}`
+          : undefined,
+        isCorrect: results[i] ?? false,
+        explanation: result?.explanation[i],
+      };
+    });
+  } else if (content.taskType === "gap_fill") {
+    reviewItems = content.questions.map((qTemplate, i) => ({
+      badge: String(6 + i),
+      title: qTemplate.replace(/_{2,}/g, "[...]"),
+      userLabel: normalizeGapFillAnswer(answers[i]) || "Нет ответа",
+      correctLabel: formatGapFillAnswer(correctAnswers[i]),
+      isCorrect: results[i] ?? false,
+      explanation: result?.explanation[i],
+    }));
+  } else {
+    reviewItems = content.questions.map((q, i) => {
+      const userN = answers[i] as number | null;
+      const correctN = numericCorrect[i];
+      return {
+        badge: String(i + 1),
+        title: q.questionText,
+        userLabel: userN ? (q.options[userN - 1] ?? "—") : "Нет ответа",
+        correctLabel: correctN ? (q.options[correctN - 1] ?? "—") : undefined,
+        isCorrect: results[i] ?? false,
+        explanation: result?.explanation[i],
+      };
+    });
+  }
 
   return (
     <>
@@ -210,18 +253,10 @@ export function ListeningRunner() {
               инструкция
             </div>
             <h1 className="font-display mt-2.5 text-[28px] leading-[1.05] tracking-[-0.025em] sm:text-[44px]">
-              {taskType === "matching"
-                ? "Вы услышите пять высказываний, обозначенных буквами А, B, C, D, E."
-                : taskType === "gap_fill"
-                  ? "Вы услышите интервью. Занесите данные в таблицу."
-                  : "Вы услышите четыре коротких текста, обозначенных буквами А, B, C, D."}
+              {instructions.heading}
             </h1>
             <p className="text-ink-3 mt-3.5 text-[15px] leading-relaxed">
-              {taskType === "matching"
-                ? "В задании 5 подберите к каждому высказыванию соответствующую рубрику из списка 1–6. Каждую рубрику можно использовать только один раз."
-                : taskType === "gap_fill"
-                  ? "В заданиях 6–11 впишите не более одного слова (без артиклей) из прозвучавшего текста. Числа необходимо записывать буквами."
-                  : "В заданиях 1–4 запишите цифру 1, 2 или 3, соответствующую выбранному варианту ответа."}
+              {instructions.hint}
             </p>
           </div>
         ) : (
@@ -250,21 +285,23 @@ export function ListeningRunner() {
           </div>
         )}
 
-        <AudioPlayer src={"/audio/topic1/" + data.task.audioUrl} />
+        <AudioPlayer src={data.task.audioUrl} />
 
         <div className="h-7" />
 
-        {taskType === "matching" ? (
+        {content.taskType === "matching" ? (
           <MatchingTask
-            rubrics={questions as string[]}
+            rubrics={content.questions}
             answers={answers as (number | null)[]}
             setAnswer={(idx, val) => setAnswer(idx, val)}
             checked={checked}
-            correctAnswers={correctAnswers as number[]}
+            correctAnswers={numericCorrect}
+            results={results}
+            speakerCount={total}
           />
-        ) : taskType === "gap_fill" ? (
+        ) : content.taskType === "gap_fill" ? (
           <GapFillTask
-            questions={questions as string[]}
+            questions={content.questions}
             answers={answers as (string | null)[]}
             setAnswer={(idx, val) => setAnswer(idx, val)}
             checked={checked}
@@ -272,11 +309,12 @@ export function ListeningRunner() {
           />
         ) : (
           <MultipleChoiceTask
-            questions={questions as AudioTaskQuestion[]}
+            questions={content.questions}
             answers={answers as (number | null)[]}
             setAnswer={(idx, optNum) => setAnswer(idx, optNum)}
             checked={checked}
-            correctAnswers={correctAnswers as number[]}
+            correctAnswers={numericCorrect}
+            results={results}
           />
         )}
 
@@ -340,11 +378,7 @@ export function ListeningRunner() {
               Инструкция
             </div>
             <p className="text-ink-2 text-[15px] leading-relaxed">
-              {taskType === "matching"
-                ? "Вы услышите пять высказываний, обозначенных буквами А, B, C, D, E. В задании 5 подберите к каждому высказыванию соответствующую рубрику из списка 1–6. Каждую рубрику можно использовать только один раз. Вы услышите запись дважды."
-                : taskType === "gap_fill"
-                  ? "Вы услышите интервью. Занесите данные в таблицу. Вы можете вписать не более одного слова (без артиклей) из прозвучавшего текста. Числа необходимо записывать буквами. Вы услышите запись дважды."
-                  : "Вы услышите четыре коротких текста, обозначенных буквами А, B, C, D. В заданиях 1–4 запишите в поле ответа цифру 1, 2 или 3, соответствующую выбранному Вами варианту ответа."}
+              {instructions.full}
             </p>
             <button
               type="button"
