@@ -51,6 +51,10 @@ jobs:
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+
     steps:
       - name: Deploy to VPS via SSH
         uses: appleboy/ssh-action@v1.0.3
@@ -58,10 +62,37 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
+          # Without this the script runs on past any failure and the step takes
+          # its status from the last command, so a deploy that changed nothing
+          # still reports green.
+          script_stop: true
           script: |
+            set -eu
             cd ~/projects/OGE_ENG_WEB
+
             IMAGE_LOWER=$(echo "${{ env.REGISTRY }}/${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
+            # Pin the commit SHA rather than passing a bare, untagged name:
+            # compose needs an explicit tag to resolve the service image, and a
+            # reference that changes every deploy is what makes `up -d`
+            # actually recreate the container instead of leaving it running.
+            export IMAGE_NAME="${IMAGE_LOWER}:${{ github.sha }}"
+            echo "Deploying $IMAGE_NAME"
+
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            IMAGE_NAME=$IMAGE_LOWER docker compose -f docker-compose.prod.yml pull
-            IMAGE_NAME=$IMAGE_LOWER docker compose -f docker-compose.prod.yml up -d
+
+            docker compose -f docker-compose.prod.yml config --images || true
+            docker compose -f docker-compose.prod.yml pull
+            docker compose -f docker-compose.prod.yml up -d --remove-orphans
+
+            # The failure mode this job had was silent: pull skipped the image,
+            # the old container kept running, and the step still passed. Assert
+            # the outcome so that can only ever come back as a red build.
+            RUNNING=$(docker inspect --format '{{.Config.Image}}' \
+              "$(docker compose -f docker-compose.prod.yml ps -q web)")
+            if [ "$RUNNING" != "$IMAGE_NAME" ]; then
+              echo "Deploy verification failed: web is running '$RUNNING', expected '$IMAGE_NAME'"
+              exit 1
+            fi
+            echo "Verified: web is running $RUNNING"
+
             docker image prune -f

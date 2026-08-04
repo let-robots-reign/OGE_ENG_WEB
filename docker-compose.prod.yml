@@ -1,9 +1,8 @@
 name: oge-eng-web
-version: '3.8'
 
 services:
   migrator:
-    image: ${IMAGE_NAME:-ghcr.io/let-robots-reign/oge-eng-web:latest}
+    image: ${IMAGE_NAME:-ghcr.io/let-robots-reign/oge_eng_web:latest}
     env_file:
       - .env
     depends_on:
@@ -12,7 +11,7 @@ services:
     command: ["migrate.mjs"]
 
   web:
-    image: ${IMAGE_NAME:-ghcr.io/let-robots-reign/oge-eng-web:latest}
+    image: ${IMAGE_NAME:-ghcr.io/let-robots-reign/oge_eng_web:latest}
     restart: always
     depends_on:
       migrator:
