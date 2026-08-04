@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import {
-  audioTasksFirst,
+  audioTasks,
   readingTasksFirst,
   trainingTopics,
   uoeTasks,
@@ -290,7 +290,7 @@ export const userRouter = createTRPCRouter({
 
     const countActive = async (
       table:
-        | typeof audioTasksFirst
+        | typeof audioTasks
         | typeof readingTasksFirst
         | typeof uoeTasks
         | typeof writingTasks,
@@ -304,7 +304,7 @@ export const userRouter = createTRPCRouter({
 
     const [audioTotal, readingTotal, uoeTotal, writingTotal] =
       await Promise.all([
-        countActive(audioTasksFirst),
+        countActive(audioTasks),
         countActive(readingTasksFirst),
         countActive(uoeTasks),
         countActive(writingTasks),

@@ -121,7 +121,7 @@ export const trainingTopics = createTable("training_topic", (d) => ({
 export const trainingTopicsRelations = relations(
   trainingTopics,
   ({ many }) => ({
-    audioTasks: many(audioTasksFirst),
+    audioTasks: many(audioTasks),
     readingTasks: many(readingTasksFirst),
     uoeTasks: many(uoeTasks),
     writingTasks: many(writingTasks),
@@ -138,27 +138,45 @@ export interface AudioTaskExplanation {
   highlightedText?: string;
 }
 
-export const audioTasksFirst = createTable("audio_task_first", (d) => ({
+export type AudioTaskType = "multiple_choice" | "matching" | "gap_fill";
+
+// The `questions` column holds a different shape per task type, which a single
+// jsonb column cannot express. Consumers pair the two fields into this union
+// once and then narrow on `taskType` instead of casting at every use site.
+export type AudioTaskContent =
+  | { taskType: "multiple_choice"; questions: AudioTaskQuestion[] }
+  | { taskType: "matching"; questions: string[] }
+  | { taskType: "gap_fill"; questions: string[] };
+
+export const audioTasks = createTable("audio_task", (d) => ({
   id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
   audioUrl: d.varchar({ length: 255 }).notNull(),
   topicId: d
     .integer()
     .references(() => trainingTopics.id, { onDelete: "set null" }),
+  taskType: d
+    .varchar({ length: 255 })
+    .$type<AudioTaskType>()
+    .default("multiple_choice")
+    .notNull(),
   isDeleted: d.boolean().default(false).notNull(),
-  questions: d.jsonb("questions").$type<AudioTaskQuestion[]>().notNull(),
-  answers: d.jsonb("answers").$type<number[]>().notNull(),
-  explanations: d.jsonb("explanations").$type<AudioTaskExplanation[]>().notNull(),
+  questions: d
+    .jsonb("questions")
+    .$type<AudioTaskQuestion[] | string[]>()
+    .notNull(),
+  answers: d.jsonb("answers").$type<(number | string | string[])[]>().notNull(),
+  explanations: d
+    .jsonb("explanations")
+    .$type<AudioTaskExplanation[]>()
+    .notNull(),
 }));
 
-export const audioTasksFirstRelations = relations(
-  audioTasksFirst,
-  ({ one }) => ({
-    topic: one(trainingTopics, {
-      fields: [audioTasksFirst.topicId],
-      references: [trainingTopics.id],
-    }),
+export const audioTasksRelations = relations(audioTasks, ({ one }) => ({
+  topic: one(trainingTopics, {
+    fields: [audioTasks.topicId],
+    references: [trainingTopics.id],
   }),
-);
+}));
 
 export interface ReadingTaskExplanation {
   text: string;
@@ -174,7 +192,10 @@ export const readingTasksFirst = createTable("reading_task_first", (d) => ({
   texts: d.jsonb("texts").$type<string[]>().notNull(),
   headings: d.jsonb("headings").$type<string[]>().notNull(),
   answers: d.jsonb("answers").$type<number[]>().notNull(),
-  explanations: d.jsonb("explanations").$type<ReadingTaskExplanation[]>().notNull(),
+  explanations: d
+    .jsonb("explanations")
+    .$type<ReadingTaskExplanation[]>()
+    .notNull(),
 }));
 
 export const readingTasksFirstRelations = relations(

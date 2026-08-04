@@ -6,8 +6,19 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import posthog from "posthog-js";
 import { api } from "@/trpc/react";
+import type {
+  AudioTaskContent,
+  AudioTaskQuestion,
+  AudioTaskType,
+} from "@/server/db/schema";
+import {
+  formatGapFillAnswer,
+  normalizeGapFillAnswer,
+} from "@/app/_utils/gapFill";
 import { AudioPlayer } from "./audio-player";
-import { MCQuestion } from "./mc-question";
+import { MultipleChoiceTask } from "./multiple-choice-task";
+import { MatchingTask, speakersFor } from "./matching-task";
+import { GapFillTask } from "./gap-fill-task";
 import { Modal } from "@/app/_components/Modal";
 import { ResultModal } from "../shared/result-modal";
 import { ReviewModal, type ReviewItem } from "../shared/review-modal";
@@ -15,7 +26,39 @@ import { ProgressDots } from "../shared/progress-dots";
 import { TrainingSubHeader } from "../shared/training-sub-header";
 import { useElapsedTimer } from "@/app/_composables/use-elapsed-timer";
 import { formatClock } from "@/app/_utils/formatClock";
+
 const BACK_HREF = "/training/audio/topics";
+
+const INSTRUCTIONS: Record<
+  AudioTaskType,
+  { heading: string; hint: string; full: string }
+> = {
+  multiple_choice: {
+    heading:
+      "Вы услышите четыре коротких текста, обозначенных буквами А, B, C, D.",
+    hint: "В заданиях 1–4 запишите цифру 1, 2 или 3, соответствующую выбранному варианту ответа.",
+    full: "Вы услышите четыре коротких текста, обозначенных буквами А, B, C, D. В заданиях 1–4 запишите в поле ответа цифру 1, 2 или 3, соответствующую выбранному Вами варианту ответа.",
+  },
+  matching: {
+    heading:
+      "Вы услышите пять высказываний, обозначенных буквами А, B, C, D, E.",
+    hint: "В задании 5 подберите к каждому высказыванию соответствующую рубрику из списка 1–6. Каждую рубрику можно использовать только один раз.",
+    full: "Вы услышите пять высказываний, обозначенных буквами А, B, C, D, E. В задании 5 подберите к каждому высказыванию соответствующую рубрику из списка 1–6. Каждую рубрику можно использовать только один раз. Вы услышите запись дважды.",
+  },
+  gap_fill: {
+    heading: "Вы услышите интервью. Занесите данные в таблицу.",
+    hint: "В заданиях 6–11 впишите не более одного слова (без артиклей) из прозвучавшего текста. Числа необходимо записывать буквами.",
+    full: "Вы услышите интервью. Занесите данные в таблицу. Вы можете вписать не более одного слова (без артиклей) из прозвучавшего текста. Числа необходимо записывать буквами. Вы услышите запись дважды.",
+  },
+};
+
+// A single jsonb column cannot correlate `taskType` with the shape of
+// `questions`, so pair them once here and let every consumer below narrow on
+// the discriminant instead of casting at each use site.
+const asContent = (
+  taskType: AudioTaskType,
+  questions: AudioTaskQuestion[] | string[],
+): AudioTaskContent => ({ taskType, questions }) as AudioTaskContent;
 
 export function ListeningRunner() {
   const searchParams = useSearchParams();
@@ -34,7 +77,7 @@ export function ListeningRunner() {
     onSuccess: () => void utils.user.getStreak.invalidate(),
   });
 
-  const [answers, setAnswers] = useState<(number | null)[]>([]);
+  const [answers, setAnswers] = useState<(number | string | null)[]>([]);
   const [checked, setChecked] = useState(false);
   const [result, setResult] = useState<Awaited<
     ReturnType<typeof checkMutation.mutateAsync>
@@ -44,8 +87,14 @@ export function ListeningRunner() {
   const [showReview, setShowReview] = useState(false);
 
   const taskId = data?.task.id;
-  const questions = data?.task.questions ?? [];
-  const total = questions.length;
+  const content = asContent(
+    data?.task.taskType ?? "multiple_choice",
+    data?.task.questions ?? [],
+  );
+  const instructions = INSTRUCTIONS[content.taskType];
+  // The number of answers the task expects, which is not always the number of
+  // questions shown — task 5 lists 6 rubrics but is answered by 5 speakers.
+  const total = data?.task.total ?? 0;
 
   const { seconds: elapsedSec, reset: resetTimer } = useElapsedTimer(
     !!data && !checked,
@@ -65,10 +114,10 @@ export function ListeningRunner() {
   const answeredCount = answers.filter((v) => v !== null).length;
   const isChecking = checkMutation.isPending;
 
-  const setAnswer = (qIndex: number, optNum: number) => {
+  const setAnswer = (index: number, val: number | string | null) => {
     setAnswers((prev) => {
       const next = [...prev];
-      next[qIndex] = optNum;
+      next[index] = val;
       return next;
     });
   };
@@ -130,24 +179,59 @@ export function ListeningRunner() {
   }
 
   const correctAnswers = result?.correctAnswers ?? [];
+  // Rubric and option numbers may come back from jsonb as strings. The server
+  // compares them numerically, so coerce here too rather than letting the
+  // highlighted "correct" option disagree with the score.
+  const numericCorrect = correctAnswers.map((v) => Number(v));
+  // The server already graded every answer — reuse its verdict so the badges,
+  // the score and the review modal can never disagree with each other.
+  const results = result?.results ?? [];
   const correctIndices = checked
-    ? questions
-        .map((_, i) => (answers[i] === correctAnswers[i] ? i + 1 : 0))
-        .filter(Boolean)
+    ? results.map((isCorrect, i) => (isCorrect ? i + 1 : 0)).filter(Boolean)
     : [];
 
-  const reviewItems: ReviewItem[] = questions.map((q, i) => {
-    const userN = answers[i];
-    const correctN = correctAnswers[i];
-    return {
-      badge: String(i + 1),
-      title: q.questionText,
-      userLabel: userN ? (q.options[userN - 1] ?? "—") : "Нет ответа",
-      correctLabel: correctN ? (q.options[correctN - 1] ?? "—") : undefined,
-      isCorrect: userN === correctN,
+  let reviewItems: ReviewItem[];
+  if (content.taskType === "matching") {
+    const rubrics = content.questions;
+    reviewItems = speakersFor(total).map((sp, i) => {
+      const userN = answers[i] as number | null;
+      const correctN = numericCorrect[i];
+      return {
+        badge: sp,
+        title: `Высказывание говорящего ${sp}`,
+        userLabel: userN
+          ? `${userN}. ${rubrics[userN - 1] ?? "—"}`
+          : "Нет ответа",
+        correctLabel: correctN
+          ? `${correctN}. ${rubrics[correctN - 1] ?? "—"}`
+          : undefined,
+        isCorrect: results[i] ?? false,
+        explanation: result?.explanation[i],
+      };
+    });
+  } else if (content.taskType === "gap_fill") {
+    reviewItems = content.questions.map((qTemplate, i) => ({
+      badge: String(6 + i),
+      title: qTemplate.replace(/_{2,}/g, "[...]"),
+      userLabel: normalizeGapFillAnswer(answers[i]) || "Нет ответа",
+      correctLabel: formatGapFillAnswer(correctAnswers[i]),
+      isCorrect: results[i] ?? false,
       explanation: result?.explanation[i],
-    };
-  });
+    }));
+  } else {
+    reviewItems = content.questions.map((q, i) => {
+      const userN = answers[i] as number | null;
+      const correctN = numericCorrect[i];
+      return {
+        badge: String(i + 1),
+        title: q.questionText,
+        userLabel: userN ? (q.options[userN - 1] ?? "—") : "Нет ответа",
+        correctLabel: correctN ? (q.options[correctN - 1] ?? "—") : undefined,
+        isCorrect: results[i] ?? false,
+        explanation: result?.explanation[i],
+      };
+    });
+  }
 
   return (
     <>
@@ -169,12 +253,10 @@ export function ListeningRunner() {
               инструкция
             </div>
             <h1 className="font-display mt-2.5 text-[28px] leading-[1.05] tracking-[-0.025em] sm:text-[44px]">
-              Вы услышите четыре коротких текста, обозначенных буквами А, B, C,
-              D.
+              {instructions.heading}
             </h1>
             <p className="text-ink-3 mt-3.5 text-[15px] leading-relaxed">
-              В заданиях 1–4 запишите цифру 1, 2 или 3, соответствующую
-              выбранному варианту ответа.
+              {instructions.hint}
             </p>
           </div>
         ) : (
@@ -203,24 +285,38 @@ export function ListeningRunner() {
           </div>
         )}
 
-        <AudioPlayer src={"/audio/topic1/" + data.task.audioUrl} />
+        <AudioPlayer src={data.task.audioUrl} />
 
         <div className="h-7" />
 
-        <div className="flex flex-col gap-3.5">
-          {questions.map((q, i) => (
-            <MCQuestion
-              key={i}
-              idx={i + 1}
-              question={q.questionText}
-              options={q.options}
-              value={answers[i] ?? null}
-              onChange={(optNum) => setAnswer(i, optNum)}
-              checked={checked}
-              correct={correctAnswers[i]}
-            />
-          ))}
-        </div>
+        {content.taskType === "matching" ? (
+          <MatchingTask
+            rubrics={content.questions}
+            answers={answers as (number | null)[]}
+            setAnswer={(idx, val) => setAnswer(idx, val)}
+            checked={checked}
+            correctAnswers={numericCorrect}
+            results={results}
+            speakerCount={total}
+          />
+        ) : content.taskType === "gap_fill" ? (
+          <GapFillTask
+            questions={content.questions}
+            answers={answers as (string | null)[]}
+            setAnswer={(idx, val) => setAnswer(idx, val)}
+            checked={checked}
+            correctAnswers={correctAnswers}
+          />
+        ) : (
+          <MultipleChoiceTask
+            questions={content.questions}
+            answers={answers as (number | null)[]}
+            setAnswer={(idx, optNum) => setAnswer(idx, optNum)}
+            checked={checked}
+            correctAnswers={numericCorrect}
+            results={results}
+          />
+        )}
 
         <div className="bg-surface border-line mt-8 flex flex-col gap-4 rounded-lg border p-5 sm:flex-row sm:items-center sm:justify-between">
           <ProgressDots
@@ -282,9 +378,7 @@ export function ListeningRunner() {
               Инструкция
             </div>
             <p className="text-ink-2 text-[15px] leading-relaxed">
-              Вы услышите четыре коротких текста, обозначенных буквами А, B, C,
-              D. В заданиях 1–4 запишите в поле ответа цифру 1, 2 или 3,
-              соответствующую выбранному Вами варианту ответа.
+              {instructions.full}
             </p>
             <button
               type="button"

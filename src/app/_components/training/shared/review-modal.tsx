@@ -72,7 +72,7 @@ export function ReviewModal({ items, onClose }: ReviewModalProps) {
                 html = formatText(text);
               }
             } else {
-              html = formatText(text);
+              html = text.replace(/\n/g, "<br />");
             }
           }
 

@@ -6,7 +6,7 @@ import {
 } from "@/server/api/trpc";
 import {
   activityTypeEnum,
-  audioTasksFirst,
+  audioTasks,
   readingTasksFirst,
   trainingTopics,
   uoeTasks,
@@ -14,6 +14,7 @@ import {
   writingTasks,
 } from "@/server/db/schema";
 import { shuffle } from "@/app/_utils/shuffle";
+import { isGapFillAnswerCorrect } from "@/app/_utils/gapFill";
 import { and, eq, inArray, isNotNull, notInArray, sql, ne } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
@@ -92,14 +93,14 @@ export const trainingRouter = createTRPCRouter({
       if (input.category === "audio") {
         const tasks = await ctx.db
           .select({
-            id: audioTasksFirst.id,
-            topicId: audioTasksFirst.topicId,
+            id: audioTasks.id,
+            topicId: audioTasks.topicId,
           })
-          .from(audioTasksFirst)
+          .from(audioTasks)
           .where(
             and(
-              eq(audioTasksFirst.isDeleted, false),
-              inArray(audioTasksFirst.topicId, topicIds),
+              eq(audioTasks.isDeleted, false),
+              inArray(audioTasks.topicId, topicIds),
             ),
           );
 
@@ -562,22 +563,36 @@ export const trainingRouter = createTRPCRouter({
       }
 
       const baseWhere = and(
-        eq(audioTasksFirst.topicId, input.topicId),
-        eq(audioTasksFirst.isDeleted, false),
+        eq(audioTasks.topicId, input.topicId),
+        eq(audioTasks.isDeleted, false),
       );
+
+      // Everything the runner needs to render the task — deliberately without
+      // `answers`/`explanations`, which would hand the student the answer key.
+      // `total` is the answer count, taken in SQL so the answers stay in the DB.
+      const taskColumns = {
+        id: audioTasks.id,
+        audioUrl: audioTasks.audioUrl,
+        topicId: audioTasks.topicId,
+        taskType: audioTasks.taskType,
+        questions: audioTasks.questions,
+        total: sql<number>`jsonb_array_length(${audioTasks.answers})`.mapWith(
+          Number,
+        ),
+      };
 
       const userId = ctx.session?.user?.id;
 
       let task;
       if (userId) {
         task = await ctx.db
-          .select()
-          .from(audioTasksFirst)
+          .select(taskColumns)
+          .from(audioTasks)
           .where(
             and(
               baseWhere,
               notInArray(
-                audioTasksFirst.id,
+                audioTasks.id,
                 ctx.db
                   .select({ id: userResults.taskId })
                   .from(userResults)
@@ -599,8 +614,8 @@ export const trainingRouter = createTRPCRouter({
 
       // Fallback: unauthenticated, or every task has been completed
       task ??= await ctx.db
-        .select()
-        .from(audioTasksFirst)
+        .select(taskColumns)
+        .from(audioTasks)
         .where(baseWhere)
         .orderBy(sql`RANDOM()`)
         .limit(1)
@@ -626,12 +641,14 @@ export const trainingRouter = createTRPCRouter({
     .input(
       z.object({
         id: z.number(),
-        answers: z.array(z.number().nullable()),
+        answers: z
+          .array(z.union([z.number(), z.string().max(100)]).nullable())
+          .max(20),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const task = await ctx.db.query.audioTasksFirst.findFirst({
-        where: eq(audioTasksFirst.id, input.id),
+      const task = await ctx.db.query.audioTasks.findFirst({
+        where: eq(audioTasks.id, input.id),
       });
 
       if (!task) {
@@ -641,11 +658,29 @@ export const trainingRouter = createTRPCRouter({
         });
       }
 
+      if (task.taskType === "gap_fill") {
+        const correctAnswers = task.answers ?? [];
+        const results = correctAnswers.map((rawCorrect, i) =>
+          isGapFillAnswerCorrect(input.answers[i], rawCorrect),
+        );
+        const correctCount = results.filter(Boolean).length;
+
+        return {
+          correctAnswers,
+          results,
+          correctCount,
+          total: correctAnswers.length,
+          explanation: task.explanations ?? [],
+        };
+      }
+
       const correctAnswers = task.answers ?? [];
 
-      const results = input.answers.map(
-        (userAnswer, i) => userAnswer === correctAnswers[i],
-      );
+      const results = correctAnswers.map((correct, i) => {
+        const userAns = input.answers[i];
+        if (userAns === null || userAns === undefined) return false;
+        return Number(userAns) === Number(correct);
+      });
       const correctCount = results.filter(Boolean).length;
 
       return {

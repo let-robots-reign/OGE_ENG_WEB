@@ -8,6 +8,9 @@ interface MCQuestionProps {
   onChange: (optNum: number) => void;
   checked: boolean;
   correct?: number;
+  // The server's verdict for this question. Grading lives on the server, so the
+  // card never re-derives it from `value === correct`.
+  isCorrect?: boolean;
 }
 
 export function MCQuestion({
@@ -18,8 +21,9 @@ export function MCQuestion({
   onChange,
   checked,
   correct,
+  isCorrect: isCorrectAnswer = false,
 }: MCQuestionProps) {
-  const isCorrect = checked && value === correct;
+  const isCorrect = checked && isCorrectAnswer;
   const empty = checked && value == null;
 
   const borderTone = checked
