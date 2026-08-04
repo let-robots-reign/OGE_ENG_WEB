@@ -45,6 +45,9 @@ jobs:
           tags: |
             ${{ env.IMAGE_TAG_LATEST }}
             ${{ env.IMAGE_TAG_SHA }}
+          build-args: |
+            NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN=${{ vars.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN }}
+            NEXT_PUBLIC_POSTHOG_HOST=${{ vars.NEXT_PUBLIC_POSTHOG_HOST }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -69,6 +72,18 @@ jobs:
           script: |
             set -eu
             cd ~/projects/OGE_ENG_WEB
+
+            # The server runs whatever files already sit in this directory, and
+            # nothing ever synced them: the compose file here was still the
+            # pre-CI/CD one that builds images locally instead of pulling from
+            # GHCR, which is why `pull` skipped both services and the old
+            # container kept running. Sync the checkout first so the compose
+            # file and the mounted nginx config can never drift from the repo.
+            # `.env` is gitignored and nginx/certbot/ is untracked, so a hard
+            # reset leaves both alone. Never add `git clean` here — it would
+            # delete the live TLS certificates and the env file.
+            git fetch origin master
+            git reset --hard ${{ github.sha }}
 
             IMAGE_LOWER=$(echo "${{ env.REGISTRY }}/${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
             # Pin the commit SHA rather than passing a bare, untagged name:
