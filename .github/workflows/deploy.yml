@@ -97,7 +97,10 @@ jobs:
 
             docker compose -f docker-compose.prod.yml config --images || true
             docker compose -f docker-compose.prod.yml pull
-            docker compose -f docker-compose.prod.yml up -d --remove-orphans
+            if ! docker compose -f docker-compose.prod.yml up -d --remove-orphans; then
+              docker compose -f docker-compose.prod.yml logs --no-color --tail=200 migrator
+              exit 1
+            fi
 
             # The failure mode this job had was silent: pull skipped the image,
             # the old container kept running, and the step still passed. Assert
