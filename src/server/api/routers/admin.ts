@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { adminProcedure, createTRPCRouter } from "@/server/api/trpc";
 import {
-  audioTasksFirst,
+  audioTasks,
   readingTasksFirst,
   trainingTopics,
   uoeTasks,
@@ -21,9 +21,19 @@ export const uoeTaskInputSchema = z.object({
   answer: z.string().min(1, "Введите правильный ответ"),
 });
 
-export const audioTaskInputSchema = z.object({
+const audioTaskBaseSchema = z.object({
   topicId: z.number({ required_error: "Выберите тему" }),
   audioUrl: z.string().min(1, "Укажите ссылку или загрузите файл"),
+  explanations: z.array(
+    z.object({
+      text: z.string().min(1, "Пояснение обязательно"),
+      highlightedText: z.string().optional(),
+    }),
+  ),
+});
+
+const multipleChoiceInputSchema = audioTaskBaseSchema.extend({
+  taskType: z.literal("multiple_choice"),
   questions: z
     .array(
       z.object({
@@ -35,13 +45,33 @@ export const audioTaskInputSchema = z.object({
     )
     .min(1, "Минимум 1 вопрос"),
   answers: z.array(z.number()),
-  explanations: z.array(
-    z.object({
-      text: z.string().min(1, "Пояснение обязательно"),
-      highlightedText: z.string().optional(),
-    }),
+});
+
+const matchingInputSchema = audioTaskBaseSchema.extend({
+  taskType: z.literal("matching"),
+  questions: z
+    .array(z.string().min(1, "Текст рубрики не может быть пустым"))
+    .min(1, "Минимум 1 рубрика"),
+  answers: z
+    .array(z.number().min(1).max(6))
+    .min(1, "Укажите ответы для спикеров"),
+});
+
+const gapFillInputSchema = audioTaskBaseSchema.extend({
+  taskType: z.literal("gap_fill"),
+  questions: z
+    .array(z.string().min(1, "Шаблон предложения не может быть пустым"))
+    .min(1, "Минимум 1 предложение"),
+  answers: z.array(
+    z.union([z.string().min(1), z.array(z.string().min(1)).min(1)]),
   ),
 });
+
+export const audioTaskInputSchema = z.discriminatedUnion("taskType", [
+  multipleChoiceInputSchema,
+  matchingInputSchema,
+  gapFillInputSchema,
+]);
 
 export const readingTaskInputSchema = z.object({
   topicId: z.number({ required_error: "Выберите тему" }),
@@ -138,7 +168,7 @@ export const adminRouter = createTRPCRouter({
   getAudioTopics: adminProcedure.query(async ({ ctx }) => {
     return await ctx.db.query.trainingTopics.findMany({
       where: eq(trainingTopics.category, "audio"),
-      orderBy: (trainingTopics, { asc }) => [asc(trainingTopics.title)],
+      orderBy: (trainingTopics, { asc }) => [asc(trainingTopics.id)],
     });
   }),
 
@@ -157,20 +187,18 @@ export const adminRouter = createTRPCRouter({
       const { page, pageSize, search, topicId, sortBy, sortOrder } = input;
       const offset = (page - 1) * pageSize;
 
-      const conditions = [eq(audioTasksFirst.isDeleted, false)];
+      const conditions = [eq(audioTasks.isDeleted, false)];
       if (topicId) {
-        conditions.push(eq(audioTasksFirst.topicId, topicId));
+        conditions.push(eq(audioTasks.topicId, topicId));
       }
 
-      let tasks = await ctx.db.query.audioTasksFirst.findMany({
+      let tasks = await ctx.db.query.audioTasks.findMany({
         where: and(...conditions),
         with: {
           topic: true,
         },
-        orderBy: (audioTasksFirst, { asc, desc }) =>
-          sortOrder === "asc"
-            ? [asc(audioTasksFirst.id)]
-            : [desc(audioTasksFirst.id)],
+        orderBy: (audioTasks, { asc, desc }) =>
+          sortOrder === "asc" ? [asc(audioTasks.id)] : [desc(audioTasks.id)],
       });
 
       if (search && search.trim() !== "") {
@@ -178,10 +206,13 @@ export const adminRouter = createTRPCRouter({
         tasks = tasks.filter((t) => {
           const topicTitle = t.topic?.title?.toLowerCase() ?? "";
           const idStr = t.id.toString();
-          const matchesQuestion = t.questions?.some((q) =>
-            q.questionText.toLowerCase().includes(term),
+          const matchesQuestion = t.questions?.some((q) => {
+            const text = typeof q === "string" ? q : q.questionText;
+            return text?.toLowerCase().includes(term);
+          });
+          return (
+            topicTitle.includes(term) || idStr.includes(term) || matchesQuestion
           );
-          return topicTitle.includes(term) || idStr.includes(term) || matchesQuestion;
         });
       }
 
@@ -210,10 +241,10 @@ export const adminRouter = createTRPCRouter({
   getAudioTaskById: adminProcedure
     .input(z.object({ id: z.number() }))
     .query(async ({ ctx, input }) => {
-      const task = await ctx.db.query.audioTasksFirst.findFirst({
+      const task = await ctx.db.query.audioTasks.findFirst({
         where: and(
-          eq(audioTasksFirst.id, input.id),
-          eq(audioTasksFirst.isDeleted, false),
+          eq(audioTasks.id, input.id),
+          eq(audioTasks.isDeleted, false),
         ),
         with: {
           topic: true,
@@ -228,10 +259,11 @@ export const adminRouter = createTRPCRouter({
     .input(audioTaskInputSchema)
     .mutation(async ({ ctx, input }) => {
       const [inserted] = await ctx.db
-        .insert(audioTasksFirst)
+        .insert(audioTasks)
         .values({
           topicId: input.topicId,
           audioUrl: input.audioUrl,
+          taskType: input.taskType,
           questions: input.questions,
           answers: input.answers,
           explanations: input.explanations,
@@ -243,22 +275,19 @@ export const adminRouter = createTRPCRouter({
     }),
 
   updateAudioTask: adminProcedure
-    .input(
-      audioTaskInputSchema.extend({
-        id: z.number(),
-      }),
-    )
+    .input(z.intersection(z.object({ id: z.number() }), audioTaskInputSchema))
     .mutation(async ({ ctx, input }) => {
       const [updated] = await ctx.db
-        .update(audioTasksFirst)
+        .update(audioTasks)
         .set({
           topicId: input.topicId,
           audioUrl: input.audioUrl,
+          taskType: input.taskType,
           questions: input.questions,
           answers: input.answers,
           explanations: input.explanations,
         })
-        .where(eq(audioTasksFirst.id, input.id))
+        .where(eq(audioTasks.id, input.id))
         .returning();
 
       return updated;
@@ -268,9 +297,9 @@ export const adminRouter = createTRPCRouter({
     .input(z.object({ ids: z.array(z.number()).min(1) }))
     .mutation(async ({ ctx, input }) => {
       await ctx.db
-        .update(audioTasksFirst)
+        .update(audioTasks)
         .set({ isDeleted: true })
-        .where(inArray(audioTasksFirst.id, input.ids));
+        .where(inArray(audioTasks.id, input.ids));
 
       return { success: true, deletedCount: input.ids.length };
     }),
@@ -504,10 +533,7 @@ export const adminRouter = createTRPCRouter({
     .input(z.object({ id: z.number() }))
     .query(async ({ ctx, input }) => {
       const task = await ctx.db.query.uoeTasks.findFirst({
-        where: and(
-          eq(uoeTasks.id, input.id),
-          eq(uoeTasks.isDeleted, false),
-        ),
+        where: and(eq(uoeTasks.id, input.id), eq(uoeTasks.isDeleted, false)),
         with: {
           topic: true,
         },
@@ -566,4 +592,3 @@ export const adminRouter = createTRPCRouter({
       return { success: true, deletedCount: input.ids.length };
     }),
 });
-

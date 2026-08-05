@@ -21,7 +21,7 @@ vi.mock("@/server/db", () => ({
       trainingTopics: {
         findMany: vi.fn(),
       },
-      audioTasksFirst: {
+      audioTasks: {
         findMany: vi.fn(),
         findFirst: vi.fn(),
       },
@@ -35,7 +35,7 @@ vi.mock("@/server/db", () => ({
   users: {
     id: "users_id",
   },
-  audioTasksFirst: {
+  audioTasks: {
     id: "audio_tasks_first_id",
     isDeleted: "audio_tasks_first_is_deleted",
   },
@@ -199,7 +199,7 @@ describe("Admin Router tRPC Procedures", () => {
     });
 
     it("getAudioTasks should return paginated list of non-deleted tasks", async () => {
-      vi.mocked(db.query.audioTasksFirst.findMany).mockResolvedValue([
+      vi.mocked(db.query.audioTasks.findMany).mockResolvedValue([
         {
           id: 10,
           audioUrl: "/audio1.mp3",
@@ -219,6 +219,7 @@ describe("Admin Router tRPC Procedures", () => {
       mockInsertValues.mockReturnValue({ returning: mockReturning });
 
       const res = await adminCaller.createAudioTask({
+        taskType: "multiple_choice",
         topicId: 1,
         audioUrl: "/uploads/audio/test.mp3",
         questions: [

@@ -10,6 +10,13 @@ import {
   AdminPagination,
   AdminDeleteModal,
 } from "@/app/_components/admin/admin-table-controls";
+import type { AudioTaskType } from "@/server/db/schema";
+
+const TASK_TYPE_LABELS: Record<AudioTaskType, { label: string; cls: string }> = {
+  multiple_choice: { label: "Выбор ответа", cls: "bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300" },
+  matching: { label: "Соотнесение", cls: "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300" },
+  gap_fill: { label: "Заполнение", cls: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300" },
+};
 
 function CompactAudioPlayer({ src }: { src: string }) {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -273,6 +280,7 @@ export function AudioTasksListView() {
                     )}
                   </div>
                 </th>
+                <th className="w-32 px-4 py-3.5">Тип</th>
                 <th className="px-4 py-3.5">Задание</th>
                 <th className="w-40 px-4 py-3.5">Аудиозапись</th>
                 <th className="w-28 px-4 py-3.5 text-right">Действия</th>
@@ -281,13 +289,13 @@ export function AudioTasksListView() {
             <tbody className="divide-line divide-y">
               {isLoading || isFetching ? (
                 <tr>
-                  <td colSpan={6} className="text-ink-3 py-12 text-center">
+                  <td colSpan={7} className="text-ink-3 py-12 text-center">
                     Загрузка заданий...
                   </td>
                 </tr>
               ) : tasks.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="text-ink-3 py-12 text-center">
+                  <td colSpan={7} className="text-ink-3 py-12 text-center">
                     Задания не найдены.
                   </td>
                 </tr>
@@ -295,7 +303,9 @@ export function AudioTasksListView() {
                 tasks.map((task) => {
                   const isSelected = selectedIds.includes(task.id);
                   const fullTaskText = task.questions
-                    ?.map((q) => q.questionText)
+                    ?.map((q) =>
+                      typeof q === "string" ? q : q.questionText,
+                    )
                     .filter(Boolean)
                     .join(" ");
 
@@ -304,6 +314,12 @@ export function AudioTasksListView() {
                       ? fullTaskText.slice(0, 200) + "..."
                       : fullTaskText
                     : "—";
+
+                  const typeMeta =
+                    TASK_TYPE_LABELS[task.taskType] ?? {
+                      label: task.taskType,
+                      cls: "bg-surface-2 text-ink-3",
+                    };
 
                   return (
                     <tr
@@ -327,6 +343,13 @@ export function AudioTasksListView() {
                       </td>
                       <td className="text-ink px-4 py-3.5 font-medium">
                         {task.topic?.title ?? "—"}
+                      </td>
+                      <td className="px-4 py-3.5">
+                        <span
+                          className={`inline-block rounded-full px-2.5 py-1 text-[11px] font-semibold ${typeMeta.cls}`}
+                        >
+                          {typeMeta.label}
+                        </span>
                       </td>
                       <td className="text-ink-2 max-w-[340px] px-4 py-3.5 text-[13.5px] leading-snug">
                         {taskPreview}
