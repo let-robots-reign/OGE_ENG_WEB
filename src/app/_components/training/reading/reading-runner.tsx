@@ -8,6 +8,7 @@ import posthog from "posthog-js";
 import { api } from "@/trpc/react";
 import { HeadingsBank } from "./headings-bank";
 import { TextCard } from "./text-card";
+import { TrueFalseTask } from "./true-false-task";
 import { Modal } from "@/app/_components/Modal";
 import { ResultModal } from "../shared/result-modal";
 import { ReviewModal, type ReviewItem } from "../shared/review-modal";
@@ -15,9 +16,29 @@ import { ProgressDots } from "../shared/progress-dots";
 import { TrainingSubHeader } from "../shared/training-sub-header";
 import { useElapsedTimer } from "@/app/_composables/use-elapsed-timer";
 import { formatClock } from "@/app/_utils/formatClock";
+import type { ReadingTaskType } from "@/server/db/schema";
 
 const BACK_HREF = "/training/reading/topics";
 const letterOf = (i: number) => String.fromCharCode(65 + i);
+
+const ANSWER_LABELS = ["", "True", "False", "Not stated"] as const;
+
+const INSTRUCTIONS: Record<
+  ReadingTaskType,
+  { heading: string; hint: string; full: string }
+> = {
+  matching: {
+    heading: "Установите соответствие между текстами и заголовками.",
+    hint: "Каждому тексту подберите один подходящий вопрос-заголовок. Один заголовок останется лишним.",
+    full: "Определите, в каком из текстов A–F содержатся ответы на вопросы 1–7. Используйте каждую цифру только один раз. В задании есть один лишний вопрос.",
+  },
+  true_false: {
+    heading:
+      "Прочитайте текст и определите, какие из утверждений 13–19 соответствуют содержанию текста.",
+    hint: "Для каждого утверждения выберите: 1 — True, 2 — False, 3 — Not stated.",
+    full: "Прочитайте текст. Определите, какие из приведённых утверждений 13–19 соответствуют содержанию текста (1 – True), какие не соответствуют (2 – False) и о чём в тексте не сказано, то есть на основании текста нельзя дать ни положительного, ни отрицательного ответа (3 – Not stated).",
+  },
+};
 
 export function ReadingRunner() {
   const searchParams = useSearchParams();
@@ -25,7 +46,7 @@ export function ReadingRunner() {
   const router = useRouter();
   const { data: session } = useSession();
 
-  const { data, isLoading, refetch } = api.training.getReadingTraining.useQuery(
+  const { data, isLoading } = api.training.getReadingTraining.useQuery(
     { topicId },
     { enabled: !!topicId, gcTime: 0 },
   );
@@ -36,7 +57,15 @@ export function ReadingRunner() {
     onSuccess: () => void utils.user.getStreak.invalidate(),
   });
 
-  const [assigned, setAssigned] = useState<(number | null)[]>([]);
+  const taskType: ReadingTaskType =
+    data?.task.taskType === "true_false" ? "true_false" : "matching";
+
+  const total =
+    taskType === "true_false"
+      ? (data?.task.taskType === "true_false" ? data.task.total : 0)
+      : (data?.task.taskType === "matching" ? data.task.texts.length : 0);
+
+  const [answers, setAnswers] = useState<(number | null)[]>([]);
   const [activeHeading, setActiveHeading] = useState<number | null>(null);
   const [checked, setChecked] = useState(false);
   const [result, setResult] = useState<Awaited<
@@ -47,10 +76,6 @@ export function ReadingRunner() {
   const [showReview, setShowReview] = useState(false);
 
   const taskId = data?.task.id;
-  const texts = data?.task.texts ?? [];
-  const total = texts.length;
-  const headings = (data?.task.headings ?? [])
-    .map((raw, i) => ({ n: i + 1, q: raw }));
 
   const { seconds: elapsedSec, reset: resetTimer } = useElapsedTimer(
     !!data && !checked,
@@ -58,7 +83,7 @@ export function ReadingRunner() {
 
   useEffect(() => {
     if (!taskId) return;
-    setAssigned(Array(total).fill(null) as null[]);
+    setAnswers(Array(total).fill(null) as null[]);
     setActiveHeading(null);
     setChecked(false);
     setResult(null);
@@ -67,10 +92,17 @@ export function ReadingRunner() {
     resetTimer();
   }, [taskId, total, resetTimer]);
 
-  const answeredCount = assigned.filter((v) => v !== null).length;
+  const answeredCount = answers.filter((v) => v !== null).length;
   const isChecking = checkMutation.isPending;
-  const allAssigned = total > 0 && answeredCount === total;
+  const allAnswered = total > 0 && answeredCount === total;
 
+  // --- Matching helpers ---
+  const matchingTask =
+    data?.task.taskType === "matching" ? data.task : undefined;
+  const headings = (matchingTask?.headings ?? []).map((raw, i) => ({
+    n: i + 1,
+    q: raw,
+  }));
   const headingQ = (n: number | null | undefined) =>
     n ? headings.find((h) => h.n === n)?.q : undefined;
 
@@ -79,7 +111,7 @@ export function ReadingRunner() {
 
   const assignToText = (textIndex: number) => {
     if (activeHeading == null) return;
-    setAssigned((prev) => {
+    setAnswers((prev) => {
       const next = [...prev];
       for (let j = 0; j < next.length; j++) {
         if (next[j] === activeHeading) next[j] = null;
@@ -91,17 +123,30 @@ export function ReadingRunner() {
   };
 
   const detachText = (textIndex: number) =>
-    setAssigned((prev) => {
+    setAnswers((prev) => {
       const next = [...prev];
       next[textIndex] = null;
       return next;
     });
 
+  // --- True/False helpers ---
+  const trueFalseTask =
+    data?.task.taskType === "true_false" ? data.task : undefined;
+
+  const setTrueFalseAnswer = (index: number, value: number) => {
+    setAnswers((prev) => {
+      const next = [...prev];
+      next[index] = next[index] === value ? null : value;
+      return next;
+    });
+  };
+
+  // --- Check / retry ---
   const handleCheck = async () => {
-    if (!data?.task || isChecking || !allAssigned) return;
+    if (!data?.task || isChecking || !allAnswered) return;
     const res = await checkMutation.mutateAsync({
       id: data.task.id,
-      answers: assigned,
+      answers,
     });
     setResult(res);
     setChecked(true);
@@ -111,6 +156,7 @@ export function ReadingRunner() {
     const resultRatio = `${res.correctCount}/${res.total}`;
     posthog.capture("training_completed", {
       training_type: "reading",
+      task_type: taskType,
       topic: data.topicTitle,
       topic_id: topicId,
       correct_count: res.correctCount,
@@ -129,17 +175,7 @@ export function ReadingRunner() {
     }
   };
 
-  const handleRetry = () => {
-    setAssigned(Array(total).fill(null) as null[]);
-    setActiveHeading(null);
-    setChecked(false);
-    setResult(null);
-    setShowResult(false);
-    setShowReview(false);
-    resetTimer();
-    void refetch();
-  };
-
+  // --- Loading / error ---
   if (isLoading) {
     return (
       <div className="text-ink-3 grid place-items-center py-32 text-[15px]">
@@ -168,34 +204,49 @@ export function ReadingRunner() {
     );
   }
 
+  // --- Review items ---
   const correctAnswers = result?.correctAnswers ?? [];
   const correctIndices = checked
-    ? texts
-        .map((_, i) => (assigned[i] === correctAnswers[i] ? i + 1 : 0))
+    ? answers
+        .map((_, i) => (answers[i] === correctAnswers[i] ? i + 1 : 0))
         .filter(Boolean)
     : [];
-  const answeredIndices = assigned
+  const answeredIndices = answers
     .map((v, i) => (v !== null ? i + 1 : 0))
     .filter(Boolean);
 
-  const explanationParts = result ? result.explanation : [];
-  const reviewItems: ReviewItem[] = texts.map((_, i) => {
-    const userN = assigned[i];
-    const correctN = correctAnswers[i];
-    return {
-      badge: letterOf(i),
-      title: headingQ(correctN) ?? `Текст ${letterOf(i)}`,
-      userLabel: userN ? `№${userN} — ${headingQ(userN) ?? ""}` : "Нет ответа",
-      correctLabel: correctN
-        ? `№${correctN} — ${headingQ(correctN) ?? ""}`
-        : undefined,
-      isCorrect: userN === correctN,
-      explanation: explanationParts[i],
-    };
-  });
+  const reviewItems: ReviewItem[] =
+    taskType === "true_false"
+      ? (trueFalseTask?.statements ?? []).map((stmt, i) => ({
+          badge: String(13 + i),
+          title: stmt,
+          userLabel: answers[i]
+            ? (ANSWER_LABELS[answers[i]] ?? "—")
+            : "Нет ответа",
+          correctLabel: correctAnswers[i]
+            ? (ANSWER_LABELS[correctAnswers[i]] ?? "—")
+            : undefined,
+          isCorrect: answers[i] === correctAnswers[i],
+          explanation: result?.explanation[i],
+        }))
+      : (matchingTask?.texts ?? []).map((_, i) => {
+          const userN = answers[i];
+          const correctN = correctAnswers[i];
+          return {
+            badge: letterOf(i),
+            title: headingQ(correctN) ?? `Текст ${letterOf(i)}`,
+            userLabel: userN
+              ? `№${userN} — ${headingQ(userN) ?? ""}`
+              : "Нет ответа",
+            correctLabel: correctN
+              ? `№${correctN} — ${headingQ(correctN) ?? ""}`
+              : undefined,
+            isCorrect: userN === correctN,
+            explanation: result?.explanation[i],
+          };
+        });
 
-  const lettersRange = `A–${letterOf(total - 1)}`;
-  const headingsRange = `1–${headings.length}`;
+  const instr = INSTRUCTIONS[taskType];
 
   return (
     <>
@@ -214,16 +265,13 @@ export function ReadingRunner() {
           <div className="mb-7">
             <div className="text-ink-3 inline-flex items-center gap-2 text-[12.5px] font-medium tracking-[0.12em] uppercase">
               <span className="bg-accent h-1.5 w-1.5 rounded-full" />
-              инструкция · matching
+              инструкция · {taskType === "true_false" ? "true / false / not stated" : "matching"}
             </div>
             <h1 className="font-display mt-2.5 text-[28px] leading-[1.1] tracking-[-0.025em] sm:text-[44px]">
-              Установите соответствие между{" "}
-              <span className="italic">текстами {lettersRange}</span> и{" "}
-              <span className="italic">заголовками {headingsRange}</span>.
+              {instr.heading}
             </h1>
             <p className="text-ink-3 mt-3.5 max-w-[760px] text-[15px] leading-relaxed">
-              Каждому тексту подберите один подходящий вопрос-заголовок. Один
-              заголовок останется лишним.
+              {instr.hint}
             </p>
           </div>
         ) : (
@@ -240,49 +288,61 @@ export function ReadingRunner() {
             </div>
             <button
               type="button"
-              onClick={handleRetry}
-              className="rounded-pill inline-flex h-9 items-center justify-center self-start px-4 text-[14px] font-medium text-white sm:self-auto"
+              onClick={() => setShowReview(true)}
+              className="rounded-pill inline-flex h-9 cursor-pointer items-center justify-center self-start px-4 text-[14px] font-medium text-white sm:self-auto"
               style={{
                 background: "rgba(255,255,255,0.1)",
                 border: "1px solid rgba(255,255,255,0.2)",
               }}
             >
-              Пройти ещё раз
+              Посмотреть пояснения
             </button>
           </div>
         )}
 
-        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(360px,400px)_1fr]">
-          <HeadingsBank
-            headings={headings}
-            assigned={assigned}
-            correctAnswers={correctAnswers}
-            activeHeading={activeHeading}
-            onPickHeading={pickHeading}
-            onDetachText={detachText}
+        {taskType === "true_false" && trueFalseTask ? (
+          <TrueFalseTask
+            text={trueFalseTask.text}
+            statements={trueFalseTask.statements}
+            answers={answers}
+            onAnswer={setTrueFalseAnswer}
             checked={checked}
+            correctAnswers={correctAnswers}
+            results={result?.results ?? []}
           />
+        ) : matchingTask ? (
+          <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(360px,400px)_1fr]">
+            <HeadingsBank
+              headings={headings}
+              assigned={answers}
+              correctAnswers={correctAnswers}
+              activeHeading={activeHeading}
+              onPickHeading={pickHeading}
+              onDetachText={detachText}
+              checked={checked}
+            />
 
-          <div className="flex flex-col gap-3.5">
-            {texts.map((body, i) => (
-              <TextCard
-                key={i}
-                letter={letterOf(i)}
-                body={body}
-                assignedN={assigned[i] ?? null}
-                assignedHeadingQ={headingQ(assigned[i])}
-                armed={!checked && activeHeading != null && assigned[i] == null}
-                activeHeading={activeHeading}
-                onAssign={() => assignToText(i)}
-                onClear={() => detachText(i)}
-                checked={checked}
-                isCorrect={assigned[i] === correctAnswers[i]}
-                correctN={correctAnswers[i]}
-                correctHeadingQ={headingQ(correctAnswers[i])}
-              />
-            ))}
+            <div className="flex flex-col gap-3.5">
+              {(matchingTask.texts).map((body, i) => (
+                <TextCard
+                  key={i}
+                  letter={letterOf(i)}
+                  body={body}
+                  assignedN={answers[i] ?? null}
+                  assignedHeadingQ={headingQ(answers[i])}
+                  armed={!checked && activeHeading != null && answers[i] == null}
+                  activeHeading={activeHeading}
+                  onAssign={() => assignToText(i)}
+                  onClear={() => detachText(i)}
+                  checked={checked}
+                  isCorrect={answers[i] === correctAnswers[i]}
+                  correctN={correctAnswers[i]}
+                  correctHeadingQ={headingQ(correctAnswers[i])}
+                />
+              ))}
+            </div>
           </div>
-        </div>
+        ) : null}
 
         <div className="bg-surface border-line mt-8 flex flex-col gap-4 rounded-lg border p-5 sm:flex-row sm:items-center sm:justify-between">
           <ProgressDots
@@ -319,7 +379,7 @@ export function ReadingRunner() {
                 <button
                   type="button"
                   onClick={handleCheck}
-                  disabled={isChecking || !allAssigned}
+                  disabled={isChecking || !allAnswered}
                   className="text-on-ink rounded-pill inline-flex h-11 items-center justify-center px-[22px] text-[15px] font-medium disabled:cursor-not-allowed disabled:opacity-50"
                   style={{ background: "var(--color-ink)" }}
                 >
@@ -338,12 +398,7 @@ export function ReadingRunner() {
               Инструкция
             </div>
             <div className="text-ink-2 flex flex-col gap-2 text-[15px] leading-relaxed">
-              <p>
-                Определите, в каком из текстов <b>A–F</b> содержатся ответы на
-                вопросы <b>1–7</b>.
-              </p>
-              <p>Используйте каждую цифру только один раз.</p>
-              <p>В задании есть один лишний вопрос.</p>
+              <p>{instr.full}</p>
             </div>
             <button
               type="button"
