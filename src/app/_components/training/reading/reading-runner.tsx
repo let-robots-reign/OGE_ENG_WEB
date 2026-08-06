@@ -46,7 +46,7 @@ export function ReadingRunner() {
   const router = useRouter();
   const { data: session } = useSession();
 
-  const { data, isLoading, refetch } = api.training.getReadingTraining.useQuery(
+  const { data, isLoading } = api.training.getReadingTraining.useQuery(
     { topicId },
     { enabled: !!topicId, gcTime: 0 },
   );
@@ -173,17 +173,6 @@ export function ReadingRunner() {
         timeSpent: elapsedSec,
       });
     }
-  };
-
-  const handleRetry = () => {
-    setAnswers(Array(total).fill(null) as null[]);
-    setActiveHeading(null);
-    setChecked(false);
-    setResult(null);
-    setShowResult(false);
-    setShowReview(false);
-    resetTimer();
-    void refetch();
   };
 
   // --- Loading / error ---

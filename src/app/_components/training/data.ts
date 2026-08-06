@@ -1,5 +1,3 @@
-export const NOT_COMPLETED_TOPICS = [] as const;
-
 export type Topic = {
   id: number;
   title: string;
