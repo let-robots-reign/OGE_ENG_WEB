@@ -299,14 +299,14 @@ export function ReadingRunner() {
             </div>
             <button
               type="button"
-              onClick={handleRetry}
-              className="rounded-pill inline-flex h-9 items-center justify-center self-start px-4 text-[14px] font-medium text-white sm:self-auto"
+              onClick={() => setShowReview(true)}
+              className="rounded-pill inline-flex h-9 cursor-pointer items-center justify-center self-start px-4 text-[14px] font-medium text-white sm:self-auto"
               style={{
                 background: "rgba(255,255,255,0.1)",
                 border: "1px solid rgba(255,255,255,0.2)",
               }}
             >
-              Пройти ещё раз
+              Посмотреть пояснения
             </button>
           </div>
         )}
