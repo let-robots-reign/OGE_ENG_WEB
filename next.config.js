@@ -10,10 +10,7 @@ const config = {
   // migrate.mjs runs outside Next.js, so its dependencies are not discovered
   // automatically by standalone output tracing.
   outputFileTracingIncludes: {
-    "/*": [
-      "./node_modules/drizzle-orm/**/*",
-      "./node_modules/postgres/**/*",
-    ],
+    "/*": ["./node_modules/drizzle-orm/**/*", "./node_modules/postgres/**/*"],
   },
   async rewrites() {
     return [

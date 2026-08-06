@@ -441,12 +441,7 @@ export const adminRouter = createTRPCRouter({
     }),
 
   updateReadingTask: adminProcedure
-    .input(
-      z.intersection(
-        z.object({ id: z.number() }),
-        readingTaskInputSchema,
-      ),
-    )
+    .input(z.intersection(z.object({ id: z.number() }), readingTaskInputSchema))
     .mutation(async ({ ctx, input }) => {
       const [updated] = await ctx.db
         .update(readingTasks)

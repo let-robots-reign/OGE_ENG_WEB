@@ -11,9 +11,18 @@ import {
 } from "@/app/_components/admin/admin-table-controls";
 import type { ReadingTaskType } from "@/server/db/schema";
 
-const TASK_TYPE_LABELS: Record<ReadingTaskType, { label: string; cls: string }> = {
-  matching: { label: "Сопоставление", cls: "bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300" },
-  true_false: { label: "True/False", cls: "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300" },
+const TASK_TYPE_LABELS: Record<
+  ReadingTaskType,
+  { label: string; cls: string }
+> = {
+  matching: {
+    label: "Сопоставление",
+    cls: "bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300",
+  },
+  true_false: {
+    label: "True/False",
+    cls: "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300",
+  },
 };
 
 export function ReadingTasksListView() {
@@ -272,11 +281,10 @@ export function ReadingTasksListView() {
                       </td>
                       <td className="px-4 py-3.5">
                         {(() => {
-                          const typeMeta =
-                            TASK_TYPE_LABELS[task.taskType] ?? {
-                              label: task.taskType,
-                              cls: "bg-surface-2 text-ink-3",
-                            };
+                          const typeMeta = TASK_TYPE_LABELS[task.taskType] ?? {
+                            label: task.taskType,
+                            cls: "bg-surface-2 text-ink-3",
+                          };
                           return (
                             <span
                               className={`inline-block rounded-full px-2.5 py-1 text-[11px] font-semibold ${typeMeta.cls}`}
@@ -316,7 +324,7 @@ export function ReadingTasksListView() {
                               setDeleteConfirmId(task.id);
                               setIsDeletingModalOpen(true);
                             }}
-                            className="text-red-500 hover:bg-red-500/10 rounded-lg p-1.5 transition-colors"
+                            className="rounded-lg p-1.5 text-red-500 transition-colors hover:bg-red-500/10"
                             title="Удалить"
                           >
                             <svg

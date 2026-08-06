@@ -12,11 +12,21 @@ import {
 } from "@/app/_components/admin/admin-table-controls";
 import type { AudioTaskType } from "@/server/db/schema";
 
-const TASK_TYPE_LABELS: Record<AudioTaskType, { label: string; cls: string }> = {
-  multiple_choice: { label: "Выбор ответа", cls: "bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300" },
-  matching: { label: "Соотнесение", cls: "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300" },
-  gap_fill: { label: "Заполнение", cls: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300" },
-};
+const TASK_TYPE_LABELS: Record<AudioTaskType, { label: string; cls: string }> =
+  {
+    multiple_choice: {
+      label: "Выбор ответа",
+      cls: "bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300",
+    },
+    matching: {
+      label: "Соотнесение",
+      cls: "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300",
+    },
+    gap_fill: {
+      label: "Заполнение",
+      cls: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300",
+    },
+  };
 
 function CompactAudioPlayer({ src }: { src: string }) {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -303,9 +313,7 @@ export function AudioTasksListView() {
                 tasks.map((task) => {
                   const isSelected = selectedIds.includes(task.id);
                   const fullTaskText = task.questions
-                    ?.map((q) =>
-                      typeof q === "string" ? q : q.questionText,
-                    )
+                    ?.map((q) => (typeof q === "string" ? q : q.questionText))
                     .filter(Boolean)
                     .join(" ");
 
@@ -315,11 +323,10 @@ export function AudioTasksListView() {
                       : fullTaskText
                     : "—";
 
-                  const typeMeta =
-                    TASK_TYPE_LABELS[task.taskType] ?? {
-                      label: task.taskType,
-                      cls: "bg-surface-2 text-ink-3",
-                    };
+                  const typeMeta = TASK_TYPE_LABELS[task.taskType] ?? {
+                    label: task.taskType,
+                    cls: "bg-surface-2 text-ink-3",
+                  };
 
                   return (
                     <tr
@@ -384,7 +391,7 @@ export function AudioTasksListView() {
                               setDeleteConfirmId(task.id);
                               setIsDeletingModalOpen(true);
                             }}
-                            className="text-red-500 hover:bg-red-500/10 rounded-lg p-1.5 transition-colors"
+                            className="rounded-lg p-1.5 text-red-500 transition-colors hover:bg-red-500/10"
                             title="Удалить"
                           >
                             <svg

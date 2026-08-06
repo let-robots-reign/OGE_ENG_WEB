@@ -15,7 +15,9 @@ export default async function AdminLayout({
   }
 
   return (
-    <Suspense fallback={<div className="text-ink-3 p-8 text-center">Загрузка...</div>}>
+    <Suspense
+      fallback={<div className="text-ink-3 p-8 text-center">Загрузка...</div>}
+    >
       <AdminLayoutWrapper>{children}</AdminLayoutWrapper>
     </Suspense>
   );

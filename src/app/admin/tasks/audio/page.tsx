@@ -3,7 +3,13 @@ import { AudioTasksListView } from "@/app/_components/admin/tasks/audio-tasks-li
 
 export default function AdminAudioTasksPage() {
   return (
-    <Suspense fallback={<div className="text-ink-3 p-8 text-center">Загрузка списка заданий...</div>}>
+    <Suspense
+      fallback={
+        <div className="text-ink-3 p-8 text-center">
+          Загрузка списка заданий...
+        </div>
+      }
+    >
       <AudioTasksListView />
     </Suspense>
   );

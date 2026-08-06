@@ -46,7 +46,7 @@ export function CustomSelect<T extends string | number>({
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className="bg-surface-2 border-line text-ink hover:bg-surface-2/80 flex w-full items-center justify-between gap-3 rounded-lg border px-3.5 py-2 text-[14px] transition-colors focus:outline-hidden focus:ring-2 focus:ring-accent/40"
+        className="bg-surface-2 border-line text-ink hover:bg-surface-2/80 focus:ring-accent/40 flex w-full items-center justify-between gap-3 rounded-lg border px-3.5 py-2 text-[14px] transition-colors focus:ring-2 focus:outline-hidden"
       >
         <span className="truncate">
           {selectedOption ? selectedOption.label : placeholder}
@@ -70,7 +70,7 @@ export function CustomSelect<T extends string | number>({
 
       {/* Floating Menu */}
       {isOpen && (
-        <div className="bg-surface border-line shadow-md absolute top-full left-0 z-50 mt-1.5 max-h-60 w-full min-w-[180px] overflow-y-auto rounded-xl border py-1.5 transition-all">
+        <div className="bg-surface border-line absolute top-full left-0 z-50 mt-1.5 max-h-60 w-full min-w-[180px] overflow-y-auto rounded-xl border py-1.5 shadow-md transition-all">
           {options.length === 0 ? (
             <div className="text-ink-4 px-3.5 py-2 text-[13px]">
               Нет доступных вариантов

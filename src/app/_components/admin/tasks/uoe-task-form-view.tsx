@@ -20,10 +20,7 @@ export function UoeTaskFormView({ taskId }: { taskId?: number }) {
   const { data: topics } = api.admin.getUoeTopics.useQuery();
 
   const { data: existingTask, isLoading: isLoadingTask } =
-    api.admin.getUoeTaskById.useQuery(
-      { id: taskId! },
-      { enabled: isEditMode },
-    );
+    api.admin.getUoeTaskById.useQuery({ id: taskId! }, { enabled: isEditMode });
 
   const createMutation = api.admin.createUoeTask.useMutation();
   const updateMutation = api.admin.updateUoeTask.useMutation();
@@ -89,7 +86,7 @@ export function UoeTaskFormView({ taskId }: { taskId?: number }) {
 
   if (isEditMode && isLoadingTask) {
     return (
-      <div className="bg-surface border-line mx-auto max-w-[900px] rounded-2xl border p-12 text-center text-ink-3">
+      <div className="bg-surface border-line text-ink-3 mx-auto max-w-[900px] rounded-2xl border p-12 text-center">
         Загрузка данных задания #{taskId}...
       </div>
     );
@@ -104,12 +101,15 @@ export function UoeTaskFormView({ taskId }: { taskId?: number }) {
   const isSubmitting = createMutation.isPending || updateMutation.isPending;
 
   return (
-    <form onSubmit={handleSubmit} className="mx-auto max-w-[900px] space-y-8 pb-16">
+    <form
+      onSubmit={handleSubmit}
+      className="mx-auto max-w-[900px] space-y-8 pb-16"
+    >
       {/* Top Header & Navigation */}
       <div>
         <Link
           href="/admin/tasks/uoe"
-          className="text-ink-3 hover:text-ink inline-flex items-center gap-1.5 text-xs font-medium transition-colors mb-1"
+          className="text-ink-3 hover:text-ink mb-1 inline-flex items-center gap-1.5 text-xs font-medium transition-colors"
         >
           ← Назад к списку заданий
         </Link>
@@ -121,7 +121,7 @@ export function UoeTaskFormView({ taskId }: { taskId?: number }) {
       </div>
 
       {formError && (
-        <div className="rounded-xl bg-red-500/10 border border-red-500/20 p-4 text-sm text-red-600">
+        <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-600">
           {formError}
         </div>
       )}
@@ -163,7 +163,7 @@ export function UoeTaskFormView({ taskId }: { taskId?: number }) {
             value={taskText}
             onChange={(e) => setTaskText(e.target.value)}
             placeholder="Например: She ___ (GO) to school yesterday."
-            className="border-line bg-surface-2 text-ink placeholder:text-ink-4 focus:border-accent focus:ring-accent min-h-[100px] w-full rounded-xl border p-3.5 text-sm transition-colors focus:outline-none leading-relaxed"
+            className="border-line bg-surface-2 text-ink placeholder:text-ink-4 focus:border-accent focus:ring-accent min-h-[100px] w-full rounded-xl border p-3.5 text-sm leading-relaxed transition-colors focus:outline-none"
           />
         </div>
 
@@ -179,7 +179,7 @@ export function UoeTaskFormView({ taskId }: { taskId?: number }) {
               value={origin}
               onChange={(e) => setOrigin(e.target.value)}
               placeholder="Например: GO"
-              className="border-line bg-surface-2 text-ink placeholder:text-ink-4 focus:border-accent focus:ring-accent font-mono w-full rounded-xl border px-3.5 py-2.5 text-sm transition-colors focus:outline-none uppercase"
+              className="border-line bg-surface-2 text-ink placeholder:text-ink-4 focus:border-accent focus:ring-accent w-full rounded-xl border px-3.5 py-2.5 font-mono text-sm uppercase transition-colors focus:outline-none"
             />
           </div>
 
@@ -193,7 +193,7 @@ export function UoeTaskFormView({ taskId }: { taskId?: number }) {
               value={answer}
               onChange={(e) => setAnswer(e.target.value)}
               placeholder="Например: WENT"
-              className="border-line bg-surface-2 text-ink placeholder:text-ink-4 focus:border-accent focus:ring-accent font-mono w-full rounded-xl border px-3.5 py-2.5 text-sm transition-colors focus:outline-none uppercase"
+              className="border-line bg-surface-2 text-ink placeholder:text-ink-4 focus:border-accent focus:ring-accent w-full rounded-xl border px-3.5 py-2.5 font-mono text-sm uppercase transition-colors focus:outline-none"
             />
           </div>
         </div>
@@ -215,8 +215,8 @@ export function UoeTaskFormView({ taskId }: { taskId?: number }) {
           {isSubmitting
             ? "Сохранение..."
             : isEditMode
-            ? "Сохранить изменения"
-            : "Создать задание"}
+              ? "Сохранить изменения"
+              : "Создать задание"}
         </button>
       </div>
     </form>

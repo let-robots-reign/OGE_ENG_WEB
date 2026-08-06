@@ -15,7 +15,11 @@ export default async function AdminEditAudioTaskPage({
   }
 
   return (
-    <Suspense fallback={<div className="text-ink-3 p-8 text-center">Загрузка задания...</div>}>
+    <Suspense
+      fallback={
+        <div className="text-ink-3 p-8 text-center">Загрузка задания...</div>
+      }
+    >
       <AudioTaskFormView taskId={taskId} />
     </Suspense>
   );

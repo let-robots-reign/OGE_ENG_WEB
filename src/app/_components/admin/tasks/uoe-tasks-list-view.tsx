@@ -269,7 +269,7 @@ export function UoeTasksListView() {
                         </span>
                       </td>
                       <td className="px-4 py-3.5">
-                        <span className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 rounded-md border px-2 py-0.5 font-mono text-[12.5px] font-bold">
+                        <span className="rounded-md border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 font-mono text-[12.5px] font-bold text-emerald-600">
                           {task.answer}
                         </span>
                       </td>
@@ -300,7 +300,7 @@ export function UoeTasksListView() {
                               setDeleteConfirmId(task.id);
                               setIsDeletingModalOpen(true);
                             }}
-                            className="text-red-500 hover:bg-red-500/10 rounded-lg p-1.5 transition-colors"
+                            className="rounded-lg p-1.5 text-red-500 transition-colors hover:bg-red-500/10"
                             title="Удалить"
                           >
                             <svg
