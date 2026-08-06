@@ -9,6 +9,12 @@ import {
   AdminPagination,
   AdminDeleteModal,
 } from "@/app/_components/admin/admin-table-controls";
+import type { ReadingTaskType } from "@/server/db/schema";
+
+const TASK_TYPE_LABELS: Record<ReadingTaskType, { label: string; cls: string }> = {
+  matching: { label: "Сопоставление", cls: "bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300" },
+  true_false: { label: "True/False", cls: "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300" },
+};
 
 export function ReadingTasksListView() {
   const [page, setPage] = useState(1);
@@ -214,6 +220,7 @@ export function ReadingTasksListView() {
                     )}
                   </div>
                 </th>
+                <th className="w-32 px-4 py-3.5">Тип</th>
                 <th className="px-4 py-3.5">Превью текста</th>
                 <th className="w-28 px-4 py-3.5 text-right">Действия</th>
               </tr>
@@ -221,13 +228,13 @@ export function ReadingTasksListView() {
             <tbody className="divide-line divide-y">
               {isLoading || isFetching ? (
                 <tr>
-                  <td colSpan={5} className="text-ink-3 py-12 text-center">
+                  <td colSpan={6} className="text-ink-3 py-12 text-center">
                     Загрузка заданий...
                   </td>
                 </tr>
               ) : tasks.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="text-ink-3 py-12 text-center">
+                  <td colSpan={6} className="text-ink-3 py-12 text-center">
                     Задания не найдены.
                   </td>
                 </tr>
@@ -262,6 +269,22 @@ export function ReadingTasksListView() {
                       </td>
                       <td className="text-ink px-4 py-3.5 font-medium">
                         {task.topic?.title ?? "—"}
+                      </td>
+                      <td className="px-4 py-3.5">
+                        {(() => {
+                          const typeMeta =
+                            TASK_TYPE_LABELS[task.taskType] ?? {
+                              label: task.taskType,
+                              cls: "bg-surface-2 text-ink-3",
+                            };
+                          return (
+                            <span
+                              className={`inline-block rounded-full px-2.5 py-1 text-[11px] font-semibold ${typeMeta.cls}`}
+                            >
+                              {typeMeta.label}
+                            </span>
+                          );
+                        })()}
                       </td>
                       <td className="text-ink-2 max-w-[400px] px-4 py-3.5 text-[13.5px] leading-snug">
                         {previewText || "(Пустой текст)"}

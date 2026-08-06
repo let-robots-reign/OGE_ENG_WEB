@@ -25,6 +25,10 @@ vi.mock("@/server/db", () => ({
         findMany: vi.fn(),
         findFirst: vi.fn(),
       },
+      readingTasks: {
+        findMany: vi.fn(),
+        findFirst: vi.fn(),
+      },
     },
   },
   userResults: {
@@ -38,6 +42,11 @@ vi.mock("@/server/db", () => ({
   audioTasks: {
     id: "audio_tasks_first_id",
     isDeleted: "audio_tasks_first_is_deleted",
+  },
+  readingTasks: {
+    id: "reading_tasks_id",
+    isDeleted: "reading_tasks_is_deleted",
+    topicId: "reading_tasks_topic_id",
   },
   trainingTopics: {
     id: "training_topics_id",

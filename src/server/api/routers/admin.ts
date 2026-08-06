@@ -2,7 +2,7 @@ import { z } from "zod";
 import { adminProcedure, createTRPCRouter } from "@/server/api/trpc";
 import {
   audioTasks,
-  readingTasksFirst,
+  readingTasks,
   trainingTopics,
   uoeTasks,
   userResults,
@@ -73,15 +73,8 @@ export const audioTaskInputSchema = z.discriminatedUnion("taskType", [
   gapFillInputSchema,
 ]);
 
-export const readingTaskInputSchema = z.object({
+const readingTaskBaseSchema = z.object({
   topicId: z.number({ required_error: "Выберите тему" }),
-  texts: z
-    .array(z.string().min(1, "Текст пассажа не может быть пустым"))
-    .min(1, "Минимум 1 текст"),
-  headings: z
-    .array(z.string().min(1, "Текст заголовка не может быть пустым"))
-    .min(1, "Минимум 1 заголовок"),
-  answers: z.array(z.number().min(1, "Выберите заголовок")),
   explanations: z.array(
     z.object({
       text: z.string().min(1, "Пояснение обязательно"),
@@ -89,6 +82,33 @@ export const readingTaskInputSchema = z.object({
     }),
   ),
 });
+
+const readingMatchingInputSchema = readingTaskBaseSchema.extend({
+  taskType: z.literal("matching"),
+  texts: z
+    .array(z.string().min(1, "Текст пассажа не может быть пустым"))
+    .min(1, "Минимум 1 текст"),
+  headings: z
+    .array(z.string().min(1, "Текст заголовка не может быть пустым"))
+    .min(1, "Минимум 1 заголовок"),
+  answers: z.array(z.number().min(1, "Выберите заголовок")),
+});
+
+const readingTrueFalseInputSchema = readingTaskBaseSchema.extend({
+  taskType: z.literal("true_false"),
+  texts: z
+    .array(z.string().min(1, "Текст не может быть пустым"))
+    .length(1, "Должен быть ровно 1 текст"),
+  headings: z
+    .array(z.string().min(1, "Утверждение не может быть пустым"))
+    .min(1, "Минимум 1 утверждение"),
+  answers: z.array(z.number().min(1).max(3)),
+});
+
+export const readingTaskInputSchema = z.discriminatedUnion("taskType", [
+  readingMatchingInputSchema,
+  readingTrueFalseInputSchema,
+]);
 
 export const adminRouter = createTRPCRouter({
   getTrainingResults: adminProcedure.query(async ({ ctx }) => {
@@ -326,20 +346,20 @@ export const adminRouter = createTRPCRouter({
       const { page, pageSize, search, topicId, sortBy, sortOrder } = input;
       const offset = (page - 1) * pageSize;
 
-      const conditions = [eq(readingTasksFirst.isDeleted, false)];
+      const conditions = [eq(readingTasks.isDeleted, false)];
       if (topicId) {
-        conditions.push(eq(readingTasksFirst.topicId, topicId));
+        conditions.push(eq(readingTasks.topicId, topicId));
       }
 
-      let tasks = await ctx.db.query.readingTasksFirst.findMany({
+      let tasks = await ctx.db.query.readingTasks.findMany({
         where: and(...conditions),
         with: {
           topic: true,
         },
-        orderBy: (readingTasksFirst, { asc, desc }) =>
+        orderBy: (readingTasks, { asc, desc }) =>
           sortOrder === "asc"
-            ? [asc(readingTasksFirst.id)]
-            : [desc(readingTasksFirst.id)],
+            ? [asc(readingTasks.id)]
+            : [desc(readingTasks.id)],
       });
 
       if (search && search.trim() !== "") {
@@ -387,10 +407,10 @@ export const adminRouter = createTRPCRouter({
   getReadingTaskById: adminProcedure
     .input(z.object({ id: z.number() }))
     .query(async ({ ctx, input }) => {
-      const task = await ctx.db.query.readingTasksFirst.findFirst({
+      const task = await ctx.db.query.readingTasks.findFirst({
         where: and(
-          eq(readingTasksFirst.id, input.id),
-          eq(readingTasksFirst.isDeleted, false),
+          eq(readingTasks.id, input.id),
+          eq(readingTasks.isDeleted, false),
         ),
         with: {
           topic: true,
@@ -405,9 +425,10 @@ export const adminRouter = createTRPCRouter({
     .input(readingTaskInputSchema)
     .mutation(async ({ ctx, input }) => {
       const [inserted] = await ctx.db
-        .insert(readingTasksFirst)
+        .insert(readingTasks)
         .values({
           topicId: input.topicId,
+          taskType: input.taskType,
           texts: input.texts,
           headings: input.headings,
           answers: input.answers,
@@ -421,21 +442,23 @@ export const adminRouter = createTRPCRouter({
 
   updateReadingTask: adminProcedure
     .input(
-      readingTaskInputSchema.extend({
-        id: z.number(),
-      }),
+      z.intersection(
+        z.object({ id: z.number() }),
+        readingTaskInputSchema,
+      ),
     )
     .mutation(async ({ ctx, input }) => {
       const [updated] = await ctx.db
-        .update(readingTasksFirst)
+        .update(readingTasks)
         .set({
           topicId: input.topicId,
+          taskType: input.taskType,
           texts: input.texts,
           headings: input.headings,
           answers: input.answers,
           explanations: input.explanations,
         })
-        .where(eq(readingTasksFirst.id, input.id))
+        .where(eq(readingTasks.id, input.id))
         .returning();
 
       return updated;
@@ -445,9 +468,9 @@ export const adminRouter = createTRPCRouter({
     .input(z.object({ ids: z.array(z.number()).min(1) }))
     .mutation(async ({ ctx, input }) => {
       await ctx.db
-        .update(readingTasksFirst)
+        .update(readingTasks)
         .set({ isDeleted: true })
-        .where(inArray(readingTasksFirst.id, input.ids));
+        .where(inArray(readingTasks.id, input.ids));
 
       return { success: true, deletedCount: input.ids.length };
     }),
