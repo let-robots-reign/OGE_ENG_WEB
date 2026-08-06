@@ -2,13 +2,7 @@ import { PageHeader } from "./page-header";
 import { TaskCard } from "./task-card";
 import { InfoCard } from "./info-card";
 import { GenreStrip } from "./genre-strip";
-import {
-  READING_META,
-  READING_EXAM,
-  READING_INFO,
-  NOT_COMPLETED_TOPICS,
-  type Topic,
-} from "./data";
+import { READING_META, READING_EXAM, READING_INFO, type Topic } from "./data";
 
 interface ReadingTasksViewProps {
   topics: Topic[];
@@ -35,9 +29,6 @@ export function ReadingTasksView({
       <div className="flex flex-col gap-3.5">
         {topics.map((topic) => {
           const meta = READING_META[topic.title];
-          const disabled = (NOT_COMPLETED_TOPICS as readonly string[]).includes(
-            topic.title,
-          );
           const href = `/training/${trainingKey}?topic=${topic.id}`;
           return (
             <TaskCard
@@ -49,9 +40,8 @@ export function ReadingTasksView({
               type={meta?.type ?? ""}
               items={meta?.items ?? 0}
               time={meta?.time ?? ""}
-              progress={disabled ? null : (topic.progress ?? null)}
-              href={disabled ? undefined : href}
-              disabled={disabled}
+              progress={topic.progress ?? null}
+              href={href}
             />
           );
         })}

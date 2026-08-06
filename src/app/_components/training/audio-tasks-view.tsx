@@ -1,13 +1,7 @@
 import { PageHeader } from "./page-header";
 import { TaskCard } from "./task-card";
 import { InfoCard } from "./info-card";
-import {
-  AUDIO_META,
-  AUDIO_EXAM,
-  AUDIO_INFO,
-  NOT_COMPLETED_TOPICS,
-  type Topic,
-} from "./data";
+import { AUDIO_META, AUDIO_EXAM, AUDIO_INFO, type Topic } from "./data";
 
 interface AudioTasksViewProps {
   topics: Topic[];
@@ -31,9 +25,6 @@ export function AudioTasksView({ topics, trainingKey }: AudioTasksViewProps) {
       <div className="flex flex-col gap-3.5">
         {topics.map((topic) => {
           const meta = AUDIO_META[topic.title];
-          const disabled = (NOT_COMPLETED_TOPICS as readonly string[]).includes(
-            topic.title,
-          );
           const href = `/training/${trainingKey}?topic=${topic.id}`;
           return (
             <TaskCard
@@ -45,9 +36,8 @@ export function AudioTasksView({ topics, trainingKey }: AudioTasksViewProps) {
               type={meta?.type ?? ""}
               items={meta?.items ?? 0}
               time={meta?.time ?? ""}
-              progress={disabled ? null : (topic.progress ?? null)}
-              href={disabled ? undefined : href}
-              disabled={disabled}
+              progress={topic.progress ?? null}
+              href={href}
             />
           );
         })}

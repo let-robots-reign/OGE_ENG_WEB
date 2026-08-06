@@ -122,7 +122,7 @@ export const trainingTopicsRelations = relations(
   trainingTopics,
   ({ many }) => ({
     audioTasks: many(audioTasks),
-    readingTasks: many(readingTasksFirst),
+    readingTasks: many(readingTasks),
     uoeTasks: many(uoeTasks),
     writingTasks: many(writingTasks),
   }),
@@ -183,11 +183,22 @@ export interface ReadingTaskExplanation {
   highlightedText?: string;
 }
 
-export const readingTasksFirst = createTable("reading_task_first", (d) => ({
+export type ReadingTaskType = "matching" | "true_false";
+
+export type ReadingTaskContent =
+  | { taskType: "matching"; texts: string[]; headings: string[] }
+  | { taskType: "true_false"; texts: [string]; headings: string[] };
+
+export const readingTasks = createTable("reading_task", (d) => ({
   id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
   topicId: d
     .integer()
     .references(() => trainingTopics.id, { onDelete: "set null" }),
+  taskType: d
+    .varchar({ length: 255 })
+    .$type<ReadingTaskType>()
+    .default("matching")
+    .notNull(),
   isDeleted: d.boolean().default(false).notNull(),
   texts: d.jsonb("texts").$type<string[]>().notNull(),
   headings: d.jsonb("headings").$type<string[]>().notNull(),
@@ -198,15 +209,12 @@ export const readingTasksFirst = createTable("reading_task_first", (d) => ({
     .notNull(),
 }));
 
-export const readingTasksFirstRelations = relations(
-  readingTasksFirst,
-  ({ one }) => ({
-    topic: one(trainingTopics, {
-      fields: [readingTasksFirst.topicId],
-      references: [trainingTopics.id],
-    }),
+export const readingTasksRelations = relations(readingTasks, ({ one }) => ({
+  topic: one(trainingTopics, {
+    fields: [readingTasks.topicId],
+    references: [trainingTopics.id],
   }),
-);
+}));
 
 export const uoeTasks = createTable("uoe_task", (d) => ({
   id: d.integer().primaryKey().generatedByDefaultAsIdentity(),

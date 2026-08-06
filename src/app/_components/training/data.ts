@@ -1,7 +1,3 @@
-export const NOT_COMPLETED_TOPICS = [
-  "Задания 13-19",
-] as const;
-
 export type Topic = {
   id: number;
   title: string;

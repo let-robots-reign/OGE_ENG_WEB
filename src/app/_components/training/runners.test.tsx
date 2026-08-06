@@ -387,8 +387,11 @@ describe("Training Runners Integration Suite", () => {
           topicTitle: "Reading Matching Topic",
           task: {
             id: 301,
+            taskType: "matching",
             headings: ["Heading 1", "Heading 2"],
             texts: ["Paragraph A details", "Paragraph B details"],
+            answers: [1, 2],
+            explanations: [],
           },
         },
         isLoading: false,
@@ -434,6 +437,62 @@ describe("Training Runners Integration Suite", () => {
         expect(mockCheckReading).toHaveBeenCalledWith({
           id: 301,
           answers: [1, 2],
+        });
+      });
+    });
+
+    it("should implement true/false/not-stated selections", async () => {
+      const mockQuery = vi.spyOn(api.training.getReadingTraining, "useQuery");
+      mockQuery.mockReturnValue({
+        data: {
+          topicTitle: "Задания 13-19",
+          task: {
+            id: 302,
+            taskType: "true_false",
+            text: "Cambridge University is the second-oldest university.",
+            statements: [
+              "Cambridge was founded before Oxford.",
+              "Citizens were happy about the university.",
+            ],
+            total: 2,
+          },
+        },
+        isLoading: false,
+      } as any);
+
+      mockCheckReading.mockResolvedValue({
+        correctCount: 1,
+        total: 2,
+        correctAnswers: [2, 3],
+        results: [false, true],
+        explanation: [
+          { text: "The text says it is the second-oldest." },
+          { text: "Not mentioned in the text." },
+        ],
+      });
+
+      render(<ReadingRunner />);
+
+      expect(
+        screen.getByText("Cambridge was founded before Oxford."),
+      ).toBeInTheDocument();
+
+      // Select False for statement 1
+      const falseButtons = screen.getAllByText("False");
+      fireEvent.click(falseButtons[0]!);
+
+      // Select Not stated for statement 2
+      const nsButtons = screen.getAllByText("Not stated");
+      fireEvent.click(nsButtons[1]!);
+
+      const checkBtn = screen.getByText("Проверить ответы →");
+      expect(checkBtn).not.toBeDisabled();
+      fireEvent.click(checkBtn);
+
+      await waitFor(() => {
+        expect(mockCheckReading).toHaveBeenCalledWith({
+          id: 302,
+          answers: [2, 3],
         });
       });
     });

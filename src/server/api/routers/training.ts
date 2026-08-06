@@ -7,7 +7,7 @@ import {
 import {
   activityTypeEnum,
   audioTasks,
-  readingTasksFirst,
+  readingTasks,
   trainingTopics,
   uoeTasks,
   userResults,
@@ -110,14 +110,14 @@ export const trainingRouter = createTRPCRouter({
       if (input.category === "reading") {
         const tasks = await ctx.db
           .select({
-            id: readingTasksFirst.id,
-            topicId: readingTasksFirst.topicId,
+            id: readingTasks.id,
+            topicId: readingTasks.topicId,
           })
-          .from(readingTasksFirst)
+          .from(readingTasks)
           .where(
             and(
-              eq(readingTasksFirst.isDeleted, false),
-              inArray(readingTasksFirst.topicId, topicIds),
+              eq(readingTasks.isDeleted, false),
+              inArray(readingTasks.topicId, topicIds),
             ),
           );
 
@@ -294,16 +294,16 @@ export const trainingRouter = createTRPCRouter({
         columns: { title: true },
       });
 
-      if (topic?.title !== "Задание 12") {
+      if (!topic) {
         throw new TRPCError({
-          code: "BAD_REQUEST",
-          message: "This procedure is only for 'Задание 12'.",
+          code: "NOT_FOUND",
+          message: "Topic not found.",
         });
       }
 
       const baseWhere = and(
-        eq(readingTasksFirst.topicId, input.topicId),
-        eq(readingTasksFirst.isDeleted, false),
+        eq(readingTasks.topicId, input.topicId),
+        eq(readingTasks.isDeleted, false),
       );
 
       const userId = ctx.session?.user?.id;
@@ -312,12 +312,12 @@ export const trainingRouter = createTRPCRouter({
       if (userId) {
         task = await ctx.db
           .select()
-          .from(readingTasksFirst)
+          .from(readingTasks)
           .where(
             and(
               baseWhere,
               notInArray(
-                readingTasksFirst.id,
+                readingTasks.id,
                 ctx.db
                   .select({ id: userResults.taskId })
                   .from(userResults)
@@ -337,10 +337,9 @@ export const trainingRouter = createTRPCRouter({
           .then((res) => res[0]);
       }
 
-      // Fallback: unauthenticated, or every task has been completed
       task ??= await ctx.db
         .select()
-        .from(readingTasksFirst)
+        .from(readingTasks)
         .where(baseWhere)
         .orderBy(sql`RANDOM()`)
         .limit(1)
@@ -353,11 +352,30 @@ export const trainingRouter = createTRPCRouter({
         });
       }
 
+      if (task.taskType === "true_false") {
+        return {
+          task: {
+            id: task.id,
+            topicId: task.topicId,
+            taskType: "true_false" as const,
+            text: (task.texts ?? [])[0] ?? "",
+            statements: task.headings ?? [],
+            total: (task.answers ?? []).length,
+          },
+          topicTitle: topic.title,
+        };
+      }
+
       return {
         task: {
-          ...task,
+          id: task.id,
+          topicId: task.topicId,
+          taskType: "matching" as const,
+          isDeleted: task.isDeleted,
           headings: task.headings ?? [],
           texts: task.texts ?? [],
+          answers: task.answers ?? [],
+          explanations: task.explanations ?? [],
         },
         topicTitle: topic.title,
       };
@@ -371,8 +389,8 @@ export const trainingRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const task = await ctx.db.query.readingTasksFirst.findFirst({
-        where: eq(readingTasksFirst.id, input.id),
+      const task = await ctx.db.query.readingTasks.findFirst({
+        where: eq(readingTasks.id, input.id),
       });
 
       if (!task) {
