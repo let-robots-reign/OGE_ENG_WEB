@@ -150,9 +150,11 @@ export function ReadingTaskFormView({ taskId }: { taskId?: number }) {
           (text, idx) => {
             const rawAnswer = existingTask.answers?.[idx];
             const selectedHeadingIndex =
-              typeof rawAnswer === "number" && rawAnswer >= 1
+              typeof rawAnswer === "number" &&
+              rawAnswer >= 1 &&
+              rawAnswer <= existingTask.headings.length
                 ? rawAnswer - 1
-                : 0;
+                : -1;
             return {
               text,
               selectedHeadingIndex,
@@ -178,7 +180,7 @@ export function ReadingTaskFormView({ taskId }: { taskId?: number }) {
     setPassages((prev) =>
       prev.map((p) => {
         if (p.selectedHeadingIndex === index) {
-          return { ...p, selectedHeadingIndex: 0 };
+          return { ...p, selectedHeadingIndex: -1 };
         }
         if (p.selectedHeadingIndex > index) {
           return { ...p, selectedHeadingIndex: p.selectedHeadingIndex - 1 };
@@ -202,7 +204,7 @@ export function ReadingTaskFormView({ taskId }: { taskId?: number }) {
       ...prev,
       {
         text: "",
-        selectedHeadingIndex: 0,
+        selectedHeadingIndex: -1,
         explanationText: "",
         highlightedText: "",
       },
@@ -333,11 +335,32 @@ export function ReadingTaskFormView({ taskId }: { taskId?: number }) {
       setFormError("Добавьте хотя бы один фрагмент текста (пассаж)");
       return;
     }
+    if (headings.length !== passages.length + 1) {
+      setFormError("Заголовков должно быть на один больше, чем фрагментов");
+      return;
+    }
     for (let i = 0; i < passages.length; i++) {
       const p = passages[i]!;
       const label = PASSAGE_LABELS[i] ?? `#${i + 1}`;
       if (!p.text.trim()) {
         setFormError(`Заполните текст для фрагмента ${label}`);
+        return;
+      }
+      if (
+        p.selectedHeadingIndex < 0 ||
+        p.selectedHeadingIndex >= headings.length
+      ) {
+        setFormError(`Выберите заголовок для фрагмента ${label}`);
+        return;
+      }
+      if (
+        passages.some(
+          (other, otherIndex) =>
+            otherIndex !== i &&
+            other.selectedHeadingIndex === p.selectedHeadingIndex,
+        )
+      ) {
+        setFormError(`Заголовок для фрагмента ${label} уже используется`);
         return;
       }
       if (!p.explanationText.trim()) {
@@ -656,8 +679,19 @@ function MatchingSection({
                   <span className="text-red-500">*</span>
                 </label>
                 <CustomSelect
-                  options={headingSelectOptions}
-                  value={passage.selectedHeadingIndex.toString()}
+                  options={headingSelectOptions.map((option, optionIndex) => ({
+                    ...option,
+                    disabled: passages.some(
+                      (other, otherIndex) =>
+                        otherIndex !== index &&
+                        other.selectedHeadingIndex === optionIndex,
+                    ),
+                  }))}
+                  value={
+                    passage.selectedHeadingIndex >= 0
+                      ? passage.selectedHeadingIndex.toString()
+                      : ""
+                  }
                   onChange={(val) =>
                     onPassageChange(
                       index,

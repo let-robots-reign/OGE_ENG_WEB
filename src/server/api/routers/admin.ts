@@ -44,7 +44,7 @@ const multipleChoiceInputSchema = audioTaskBaseSchema.extend({
       }),
     )
     .min(1, "Минимум 1 вопрос"),
-  answers: z.array(z.number()),
+  answers: z.array(z.number().int().min(1)),
 });
 
 const matchingInputSchema = audioTaskBaseSchema.extend({
@@ -53,7 +53,7 @@ const matchingInputSchema = audioTaskBaseSchema.extend({
     .array(z.string().min(1, "Текст рубрики не может быть пустым"))
     .min(1, "Минимум 1 рубрика"),
   answers: z
-    .array(z.number().min(1).max(6))
+    .array(z.number().int().min(1))
     .min(1, "Укажите ответы для спикеров"),
 });
 
@@ -67,11 +67,72 @@ const gapFillInputSchema = audioTaskBaseSchema.extend({
   ),
 });
 
-export const audioTaskInputSchema = z.discriminatedUnion("taskType", [
-  multipleChoiceInputSchema,
-  matchingInputSchema,
-  gapFillInputSchema,
-]);
+export const audioTaskInputSchema = z
+  .discriminatedUnion("taskType", [
+    multipleChoiceInputSchema,
+    matchingInputSchema,
+    gapFillInputSchema,
+  ])
+  .superRefine((input, ctx) => {
+    if (input.answers.length !== input.explanations.length) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["explanations"],
+        message: "Количество пояснений должно совпадать с количеством ответов",
+      });
+    }
+
+    if (
+      input.taskType !== "matching" &&
+      input.questions.length !== input.answers.length
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["answers"],
+        message: "Количество ответов должно совпадать с количеством вопросов",
+      });
+    }
+
+    if (input.taskType === "multiple_choice") {
+      input.answers.forEach((answer, index) => {
+        const optionCount = input.questions[index]?.options.length ?? 0;
+        if (answer > optionCount) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["answers", index],
+            message:
+              "Правильный ответ должен указывать на существующий вариант",
+          });
+        }
+      });
+    }
+
+    if (input.taskType === "matching") {
+      if (input.questions.length !== input.answers.length + 1) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["questions"],
+          message: "Должна быть одна лишняя рубрика",
+        });
+      }
+      if (new Set(input.answers).size !== input.answers.length) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["answers"],
+          message: "Каждая рубрика может использоваться только один раз",
+        });
+      }
+      input.answers.forEach((answer, index) => {
+        if (answer > input.questions.length) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["answers", index],
+            message: "Ответ должен указывать на существующую рубрику",
+          });
+        }
+      });
+    }
+  });
 
 const readingTaskBaseSchema = z.object({
   topicId: z.number({ required_error: "Выберите тему" }),
@@ -91,7 +152,7 @@ const readingMatchingInputSchema = readingTaskBaseSchema.extend({
   headings: z
     .array(z.string().min(1, "Текст заголовка не может быть пустым"))
     .min(1, "Минимум 1 заголовок"),
-  answers: z.array(z.number().min(1, "Выберите заголовок")),
+  answers: z.array(z.number().int().min(1, "Выберите заголовок")),
 });
 
 const readingTrueFalseInputSchema = readingTaskBaseSchema.extend({
@@ -102,13 +163,61 @@ const readingTrueFalseInputSchema = readingTaskBaseSchema.extend({
   headings: z
     .array(z.string().min(1, "Утверждение не может быть пустым"))
     .min(1, "Минимум 1 утверждение"),
-  answers: z.array(z.number().min(1).max(3)),
+  answers: z.array(z.number().int().min(1).max(3)),
 });
 
-export const readingTaskInputSchema = z.discriminatedUnion("taskType", [
-  readingMatchingInputSchema,
-  readingTrueFalseInputSchema,
-]);
+export const readingTaskInputSchema = z
+  .discriminatedUnion("taskType", [
+    readingMatchingInputSchema,
+    readingTrueFalseInputSchema,
+  ])
+  .superRefine((input, ctx) => {
+    if (input.answers.length !== input.explanations.length) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["explanations"],
+        message: "Количество пояснений должно совпадать с количеством ответов",
+      });
+    }
+
+    const expectedAnswerCount =
+      input.taskType === "matching"
+        ? input.texts.length
+        : input.headings.length;
+    if (input.answers.length !== expectedAnswerCount) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["answers"],
+        message: "Количество ответов не совпадает с количеством заданий",
+      });
+    }
+
+    if (input.taskType === "matching") {
+      if (input.headings.length !== input.texts.length + 1) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["headings"],
+          message: "Должен быть ровно один лишний заголовок",
+        });
+      }
+      if (new Set(input.answers).size !== input.answers.length) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["answers"],
+          message: "Каждый заголовок может использоваться только один раз",
+        });
+      }
+      input.answers.forEach((answer, index) => {
+        if (answer > input.headings.length) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["answers", index],
+            message: "Ответ должен указывать на существующий заголовок",
+          });
+        }
+      });
+    }
+  });
 
 export const adminRouter = createTRPCRouter({
   getTrainingResults: adminProcedure.query(async ({ ctx }) => {

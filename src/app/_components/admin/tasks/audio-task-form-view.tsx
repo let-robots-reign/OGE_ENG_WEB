@@ -926,6 +926,7 @@ function MatchingSection({
                     return {
                       value: num,
                       label: `${num}${disabled ? " (занята)" : ""}`,
+                      disabled,
                     };
                   })}
                   value={currentVal}

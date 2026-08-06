@@ -55,7 +55,11 @@ vi.mock("@/server/db", () => ({
 }));
 
 import { describe, it, expect, beforeEach } from "vitest";
-import { adminRouter } from "./admin";
+import {
+  adminRouter,
+  audioTaskInputSchema,
+  readingTaskInputSchema,
+} from "./admin";
 import { createCallerFactory } from "@/server/api/trpc";
 import { TRPCError } from "@trpc/server";
 import { db } from "@/server/db";
@@ -237,7 +241,7 @@ describe("Admin Router tRPC Procedures", () => {
             options: ["Opt 1", "Opt 2"],
           },
         ],
-        answers: [0],
+        answers: [1],
         explanations: [{ text: "Explanation 1" }],
       });
 
@@ -252,6 +256,62 @@ describe("Admin Router tRPC Procedures", () => {
       const res = await adminCaller.deleteAudioTasks({ ids: [10, 20] });
       expect(mockUpdateSet).toHaveBeenCalledWith({ isDeleted: true });
       expect(res).toEqual({ success: true, deletedCount: 2 });
+    });
+  });
+
+  describe("task input validation", () => {
+    const explanation = { text: "Explanation" };
+
+    it("rejects duplicate matching rubrics for audio tasks", () => {
+      const result = audioTaskInputSchema.safeParse({
+        taskType: "matching",
+        topicId: 1,
+        audioUrl: "/uploads/audio/test.mp3",
+        questions: ["One", "Two", "Three"],
+        answers: [1, 1],
+        explanations: [explanation, explanation],
+      });
+
+      expect(result.success).toBe(false);
+    });
+
+    it("accepts a valid audio matching answer key", () => {
+      const result = audioTaskInputSchema.safeParse({
+        taskType: "matching",
+        topicId: 1,
+        audioUrl: "/uploads/audio/test.mp3",
+        questions: ["One", "Two", "Three"],
+        answers: [1, 3],
+        explanations: [explanation, explanation],
+      });
+
+      expect(result.success).toBe(true);
+    });
+
+    it("rejects duplicate matching headings for reading tasks", () => {
+      const result = readingTaskInputSchema.safeParse({
+        taskType: "matching",
+        topicId: 1,
+        texts: ["Text A", "Text B"],
+        headings: ["One", "Two", "Three"],
+        answers: [1, 1],
+        explanations: [explanation, explanation],
+      });
+
+      expect(result.success).toBe(false);
+    });
+
+    it("rejects reading answers that reference a missing heading", () => {
+      const result = readingTaskInputSchema.safeParse({
+        taskType: "matching",
+        topicId: 1,
+        texts: ["Text A", "Text B"],
+        headings: ["One", "Two", "Three"],
+        answers: [1, 4],
+        explanations: [explanation, explanation],
+      });
+
+      expect(result.success).toBe(false);
     });
   });
 });

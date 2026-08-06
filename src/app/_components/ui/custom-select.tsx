@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 export interface SelectOption<T extends string | number> {
   value: T;
   label: string;
+  disabled?: boolean;
 }
 
 interface CustomSelectProps<T extends string | number> {
@@ -82,11 +83,13 @@ export function CustomSelect<T extends string | number>({
                 <button
                   key={String(opt.value)}
                   type="button"
+                  disabled={opt.disabled}
                   onClick={() => {
+                    if (opt.disabled) return;
                     onChange(opt.value);
                     setIsOpen(false);
                   }}
-                  className={`flex w-full items-center justify-between px-3.5 py-2 text-left text-[14px] transition-colors ${
+                  className={`flex w-full items-center justify-between px-3.5 py-2 text-left text-[14px] transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
                     isSelected
                       ? "bg-accent/10 text-accent font-medium"
                       : "text-ink hover:bg-surface-2"
