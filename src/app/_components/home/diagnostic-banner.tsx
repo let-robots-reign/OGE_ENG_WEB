@@ -48,7 +48,7 @@ export function DiagnosticBanner({
                     : "var(--color-accent-2)",
                 }}
               />
-              {completed ? "04 — пройдено" : "04 — старт"}
+              {completed ? "04 — пройдено" : "04 — диагностика (бета-версия)"}
             </div>
             <div className="font-display mt-3 text-[30px] leading-none tracking-[-0.025em] text-white sm:text-[38px] lg:text-[44px]">
               {completed

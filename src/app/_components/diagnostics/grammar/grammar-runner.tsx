@@ -7,6 +7,7 @@ import Link from "next/link";
 import posthog from "posthog-js";
 
 import { api } from "@/trpc/react";
+import { useSubmitAnswersMutation } from "@/app/_composables/use-submit-answers-mutation";
 import { part1Questions, part2Questions } from "@/app/diagnostics/grammar/data";
 import { SectionSubHeader } from "@/app/_components/training/shared/training-sub-header";
 import { Modal } from "@/app/_components/Modal";
@@ -72,10 +73,7 @@ export function GrammarRunner() {
       enabled: status === "authenticated",
     });
 
-  const utils = api.useUtils();
-  const logResultMutation = api.training.logResult.useMutation({
-    onSuccess: () => void utils.user.getStreak.invalidate(),
-  });
+  const submitAnswersMutation = useSubmitAnswersMutation();
 
   useEffect(() => {
     if (status === "unauthenticated") setShowAuthModal(true);
@@ -91,7 +89,7 @@ export function GrammarRunner() {
       posthog.capture("diagnostics_completed", { diagnostics_type: "grammar" });
 
       if (session?.user) {
-        logResultMutation.mutate({
+        submitAnswersMutation.mutate({
           /*
           TODO: list of diagnostics is not stored in the DB yet.
           Setting activityId: 1 here to satisfy the table's schema.

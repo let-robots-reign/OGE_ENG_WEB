@@ -18,7 +18,232 @@ import { isGapFillAnswerCorrect } from "@/app/_utils/gapFill";
 import { and, eq, inArray, isNotNull, notInArray, sql, ne } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
+type AudioTask = typeof audioTasks.$inferSelect;
+type ReadingTask = typeof readingTasks.$inferSelect;
+type ExamAnswer = number | string | null;
+
+function gradeAudioTask(task: AudioTask, answers: ExamAnswer[]) {
+  const correctAnswers = task.answers ?? [];
+  const results =
+    task.taskType === "gap_fill"
+      ? correctAnswers.map((rawCorrect, i) =>
+          isGapFillAnswerCorrect(answers[i], rawCorrect),
+        )
+      : correctAnswers.map((correct, i) => {
+          const userAnswer = answers[i];
+          if (userAnswer === null || userAnswer === undefined) return false;
+          return Number(userAnswer) === Number(correct);
+        });
+
+  return {
+    correctAnswers,
+    results,
+    correctCount: results.filter(Boolean).length,
+    total: correctAnswers.length,
+    explanation: task.explanations ?? [],
+  };
+}
+
+function gradeReadingTask(task: ReadingTask, answers: ExamAnswer[]) {
+  const correctAnswers = task.answers ?? [];
+  const results = answers.map(
+    (answer, i) => typeof answer === "number" && answer === correctAnswers[i],
+  );
+
+  return {
+    correctAnswers,
+    results,
+    correctCount: results.filter(Boolean).length,
+    total: correctAnswers.length,
+    explanation: task.explanations ?? [],
+  };
+}
+
+const examCategorySchema = z.enum(["audio", "reading"]);
+const examAnswersSchema = z
+  .array(z.union([z.number(), z.string().max(100)]).nullable())
+  .max(20);
+
+const EXAM_TOPIC_ORDER: Record<"audio" | "reading", readonly string[]> = {
+  audio: ["Задания 1-4", "Задание 5", "Задания 6-11"],
+  reading: ["Задание 12", "Задания 13-19"],
+};
+
 export const trainingRouter = createTRPCRouter({
+  getExamSection: publicProcedure
+    .input(z.object({ category: examCategorySchema }))
+    .query(async ({ ctx, input }) => {
+      const topics = await ctx.db.query.trainingTopics.findMany({
+        where: and(
+          eq(trainingTopics.category, input.category),
+          eq(trainingTopics.isActive, true),
+        ),
+      });
+      const topicOrder = new Map(
+        EXAM_TOPIC_ORDER[input.category].map((title, index) => [title, index]),
+      );
+      topics.sort((left, right) => {
+        const leftOrder = topicOrder.get(left.title) ?? Number.MAX_SAFE_INTEGER;
+        const rightOrder =
+          topicOrder.get(right.title) ?? Number.MAX_SAFE_INTEGER;
+        return leftOrder - rightOrder || left.id - right.id;
+      });
+
+      const steps = await Promise.all(
+        topics.map(async (topic) => {
+          if (input.category === "audio") {
+            const task = await ctx.db
+              .select({
+                id: audioTasks.id,
+                audioUrl: audioTasks.audioUrl,
+                topicId: audioTasks.topicId,
+                taskType: audioTasks.taskType,
+                questions: audioTasks.questions,
+                total:
+                  sql<number>`jsonb_array_length(${audioTasks.answers})`.mapWith(
+                    Number,
+                  ),
+              })
+              .from(audioTasks)
+              .where(
+                and(
+                  eq(audioTasks.topicId, topic.id),
+                  eq(audioTasks.isDeleted, false),
+                ),
+              )
+              .orderBy(sql`RANDOM()`)
+              .limit(1)
+              .then((rows) => rows[0]);
+
+            return task
+              ? {
+                  topicTitle: topic.title,
+                  task: { ...task, questions: task.questions ?? [] },
+                }
+              : null;
+          }
+
+          const task = await ctx.db
+            .select({
+              id: readingTasks.id,
+              topicId: readingTasks.topicId,
+              taskType: readingTasks.taskType,
+              texts: readingTasks.texts,
+              headings: readingTasks.headings,
+              total:
+                sql<number>`jsonb_array_length(${readingTasks.answers})`.mapWith(
+                  Number,
+                ),
+            })
+            .from(readingTasks)
+            .where(
+              and(
+                eq(readingTasks.topicId, topic.id),
+                eq(readingTasks.isDeleted, false),
+              ),
+            )
+            .orderBy(sql`RANDOM()`)
+            .limit(1)
+            .then((rows) => rows[0]);
+
+          return task
+            ? {
+                topicTitle: topic.title,
+                task: {
+                  ...task,
+                  texts: task.texts ?? [],
+                  headings: task.headings ?? [],
+                },
+              }
+            : null;
+        }),
+      );
+
+      const availableSteps = steps.filter((step) => step !== null);
+      if (
+        availableSteps.length === 0 ||
+        availableSteps.length !== topics.length
+      ) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "A complete exam section could not be formed.",
+        });
+      }
+
+      return { category: input.category, steps: availableSteps };
+    }),
+
+  checkExamSection: publicProcedure
+    .input(
+      z.object({
+        category: examCategorySchema,
+        steps: z
+          .array(z.object({ taskId: z.number(), answers: examAnswersSchema }))
+          .min(1)
+          .max(10),
+        timeSpent: z.number().int().min(0).max(1800),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const taskIds = input.steps.map((step) => step.taskId);
+
+      if (new Set(taskIds).size !== taskIds.length) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Duplicate exam tasks are not allowed.",
+        });
+      }
+
+      const tasks =
+        input.category === "audio"
+          ? await ctx.db.query.audioTasks.findMany({
+              where: and(
+                inArray(audioTasks.id, taskIds),
+                eq(audioTasks.isDeleted, false),
+              ),
+            })
+          : await ctx.db.query.readingTasks.findMany({
+              where: and(
+                inArray(readingTasks.id, taskIds),
+                eq(readingTasks.isDeleted, false),
+              ),
+            });
+
+      if (tasks.length !== taskIds.length) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "One or more exam tasks could not be found.",
+        });
+      }
+
+      const stepResults = input.steps.map((step) => {
+        const task = tasks.find((candidate) => candidate.id === step.taskId);
+        if (!task) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Exam task not found for checking.",
+          });
+        }
+
+        const grade =
+          input.category === "audio"
+            ? gradeAudioTask(task as AudioTask, step.answers)
+            : gradeReadingTask(task as ReadingTask, step.answers);
+
+        return { taskId: step.taskId, ...grade };
+      });
+
+      return {
+        steps: stepResults,
+        correctCount: stepResults.reduce(
+          (sum, step) => sum + step.correctCount,
+          0,
+        ),
+        total: stepResults.reduce((sum, step) => sum + step.total, 0),
+        timeSpent: input.timeSpent,
+      };
+    }),
+
   getTopicsByCategory: publicProcedure
     .input(z.object({ category: z.string() }))
     .query(async ({ ctx, input }) => {
@@ -187,7 +412,7 @@ export const trainingRouter = createTRPCRouter({
       );
     }),
 
-  logResult: protectedProcedure
+  submitAnswers: protectedProcedure
     .input(
       z.object({
         activityId: z.number(),
@@ -400,20 +625,7 @@ export const trainingRouter = createTRPCRouter({
         });
       }
 
-      const correctAnswers = task.answers ?? [];
-
-      const results = input.answers.map(
-        (userAnswer, i) => userAnswer === correctAnswers[i],
-      );
-      const correctCount = results.filter(Boolean).length;
-
-      return {
-        correctAnswers,
-        results,
-        correctCount,
-        total: correctAnswers.length,
-        explanation: task.explanations ?? [],
-      };
+      return gradeReadingTask(task, input.answers);
     }),
 
   // --- Writing ---
@@ -676,37 +888,6 @@ export const trainingRouter = createTRPCRouter({
         });
       }
 
-      if (task.taskType === "gap_fill") {
-        const correctAnswers = task.answers ?? [];
-        const results = correctAnswers.map((rawCorrect, i) =>
-          isGapFillAnswerCorrect(input.answers[i], rawCorrect),
-        );
-        const correctCount = results.filter(Boolean).length;
-
-        return {
-          correctAnswers,
-          results,
-          correctCount,
-          total: correctAnswers.length,
-          explanation: task.explanations ?? [],
-        };
-      }
-
-      const correctAnswers = task.answers ?? [];
-
-      const results = correctAnswers.map((correct, i) => {
-        const userAns = input.answers[i];
-        if (userAns === null || userAns === undefined) return false;
-        return Number(userAns) === Number(correct);
-      });
-      const correctCount = results.filter(Boolean).length;
-
-      return {
-        correctAnswers,
-        results,
-        correctCount,
-        total: correctAnswers.length,
-        explanation: task.explanations ?? [],
-      };
+      return gradeAudioTask(task, input.answers);
     }),
 });

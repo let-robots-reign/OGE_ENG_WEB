@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/unbound-method */
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-return, @typescript-eslint/unbound-method */
 import { vi } from "vitest";
 
 vi.mock("@/server/db", () => ({
@@ -43,6 +43,89 @@ const createCaller = createCallerFactory(trainingRouter);
 describe("Training Router tRPC Procedures", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  describe("getExamSection", () => {
+    const mockTaskSelections = (tasks: any[]) => {
+      let callIndex = 0;
+      vi.mocked(db.select).mockImplementation(
+        () =>
+          ({
+            from: () => ({
+              where: () => ({
+                orderBy: () => ({
+                  limit: () => Promise.resolve([tasks[callIndex++]]),
+                }),
+              }),
+            }),
+          }) as any,
+      );
+    };
+
+    it("orders audio topics as tasks 1–4, 5, then 6–11", async () => {
+      vi.mocked(db.query.trainingTopics.findMany).mockResolvedValue([
+        { id: 3, title: "Задания 6-11", category: "audio", isActive: true },
+        { id: 1, title: "Задания 1-4", category: "audio", isActive: true },
+        { id: 2, title: "Задание 5", category: "audio", isActive: true },
+      ] as any);
+      mockTaskSelections(
+        [1, 2, 3].map((id) => ({
+          id,
+          topicId: id,
+          taskType: "multiple_choice",
+          audioUrl: `/audio/${id}.mp3`,
+          questions: [],
+          total: 1,
+        })),
+      );
+
+      const caller = createCaller({
+        db: db as any,
+        session: null,
+        headers: new Headers(),
+      });
+      const result = await caller.getExamSection({ category: "audio" });
+
+      expect(result.steps.map((step) => step.topicTitle)).toEqual([
+        "Задания 1-4",
+        "Задание 5",
+        "Задания 6-11",
+      ]);
+    });
+
+    it("orders reading topics as task 12, then tasks 13–19", async () => {
+      vi.mocked(db.query.trainingTopics.findMany).mockResolvedValue([
+        {
+          id: 5,
+          title: "Задания 13-19",
+          category: "reading",
+          isActive: true,
+        },
+        { id: 4, title: "Задание 12", category: "reading", isActive: true },
+      ] as any);
+      mockTaskSelections(
+        [4, 5].map((id) => ({
+          id,
+          topicId: id,
+          taskType: "matching",
+          texts: [],
+          headings: [],
+          total: 1,
+        })),
+      );
+
+      const caller = createCaller({
+        db: db as any,
+        session: null,
+        headers: new Headers(),
+      });
+      const result = await caller.getExamSection({ category: "reading" });
+
+      expect(result.steps.map((step) => step.topicTitle)).toEqual([
+        "Задание 12",
+        "Задания 13-19",
+      ]);
+    });
   });
 
   describe("getTopicsByCategory", () => {
@@ -186,7 +269,7 @@ describe("Training Router tRPC Procedures", () => {
     });
   });
 
-  describe("logResult", () => {
+  describe("submitAnswers", () => {
     it("should record training user activity to DB", async () => {
       const mockInsertValues = vi.fn().mockResolvedValue([{ success: true }]);
       vi.mocked(db.insert).mockReturnValue({
@@ -199,7 +282,7 @@ describe("Training Router tRPC Procedures", () => {
         headers: new Headers(),
       });
 
-      await caller.logResult({
+      await caller.submitAnswers({
         activityId: 1,
         activityType: "training",
         result: "4/5",
@@ -216,7 +299,7 @@ describe("Training Router tRPC Procedures", () => {
       });
 
       await expect(
-        caller.logResult({
+        caller.submitAnswers({
           activityId: 1,
           activityType: "training",
           result: "4/5",

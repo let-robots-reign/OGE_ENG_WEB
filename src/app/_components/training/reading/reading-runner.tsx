@@ -15,30 +15,15 @@ import { ReviewModal, type ReviewItem } from "../shared/review-modal";
 import { ProgressDots } from "../shared/progress-dots";
 import { TrainingSubHeader } from "../shared/training-sub-header";
 import { useElapsedTimer } from "@/app/_composables/use-elapsed-timer";
+import { useSubmitAnswersMutation } from "@/app/_composables/use-submit-answers-mutation";
 import { formatClock } from "@/app/_utils/formatClock";
 import type { ReadingTaskType } from "@/server/db/schema";
+import { READING_INSTRUCTIONS } from "../shared/task-instructions";
 
 const BACK_HREF = "/training/reading/topics";
 const letterOf = (i: number) => String.fromCharCode(65 + i);
 
 const ANSWER_LABELS = ["", "True", "False", "Not stated"] as const;
-
-const INSTRUCTIONS: Record<
-  ReadingTaskType,
-  { heading: string; hint: string; full: string }
-> = {
-  matching: {
-    heading: "Установите соответствие между текстами и заголовками.",
-    hint: "Каждому тексту подберите один подходящий вопрос-заголовок. Один заголовок останется лишним.",
-    full: "Определите, в каком из текстов A–F содержатся ответы на вопросы 1–7. Используйте каждую цифру только один раз. В задании есть один лишний вопрос.",
-  },
-  true_false: {
-    heading:
-      "Прочитайте текст и определите, какие из утверждений 13–19 соответствуют содержанию текста.",
-    hint: "Для каждого утверждения выберите: 1 — True, 2 — False, 3 — Not stated.",
-    full: "Прочитайте текст. Определите, какие из приведённых утверждений 13–19 соответствуют содержанию текста (1 – True), какие не соответствуют (2 – False) и о чём в тексте не сказано, то есть на основании текста нельзя дать ни положительного, ни отрицательного ответа (3 – Not stated).",
-  },
-};
 
 export function ReadingRunner() {
   const searchParams = useSearchParams();
@@ -51,19 +36,20 @@ export function ReadingRunner() {
     { enabled: !!topicId, gcTime: 0 },
   );
 
-  const utils = api.useUtils();
   const checkMutation = api.training.checkReadingTraining.useMutation();
-  const logMutation = api.training.logResult.useMutation({
-    onSuccess: () => void utils.user.getStreak.invalidate(),
-  });
+  const submitAnswersMutation = useSubmitAnswersMutation();
 
   const taskType: ReadingTaskType =
     data?.task.taskType === "true_false" ? "true_false" : "matching";
 
   const total =
     taskType === "true_false"
-      ? (data?.task.taskType === "true_false" ? data.task.total : 0)
-      : (data?.task.taskType === "matching" ? data.task.texts.length : 0);
+      ? data?.task.taskType === "true_false"
+        ? data.task.total
+        : 0
+      : data?.task.taskType === "matching"
+        ? data.task.texts.length
+        : 0;
 
   const [answers, setAnswers] = useState<(number | null)[]>([]);
   const [activeHeading, setActiveHeading] = useState<number | null>(null);
@@ -165,7 +151,7 @@ export function ReadingRunner() {
     });
 
     if (session?.user) {
-      logMutation.mutate({
+      submitAnswersMutation.mutate({
         activityId: topicId,
         activityType: "training",
         result: resultRatio,
@@ -246,7 +232,7 @@ export function ReadingRunner() {
           };
         });
 
-  const instr = INSTRUCTIONS[taskType];
+  const instr = READING_INSTRUCTIONS[taskType];
 
   return (
     <>
@@ -265,7 +251,10 @@ export function ReadingRunner() {
           <div className="mb-7">
             <div className="text-ink-3 inline-flex items-center gap-2 text-[12.5px] font-medium tracking-[0.12em] uppercase">
               <span className="bg-accent h-1.5 w-1.5 rounded-full" />
-              инструкция · {taskType === "true_false" ? "true / false / not stated" : "matching"}
+              инструкция ·{" "}
+              {taskType === "true_false"
+                ? "true / false / not stated"
+                : "matching"}
             </div>
             <h1 className="font-display mt-2.5 text-[28px] leading-[1.1] tracking-[-0.025em] sm:text-[44px]">
               {instr.heading}
@@ -323,14 +312,16 @@ export function ReadingRunner() {
             />
 
             <div className="flex flex-col gap-3.5">
-              {(matchingTask.texts).map((body, i) => (
+              {matchingTask.texts.map((body, i) => (
                 <TextCard
                   key={i}
                   letter={letterOf(i)}
                   body={body}
                   assignedN={answers[i] ?? null}
                   assignedHeadingQ={headingQ(answers[i])}
-                  armed={!checked && activeHeading != null && answers[i] == null}
+                  armed={
+                    !checked && activeHeading != null && answers[i] == null
+                  }
                   activeHeading={activeHeading}
                   onAssign={() => assignToText(i)}
                   onClear={() => detachText(i)}

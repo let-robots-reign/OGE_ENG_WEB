@@ -47,7 +47,7 @@ const mockCheckUoe = vi.fn();
 const mockCheckListening = vi.fn();
 const mockCheckReading = vi.fn();
 const mockCheckWriting = vi.fn();
-const mockLogResult = vi.fn();
+const mockSubmitAnswers = vi.fn();
 
 vi.mock("@/trpc/react", () => ({
   api: {
@@ -93,15 +93,18 @@ vi.mock("@/trpc/react", () => ({
           data: { id: 777 },
         })),
       },
-      logResult: {
+      submitAnswers: {
         useMutation: vi.fn(() => ({
-          mutate: mockLogResult,
+          mutate: mockSubmitAnswers,
         })),
       },
     },
     useUtils: () => ({
       user: {
         getStreak: {
+          invalidate: vi.fn(),
+        },
+        getActivity: {
           invalidate: vi.fn(),
         },
       },
@@ -151,12 +154,12 @@ describe("Training Runners Integration Suite", () => {
         });
       });
 
-      // PostHog and logResult should be triggered
+      // PostHog and submitAnswers should be triggered
       expect(posthog.capture).toHaveBeenCalledWith(
         "training_completed",
         expect.any(Object),
       );
-      expect(mockLogResult).toHaveBeenCalled();
+      expect(mockSubmitAnswers).toHaveBeenCalled();
     });
 
     it("should show loading spinner when data is fetching", () => {

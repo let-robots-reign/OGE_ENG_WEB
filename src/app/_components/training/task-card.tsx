@@ -144,7 +144,7 @@ export function TaskCard({
     </div>
   );
 
-  if (disabled || isExam) {
+  if (disabled || (isExam && !href)) {
     return <div>{inner}</div>;
   }
 

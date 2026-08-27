@@ -8,6 +8,7 @@ import { api } from "@/trpc/react";
 import { TrainingSubHeader } from "../shared/training-sub-header";
 import { ResultModal, type ResultSegment } from "../shared/result-modal";
 import { useElapsedTimer } from "@/app/_composables/use-elapsed-timer";
+import { useSubmitAnswersMutation } from "@/app/_composables/use-submit-answers-mutation";
 import { InstructionStrip } from "./instruction-strip";
 import { ResultBanner } from "./result-banner";
 import { StructureSection } from "./structure-section";
@@ -38,11 +39,8 @@ export function WritingRunner() {
     api.training.getTopicByTopicTitle.useQuery("Письмо Упражнения");
   const topicId = topicData?.id;
 
-  const utils = api.useUtils();
   const checkMutation = api.training.checkWritingTraining.useMutation();
-  const logMutation = api.training.logResult.useMutation({
-    onSuccess: () => void utils.user.getStreak.invalidate(),
-  });
+  const submitAnswersMutation = useSubmitAnswersMutation();
 
   const [initialized, setInitialized] = useState(false);
   const [structureOrder, setStructureOrder] = useState<number[]>([]);
@@ -156,7 +154,7 @@ export function WritingRunner() {
     });
 
     if (session?.user && topicId) {
-      logMutation.mutate({
+      submitAnswersMutation.mutate({
         activityId: topicId,
         activityType: "training",
         result: resultRatio,

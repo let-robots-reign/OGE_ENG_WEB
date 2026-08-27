@@ -46,8 +46,7 @@ export function ReadingTasksView({
           );
         })}
 
-        {/* Decorative exam card — non-interactive. TODO: implement */}
-        <TaskCard {...READING_EXAM} exam />
+        <TaskCard {...READING_EXAM} href="/training/reading/exam" exam />
       </div>
 
       <GenreStrip />

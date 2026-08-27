@@ -11,6 +11,7 @@ import { QuestionCard } from "./question-card";
 import { ResultModal } from "../shared/result-modal";
 import { TrainingSubHeader } from "../shared/training-sub-header";
 import { useElapsedTimer } from "@/app/_composables/use-elapsed-timer";
+import { useSubmitAnswersMutation } from "@/app/_composables/use-submit-answers-mutation";
 import { formatClock } from "@/app/_utils/formatClock";
 
 const BACK_HREF = "/training/use-of-english/topics";
@@ -25,11 +26,8 @@ export function UoERunner() {
     { enabled: !!topicId, gcTime: 0 },
   );
 
-  const utils = api.useUtils();
   const checkMutation = api.training.checkUoeTraining.useMutation();
-  const logMutation = api.training.logResult.useMutation({
-    onSuccess: () => void utils.user.getStreak.invalidate(),
-  });
+  const submitAnswersMutation = useSubmitAnswersMutation();
 
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [checked, setChecked] = useState(false);
@@ -88,7 +86,7 @@ export function UoERunner() {
     });
 
     if (session?.user) {
-      logMutation.mutate({
+      submitAnswersMutation.mutate({
         activityId: topicId,
         activityType: "training",
         result: resultRatio,

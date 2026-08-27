@@ -15,6 +15,7 @@ interface ResultModalProps {
   segments?: ResultSegment[];
   onClose: () => void;
   onReview: () => void;
+  size?: number;
 }
 
 const SEGMENT_TONE: Record<ResultSegment["tone"], string> = {
@@ -115,6 +116,7 @@ export function ResultModal({
   segments,
   onClose,
   onReview,
+  size = 520,
 }: ResultModalProps) {
   const pct = total > 0 ? Math.round((correct / total) * 100) : 0;
   const grade =
@@ -139,7 +141,7 @@ export function ResultModal({
         : "var(--color-err-soft)";
 
   return (
-    <Modal size={520} onClose={onClose}>
+    <Modal size={size} onClose={onClose}>
       <div
         className="grid grid-cols-1 items-center justify-items-center gap-5 px-7 pt-8 pb-6 text-center sm:grid-cols-[auto_1fr] sm:justify-items-start sm:gap-7 sm:px-10 sm:pt-9 sm:text-left"
         style={{
@@ -180,7 +182,7 @@ export function ResultModal({
         <div
           className="border-line grid gap-1 border-t px-7 py-[18px] sm:px-10"
           style={{
-            gridTemplateColumns: `repeat(${segments.length}, 1fr)`,
+            gridTemplateColumns: `repeat(${segments.length + (timeText ? 1 : 0)}, 1fr)`,
           }}
         >
           {segments.map((s) => (
@@ -204,6 +206,7 @@ export function ResultModal({
               </div>
             </div>
           ))}
+          {timeText && <Stat label="время" value={timeText} mono />}
         </div>
       ) : (
         <div

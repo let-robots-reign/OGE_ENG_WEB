@@ -42,8 +42,7 @@ export function AudioTasksView({ topics, trainingKey }: AudioTasksViewProps) {
           );
         })}
 
-        {/* Decorative exam card — non-interactive. TODO: implement */}
-        <TaskCard {...AUDIO_EXAM} exam />
+        <TaskCard {...AUDIO_EXAM} href="/training/audio/exam" exam />
       </div>
 
       <div className="mt-14 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">

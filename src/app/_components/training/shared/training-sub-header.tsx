@@ -138,3 +138,61 @@ export function TrainingSubHeader({
     </div>
   );
 }
+
+interface ExamSubHeaderProps {
+  backHref: string;
+  section: string;
+  taskTitle: string;
+  secondsLeft: number;
+  isWarning: boolean;
+  timedOut: boolean;
+}
+
+export function ExamSubHeader({
+  backHref,
+  section,
+  taskTitle,
+  secondsLeft,
+  isWarning,
+  timedOut,
+}: ExamSubHeaderProps) {
+  return (
+    <div className="border-line bg-bg sticky top-0 z-20 border-b">
+      <div className="mx-auto grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 px-5 py-3.5 sm:px-8 lg:px-14">
+        <SubHeaderLeft
+          backHref={backHref}
+          ariaLabel="К списку заданий"
+          section={section}
+          title={timedOut ? "Время вышло!" : taskTitle}
+        />
+
+        <div
+          className={`rounded-pill border-line bg-surface inline-flex items-center gap-2.5 justify-self-center border ${isWarning ? "text-err" : ""}`}
+          style={{ padding: "8px 14px" }}
+        >
+          <span
+            className={isWarning ? "animate-pulse" : ""}
+            style={{
+              width: 8,
+              height: 8,
+              borderRadius: 50,
+              background: isWarning
+                ? "var(--color-err)"
+                : "var(--color-accent-2)",
+              boxShadow: isWarning
+                ? "0 0 0 4px var(--color-err-soft)"
+                : "0 0 0 4px var(--color-accent-2-soft)",
+            }}
+          />
+          <span
+            className="font-mono text-[15px]"
+            style={{ fontVariantNumeric: "tabular-nums" }}
+          >
+            {formatClock(secondsLeft)}
+          </span>
+          <span className="hidden text-[12px] sm:inline">осталось</span>
+        </div>
+      </div>
+    </div>
+  );
+}
