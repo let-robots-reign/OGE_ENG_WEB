@@ -15,30 +15,15 @@ import { ReviewModal, type ReviewItem } from "../shared/review-modal";
 import { ProgressDots } from "../shared/progress-dots";
 import { TrainingSubHeader } from "../shared/training-sub-header";
 import { useElapsedTimer } from "@/app/_composables/use-elapsed-timer";
+import { useSubmitAnswersMutation } from "@/app/_composables/use-submit-answers-mutation";
 import { formatClock } from "@/app/_utils/formatClock";
 import type { ReadingTaskType } from "@/server/db/schema";
+import { READING_INSTRUCTIONS } from "../shared/task-instructions";
 
 const BACK_HREF = "/training/reading/topics";
 const letterOf = (i: number) => String.fromCharCode(65 + i);
 
 const ANSWER_LABELS = ["", "True", "False", "Not stated"] as const;
-
-const INSTRUCTIONS: Record<
-  ReadingTaskType,
-  { heading: string; hint: string; full: string }
-> = {
-  matching: {
-    heading: "Установите соответствие между текстами и заголовками.",
-    hint: "Каждому тексту подберите один подходящий вопрос-заголовок. Один заголовок останется лишним.",
-    full: "Определите, в каком из текстов A–F содержатся ответы на вопросы 1–7. Используйте каждую цифру только один раз. В задании есть один лишний вопрос.",
-  },
-  true_false: {
-    heading:
-      "Прочитайте текст и определите, какие из утверждений 13–19 соответствуют содержанию текста.",
-    hint: "Для каждого утверждения выберите: 1 — True, 2 — False, 3 — Not stated.",
-    full: "Прочитайте текст. Определите, какие из приведённых утверждений 13–19 соответствуют содержанию текста (1 – True), какие не соответствуют (2 – False) и о чём в тексте не сказано, то есть на основании текста нельзя дать ни положительного, ни отрицательного ответа (3 – Not stated).",
-  },
-};
 
 export function ReadingRunner() {
   const searchParams = useSearchParams();
@@ -51,11 +36,8 @@ export function ReadingRunner() {
     { enabled: !!topicId, gcTime: 0 },
   );
 
-  const utils = api.useUtils();
   const checkMutation = api.training.checkReadingTraining.useMutation();
-  const logMutation = api.training.logResult.useMutation({
-    onSuccess: () => void utils.user.getStreak.invalidate(),
-  });
+  const submitAnswersMutation = useSubmitAnswersMutation();
 
   const taskType: ReadingTaskType =
     data?.task.taskType === "true_false" ? "true_false" : "matching";
@@ -169,7 +151,7 @@ export function ReadingRunner() {
     });
 
     if (session?.user) {
-      logMutation.mutate({
+      submitAnswersMutation.mutate({
         activityId: topicId,
         activityType: "training",
         result: resultRatio,
@@ -250,7 +232,7 @@ export function ReadingRunner() {
           };
         });
 
-  const instr = INSTRUCTIONS[taskType];
+  const instr = READING_INSTRUCTIONS[taskType];
 
   return (
     <>

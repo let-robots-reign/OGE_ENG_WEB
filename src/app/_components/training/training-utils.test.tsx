@@ -186,12 +186,14 @@ describe("Training UI Utils Suite", () => {
         correct={3}
         total={5}
         timeText="02:15"
+        segments={[{ label: "Задание 1", value: "3/5", tone: "warn" }]}
         onClose={() => {}}
         onReview={() => {}}
       />,
     );
 
     expect(screen.getByText("ваш результат")).toBeInTheDocument();
+    expect(screen.getByText("Задание 1")).toBeInTheDocument();
     expect(screen.getByText("время")).toBeInTheDocument();
     expect(screen.getByText("02:15")).toBeInTheDocument();
   });

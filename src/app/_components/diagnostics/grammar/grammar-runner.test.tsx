@@ -32,11 +32,12 @@ global.window.scrollTo = vi.fn();
 
 // Mock tRPC Queries and Mutations
 const mockCheckGrammar = vi.fn();
-const mockLogResult = vi.fn();
+const mockSubmitAnswers = vi.fn();
 const mockGetStreakInvalidate = vi.fn();
+const mockGetActivityInvalidate = vi.fn();
 
 let checkGrammarOnSuccess: any = null;
-let logResultOnSuccess: any = null;
+let submitAnswersOnSuccess: any = null;
 
 vi.mock("@/trpc/react", () => ({
   api: {
@@ -64,14 +65,14 @@ vi.mock("@/trpc/react", () => ({
       },
     },
     training: {
-      logResult: {
+      submitAnswers: {
         useMutation: vi.fn((options) => {
-          logResultOnSuccess = options?.onSuccess;
+          submitAnswersOnSuccess = options?.onSuccess;
           return {
             mutate: (payload: any) => {
-              mockLogResult(payload);
-              if (logResultOnSuccess) {
-                logResultOnSuccess();
+              mockSubmitAnswers(payload);
+              if (submitAnswersOnSuccess) {
+                submitAnswersOnSuccess();
               }
             },
             isPending: false,
@@ -83,6 +84,9 @@ vi.mock("@/trpc/react", () => ({
       user: {
         getStreak: {
           invalidate: mockGetStreakInvalidate,
+        },
+        getActivity: {
+          invalidate: mockGetActivityInvalidate,
         },
       },
     }),
@@ -221,8 +225,8 @@ describe("GrammarRunner Component Suite", () => {
     // Check checkGrammar called
     expect(mockCheckGrammar).toHaveBeenCalled();
 
-    // Check logResult called
-    expect(mockLogResult).toHaveBeenCalledWith(
+    // Check submitAnswers called
+    expect(mockSubmitAnswers).toHaveBeenCalledWith(
       expect.objectContaining({
         activityType: "diagnostics",
         activityId: 1,

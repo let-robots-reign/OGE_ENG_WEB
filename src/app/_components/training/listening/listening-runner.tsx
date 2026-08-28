@@ -25,32 +25,11 @@ import { ReviewModal, type ReviewItem } from "../shared/review-modal";
 import { ProgressDots } from "../shared/progress-dots";
 import { TrainingSubHeader } from "../shared/training-sub-header";
 import { useElapsedTimer } from "@/app/_composables/use-elapsed-timer";
+import { useSubmitAnswersMutation } from "@/app/_composables/use-submit-answers-mutation";
 import { formatClock } from "@/app/_utils/formatClock";
+import { LISTENING_INSTRUCTIONS } from "../shared/task-instructions";
 
 const BACK_HREF = "/training/audio/topics";
-
-const INSTRUCTIONS: Record<
-  AudioTaskType,
-  { heading: string; hint: string; full: string }
-> = {
-  multiple_choice: {
-    heading:
-      "Вы услышите четыре коротких текста, обозначенных буквами А, B, C, D.",
-    hint: "В заданиях 1–4 запишите цифру 1, 2 или 3, соответствующую выбранному варианту ответа.",
-    full: "Вы услышите четыре коротких текста, обозначенных буквами А, B, C, D. В заданиях 1–4 запишите в поле ответа цифру 1, 2 или 3, соответствующую выбранному Вами варианту ответа.",
-  },
-  matching: {
-    heading:
-      "Вы услышите пять высказываний, обозначенных буквами А, B, C, D, E.",
-    hint: "В задании 5 подберите к каждому высказыванию соответствующую рубрику из списка 1–6. Каждую рубрику можно использовать только один раз.",
-    full: "Вы услышите пять высказываний, обозначенных буквами А, B, C, D, E. В задании 5 подберите к каждому высказыванию соответствующую рубрику из списка 1–6. Каждую рубрику можно использовать только один раз. Вы услышите запись дважды.",
-  },
-  gap_fill: {
-    heading: "Вы услышите интервью. Занесите данные в таблицу.",
-    hint: "В заданиях 6–11 впишите не более одного слова (без артиклей) из прозвучавшего текста. Числа необходимо записывать буквами.",
-    full: "Вы услышите интервью. Занесите данные в таблицу. Вы можете вписать не более одного слова (без артиклей) из прозвучавшего текста. Числа необходимо записывать буквами. Вы услышите запись дважды.",
-  },
-};
 
 // A single jsonb column cannot correlate `taskType` with the shape of
 // `questions`, so pair them once here and let every consumer below narrow on
@@ -71,11 +50,8 @@ export function ListeningRunner() {
     { enabled: !!topicId, gcTime: 0 },
   );
 
-  const utils = api.useUtils();
   const checkMutation = api.training.checkListeningTraining.useMutation();
-  const logMutation = api.training.logResult.useMutation({
-    onSuccess: () => void utils.user.getStreak.invalidate(),
-  });
+  const submitAnswersMutation = useSubmitAnswersMutation();
 
   const [answers, setAnswers] = useState<(number | string | null)[]>([]);
   const [checked, setChecked] = useState(false);
@@ -91,7 +67,7 @@ export function ListeningRunner() {
     data?.task.taskType ?? "multiple_choice",
     data?.task.questions ?? [],
   );
-  const instructions = INSTRUCTIONS[content.taskType];
+  const instructions = LISTENING_INSTRUCTIONS[content.taskType];
   // The number of answers the task expects, which is not always the number of
   // questions shown — task 5 lists 6 rubrics but is answered by 5 speakers.
   const total = data?.task.total ?? 0;
@@ -140,7 +116,7 @@ export function ListeningRunner() {
     });
 
     if (session?.user) {
-      logMutation.mutate({
+      submitAnswersMutation.mutate({
         activityId: topicId,
         activityType: "training",
         result: resultRatio,
