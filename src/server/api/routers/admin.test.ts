@@ -1,9 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/unbound-method */
 import { vi } from "vitest";
 
+const mockInsertValues = vi.fn();
+const mockUpdateSet = vi.fn();
+
 vi.mock("@/server/db", () => ({
   db: {
     select: vi.fn(),
+    insert: vi.fn(() => ({
+      values: mockInsertValues,
+    })),
+    update: vi.fn(() => ({
+      set: mockUpdateSet,
+    })),
     query: {
       userResults: {
         findMany: vi.fn(),
@@ -11,6 +20,14 @@ vi.mock("@/server/db", () => ({
       },
       trainingTopics: {
         findMany: vi.fn(),
+      },
+      audioTasks: {
+        findMany: vi.fn(),
+        findFirst: vi.fn(),
+      },
+      readingTasks: {
+        findMany: vi.fn(),
+        findFirst: vi.fn(),
       },
     },
   },
@@ -22,10 +39,27 @@ vi.mock("@/server/db", () => ({
   users: {
     id: "users_id",
   },
+  audioTasks: {
+    id: "audio_tasks_first_id",
+    isDeleted: "audio_tasks_first_is_deleted",
+  },
+  readingTasks: {
+    id: "reading_tasks_id",
+    isDeleted: "reading_tasks_is_deleted",
+    topicId: "reading_tasks_topic_id",
+  },
+  trainingTopics: {
+    id: "training_topics_id",
+    category: "training_topics_category",
+  },
 }));
 
 import { describe, it, expect, beforeEach } from "vitest";
-import { adminRouter } from "./admin";
+import {
+  adminRouter,
+  audioTaskInputSchema,
+  readingTaskInputSchema,
+} from "./admin";
 import { createCallerFactory } from "@/server/api/trpc";
 import { TRPCError } from "@trpc/server";
 import { db } from "@/server/db";
@@ -157,6 +191,127 @@ describe("Admin Router tRPC Procedures", () => {
 
       const res = await caller.getResultById({ id: 999 });
       expect(res).toBeNull();
+    });
+  });
+
+  describe("Audio Task CRUD Procedures", () => {
+    const adminCaller = createCaller({
+      db: db as any,
+      session: { user: { id: "admin-1", role: "admin" }, expires: "" },
+      headers: new Headers(),
+    });
+
+    it("getAudioTopics should fetch audio topics", async () => {
+      vi.mocked(db.query.trainingTopics.findMany).mockResolvedValue([
+        { id: 1, title: "Weather", category: "audio" },
+      ] as any);
+
+      const topics = await adminCaller.getAudioTopics();
+      expect(topics).toHaveLength(1);
+      expect(topics[0]!.title).toBe("Weather");
+    });
+
+    it("getAudioTasks should return paginated list of non-deleted tasks", async () => {
+      vi.mocked(db.query.audioTasks.findMany).mockResolvedValue([
+        {
+          id: 10,
+          audioUrl: "/audio1.mp3",
+          topic: { title: "Hobbies" },
+          questions: [{ questionText: "What is your hobby?" }],
+        },
+      ] as any);
+
+      const res = await adminCaller.getAudioTasks({ page: 1, pageSize: 10 });
+      expect(res.items).toHaveLength(1);
+      expect(res.totalCount).toBe(1);
+      expect(res.items[0]!.id).toBe(10);
+    });
+
+    it("createAudioTask should insert new audio task", async () => {
+      const mockReturning = vi.fn().mockResolvedValue([{ id: 100 }]);
+      mockInsertValues.mockReturnValue({ returning: mockReturning });
+
+      const res = await adminCaller.createAudioTask({
+        taskType: "multiple_choice",
+        topicId: 1,
+        audioUrl: "/uploads/audio/test.mp3",
+        questions: [
+          {
+            questionText: "Question 1",
+            options: ["Opt 1", "Opt 2"],
+          },
+        ],
+        answers: [1],
+        explanations: [{ text: "Explanation 1" }],
+      });
+
+      expect(mockInsertValues).toHaveBeenCalled();
+      expect(res).toEqual({ id: 100 });
+    });
+
+    it("deleteAudioTasks should perform soft delete setting isDeleted to true", async () => {
+      const mockWhere = vi.fn().mockResolvedValue([]);
+      mockUpdateSet.mockReturnValue({ where: mockWhere });
+
+      const res = await adminCaller.deleteAudioTasks({ ids: [10, 20] });
+      expect(mockUpdateSet).toHaveBeenCalledWith({ isDeleted: true });
+      expect(res).toEqual({ success: true, deletedCount: 2 });
+    });
+  });
+
+  describe("task input validation", () => {
+    const explanation = { text: "Explanation" };
+
+    it("rejects duplicate matching rubrics for audio tasks", () => {
+      const result = audioTaskInputSchema.safeParse({
+        taskType: "matching",
+        topicId: 1,
+        audioUrl: "/uploads/audio/test.mp3",
+        questions: ["One", "Two", "Three"],
+        answers: [1, 1],
+        explanations: [explanation, explanation],
+      });
+
+      expect(result.success).toBe(false);
+    });
+
+    it("accepts a valid audio matching answer key", () => {
+      const result = audioTaskInputSchema.safeParse({
+        taskType: "matching",
+        topicId: 1,
+        audioUrl: "/uploads/audio/test.mp3",
+        questions: ["One", "Two", "Three"],
+        answers: [1, 3],
+        explanations: [explanation, explanation],
+      });
+
+      expect(result.success).toBe(true);
+    });
+
+    it("rejects duplicate matching headings for reading tasks", () => {
+      const result = readingTaskInputSchema.safeParse({
+        taskType: "matching",
+        topicId: 1,
+        texts: ["Text A", "Text B"],
+        headings: ["One", "Two", "Three"],
+        answers: [1, 1],
+        explanations: [explanation, explanation],
+      });
+
+      expect(result.success).toBe(false);
+    });
+
+    it("rejects reading answers that reference a missing heading", () => {
+      const result = readingTaskInputSchema.safeParse({
+        taskType: "matching",
+        topicId: 1,
+        texts: ["Text A", "Text B"],
+        headings: ["One", "Two", "Three"],
+        answers: [1, 4],
+        explanations: [explanation, explanation],
+      });
+
+      expect(result.success).toBe(false);
     });
   });
 });

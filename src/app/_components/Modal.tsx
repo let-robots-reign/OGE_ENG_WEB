@@ -45,23 +45,21 @@ export function Modal({
         className="fixed inset-0 z-[100] bg-[rgba(10,23,51,0.55)] backdrop-blur-sm"
         onClick={onClose}
       />
-      <div
-        className="fixed inset-0 z-[100] pointer-events-none grid place-items-center p-4"
-      >
+      <div className="pointer-events-none fixed inset-0 z-[100] grid place-items-center p-4">
         <div
           className={clsx(
-            "modal bg-surface max-h-[90vh] w-full overflow-hidden overflow-y-auto rounded-lg shadow-lg pointer-events-auto",
+            "modal bg-surface pointer-events-auto max-h-[90vh] w-full overflow-hidden overflow-y-auto rounded-lg shadow-lg",
             sizeClass,
             className,
           )}
           style={widthStyle}
         >
           {title ? (
-            <div className="p-6 md:p-8 flex flex-col gap-4">
-              <h3 className="text-xl md:text-2xl font-bold tracking-tight text-ink">
+            <div className="flex flex-col gap-4 p-6 md:p-8">
+              <h3 className="text-ink text-xl font-bold tracking-tight md:text-2xl">
                 {title}
               </h3>
-              <div className="text-[16px] md:text-[18px] text-ink-2 modal__content">
+              <div className="text-ink-2 modal__content text-[16px] md:text-[18px]">
                 {children}
               </div>
             </div>

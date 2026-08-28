@@ -25,13 +25,23 @@ export function TrueFalseTask({
     <div className="flex flex-col gap-6">
       <div
         className="rounded-lg border p-6 sm:p-8"
-        style={{ borderColor: "var(--color-line)", background: "var(--color-surface)" }}
+        style={{
+          borderColor: "var(--color-line)",
+          background: "var(--color-surface)",
+        }}
       >
         <div
           className="mb-3 inline-flex items-center gap-2 text-[12px] font-medium tracking-[0.1em] uppercase"
           style={{ color: "var(--color-ink-3)" }}
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
             <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
           </svg>
           текст для чтения
@@ -107,7 +117,9 @@ export function TrueFalseTask({
                       <div
                         className="mt-1 inline-flex items-center gap-1.5 text-[12px] font-medium whitespace-nowrap"
                         style={{
-                          color: isCorrect ? "var(--color-ok)" : "var(--color-err)",
+                          color: isCorrect
+                            ? "var(--color-ok)"
+                            : "var(--color-err)",
                         }}
                       >
                         {isCorrect ? (
@@ -212,12 +224,26 @@ export function TrueFalseTask({
                             }}
                           >
                             {checked && isCorrectOpt && (
-                              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3">
+                              <svg
+                                width="10"
+                                height="10"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="#fff"
+                                strokeWidth="3"
+                              >
                                 <path d="M5 12l5 5L20 7" />
                               </svg>
                             )}
                             {checked && isWrongPick && (
-                              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3">
+                              <svg
+                                width="8"
+                                height="8"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="#fff"
+                                strokeWidth="3"
+                              >
                                 <path d="M6 6l12 12M6 18L18 6" />
                               </svg>
                             )}
