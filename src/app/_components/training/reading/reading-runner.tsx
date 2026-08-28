@@ -62,8 +62,12 @@ export function ReadingRunner() {
 
   const total =
     taskType === "true_false"
-      ? (data?.task.taskType === "true_false" ? data.task.total : 0)
-      : (data?.task.taskType === "matching" ? data.task.texts.length : 0);
+      ? data?.task.taskType === "true_false"
+        ? data.task.total
+        : 0
+      : data?.task.taskType === "matching"
+        ? data.task.texts.length
+        : 0;
 
   const [answers, setAnswers] = useState<(number | null)[]>([]);
   const [activeHeading, setActiveHeading] = useState<number | null>(null);
@@ -265,7 +269,10 @@ export function ReadingRunner() {
           <div className="mb-7">
             <div className="text-ink-3 inline-flex items-center gap-2 text-[12.5px] font-medium tracking-[0.12em] uppercase">
               <span className="bg-accent h-1.5 w-1.5 rounded-full" />
-              инструкция · {taskType === "true_false" ? "true / false / not stated" : "matching"}
+              инструкция ·{" "}
+              {taskType === "true_false"
+                ? "true / false / not stated"
+                : "matching"}
             </div>
             <h1 className="font-display mt-2.5 text-[28px] leading-[1.1] tracking-[-0.025em] sm:text-[44px]">
               {instr.heading}
@@ -323,14 +330,16 @@ export function ReadingRunner() {
             />
 
             <div className="flex flex-col gap-3.5">
-              {(matchingTask.texts).map((body, i) => (
+              {matchingTask.texts.map((body, i) => (
                 <TextCard
                   key={i}
                   letter={letterOf(i)}
                   body={body}
                   assignedN={answers[i] ?? null}
                   assignedHeadingQ={headingQ(answers[i])}
-                  armed={!checked && activeHeading != null && answers[i] == null}
+                  armed={
+                    !checked && activeHeading != null && answers[i] == null
+                  }
                   activeHeading={activeHeading}
                   onAssign={() => assignToText(i)}
                   onClear={() => detachText(i)}
