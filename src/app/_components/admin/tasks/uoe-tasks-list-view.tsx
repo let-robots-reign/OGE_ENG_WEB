@@ -22,6 +22,7 @@ export function UoeTasksListView() {
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [isDeletingModalOpen, setIsDeletingModalOpen] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const utils = api.useUtils();
 
@@ -41,7 +42,12 @@ export function UoeTasksListView() {
       setSelectedIds([]);
       setDeleteConfirmId(null);
       setIsDeletingModalOpen(false);
+      setDeleteError(null);
       await utils.admin.getUoeTasks.invalidate();
+    },
+    onError: (error) => {
+      setIsDeletingModalOpen(false);
+      setDeleteError(error.message);
     },
   });
 
@@ -97,6 +103,12 @@ export function UoeTasksListView() {
       />
 
       {/* Controls Bar */}
+      {deleteError && (
+        <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-600">
+          {deleteError}
+        </div>
+      )}
+
       <div className="bg-surface border-line space-y-3 rounded-xl border p-4 shadow-xs">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           {/* Search */}
@@ -167,6 +179,7 @@ export function UoeTasksListView() {
             <button
               type="button"
               onClick={() => {
+                setDeleteError(null);
                 setDeleteConfirmId(null);
                 setIsDeletingModalOpen(true);
               }}
@@ -297,6 +310,7 @@ export function UoeTasksListView() {
                           <button
                             type="button"
                             onClick={() => {
+                              setDeleteError(null);
                               setDeleteConfirmId(task.id);
                               setIsDeletingModalOpen(true);
                             }}

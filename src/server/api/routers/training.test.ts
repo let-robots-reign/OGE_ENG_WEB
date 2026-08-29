@@ -13,6 +13,10 @@ vi.mock("@/server/db", () => ({
       uoeTasks: {
         findMany: vi.fn(),
       },
+      uoeTaskChains: {
+        findMany: vi.fn(),
+        findFirst: vi.fn(),
+      },
       audioTasks: {
         findFirst: vi.fn(),
       },
@@ -266,6 +270,100 @@ describe("Training Router tRPC Procedures", () => {
           message: "Topic not found.",
         }),
       );
+    });
+
+    it("returns one complete UoE chain in stored order without answers", async () => {
+      vi.mocked(db.query.trainingTopics.findFirst).mockResolvedValue({
+        id: 7,
+        title: "По всем темам",
+      } as any);
+      const items = Array.from({ length: 9 }, (_, index) => ({
+        id: index + 1,
+        chainId: 55,
+        taskId: 100 + index,
+        position: index + 1,
+        task: {
+          id: 100 + index,
+          task: `Sentence ${index + 1}`,
+          origin: "WORD",
+          answer: "ANSWER",
+          topicId: 20,
+          isDeleted: false,
+          topic: {
+            id: 20,
+            title: "Grammar",
+            category: "use-of-english",
+            isActive: true,
+          },
+        },
+      }));
+      vi.mocked(db.query.uoeTaskChains.findMany).mockResolvedValue([
+        { id: 55, isDeleted: false, items },
+      ] as any);
+
+      const caller = createCaller({
+        db: db as any,
+        session: null,
+        headers: new Headers(),
+      });
+      const result = await caller.getUoeTraining({
+        topicId: 7,
+        batchSize: 1,
+      });
+
+      expect(result.chainId).toBe(55);
+      expect(result.tasks).toHaveLength(9);
+      expect(result.tasks.map((task) => task.id)).toEqual(
+        items.map((item) => item.taskId),
+      );
+      expect(result.tasks[0]).not.toHaveProperty("answer");
+    });
+
+    it("does not fall back to random tasks when no UoE chain exists", async () => {
+      vi.mocked(db.query.trainingTopics.findFirst).mockResolvedValue({
+        id: 7,
+        title: "По всем темам",
+      } as any);
+      vi.mocked(db.query.uoeTaskChains.findMany).mockResolvedValue([] as any);
+
+      const caller = createCaller({
+        db: db as any,
+        session: null,
+        headers: new Headers(),
+      });
+
+      await expect(caller.getUoeTraining({ topicId: 7 })).rejects.toMatchObject(
+        { code: "NOT_FOUND", message: "Пока нет доступных цепочек заданий" },
+      );
+      expect(db.select).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("checkUoeTraining chain validation", () => {
+    it("rejects answer IDs that do not match the selected chain", async () => {
+      vi.mocked(db.query.uoeTaskChains.findFirst).mockResolvedValue({
+        id: 55,
+        isDeleted: false,
+        items: Array.from({ length: 9 }, (_, index) => ({
+          taskId: 100 + index,
+        })),
+      } as any);
+      const caller = createCaller({
+        db: db as any,
+        session: null,
+        headers: new Headers(),
+      });
+
+      await expect(
+        caller.checkUoeTraining({
+          chainId: 55,
+          answers: Array.from({ length: 9 }, (_, index) => ({
+            id: 200 + index,
+            answer: "ANSWER",
+          })),
+        }),
+      ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+      expect(db.query.uoeTasks.findMany).not.toHaveBeenCalled();
     });
   });
 

@@ -107,6 +107,7 @@ interface AdminDeleteModalProps {
   isDeleting: boolean;
   count: number;
   singleId?: number | null;
+  singleLabel?: string;
 }
 
 export function AdminDeleteModal({
@@ -116,6 +117,7 @@ export function AdminDeleteModal({
   isDeleting,
   count,
   singleId,
+  singleLabel = "задание",
 }: AdminDeleteModalProps) {
   if (!isOpen) return null;
 
@@ -127,7 +129,7 @@ export function AdminDeleteModal({
         </h3>
         <p className="text-ink-2 text-sm leading-relaxed">
           {singleId !== undefined && singleId !== null
-            ? `Вы действительно хотите удалить задание #${singleId}?`
+            ? `Вы действительно хотите удалить ${singleLabel} #${singleId}?`
             : `Вы действительно хотите удалить ${count} выбранных заданий?`}
         </p>
         <div className="flex justify-end gap-3 pt-2">
