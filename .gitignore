@@ -50,7 +50,7 @@ yarn-error.log*
 
 # my own draft files
 draft
-tasks
+/tasks
 *.md
 !README.md
 
