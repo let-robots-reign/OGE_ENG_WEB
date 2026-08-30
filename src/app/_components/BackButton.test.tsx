@@ -23,8 +23,9 @@ describe("BackButton", () => {
     expect(mockBack).toHaveBeenCalledTimes(1);
   });
 
-  it("should apply backButton CSS module class name", () => {
-    const { container } = render(<BackButton />);
-    expect(container.firstChild).toHaveClass(/backButton/);
+  it("should render as an accessible button", () => {
+    render(<BackButton />);
+    const button = screen.getByRole("button", { name: "Назад" });
+    expect(button).toBeInTheDocument();
   });
 });

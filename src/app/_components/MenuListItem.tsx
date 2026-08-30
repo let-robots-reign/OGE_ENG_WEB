@@ -1,5 +1,4 @@
 import Link from "next/link";
-import styles from "./MenuListItem.module.css";
 import clsx from "clsx";
 
 type Topic = {
@@ -25,13 +24,17 @@ export function MenuListItem({
   const menuListItemContent = (
     <div
       className={clsx(
-        `${styles.card} ${styles.menuItem}`,
-        isNotCompleted && styles.isNotCompleted,
+        "relative w-0 min-w-full overflow-hidden rounded-[16px] bg-surface p-8 text-ink-2 shadow-[2px_3px_10px_rgba(0,0,0,0.2)]",
+        isNotCompleted
+          ? "cursor-default bg-surface/40 pointer-events-none"
+          : "cursor-pointer [&:hover_p]:underline [&:hover_p]:decoration-ok [&:hover_p]:underline-offset-4",
       )}
     >
-      <p className={styles.menuItem__title}>{topic.title}</p>
+      <p className="text-[24px] font-bold leading-[28px]">{topic.title}</p>
       {isNotCompleted && (
-        <span className={styles.isNotCompletedText}>в разработке</span>
+        <span className="text-err absolute right-6 bottom-3 font-extrabold">
+          в разработке
+        </span>
       )}
     </div>
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import { type InputHTMLAttributes } from "react";
-import styles from "./form.module.css";
+import clsx from "clsx";
 
 type BaseRadioProps = InputHTMLAttributes<HTMLInputElement> & {
   label: string;
@@ -25,17 +25,22 @@ export const BaseRadio = ({
   const getLabelClass = () => {
     if (disabled && isChosenCorrect !== null) {
       if (isChosenCorrect && isChecked) {
-        return styles.valid;
+        return "text-ok border-ok valid";
       }
       if (!isChosenCorrect && isChecked) {
-        return styles.invalid;
+        return "text-err border-err invalid";
       }
     }
     return "";
   };
 
   return (
-    <label className={`${styles.radioLabel} ${getLabelClass()}`}>
+    <label
+      className={clsx(
+        "inline-flex cursor-pointer items-center mr-4",
+        getLabelClass(),
+      )}
+    >
       <input
         type="radio"
         name={name}
@@ -43,7 +48,7 @@ export const BaseRadio = ({
         checked={isChecked}
         onChange={() => onUpdate(value)}
         disabled={disabled}
-        className={styles.radioInput}
+        className="mr-2"
       />
       {label}
     </label>

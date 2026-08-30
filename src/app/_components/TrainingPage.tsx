@@ -4,8 +4,6 @@ import { useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { Modal } from "./Modal";
 import { TrainingHeader } from "./TrainingHeader";
-import styles from "./TrainingPage.module.css";
-
 type TrainingPageProps = {
   topic: string;
   instruction?: ReactNode;
@@ -48,9 +46,9 @@ export function TrainingPage({
 
       {children}
 
-      <div className={styles.buttonsGroup}>
+      <div className="mt-4 flex flex-col items-center justify-center gap-4">
         <button
-          className={`${styles.btn} ${styles.primary}`}
+          className="h-[50px] w-full cursor-pointer rounded-lg bg-ok text-[18px] font-bold uppercase tracking-wider text-white transition-opacity hover:opacity-80 disabled:opacity-50"
           disabled={isChecking}
           hidden={isChecked}
           onClick={handleCheck}
@@ -58,7 +56,7 @@ export function TrainingPage({
           Проверить
         </button>
         <button
-          className={`${styles.btn} ${styles.secondary}`}
+          className="h-[50px] w-full cursor-pointer rounded-lg bg-surface-3 text-[18px] font-bold uppercase tracking-wider text-ink-2 transition-opacity hover:opacity-80"
           onClick={() => router.back()}
         >
           Выход
@@ -71,14 +69,14 @@ export function TrainingPage({
             <p>Вы можете посмотреть свои ошибки и правильные ответы.</p>
             {explanationComponent && (
               <button
-                className={`${styles.btn} ${styles.primary} ${styles.btnBlock} ${styles.btnCentered}`}
+                className="my-3 mx-auto block w-full cursor-pointer rounded-full bg-ok px-6 py-2 text-sm font-bold uppercase tracking-wider text-white transition-opacity hover:opacity-80"
                 onClick={toggleExplanation}
               >
                 Пояснение
               </button>
             )}
             <button
-              className={`${styles.btn} ${styles.primary} ${styles.btnBlock} ${styles.btnCentered}`}
+              className="my-3 mx-auto block w-full cursor-pointer rounded-full bg-ok px-6 py-2 text-sm font-bold uppercase tracking-wider text-white transition-opacity hover:opacity-80"
               onClick={() => setShowResult(false)}
             >
               {dismissText ?? "Закрыть"}
@@ -95,7 +93,7 @@ export function TrainingPage({
         >
           {explanationComponent}
           <button
-            className={`${styles.btn} ${styles.primary} ${styles.btnBlock} ${styles.btnCentered}`}
+            className="my-3 mx-auto block w-full cursor-pointer rounded-full bg-ok px-6 py-2 text-sm font-bold uppercase tracking-wider text-white transition-opacity hover:opacity-80"
             onClick={toggleExplanation}
           >
             Назад

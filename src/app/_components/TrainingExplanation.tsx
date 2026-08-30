@@ -1,5 +1,3 @@
-import styles from "./TrainingExplanation.module.css";
-
 type TrainingExplanationProps = {
   userAnswers: (string | null)[];
   correctAnswers: number[];
@@ -44,13 +42,16 @@ export function TrainingExplanation({
         const userAnswer = userAnswers[index];
 
         return (
-          <div key={index} className={styles.explanation}>
+          <div
+            key={index}
+            className="my-4 border-b border-line pb-4 text-[18px] last:border-b-0 [&_p]:mb-2"
+          >
             <p>
               <span
                 className={
                   parseInt(userAnswer ?? "") === correctAnswerNumber
-                    ? styles.right
-                    : styles.wrong
+                    ? "text-ok"
+                    : "text-err"
                 }
               >
                 <strong>{index + 1})</strong> {cleanUserAnswer(userAnswer)}

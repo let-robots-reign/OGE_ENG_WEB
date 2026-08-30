@@ -1,5 +1,3 @@
-import styles from "./TrainingExplanation.module.css";
-
 type ListeningExplanationProps = {
   userAnswers: (number | null)[];
   correctAnswers: number[];
@@ -45,12 +43,15 @@ export function ListeningExplanation({
         const isCorrect = userAnswer === correctAnswer;
 
         return (
-          <div key={index} className={styles.explanation}>
+          <div
+            key={index}
+            className="my-4 border-b border-line pb-4 text-[18px] last:border-b-0 [&_p]:mb-2"
+          >
             <p>
               <strong>{index + 1})</strong> {q.question}
             </p>
             <p>
-              <span className={isCorrect ? styles.right : styles.wrong}>
+              <span className={isCorrect ? "text-ok" : "text-err"}>
                 Ваш ответ: {getOptionText(index, userAnswer)}
               </span>
             </p>

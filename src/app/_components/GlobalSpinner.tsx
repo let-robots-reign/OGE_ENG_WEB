@@ -1,8 +1,6 @@
 "use client";
 
 import { useIsFetching, useIsMutating } from "@tanstack/react-query";
-import styles from "./GlobalSpinner.module.css";
-
 export function GlobalSpinner() {
   const isFetching = useIsFetching();
   const isMutating = useIsMutating();
@@ -14,8 +12,8 @@ export function GlobalSpinner() {
   }
 
   return (
-    <div className={styles.overlay}>
-      <div className={styles.spinner}></div>
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/20">
+      <div className="h-[50px] w-[50px] animate-spin rounded-full border-4 border-white/30 border-t-ok" />
     </div>
   );
 }

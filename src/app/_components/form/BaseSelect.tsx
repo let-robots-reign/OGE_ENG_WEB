@@ -1,6 +1,6 @@
 "use client";
 
-import styles from "./BaseSelect.module.css";
+import clsx from "clsx";
 
 type BaseSelectProps = {
   modelValue?: string | null;
@@ -21,7 +21,10 @@ export function BaseSelect({
 }: BaseSelectProps) {
   return (
     <select
-      className={`${styles.select} ${className}`}
+      className={clsx(
+        "border-line-2 bg-surface text-ink block w-full rounded-[3px] border-2 p-2 text-base outline-none transition-colors focus:border-ok active:border-ok",
+        className,
+      )}
       value={modelValue ?? ""}
       onChange={(e) => onUpdate(e.target.value)}
       disabled={disabled}

@@ -2,7 +2,6 @@
 
 import { useState, useImperativeHandle, forwardRef } from "react";
 import { BaseSelect } from "./form/BaseSelect";
-import styles from "./ReadingTask.module.css";
 
 type ReadingTaskProps = {
   headings: string[];
@@ -49,26 +48,29 @@ export const ReadingTask = forwardRef<ReadingTaskRef, ReadingTaskProps>(
     const answerOptions = headings.slice(1);
 
     const getSelectClass = (index: number) => {
-      if (validity[index]) return styles.valid;
-      if (validity[index] === false) return styles.invalid;
+      if (validity[index]) return "!border-ok";
+      if (validity[index] === false) return "!border-err !text-err";
       return "";
     };
 
     return (
-      <div className={styles.readingTask}>
-        <div className={`${styles.card} ${styles.headingsCard}`}>
-          <h3>Заголовки</h3>
-          <ol>
+      <div className="flex flex-col">
+        <div className="relative mb-4 overflow-hidden rounded-[16px] bg-surface p-6 text-ink shadow-[2px_3px_10px_rgba(0,0,0,0.2)]">
+          <h3 className="text-2xl font-bold">Заголовки</h3>
+          <ol className="mt-4 list-decimal pl-4">
             {headings.slice(1).map((heading, i) => (
               <li key={i}>{heading}</li>
             ))}
           </ol>
         </div>
 
-        <div className={`${styles.card} ${styles.textsCard}`}>
-          <h3>Тексты</h3>
+        <div className="relative mb-4 flex flex-col gap-6 overflow-hidden rounded-[16px] bg-surface p-6 text-ink shadow-[2px_3px_10px_rgba(0,0,0,0.2)]">
+          <h3 className="text-2xl font-bold">Тексты</h3>
           {texts.map((text, i) => (
-            <div key={i} className={styles.textSection}>
+            <div
+              key={i}
+              className="flex flex-col items-start gap-4 text-[1.1rem] leading-[1.6]"
+            >
               <BaseSelect
                 className={getSelectClass(i)}
                 modelValue={answers[i]}

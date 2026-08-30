@@ -5,8 +5,6 @@ import { BaseInput } from "./form/BaseInput";
 import { BaseSelect } from "./form/BaseSelect";
 import { BaseRadioGroup } from "./form/BaseRadioGroup";
 import { shuffle } from "@/app/_utils/shuffle";
-
-import styles from "./WritingTask.module.css";
 import clsx from "clsx";
 
 interface WritingTaskBase {
@@ -122,18 +120,26 @@ export const WritingTask = forwardRef<WritingTaskRef, WritingTaskProps>(
     }));
 
     const getClassForUserInput = (correctness?: boolean | null) => {
-      if (correctness) return styles.valid;
-      if (correctness === false) return styles.invalid;
+      if (correctness) return "!border-ok";
+      if (correctness === false) return "!border-err";
+      return "";
+    };
+
+    const getHintClassForUserInput = (correctness?: boolean | null) => {
+      if (correctness) return "text-ok ml-5 italic";
+      if (correctness === false) return "text-err ml-5 italic";
       return "";
     };
 
     const disableControls = isChecking || isChecked;
 
     return (
-      <div className={styles.writingTask}>
-        <div className={styles.writingTaskSection}>
-          <p className={styles.writingTaskTitle}>Структура письма</p>
-          <p className={styles.writingTaskHint}>
+      <div className="flex flex-col gap-5 rounded-lg bg-surface p-6 text-[18px] text-ink shadow-[2px_3px_10px_rgba(0,0,0,0.2)]">
+        <div className="border-b border-line pb-5">
+          <p className="mb-2 text-center text-[1.7rem] font-bold text-ink">
+            Структура письма
+          </p>
+          <p className="mb-5 text-center italic text-ink-3">
             Поставьте предложения в правильном порядке, чтобы получилось письмо.
           </p>
           {shuffledLetterParts.map((item, index) => (
@@ -141,7 +147,7 @@ export const WritingTask = forwardRef<WritingTaskRef, WritingTaskProps>(
               {index + 1}) {item.part}
             </p>
           ))}
-          <div className={styles.letterAnswers}>
+          <div className="mx-auto mt-4 grid max-w-[70%] grid-cols-6 gap-1">
             {shuffledLetterParts.map((_, index) => (
               <BaseInput
                 key={index}
@@ -161,18 +167,25 @@ export const WritingTask = forwardRef<WritingTaskRef, WritingTaskProps>(
               />
             ))}
           </div>
-          <p className={styles.writingTaskHint}>
+          <p className="mb-5 text-center italic text-ink-3">
             Впишите номера предложений в нужном порядке
           </p>
         </div>
 
-        <div className={styles.writingTaskSection}>
-          <p className={styles.writingTaskTitle}>Фразы-клише</p>
-          <p className={styles.writingTaskHint}>Расставьте слова по порядку</p>
+        <div className="border-b border-line pb-5">
+          <p className="mb-2 text-center text-[1.7rem] font-bold text-ink">
+            Фразы-клише
+          </p>
+          <p className="mb-5 text-center italic text-ink-3">
+            Расставьте слова по порядку
+          </p>
           {cliches.map((cliche, clicheIndex) => (
-            <div key={cliche.id} className={styles.answerItem}>
+            <div
+              key={cliche.id}
+              className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-2"
+            >
               <span>{clicheIndex + 1})</span>
-              <div className={styles.clichesList}>
+              <div className="flex flex-wrap gap-x-3 gap-y-2">
                 {cliche.task.split(" ").map((_, wordIndex) => (
                   <BaseSelect
                     key={wordIndex}
@@ -184,7 +197,7 @@ export const WritingTask = forwardRef<WritingTaskRef, WritingTaskProps>(
                     }}
                     options={cliche.options}
                     className={clsx(
-                      styles.answerSelect,
+                      "w-fit",
                       getClassForUserInput(
                         clichesCorrectness[clicheIndex]?.[wordIndex] ?? null,
                       ),
@@ -197,13 +210,18 @@ export const WritingTask = forwardRef<WritingTaskRef, WritingTaskProps>(
           ))}
         </div>
 
-        <div className={styles.writingTaskSection}>
-          <p className={styles.writingTaskTitle}>Слова-связки</p>
-          <p className={styles.writingTaskHint}>
+        <div className="border-b border-line pb-5">
+          <p className="mb-2 text-center text-[1.7rem] font-bold text-ink">
+            Слова-связки
+          </p>
+          <p className="mb-5 text-center italic text-ink-3">
             Совместите слова-связки с их русскими эквивалентами
           </p>
           {linkers[0]!.task.split("\n").map((linker, linkerIndex) => (
-            <div key={linkerIndex} className={styles.answerItem}>
+            <div
+              key={linkerIndex}
+              className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-2"
+            >
               <span>
                 {linkerIndex + 1}) {linker} —
               </span>
@@ -216,7 +234,7 @@ export const WritingTask = forwardRef<WritingTaskRef, WritingTaskProps>(
                 }}
                 options={linkers[0]!.options}
                 className={clsx(
-                  styles.answerSelect,
+                  "w-fit",
                   getClassForUserInput(
                     linkersCorrectness[0]?.[linkerIndex] ?? null,
                   ),
@@ -225,11 +243,14 @@ export const WritingTask = forwardRef<WritingTaskRef, WritingTaskProps>(
               />
             </div>
           ))}
-          <p className={styles.writingTaskHint}>
+          <p className="mb-5 text-center italic text-ink-3">
             Дополните текст, используя слова-связки
           </p>
           {linkers.slice(1).map((task, index) => (
-            <div key={task.id} className={styles.answerItem}>
+            <div
+              key={task.id}
+              className="mb-4 flex flex-wrap items-center gap-x-3 gap-y-2"
+            >
               <span>{index + 1})</span>
               {task.task.split("\n").map((text, textIndex) => (
                 <Fragment key={text}>
@@ -242,7 +263,7 @@ export const WritingTask = forwardRef<WritingTaskRef, WritingTaskProps>(
                     }}
                     options={task.options}
                     className={clsx(
-                      styles.answerSelect,
+                      "w-fit",
                       getClassForUserInput(
                         linkersCorrectness[index + 1]?.[textIndex] ?? null,
                       ),
@@ -256,14 +277,16 @@ export const WritingTask = forwardRef<WritingTaskRef, WritingTaskProps>(
           ))}
         </div>
 
-        <div className={styles.writingTaskSection}>
-          <p className={styles.writingTaskTitle}>Полные ответы</p>
+        <div>
+          <p className="mb-2 text-center text-[1.7rem] font-bold text-ink">
+            Полные ответы
+          </p>
           {fullAnswers.map((fullAnswer, index) => (
-            <div className={styles.writingTaskFullReplies} key={fullAnswer.id}>
-              <p className={styles.writingTaskHint}>
+            <div className="mb-5" key={fullAnswer.id}>
+              <p className="mb-5 text-center italic text-ink-3">
                 Выберите лучший ответ на вопрос:
               </p>
-              <h4 className={styles.writingTaskFullRepliesQuestion}>
+              <h4 className="mb-2 font-bold text-ink">
                 {fullAnswer.question}
               </h4>
               <BaseRadioGroup
@@ -282,8 +305,8 @@ export const WritingTask = forwardRef<WritingTaskRef, WritingTaskProps>(
               {isChecked && (
                 <p
                   className={clsx(
-                    styles.writingTaskFullRepliesHint,
-                    getClassForUserInput(fullRepliesCorrectness[index]),
+                    "mt-2 italic",
+                    getHintClassForUserInput(fullRepliesCorrectness[index]),
                   )}
                 >
                   {

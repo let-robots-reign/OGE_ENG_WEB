@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useImperativeHandle, forwardRef } from "react";
-import styles from "./ListeningTask.module.css";
+import clsx from "clsx";
 
 type ListeningTaskProps = {
   audioUrl: string;
@@ -55,31 +55,36 @@ export const ListeningTask = forwardRef<ListeningTaskRef, ListeningTaskProps>(
       const currentOption = oIndex + 1;
 
       if (userAnswer === currentOption) {
-        return validity[qIndex] ? styles.valid : styles.invalid;
+        return validity[qIndex] ? "text-ok font-bold" : "text-err font-bold";
       }
 
       if (correctAnswer === currentOption && !validity[qIndex]) {
-        return styles.correct;
+        return "text-ok font-bold";
       }
 
       return "";
     };
 
     return (
-      <div className={styles.listeningTask}>
-        <audio controls src={audioUrl} className={styles.audioPlayer}>
+      <div className="flex flex-col gap-5">
+        <audio controls src={audioUrl} className="w-full">
           Your browser does not support the audio element.
         </audio>
 
-        <div className={styles.questions}>
+        <div className="flex flex-col gap-5">
           {questions.map((q, i) => (
-            <div key={i} className={styles.questionBlock}>
-              <p className={styles.questionText}>{q.question}</p>
-              <div className={styles.radioGroup}>
+            <div key={i} className="rounded-[16px] bg-surface p-6 text-ink">
+              <p className="mb-2.5 text-[18px] font-bold leading-[20px]">
+                {q.question}
+              </p>
+              <div className="flex flex-col gap-2.5 rounded-[5px] p-2.5">
                 {q.options.map((option, j) => (
                   <label
                     key={j}
-                    className={`${styles.radioLabel} ${getLabelClass(i, j)}`}
+                    className={clsx(
+                      "flex cursor-pointer items-center gap-2.5",
+                      getLabelClass(i, j),
+                    )}
                   >
                     <input
                       type="radio"

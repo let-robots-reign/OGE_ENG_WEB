@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useImperativeHandle, forwardRef } from "react";
-import styles from "./UseOfEnglishCard.module.css";
+import clsx from "clsx";
 
 type UseOfEnglishCardProps = {
   id: number;
@@ -30,7 +30,11 @@ export const UseOfEnglishCard = forwardRef<
   }));
 
   const validity =
-    isCorrect === null ? "" : isCorrect ? styles.valid : styles.invalid;
+    isCorrect === null
+      ? "border-line-2 focus:border-ok"
+      : isCorrect
+        ? "border-ok"
+        : "border-err";
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsCorrect(null);
@@ -38,13 +42,16 @@ export const UseOfEnglishCard = forwardRef<
   };
 
   return (
-    <div className={`${styles.card} ${styles.uoeCard}`}>
+    <div className="relative my-6 mx-auto flex w-0 min-w-full flex-col justify-between gap-4 overflow-hidden rounded-[16px] bg-surface p-4 text-ink shadow-[2px_3px_10px_rgba(0,0,0,0.2)]">
       <div
-        className={styles.uoeCard__question}
+        className="w-0 min-w-full text-[18px]"
         dangerouslySetInnerHTML={{ __html: currentQuestion }}
       />
       <input
-        className={`${styles.uoeCard__input} ${validity}`}
+        className={clsx(
+          "text-ink block w-full resize-none rounded-[3px] border-2 bg-transparent p-2 text-base outline-none transition-colors",
+          validity,
+        )}
         type="text"
         placeholder={origin}
         value={userAnswer}

@@ -6,8 +6,6 @@ import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { TrainingCard } from "./training-card";
 import { Modal } from "./Modal";
-import styles from "@/app/page.module.css";
-import headerStyles from "./Header.module.css";
 import clsx from "clsx";
 
 interface DiagnosticsCardProps {
@@ -43,15 +41,14 @@ export function DiagnosticsCard({ card, disabled }: DiagnosticsCardProps) {
     <>
       <Link
         href={`/diagnostics/${card.key}`}
-        className={`${styles.trainingLink} ${
-          disabled ? styles.disabledLink : ""
-        }`}
+        className={clsx("no-underline", disabled && "cursor-default")}
         onClick={handleDiagnosticsClick}
       >
         <TrainingCard
           className={clsx(
             "grid-cols-[1fr_3fr]",
-            disabled && styles.disabledCard,
+            disabled &&
+              "cursor-default select-none brightness-40 hover:cursor-default hover:shadow-[2px_3px_10px_rgba(0,0,0,0.2)]",
           )}
           title={card.title}
           image={card.image}
@@ -63,16 +60,16 @@ export function DiagnosticsCard({ card, disabled }: DiagnosticsCardProps) {
           title="Доступно только авторизованным пользователям"
           onClose={() => setShowModal(false)}
         >
-          <div className={headerStyles.modalActions}>
+          <div className="flex justify-center gap-4">
             <button
               onClick={() => router.push("/auth/signin")}
-              className={`${headerStyles.btn} ${headerStyles.primary}`}
+              className="bg-ok cursor-pointer rounded-2xl px-6 py-2 text-sm font-bold uppercase tracking-wider text-white transition-opacity hover:opacity-80"
             >
               Войти
             </button>
             <button
               onClick={() => setShowModal(false)}
-              className={`${headerStyles.btn} ${headerStyles.secondary}`}
+              className="bg-surface-3 text-ink-2 cursor-pointer rounded-2xl px-6 py-2 text-sm font-bold uppercase tracking-wider transition-opacity hover:opacity-80"
             >
               Отмена
             </button>
