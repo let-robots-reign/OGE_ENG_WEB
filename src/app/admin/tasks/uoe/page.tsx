@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { UoeTasksListView } from "@/app/_components/admin/tasks/uoe-tasks-list-view";
+import { UoeAdminTabsView } from "@/app/_components/admin/tasks/uoe-admin-tabs-view";
 
 export default function AdminUoeTasksPage() {
   return (
@@ -10,7 +10,7 @@ export default function AdminUoeTasksPage() {
         </div>
       }
     >
-      <UoeTasksListView />
+      <UoeAdminTabsView />
     </Suspense>
   );
 }

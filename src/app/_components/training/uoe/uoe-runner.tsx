@@ -21,10 +21,16 @@ export function UoERunner() {
   const topicId = Number(searchParams.get("topic"));
   const { data: session } = useSession();
 
-  const { data, isLoading, refetch } = api.training.getUoeTraining.useQuery(
-    { topicId },
-    { enabled: !!topicId, gcTime: 0 },
-  );
+  const { data, error, isLoading, refetch } =
+    api.training.getUoeTraining.useQuery(
+      { topicId },
+      {
+        enabled: !!topicId,
+        gcTime: 0,
+        retry: (failureCount, queryError) =>
+          queryError.data?.code !== "NOT_FOUND" && failureCount < 3,
+      },
+    );
 
   const checkMutation = api.training.checkUoeTraining.useMutation();
   const submitAnswersMutation = useSubmitAnswersMutation();
@@ -39,7 +45,7 @@ export function UoERunner() {
 
   const tasks = data?.tasks ?? [];
   const total = tasks.length;
-  const batchKey = tasks.map((t) => t.id).join(",");
+  const batchKey = `${data?.chainId ?? "topic"}:${tasks.map((t) => t.id).join(",")}`;
 
   const { seconds: elapsedSec, reset: resetTimer } = useElapsedTimer(
     !!data && !checked,
@@ -69,7 +75,10 @@ export function UoERunner() {
       id: t.id,
       answer: answers[t.id] ?? "",
     }));
-    const res = await checkMutation.mutateAsync({ answers: payload });
+    const res = await checkMutation.mutateAsync({
+      answers: payload,
+      ...(data.chainId ? { chainId: data.chainId } : {}),
+    });
     setResult(res);
     setChecked(true);
     setShowInstruction(false);
@@ -80,6 +89,7 @@ export function UoERunner() {
       training_type: "use_of_english",
       topic: data.topicTitle,
       topic_id: topicId,
+      ...(data.chainId ? { chain_id: data.chainId } : {}),
       correct_count: res.correctCount,
       total: res.total,
       result: resultRatio,
@@ -113,13 +123,19 @@ export function UoERunner() {
   }
 
   if (!data) {
+    const hasNoChains =
+      error?.data?.code === "NOT_FOUND" && error.message.includes("цепочек");
     return (
       <div className="mx-auto max-w-[920px] px-6 py-24 text-center">
         <div className="font-display text-[32px] tracking-[-0.02em]">
-          Не удалось загрузить задание
+          {hasNoChains
+            ? "Пока нет доступных цепочек заданий"
+            : "Не удалось загрузить задание"}
         </div>
         <p className="text-ink-3 mt-3">
-          Попробуйте ещё раз или выберите другую тему.
+          {hasNoChains
+            ? "Администратор ещё не подготовил связные задания для этой темы."
+            : "Попробуйте ещё раз или выберите другую тему."}
         </p>
         <Link
           href={BACK_HREF}

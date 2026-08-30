@@ -4,10 +4,70 @@ import {
   audioTasks,
   readingTasks,
   trainingTopics,
+  uoeTaskChainItems,
+  uoeTaskChains,
   uoeTasks,
   userResults,
 } from "@/server/db/schema";
 import { and, eq, inArray } from "drizzle-orm";
+import { TRPCError } from "@trpc/server";
+
+const UOE_CHAIN_LENGTH = 9;
+
+export const uoeChainTaskIdsSchema = z
+  .array(z.number().int().positive())
+  .length(
+    UOE_CHAIN_LENGTH,
+    `Цепочка должна содержать ровно ${UOE_CHAIN_LENGTH} заданий`,
+  )
+  .superRefine((taskIds, ctx) => {
+    if (new Set(taskIds).size !== taskIds.length) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Задания в цепочке не должны повторяться",
+      });
+    }
+  });
+
+type ChainCandidateTask = {
+  id: number;
+  isDeleted: boolean;
+  topic: {
+    title: string;
+    category: string;
+    isActive: boolean;
+  } | null;
+};
+
+function validateChainCandidateTasks(
+  tasks: ChainCandidateTask[],
+  taskIds: number[],
+) {
+  if (tasks.length !== taskIds.length) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: "Одно или несколько заданий цепочки не найдены",
+    });
+  }
+
+  const invalidTaskIds = tasks
+    .filter(
+      (task) =>
+        task.isDeleted ||
+        !task.topic ||
+        !task.topic.isActive ||
+        task.topic.category !== "use-of-english" ||
+        task.topic.title === "Словообразование",
+    )
+    .map((task) => task.id);
+
+  if (invalidTaskIds.length > 0) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: `Недопустимые задания для цепочки: ${invalidTaskIds.map((id) => `#${id}`).join(", ")}`,
+    });
+  }
+}
 
 const diagnosticDetailsSchema = z.object({
   feedback: z.string(),
@@ -586,6 +646,183 @@ export const adminRouter = createTRPCRouter({
     });
   }),
 
+  getUoeChainCatalog: adminProcedure
+    .input(
+      z.object({
+        search: z.string().default(""),
+        topicId: z.number().int().positive().optional(),
+        limit: z.number().int().min(1).max(100).default(50),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const tasks = await ctx.db.query.uoeTasks.findMany({
+        where: and(
+          eq(uoeTasks.isDeleted, false),
+          input.topicId !== undefined
+            ? eq(uoeTasks.topicId, input.topicId)
+            : undefined,
+        ),
+        with: { topic: true },
+        orderBy: (table, { desc }) => [desc(table.id)],
+      });
+      const search = input.search.trim().toLowerCase();
+
+      return tasks
+        .filter((task) => {
+          const topic = task.topic;
+          if (
+            !topic?.isActive ||
+            topic.category !== "use-of-english" ||
+            topic.title === "Словообразование"
+          ) {
+            return false;
+          }
+
+          if (!search) return true;
+          return [
+            String(task.id),
+            task.task,
+            task.origin,
+            task.answer,
+            topic.title,
+          ].some((value) => value.toLowerCase().includes(search));
+        })
+        .slice(0, input.limit);
+    }),
+
+  getUoeTaskChains: adminProcedure.query(async ({ ctx }) => {
+    return await ctx.db.query.uoeTaskChains.findMany({
+      where: eq(uoeTaskChains.isDeleted, false),
+      with: {
+        items: {
+          orderBy: (items, { asc }) => [asc(items.position)],
+          with: { task: { with: { topic: true } } },
+        },
+      },
+      orderBy: (chains, { desc }) => [desc(chains.id)],
+    });
+  }),
+
+  getUoeTaskChainById: adminProcedure
+    .input(z.object({ id: z.number().int().positive() }))
+    .query(async ({ ctx, input }) => {
+      const chain = await ctx.db.query.uoeTaskChains.findFirst({
+        where: and(
+          eq(uoeTaskChains.id, input.id),
+          eq(uoeTaskChains.isDeleted, false),
+        ),
+        with: {
+          items: {
+            orderBy: (items, { asc }) => [asc(items.position)],
+            with: { task: { with: { topic: true } } },
+          },
+        },
+      });
+
+      return chain ?? null;
+    }),
+
+  createUoeTaskChain: adminProcedure
+    .input(z.object({ taskIds: uoeChainTaskIdsSchema }))
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.db.transaction(async (tx) => {
+        const tasks = await tx.query.uoeTasks.findMany({
+          where: inArray(uoeTasks.id, input.taskIds),
+          with: { topic: true },
+        });
+        validateChainCandidateTasks(tasks, input.taskIds);
+
+        const [chain] = await tx
+          .insert(uoeTaskChains)
+          .values({ isDeleted: false })
+          .returning();
+        if (!chain) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Не удалось создать цепочку",
+          });
+        }
+
+        await tx.insert(uoeTaskChainItems).values(
+          input.taskIds.map((taskId, index) => ({
+            chainId: chain.id,
+            taskId,
+            position: index + 1,
+          })),
+        );
+
+        return { id: chain.id };
+      });
+    }),
+
+  updateUoeTaskChain: adminProcedure
+    .input(
+      z.object({
+        id: z.number().int().positive(),
+        taskIds: uoeChainTaskIdsSchema,
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.db.transaction(async (tx) => {
+        const chain = await tx.query.uoeTaskChains.findFirst({
+          where: and(
+            eq(uoeTaskChains.id, input.id),
+            eq(uoeTaskChains.isDeleted, false),
+          ),
+          columns: { id: true },
+        });
+        if (!chain) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Цепочка не найдена",
+          });
+        }
+
+        const tasks = await tx.query.uoeTasks.findMany({
+          where: inArray(uoeTasks.id, input.taskIds),
+          with: { topic: true },
+        });
+        validateChainCandidateTasks(tasks, input.taskIds);
+
+        await tx
+          .delete(uoeTaskChainItems)
+          .where(eq(uoeTaskChainItems.chainId, input.id));
+        await tx.insert(uoeTaskChainItems).values(
+          input.taskIds.map((taskId, index) => ({
+            chainId: input.id,
+            taskId,
+            position: index + 1,
+          })),
+        );
+
+        return { id: input.id };
+      });
+    }),
+
+  deleteUoeTaskChain: adminProcedure
+    .input(z.object({ id: z.number().int().positive() }))
+    .mutation(async ({ ctx, input }) => {
+      const [deleted] = await ctx.db
+        .update(uoeTaskChains)
+        .set({ isDeleted: true })
+        .where(
+          and(
+            eq(uoeTaskChains.id, input.id),
+            eq(uoeTaskChains.isDeleted, false),
+          ),
+        )
+        .returning({ id: uoeTaskChains.id });
+
+      if (!deleted) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Цепочка не найдена",
+        });
+      }
+
+      return { success: true, id: deleted.id };
+    }),
+
   getUoeTasks: adminProcedure
     .input(
       z.object({
@@ -694,28 +931,101 @@ export const adminRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const [updated] = await ctx.db
-        .update(uoeTasks)
-        .set({
-          topicId: input.topicId,
-          task: input.task.trim(),
-          origin: input.origin.trim().toUpperCase(),
-          answer: input.answer.trim().toUpperCase(),
-        })
-        .where(eq(uoeTasks.id, input.id))
-        .returning();
+      return await ctx.db.transaction(async (tx) => {
+        const topic = await tx.query.trainingTopics.findFirst({
+          where: eq(trainingTopics.id, input.topicId),
+        });
+        if (!topic) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Выбранная тема не найдена",
+          });
+        }
 
-      return updated;
+        const makesLinkedTaskInvalid =
+          !topic.isActive ||
+          topic.category !== "use-of-english" ||
+          topic.title === "Словообразование";
+        if (makesLinkedTaskInvalid) {
+          const linkedChains = await tx
+            .select({ chainId: uoeTaskChainItems.chainId })
+            .from(uoeTaskChainItems)
+            .innerJoin(
+              uoeTaskChains,
+              eq(uoeTaskChains.id, uoeTaskChainItems.chainId),
+            )
+            .where(
+              and(
+                eq(uoeTaskChainItems.taskId, input.id),
+                eq(uoeTaskChains.isDeleted, false),
+              ),
+            );
+
+          if (linkedChains.length > 0) {
+            throw new TRPCError({
+              code: "CONFLICT",
+              message: `Задание #${input.id} используется в цепочках ${linkedChains
+                .map(({ chainId }) => `#${chainId}`)
+                .join(", ")} и не может быть перенесено в выбранную тему`,
+            });
+          }
+        }
+
+        const [updated] = await tx
+          .update(uoeTasks)
+          .set({
+            topicId: input.topicId,
+            task: input.task.trim(),
+            origin: input.origin.trim().toUpperCase(),
+            answer: input.answer.trim().toUpperCase(),
+          })
+          .where(eq(uoeTasks.id, input.id))
+          .returning();
+
+        return updated;
+      });
     }),
 
   deleteUoeTasks: adminProcedure
     .input(z.object({ ids: z.array(z.number()).min(1) }))
     .mutation(async ({ ctx, input }) => {
-      await ctx.db
-        .update(uoeTasks)
-        .set({ isDeleted: true })
-        .where(inArray(uoeTasks.id, input.ids));
+      return await ctx.db.transaction(async (tx) => {
+        const links = await tx
+          .select({
+            taskId: uoeTaskChainItems.taskId,
+            chainId: uoeTaskChainItems.chainId,
+          })
+          .from(uoeTaskChainItems)
+          .innerJoin(
+            uoeTaskChains,
+            eq(uoeTaskChains.id, uoeTaskChainItems.chainId),
+          )
+          .where(
+            and(
+              inArray(uoeTaskChainItems.taskId, input.ids),
+              eq(uoeTaskChains.isDeleted, false),
+            ),
+          );
 
-      return { success: true, deletedCount: input.ids.length };
+        if (links.length > 0) {
+          const taskIds = [...new Set(links.map(({ taskId }) => taskId))];
+          const chainIds = [...new Set(links.map(({ chainId }) => chainId))];
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: `Нельзя удалить задания ${taskIds
+              .map((id) => `#${id}`)
+              .join(", ")}: они используются в цепочках ${chainIds
+              .map((id) => `#${id}`)
+              .join(", ")}. Сначала удалите задания из этих цепочек.`,
+          });
+        }
+
+        await tx
+          .update(uoeTasks)
+          .set({ isDeleted: true })
+          .where(inArray(uoeTasks.id, input.ids));
+
+        return { success: true, deletedCount: input.ids.length };
+      });
     }),
 });

@@ -1,5 +1,6 @@
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
+  check,
   index,
   pgEnum,
   pgTableCreator,
@@ -227,12 +228,59 @@ export const uoeTasks = createTable("uoe_task", (d) => ({
   isDeleted: d.boolean().default(false).notNull(),
 }));
 
-export const uoeTasksRelations = relations(uoeTasks, ({ one }) => ({
+export const uoeTasksRelations = relations(uoeTasks, ({ one, many }) => ({
   topic: one(trainingTopics, {
     fields: [uoeTasks.topicId],
     references: [trainingTopics.id],
   }),
+  chainItems: many(uoeTaskChainItems),
 }));
+
+export const uoeTaskChains = createTable("uoe_task_chain", (d) => ({
+  id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+  isDeleted: d.boolean().default(false).notNull(),
+}));
+
+export const uoeTaskChainItems = createTable(
+  "uoe_task_chain_item",
+  (d) => ({
+    id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+    chainId: d
+      .integer()
+      .notNull()
+      .references(() => uoeTaskChains.id, { onDelete: "cascade" }),
+    taskId: d
+      .integer()
+      .notNull()
+      .references(() => uoeTasks.id, { onDelete: "restrict" }),
+    position: d.integer().notNull(),
+  }),
+  (t) => [
+    uniqueIndex("uoe_chain_item_position_idx").on(t.chainId, t.position),
+    uniqueIndex("uoe_chain_item_task_idx").on(t.chainId, t.taskId),
+    index("uoe_chain_item_chain_id_idx").on(t.chainId),
+    index("uoe_chain_item_task_id_idx").on(t.taskId),
+    check("uoe_chain_item_position_check", sql`${t.position} between 1 and 9`),
+  ],
+);
+
+export const uoeTaskChainsRelations = relations(uoeTaskChains, ({ many }) => ({
+  items: many(uoeTaskChainItems),
+}));
+
+export const uoeTaskChainItemsRelations = relations(
+  uoeTaskChainItems,
+  ({ one }) => ({
+    chain: one(uoeTaskChains, {
+      fields: [uoeTaskChainItems.chainId],
+      references: [uoeTaskChains.id],
+    }),
+    task: one(uoeTasks, {
+      fields: [uoeTaskChainItems.taskId],
+      references: [uoeTasks.id],
+    }),
+  }),
+);
 
 export const writingTasks = createTable("writing_task", (d) => ({
   id: d.integer().primaryKey().generatedByDefaultAsIdentity(),

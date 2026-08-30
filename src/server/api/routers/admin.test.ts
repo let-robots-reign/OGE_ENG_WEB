@@ -59,6 +59,7 @@ import {
   adminRouter,
   audioTaskInputSchema,
   readingTaskInputSchema,
+  uoeChainTaskIdsSchema,
 } from "./admin";
 import { createCallerFactory } from "@/server/api/trpc";
 import { TRPCError } from "@trpc/server";
@@ -312,6 +313,21 @@ describe("Admin Router tRPC Procedures", () => {
       });
 
       expect(result.success).toBe(false);
+    });
+  });
+
+  describe("UoE chain input validation", () => {
+    it("accepts exactly nine unique task IDs", () => {
+      expect(
+        uoeChainTaskIdsSchema.safeParse([1, 2, 3, 4, 5, 6, 7, 8, 9]).success,
+      ).toBe(true);
+    });
+
+    it("rejects an incomplete or duplicate task list", () => {
+      expect(uoeChainTaskIdsSchema.safeParse([1, 2, 3]).success).toBe(false);
+      expect(
+        uoeChainTaskIdsSchema.safeParse([1, 2, 3, 4, 5, 6, 7, 8, 8]).success,
+      ).toBe(false);
     });
   });
 });

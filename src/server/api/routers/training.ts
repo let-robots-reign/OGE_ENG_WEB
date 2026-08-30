@@ -9,18 +9,64 @@ import {
   audioTasks,
   readingTasks,
   trainingTopics,
+  uoeTaskChains,
   uoeTasks,
   userResults,
   writingTasks,
 } from "@/server/db/schema";
 import { shuffle } from "@/app/_utils/shuffle";
 import { isGapFillAnswerCorrect } from "@/app/_utils/gapFill";
-import { and, eq, inArray, isNotNull, notInArray, sql, ne } from "drizzle-orm";
+import { and, eq, inArray, isNotNull, notInArray, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 type AudioTask = typeof audioTasks.$inferSelect;
 type ReadingTask = typeof readingTasks.$inferSelect;
 type ExamAnswer = number | string | null;
+
+type UoeTaskChainForValidation = {
+  items: Array<{
+    position: number;
+    task: {
+      isDeleted: boolean;
+      topic: {
+        category: string;
+        isActive: boolean;
+        title: string;
+      } | null;
+    };
+  }>;
+};
+
+function filterValidTasksChain<T extends UoeTaskChainForValidation>(
+  chains: T[],
+) {
+  return chains.filter(
+    (chain) =>
+      chain.items.length === 9 &&
+      chain.items.every((item, index) => {
+        const topic = item.task.topic;
+
+        return (
+          item.position === index + 1 &&
+          !item.task.isDeleted &&
+          topic !== null &&
+          topic.isActive &&
+          topic.category === "use-of-english" &&
+          topic.title !== "Словообразование"
+        );
+      }),
+  );
+}
+
+function toPublicUoeTask(task: typeof uoeTasks.$inferSelect) {
+  return {
+    id: task.id,
+    task: task.task,
+    origin: task.origin,
+    topicId: task.topicId,
+    isDeleted: task.isDeleted,
+  };
+}
 
 function gradeAudioTask(task: AudioTask, answers: ExamAnswer[]) {
   const correctAnswers = task.answers ?? [];
@@ -453,34 +499,47 @@ export const trainingRouter = createTRPCRouter({
         });
       }
 
-      let topicCondition;
-
       if (topic.title === "По всем темам") {
-        // "По всем темам" includes only grammar, not word formation
-        const wordFormationTopic = await ctx.db.query.trainingTopics.findFirst({
-          where: eq(trainingTopics.title, "Словообразование"),
-          columns: { id: true },
+        const chains = await ctx.db.query.uoeTaskChains.findMany({
+          where: eq(uoeTaskChains.isDeleted, false),
+          with: {
+            items: {
+              orderBy: (items, { asc }) => [asc(items.position)],
+              with: { task: { with: { topic: true } } },
+            },
+          },
         });
-        if (wordFormationTopic) {
-          topicCondition = ne(uoeTasks.topicId, wordFormationTopic.id);
-        }
-      } else {
-        topicCondition = eq(uoeTasks.topicId, topicId);
-      }
 
-      const where = topicCondition
-        ? and(topicCondition, eq(uoeTasks.isDeleted, false))
-        : eq(uoeTasks.isDeleted, false);
+        const validChains = filterValidTasksChain(chains);
+
+        if (validChains.length === 0) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Пока нет доступных цепочек заданий",
+          });
+        }
+
+        const chain =
+          validChains[Math.floor(Math.random() * validChains.length)]!;
+        return {
+          chainId: chain.id,
+          tasks: chain.items.map(({ task }) => toPublicUoeTask(task)),
+          topicTitle: topic.title,
+        };
+      }
 
       const tasks = await ctx.db
         .select()
         .from(uoeTasks)
-        .where(where)
+        .where(
+          and(eq(uoeTasks.topicId, topicId), eq(uoeTasks.isDeleted, false)),
+        )
         .orderBy(sql`RANDOM()`)
         .limit(batchSize);
 
       return {
-        tasks: tasks.map(({ answer: _answer, ...task }) => task),
+        chainId: null,
+        tasks: tasks.map(toPublicUoeTask),
         topicTitle: topic.title,
       };
     }),
@@ -488,15 +547,53 @@ export const trainingRouter = createTRPCRouter({
   checkUoeTraining: publicProcedure
     .input(
       z.object({
+        chainId: z.number().int().positive().optional(),
         answers: z.array(z.object({ id: z.number(), answer: z.string() })),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { answers } = input;
+      const { answers, chainId } = input;
       const ids = answers.map((a) => a.id);
+
+      if (new Set(ids).size !== ids.length) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Ответы не должны содержать повторяющиеся задания",
+        });
+      }
+
+      if (chainId !== undefined) {
+        const chain = await ctx.db.query.uoeTaskChains.findFirst({
+          where: and(
+            eq(uoeTaskChains.id, chainId),
+            eq(uoeTaskChains.isDeleted, false),
+          ),
+          with: { items: true },
+        });
+        const expectedIds = chain?.items.map((item) => item.taskId) ?? [];
+        const submittedIds = new Set(ids);
+        const matchesChain =
+          expectedIds.length === 9 &&
+          ids.length === expectedIds.length &&
+          expectedIds.every((id) => submittedIds.has(id));
+
+        if (!matchesChain) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Набор ответов не соответствует выбранной цепочке",
+          });
+        }
+      }
+
       const correctTasks = await ctx.db.query.uoeTasks.findMany({
-        where: inArray(uoeTasks.id, ids),
+        where: and(inArray(uoeTasks.id, ids), eq(uoeTasks.isDeleted, false)),
       });
+      if (correctTasks.length !== ids.length) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Одно или несколько заданий не найдены",
+        });
+      }
       const results = answers.map((userAnswer) => {
         const correctTask = correctTasks.find((t) => t.id === userAnswer.id);
         const acceptedAnswers = correctTask?.answer.split("/") ?? [];

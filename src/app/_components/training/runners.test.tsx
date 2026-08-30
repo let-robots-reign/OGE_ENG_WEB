@@ -122,6 +122,7 @@ describe("Training Runners Integration Suite", () => {
       const mockQuery = vi.spyOn(api.training.getUoeTraining, "useQuery");
       mockQuery.mockReturnValue({
         data: {
+          chainId: 55,
           topicTitle: "English Gaps Topic",
           tasks: [
             { id: 101, task: "RUN", origin: "He is _____________ fast." },
@@ -150,6 +151,7 @@ describe("Training Runners Integration Suite", () => {
 
       await waitFor(() => {
         expect(mockCheckUoe).toHaveBeenCalledWith({
+          chainId: 55,
           answers: [{ id: 101, answer: "RUNNING" }],
         });
       });
@@ -157,7 +159,7 @@ describe("Training Runners Integration Suite", () => {
       // PostHog and submitAnswers should be triggered
       expect(posthog.capture).toHaveBeenCalledWith(
         "training_completed",
-        expect.any(Object),
+        expect.objectContaining({ chain_id: 55 }),
       );
       expect(mockSubmitAnswers).toHaveBeenCalled();
     });
