@@ -50,6 +50,9 @@ yarn-error.log*
 
 # my own draft files
 draft
+tasks
+*.md
+!README.md
 
 # Playwright
 e2e/test-results/
