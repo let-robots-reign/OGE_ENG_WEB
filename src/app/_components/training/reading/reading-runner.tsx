@@ -9,7 +9,6 @@ import { api } from "@/trpc/react";
 import { HeadingsBank } from "./headings-bank";
 import { TextCard } from "./text-card";
 import { TrueFalseTask } from "./true-false-task";
-import { Modal } from "@/app/_components/Modal";
 import { ResultModal } from "../shared/result-modal";
 import { ReviewModal, type ReviewItem } from "../shared/review-modal";
 import { ProgressDots } from "../shared/progress-dots";
@@ -57,7 +56,6 @@ export function ReadingRunner() {
   const [result, setResult] = useState<Awaited<
     ReturnType<typeof checkMutation.mutateAsync>
   > | null>(null);
-  const [showInstruction, setShowInstruction] = useState(false);
   const [showResult, setShowResult] = useState(false);
   const [showReview, setShowReview] = useState(false);
 
@@ -243,7 +241,6 @@ export function ReadingRunner() {
         answeredCount={answeredCount}
         total={total}
         elapsedSec={elapsedSec}
-        onShowInstruction={() => setShowInstruction(true)}
       />
 
       <div className="mx-auto w-full max-w-[1240px] px-6 pt-8 pb-20 lg:px-8">
@@ -278,7 +275,7 @@ export function ReadingRunner() {
             <button
               type="button"
               onClick={() => setShowReview(true)}
-              className="rounded-pill inline-flex h-9 cursor-pointer items-center justify-center self-start px-4 text-[14px] font-medium text-white sm:self-auto"
+              className="rounded-pill inline-flex h-9 items-center justify-center self-start px-4 text-[14px] font-medium text-white sm:self-auto"
               style={{
                 background: "rgba(255,255,255,0.1)",
                 border: "1px solid rgba(255,255,255,0.2)",
@@ -381,27 +378,6 @@ export function ReadingRunner() {
           </div>
         </div>
       </div>
-
-      {showInstruction && (
-        <Modal size={520} onClose={() => setShowInstruction(false)}>
-          <div style={{ padding: "32px 36px 28px" }}>
-            <div className="font-display mb-3 text-[28px] tracking-[-0.02em]">
-              Инструкция
-            </div>
-            <div className="text-ink-2 flex flex-col gap-2 text-[15px] leading-relaxed">
-              <p>{instr.full}</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setShowInstruction(false)}
-              className="text-on-ink rounded-pill mt-6 inline-flex h-11 w-full items-center justify-center px-[22px] text-[15px] font-medium"
-              style={{ background: "var(--color-ink)" }}
-            >
-              ОК
-            </button>
-          </div>
-        </Modal>
-      )}
 
       {checked && showResult && result && (
         <ResultModal

@@ -73,7 +73,6 @@ interface TrainingSubHeaderProps {
   answeredCount: number;
   total: number;
   elapsedSec: number;
-  onShowInstruction: () => void;
 }
 
 export function TrainingSubHeader({
@@ -83,7 +82,6 @@ export function TrainingSubHeader({
   answeredCount,
   total,
   elapsedSec,
-  onShowInstruction,
 }: TrainingSubHeaderProps) {
   return (
     <div className="border-line bg-bg sticky top-0 z-20 border-b">
@@ -126,13 +124,6 @@ export function TrainingSubHeader({
             </span>
             <span>отвечено</span>
           </div>
-          <button
-            type="button"
-            onClick={onShowInstruction}
-            className="rounded-pill border-line-2 hidden h-9 items-center justify-center border px-4 text-[14px] font-medium sm:inline-flex"
-          >
-            Инструкция
-          </button>
         </div>
       </div>
     </div>

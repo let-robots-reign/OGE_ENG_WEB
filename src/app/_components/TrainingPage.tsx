@@ -8,7 +8,7 @@ import styles from "./TrainingPage.module.css";
 
 type TrainingPageProps = {
   topic: string;
-  instruction: ReactNode;
+  instruction?: ReactNode;
   children: ReactNode;
   onCheck: () => void;
   isChecking: boolean;
@@ -20,7 +20,6 @@ type TrainingPageProps = {
 
 export function TrainingPage({
   topic,
-  instruction,
   children,
   onCheck,
   isChecking,
@@ -30,7 +29,6 @@ export function TrainingPage({
   dismissText,
 }: TrainingPageProps) {
   const router = useRouter();
-  const [showInstruction, setShowInstruction] = useState(true);
   const [showResult, setShowResult] = useState(false);
   const [showExplanation, setShowExplanation] = useState(false);
 
@@ -46,24 +44,7 @@ export function TrainingPage({
 
   return (
     <>
-      {showInstruction && (
-        <Modal title="Инструкция" onClose={() => setShowInstruction(false)}>
-          <div>
-            {instruction}
-            <button
-              className={`${styles.btn} ${styles.primary} ${styles.btnBlock} ${styles.btnCentered}`}
-              onClick={() => setShowInstruction(false)}
-            >
-              ОК
-            </button>
-          </div>
-        </Modal>
-      )}
-
-      <TrainingHeader
-        topic={topic}
-        onShowInstruction={() => setShowInstruction(true)}
-      />
+      <TrainingHeader topic={topic} />
 
       {children}
 

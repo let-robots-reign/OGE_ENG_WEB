@@ -47,7 +47,7 @@ export function AvatarMenu({ initials, userId, isAdmin }: AvatarMenuProps) {
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen((v) => !v)}
-        className="to-accent grid h-9 w-9 cursor-pointer place-items-center rounded-full bg-gradient-to-br from-[#c8c4ff] text-[13px] font-semibold text-white transition-opacity hover:opacity-90"
+        className="to-accent grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-[#c8c4ff] text-[13px] font-semibold text-white transition-opacity hover:opacity-90"
         aria-label="Меню пользователя"
       >
         {displayInitials}

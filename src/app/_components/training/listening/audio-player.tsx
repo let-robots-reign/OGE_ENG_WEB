@@ -93,7 +93,7 @@ export function AudioPlayer({ src, label = "" }: AudioPlayerProps) {
         type="button"
         onClick={togglePlay}
         aria-label={playing ? "Пауза" : "Воспроизвести"}
-        className="text-on-ink grid cursor-pointer place-items-center rounded-full border-0"
+        className="text-on-ink grid place-items-center rounded-full border-0"
         style={{
           width: 64,
           height: 64,
@@ -144,7 +144,7 @@ export function AudioPlayer({ src, label = "" }: AudioPlayerProps) {
         <button
           type="button"
           onClick={restart}
-          className="rounded-pill border-line-2 inline-flex cursor-pointer items-center justify-center gap-2 border text-[14px] font-medium"
+          className="rounded-pill border-line-2 inline-flex items-center justify-center gap-2 border text-[14px] font-medium"
           style={{ height: 36, padding: "0 12px" }}
         >
           <svg
@@ -189,7 +189,7 @@ export function AudioPlayer({ src, label = "" }: AudioPlayerProps) {
                       if (audioRef.current)
                         audioRef.current.playbackRate = rate;
                     }}
-                    className="rounded-pill inline-flex cursor-pointer items-center justify-center font-mono text-[13px] font-medium"
+                    className="rounded-pill inline-flex items-center justify-center font-mono text-[13px] font-medium"
                     style={{
                       height: 30,
                       padding: "0 10px",
@@ -210,7 +210,7 @@ export function AudioPlayer({ src, label = "" }: AudioPlayerProps) {
           <button
             type="button"
             onClick={cycleRate}
-            className="rounded-pill border-line-2 inline-flex w-full cursor-pointer items-center justify-center border font-mono text-[14px] font-medium"
+            className="rounded-pill border-line-2 inline-flex w-full items-center justify-center border font-mono text-[14px] font-medium"
             style={{ height: 36, padding: "0 12px" }}
           >
             {AUDIO_SPEED_OPTIONS[rateIdx]}×

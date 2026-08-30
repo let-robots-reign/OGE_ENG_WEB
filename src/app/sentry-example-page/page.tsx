@@ -141,7 +141,6 @@ export default function Page() {
         a {
           color: #6341F0;
           text-decoration: underline;
-          cursor: pointer;
 
           @media (prefers-color-scheme: dark) {
             color: #B3A1FF;
@@ -151,7 +150,6 @@ export default function Page() {
         button {
           border-radius: 8px;
           color: white;
-          cursor: pointer;
           background-color: #553DB8;
           border: none;
           padding: 0;

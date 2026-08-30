@@ -801,7 +801,7 @@ function MultipleChoiceSection({
                   onChange={() =>
                     updateQuestion(qIndex, "correctAnswer", oIndex)
                   }
-                  className="accent-accent h-4 w-4 cursor-pointer"
+                  className="accent-accent h-4 w-4"
                   title="Отметить как правильный ответ"
                 />
                 <input

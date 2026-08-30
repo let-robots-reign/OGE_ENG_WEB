@@ -232,7 +232,6 @@ describe("Training UI Utils Suite", () => {
         answeredCount={2}
         total={5}
         elapsedSec={125}
-        onShowInstruction={() => {}}
       />,
     );
 

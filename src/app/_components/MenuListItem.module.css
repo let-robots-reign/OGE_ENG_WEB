@@ -9,12 +9,10 @@
   min-width: 100%;
   width: 0;
   color: #444;
-  cursor: pointer;
 }
 
 .menuItem {
   color: #444;
-  cursor: pointer;
   padding: 2rem;
   margin-bottom: 0;
 }

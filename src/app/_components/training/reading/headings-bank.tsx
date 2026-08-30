@@ -225,7 +225,7 @@ export function HeadingsBank({
           <button
             type="button"
             onClick={() => onPickHeading(activeHeading)}
-            className="text-ink-3 cursor-pointer border-0 bg-transparent p-0 text-[12.5px]"
+            className="text-ink-3 border-0 bg-transparent p-0 text-[12.5px]"
           >
             отмена
           </button>

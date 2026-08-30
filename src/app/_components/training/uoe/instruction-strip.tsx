@@ -15,14 +15,10 @@ const STEPS = [
   },
 ];
 
-export function InstructionStrip({
-  onCloseAction,
-}: {
-  onCloseAction: () => void;
-}) {
+export function InstructionStrip() {
   return (
     <div
-      className="border-line mb-7 grid grid-cols-[auto_1fr_auto] items-center gap-4 rounded-lg border p-4 sm:gap-6 sm:p-7"
+      className="border-line mb-7 grid grid-cols-[auto_1fr] items-center gap-4 rounded-lg border p-4 sm:gap-6 sm:p-7"
       style={{
         background:
           "linear-gradient(180deg, var(--color-surface) 0%, var(--color-accent-soft) 240%)",
@@ -61,25 +57,6 @@ export function InstructionStrip({
           </div>
         ))}
       </div>
-
-      <button
-        type="button"
-        onClick={onCloseAction}
-        title="Скрыть инструкцию"
-        className="bg-surface border-line text-ink-3 grid shrink-0 place-items-center rounded-full border"
-        style={{ width: 32, height: 32 }}
-      >
-        <svg
-          width="12"
-          height="12"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.2"
-        >
-          <path d="M6 6l12 12M6 18L18 6" />
-        </svg>
-      </button>
     </div>
   );
 }

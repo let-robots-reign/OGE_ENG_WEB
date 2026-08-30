@@ -54,7 +54,6 @@ export function WritingRunner() {
   const [result, setResult] = useState<Awaited<
     ReturnType<typeof checkMutation.mutateAsync>
   > | null>(null);
-  const [showInstruction, setShowInstruction] = useState(true);
   const [showResult, setShowResult] = useState(false);
 
   const { seconds: elapsedSec, reset: resetTimer } = useElapsedTimer(
@@ -141,7 +140,6 @@ export function WritingRunner() {
     const res = await checkMutation.mutateAsync({ answers });
     setResult(res);
     setChecked(true);
-    setShowInstruction(false);
     setShowResult(true);
 
     const resultRatio = `${res.correctCount}/${res.total}`;
@@ -214,33 +212,10 @@ export function WritingRunner() {
         answeredCount={filledCount}
         total={totalFillable}
         elapsedSec={elapsedSec}
-        onShowInstruction={() => setShowInstruction(true)}
       />
 
       <div className="mx-auto w-full max-w-[980px] px-6 pt-8 pb-32">
-        {!checked && !showInstruction && (
-          <button
-            type="button"
-            onClick={() => setShowInstruction(true)}
-            className="rounded-pill border-line-2 mb-4 inline-flex h-9 items-center gap-2 border px-4 text-[14px] font-medium"
-          >
-            <svg
-              width="12"
-              height="12"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <circle cx="12" cy="12" r="9" />
-              <path d="M12 8v4M12 16h.01" />
-            </svg>
-            Показать инструкцию
-          </button>
-        )}
-        {showInstruction && (
-          <InstructionStrip onCloseAction={() => setShowInstruction(false)} />
-        )}
+        <InstructionStrip />
 
         {checked && result && segments && (
           <ResultBanner

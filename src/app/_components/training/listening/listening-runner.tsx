@@ -19,7 +19,6 @@ import { AudioPlayer } from "./audio-player";
 import { MultipleChoiceTask } from "./multiple-choice-task";
 import { MatchingTask, speakersFor } from "./matching-task";
 import { GapFillTask } from "./gap-fill-task";
-import { Modal } from "@/app/_components/Modal";
 import { ResultModal } from "../shared/result-modal";
 import { ReviewModal, type ReviewItem } from "../shared/review-modal";
 import { ProgressDots } from "../shared/progress-dots";
@@ -58,7 +57,6 @@ export function ListeningRunner() {
   const [result, setResult] = useState<Awaited<
     ReturnType<typeof checkMutation.mutateAsync>
   > | null>(null);
-  const [showInstruction, setShowInstruction] = useState(false);
   const [showResult, setShowResult] = useState(false);
   const [showReview, setShowReview] = useState(false);
 
@@ -218,7 +216,6 @@ export function ListeningRunner() {
         answeredCount={answeredCount}
         total={total}
         elapsedSec={elapsedSec}
-        onShowInstruction={() => setShowInstruction(true)}
       />
 
       <div className="mx-auto w-full max-w-[880px] px-6 pt-8 pb-20">
@@ -250,7 +247,7 @@ export function ListeningRunner() {
             <button
               type="button"
               onClick={() => setShowReview(true)}
-              className="rounded-pill inline-flex h-9 cursor-pointer items-center justify-center self-start px-4 text-[14px] font-medium text-white sm:self-auto"
+              className="rounded-pill inline-flex h-9 items-center justify-center self-start px-4 text-[14px] font-medium text-white sm:self-auto"
               style={{
                 background: "rgba(255,255,255,0.1)",
                 border: "1px solid rgba(255,255,255,0.2)",
@@ -346,27 +343,6 @@ export function ListeningRunner() {
           </div>
         </div>
       </div>
-
-      {showInstruction && (
-        <Modal size={520} onClose={() => setShowInstruction(false)}>
-          <div style={{ padding: "32px 36px 28px" }}>
-            <div className="font-display mb-3 text-[28px] tracking-[-0.02em]">
-              Инструкция
-            </div>
-            <p className="text-ink-2 text-[15px] leading-relaxed">
-              {instructions.full}
-            </p>
-            <button
-              type="button"
-              onClick={() => setShowInstruction(false)}
-              className="text-on-ink rounded-pill mt-6 inline-flex h-11 w-full items-center justify-center px-[22px] text-[15px] font-medium"
-              style={{ background: "var(--color-ink)" }}
-            >
-              ОК
-            </button>
-          </div>
-        </Modal>
-      )}
 
       {checked && showResult && result && (
         <ResultModal
