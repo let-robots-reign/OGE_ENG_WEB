@@ -13,10 +13,6 @@ import { and, eq, inArray } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 const UOE_CHAIN_LENGTH = 9;
-const UOE_CHAIN_EXCLUDED_TOPICS = new Set([
-  "Словообразование",
-  "По всем темам",
-]);
 
 export const uoeChainTaskIdsSchema = z
   .array(z.number().int().positive())
@@ -61,7 +57,7 @@ function validateChainCandidateTasks(
         !task.topic ||
         !task.topic.isActive ||
         task.topic.category !== "use-of-english" ||
-        UOE_CHAIN_EXCLUDED_TOPICS.has(task.topic.title),
+        task.topic.title === "Словообразование",
     )
     .map((task) => task.id);
 
@@ -677,7 +673,7 @@ export const adminRouter = createTRPCRouter({
           if (
             !topic?.isActive ||
             topic.category !== "use-of-english" ||
-            UOE_CHAIN_EXCLUDED_TOPICS.has(topic.title)
+            topic.title === "Словообразование"
           ) {
             return false;
           }
@@ -949,7 +945,7 @@ export const adminRouter = createTRPCRouter({
         const makesLinkedTaskInvalid =
           !topic.isActive ||
           topic.category !== "use-of-english" ||
-          UOE_CHAIN_EXCLUDED_TOPICS.has(topic.title);
+          topic.title === "Словообразование";
         if (makesLinkedTaskInvalid) {
           const linkedChains = await tx
             .select({ chainId: uoeTaskChainItems.chainId })

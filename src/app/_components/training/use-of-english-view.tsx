@@ -41,7 +41,7 @@ export function UseOfEnglishView({
       {featuredTopic && (
         <FeaturedAllTopics
           topicId={featuredTopic.id}
-          desc="Связный экзаменационный текст из 9 заданий по разным грамматическим темам."
+          desc="9 заданий по разным грамматическим темам."
         />
       )}
 

@@ -23,6 +23,41 @@ type AudioTask = typeof audioTasks.$inferSelect;
 type ReadingTask = typeof readingTasks.$inferSelect;
 type ExamAnswer = number | string | null;
 
+type UoeTaskChainForValidation = {
+  items: Array<{
+    position: number;
+    task: {
+      isDeleted: boolean;
+      topic: {
+        category: string;
+        isActive: boolean;
+        title: string;
+      } | null;
+    };
+  }>;
+};
+
+function filterValidTasksChain<T extends UoeTaskChainForValidation>(
+  chains: T[],
+) {
+  return chains.filter(
+    (chain) =>
+      chain.items.length === 9 &&
+      chain.items.every((item, index) => {
+        const topic = item.task.topic;
+
+        return (
+          item.position === index + 1 &&
+          !item.task.isDeleted &&
+          topic !== null &&
+          topic.isActive &&
+          topic.category === "use-of-english" &&
+          topic.title !== "Словообразование"
+        );
+      }),
+  );
+}
+
 function toPublicUoeTask(task: typeof uoeTasks.$inferSelect) {
   return {
     id: task.id,
@@ -475,19 +510,7 @@ export const trainingRouter = createTRPCRouter({
           },
         });
 
-        const validChains = chains.filter(
-          (chain) =>
-            chain.items.length === 9 &&
-            chain.items.every(
-              (item, index) =>
-                item.position === index + 1 &&
-                !item.task.isDeleted &&
-                item.task.topic?.isActive === true &&
-                item.task.topic.category === "use-of-english" &&
-                item.task.topic.title !== "Словообразование" &&
-                item.task.topic.title !== "По всем темам",
-            ),
-        );
+        const validChains = filterValidTasksChain(chains);
 
         if (validChains.length === 0) {
           throw new TRPCError({
