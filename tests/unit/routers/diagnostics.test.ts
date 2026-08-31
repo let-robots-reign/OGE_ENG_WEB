@@ -50,7 +50,7 @@ vi.mock("groq-sdk", () => ({
 }));
 
 import { describe, it, expect, beforeEach } from "vitest";
-import { diagnosticsRouter } from "./diagnostics";
+import { diagnosticsRouter } from "@/server/api/routers/diagnostics";
 import { createCallerFactory } from "@/server/api/trpc";
 import { db } from "@/server/db";
 import { TRPCError } from "@trpc/server";

@@ -60,7 +60,7 @@ import {
   audioTaskInputSchema,
   readingTaskInputSchema,
   uoeChainTaskIdsSchema,
-} from "./admin";
+} from "@/server/api/routers/admin";
 import { createCallerFactory } from "@/server/api/trpc";
 import { TRPCError } from "@trpc/server";
 import { db } from "@/server/db";

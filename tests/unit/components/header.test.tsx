@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { Header } from "./header";
+import { Header } from "@/app/_components/header";
 import { auth } from "@/server/auth";
 
 vi.mock("@/server/auth", () => ({

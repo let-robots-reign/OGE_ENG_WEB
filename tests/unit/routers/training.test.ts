@@ -37,7 +37,7 @@ vi.mock("@/server/db", () => ({
 }));
 
 import { describe, it, expect, beforeEach } from "vitest";
-import { trainingRouter } from "./training";
+import { trainingRouter } from "@/server/api/routers/training";
 import { createCallerFactory } from "@/server/api/trpc";
 import { db } from "@/server/db";
 import { TRPCError } from "@trpc/server";

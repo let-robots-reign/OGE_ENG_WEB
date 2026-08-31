@@ -1,15 +1,15 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, waitFor } from "@testing-library/react";
-import { RoleUpdater } from "./role-updater";
+import { RoleUpdater } from "@/app/_components/role-updater";
 import { useSession } from "next-auth/react";
-import { updateRole } from "./actions";
+import { updateRole } from "@/app/_components/actions";
 
 vi.mock("next-auth/react", () => ({
   useSession: vi.fn(),
 }));
 
-vi.mock("./actions", () => ({
+vi.mock("@/app/_components/actions", () => ({
   updateRole: vi.fn(),
 }));
 

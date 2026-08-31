@@ -8,7 +8,7 @@ vi.mock("@/server/db", () => ({
 }));
 
 import { describe, it, expect, beforeEach } from "vitest";
-import { updateRole } from "./actions";
+import { updateRole } from "@/app/_components/actions";
 import { auth } from "@/server/auth";
 import { db } from "@/server/db";
 

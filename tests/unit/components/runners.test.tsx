@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/unbound-method */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { UoERunner } from "./uoe/uoe-runner";
-import { ListeningRunner } from "./listening/listening-runner";
-import { ReadingRunner } from "./reading/reading-runner";
-import { WritingRunner } from "./writing/writing-runner";
+import { UoERunner } from "@/app/_components/training/uoe/uoe-runner";
+import { ListeningRunner } from "@/app/_components/training/listening/listening-runner";
+import { ReadingRunner } from "@/app/_components/training/reading/reading-runner";
+import { WritingRunner } from "@/app/_components/training/writing/writing-runner";
 import { api } from "@/trpc/react";
 import posthog from "posthog-js";
 

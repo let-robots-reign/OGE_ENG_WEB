@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { render } from "@testing-library/react";
-import { DiagnosticFeedback } from "./diagnostic-feedback";
+import { DiagnosticFeedback } from "@/app/_components/diagnostics/grammar/diagnostic-feedback";
 
 describe("DiagnosticFeedback Component", () => {
   it("should render markdown text correctly", () => {

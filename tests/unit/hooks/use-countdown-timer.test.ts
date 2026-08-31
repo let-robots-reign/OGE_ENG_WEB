@@ -1,6 +1,6 @@
 import { act, renderHook } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { useCountdownTimer } from "./use-countdown-timer";
+import { useCountdownTimer } from "@/app/_composables/use-countdown-timer";
 
 describe("useCountdownTimer", () => {
   afterEach(() => {

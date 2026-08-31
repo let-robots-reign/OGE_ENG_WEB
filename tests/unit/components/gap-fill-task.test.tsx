@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { GapFillTask } from "./gap-fill-task";
+import { GapFillTask } from "@/app/_components/training/listening/gap-fill-task";
 
 describe("GapFillTask Component", () => {
   const sampleQuestions = [

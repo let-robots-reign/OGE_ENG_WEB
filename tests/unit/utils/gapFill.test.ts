@@ -3,7 +3,7 @@ import {
   formatGapFillAnswer,
   isGapFillAnswerCorrect,
   normalizeGapFillAnswer,
-} from "./gapFill";
+} from "@/app/_utils/gapFill";
 
 describe("gap-fill answer matching", () => {
   describe("normalizeGapFillAnswer", () => {

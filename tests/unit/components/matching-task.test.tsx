@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent, within } from "@testing-library/react";
-import { MatchingTask } from "./matching-task";
+import { MatchingTask } from "@/app/_components/training/listening/matching-task";
 
 const rubrics = [
   "Individual and economical",

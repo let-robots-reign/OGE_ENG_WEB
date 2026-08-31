@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-empty-function, @next/next/no-img-element, jsx-a11y/alt-text */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { GlobalSpinner } from "./GlobalSpinner";
-import { Modal } from "./Modal";
-import { MenuListItem } from "./MenuListItem";
-import { ListeningExplanation } from "./ListeningExplanation";
-import { TrainingExplanation } from "./TrainingExplanation";
-import { DiagnosticsCard } from "./DiagnosticsCard";
-import { TheoryCard } from "./theory-card";
-import { TrainingCard } from "./training-card";
+import { GlobalSpinner } from "@/app/_components/GlobalSpinner";
+import { Modal } from "@/app/_components/Modal";
+import { MenuListItem } from "@/app/_components/MenuListItem";
+import { ListeningExplanation } from "@/app/_components/ListeningExplanation";
+import { TrainingExplanation } from "@/app/_components/TrainingExplanation";
+import { DiagnosticsCard } from "@/app/_components/DiagnosticsCard";
+import { TheoryCard } from "@/app/_components/theory-card";
+import { TrainingCard } from "@/app/_components/training-card";
 import { useIsFetching, useIsMutating } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 

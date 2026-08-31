@@ -1,18 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-empty-function, @next/next/no-img-element, jsx-a11y/alt-text */
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { InfoCard } from "./info-card";
-import { TaskCard } from "./task-card";
-import { MCQuestion } from "./listening/mc-question";
-import { QuestionCard } from "./uoe/question-card";
-import { ProgressDots } from "./shared/progress-dots";
-import { AudioPlayer } from "./listening/audio-player";
-import { HeadingsBank } from "./reading/headings-bank";
-import { TextCard } from "./reading/text-card";
-import { ResultBanner } from "./writing/result-banner";
-import { ResultModal } from "./shared/result-modal";
-import { ReviewModal } from "./shared/review-modal";
-import { TrainingSubHeader } from "./shared/training-sub-header";
+import { InfoCard } from "@/app/_components/training/info-card";
+import { TaskCard } from "@/app/_components/training/task-card";
+import { MCQuestion } from "@/app/_components/training/listening/mc-question";
+import { QuestionCard } from "@/app/_components/training/uoe/question-card";
+import { ProgressDots } from "@/app/_components/training/shared/progress-dots";
+import { AudioPlayer } from "@/app/_components/training/listening/audio-player";
+import { HeadingsBank } from "@/app/_components/training/reading/headings-bank";
+import { TextCard } from "@/app/_components/training/reading/text-card";
+import { ResultBanner } from "@/app/_components/training/writing/result-banner";
+import { ResultModal } from "@/app/_components/training/shared/result-modal";
+import { ReviewModal } from "@/app/_components/training/shared/review-modal";
+import { TrainingSubHeader } from "@/app/_components/training/shared/training-sub-header";
 
 vi.mock("next/image", () => ({
   default: (props: any) => <img {...props} />,

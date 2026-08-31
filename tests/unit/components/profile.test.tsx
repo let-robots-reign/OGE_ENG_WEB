@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unnecessary-type-assertion */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { IdentityHero } from "./identity-hero";
-import { SubjectCard } from "./subject-card";
-import { SubjectProgress } from "./subject-progress";
-import { HistoryTable } from "./history-table";
-import { ActivitySection } from "./activity-section";
-import { SettingsSection } from "./settings-section";
+import { IdentityHero } from "@/app/_components/profile/identity-hero";
+import { SubjectCard } from "@/app/_components/profile/subject-card";
+import { SubjectProgress } from "@/app/_components/profile/subject-progress";
+import { HistoryTable } from "@/app/_components/profile/history-table";
+import { ActivitySection } from "@/app/_components/profile/activity-section";
+import { SettingsSection } from "@/app/_components/profile/settings-section";
 import { api } from "@/trpc/react";
 
 const mockRefresh = vi.fn();

@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-empty-function, @typescript-eslint/no-unnecessary-type-assertion */
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { BaseInput } from "./BaseInput";
-import { BaseSelect } from "./BaseSelect";
-import { BaseRadio } from "./BaseRadio";
-import { BaseRadioGroup } from "./BaseRadioGroup";
+import { BaseInput } from "@/app/_components/form/BaseInput";
+import { BaseSelect } from "@/app/_components/form/BaseSelect";
+import { BaseRadio } from "@/app/_components/form/BaseRadio";
+import { BaseRadioGroup } from "@/app/_components/form/BaseRadioGroup";
 
 describe("Base UI Form Controls Suite", () => {
   describe("BaseInput", () => {

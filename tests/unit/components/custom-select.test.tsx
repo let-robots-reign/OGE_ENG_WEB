@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
-import { CustomSelect } from "./custom-select";
+import { CustomSelect } from "@/app/_components/ui/custom-select";
 
 describe("CustomSelect", () => {
   it("does not select a disabled option", () => {

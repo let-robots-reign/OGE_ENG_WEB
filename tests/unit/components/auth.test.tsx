@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { SignInForm } from "./signin/_components/sign-in-form";
-import { SignUpForm } from "./signup/_components/sign-up-form";
+import { SignInForm } from "@/app/auth/signin/_components/sign-in-form";
+import { SignUpForm } from "@/app/auth/signup/_components/sign-up-form";
 import { signIn } from "next-auth/react";
 
 const mocks = vi.hoisted(() => ({
@@ -24,7 +24,7 @@ vi.mock("next-auth/react", () => ({
   signIn: vi.fn(),
 }));
 
-vi.mock("./signup/_components/actions", () => ({
+vi.mock("@/app/auth/signup/_components/actions", () => ({
   signup: mocks.mockSignUpAction,
 }));
 

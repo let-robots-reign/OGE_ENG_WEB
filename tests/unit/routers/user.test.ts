@@ -21,7 +21,7 @@ vi.mock("@/server/db", () => ({
 }));
 
 import { describe, it, expect, beforeEach } from "vitest";
-import { userRouter } from "./user";
+import { userRouter } from "@/server/api/routers/user";
 import { createCallerFactory } from "@/server/api/trpc";
 import { TRPCError } from "@trpc/server";
 import { db } from "@/server/db";

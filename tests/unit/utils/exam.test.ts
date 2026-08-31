@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { getExamName, getExamCountdownText } from "./exam";
+import { getExamName, getExamCountdownText } from "@/app/_utils/exam";
 import { pluralizeDays } from "@/app/_utils/pluralize";
 
 describe("exam utils", () => {

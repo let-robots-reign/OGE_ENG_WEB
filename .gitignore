@@ -55,6 +55,6 @@ draft
 !README.md
 
 # Playwright
-e2e/test-results/
+tests/e2e/test-results/
 playwright-report/
 blob-report/

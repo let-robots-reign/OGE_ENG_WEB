@@ -8,7 +8,13 @@ export default defineConfig({
     globals: true,
     environment: "jsdom",
     setupFiles: ["./vitest.setup.ts"],
-    exclude: [...configDefaults.exclude, "e2e/**/*", ".claude/**/*"],
+    include: ["tests/unit/**/*.{test,spec}.{ts,tsx}"],
+    exclude: [
+      ...configDefaults.exclude,
+      "tests/e2e/**/*",
+      "e2e/**/*",
+      ".claude/**/*",
+    ],
     alias: [
       {
         find: /src\/env(\.js)?$/,

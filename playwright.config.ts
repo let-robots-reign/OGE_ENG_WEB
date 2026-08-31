@@ -1,8 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
-  testDir: "./e2e",
-  outputDir: "./e2e/test-results",
+  testDir: "./tests/e2e",
+  outputDir: "./tests/e2e/test-results",
 
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,

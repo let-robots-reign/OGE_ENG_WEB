@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { AdminView } from "./admin-view";
+import { AdminView } from "@/app/_components/admin/admin-view";
 import { api } from "@/trpc/react";
 
 const mockGet = vi.fn();
