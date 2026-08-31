@@ -331,3 +331,26 @@ export const userResultsRelations = relations(userResults, ({ one }) => ({
     references: [users.id],
   }),
 }));
+
+// Reservations count attempts (including failures), preventing retries from
+// bypassing quotas. Successful reports and partial batch checkpoints are reused.
+export const diagnosticsRuns = createTable(
+  "diagnostics_run",
+  (d) => ({
+    id: d.uuid().primaryKey(),
+    userId: d
+      .varchar({ length: 255 })
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    inputHash: d.varchar({ length: 64 }).notNull(),
+    status: d.varchar({ length: 16 }).notNull(),
+    createdAt: d.timestamp({ withTimezone: true }).defaultNow().notNull(),
+    expiresAt: d.timestamp({ withTimezone: true }).notNull(),
+    batches: d.jsonb().notNull().default({}),
+    feedback: d.text(),
+  }),
+  (t) => [
+    index("diagnostics_run_user_hash_idx").on(t.userId, t.inputHash),
+    index("diagnostics_run_created_idx").on(t.createdAt),
+  ],
+);

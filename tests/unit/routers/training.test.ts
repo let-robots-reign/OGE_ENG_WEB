@@ -368,6 +368,23 @@ describe("Training Router tRPC Procedures", () => {
   });
 
   describe("submitAnswers", () => {
+    it("rejects client-written diagnostics before inserting a result", async () => {
+      const caller = createCaller({
+        db: db as any,
+        session: { user: { id: "user-1", role: "student" }, expires: "" },
+        headers: new Headers(),
+      });
+      await expect(
+        caller.submitAnswers({
+          activityId: 1,
+          activityType: "diagnostics",
+          result: "",
+          details: { feedback: '<iframe srcdoc="unsafe"></iframe>' },
+        }),
+      ).rejects.toMatchObject({ code: "BAD_REQUEST" });
+      expect(db.insert).not.toHaveBeenCalled();
+    });
+
     it("should record training user activity to DB", async () => {
       const mockInsertValues = vi.fn().mockResolvedValue([{ success: true }]);
       vi.mocked(db.insert).mockReturnValue({

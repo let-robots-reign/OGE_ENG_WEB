@@ -470,6 +470,13 @@ export const trainingRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      if (input.activityType === "diagnostics") {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message:
+            "Результат диагностики сохраняется только после серверной проверки.",
+        });
+      }
       await ctx.db.insert(userResults).values({
         userId: ctx.session.user.id,
         activityId: input.activityId,

@@ -7,7 +7,7 @@ import Link from "next/link";
 import posthog from "posthog-js";
 
 import { api } from "@/trpc/react";
-import { useSubmitAnswersMutation } from "@/app/_composables/use-submit-answers-mutation";
+import { DIAGNOSTICS_VERSION } from "@/shared/diagnostics-questions";
 import { part1Questions, part2Questions } from "@/app/diagnostics/grammar/data";
 import { SectionSubHeader } from "@/app/_components/training/shared/training-sub-header";
 import { Modal } from "@/app/_components/Modal";
@@ -47,9 +47,6 @@ const buildInitialPart1 = (): Record<number, string[]> =>
     ]),
   );
 
-const normalizeAnswer = (answer: string) =>
-  answer.toLowerCase().trim().replace(/’/g, "'").replace(/\s+/g, " ");
-
 const PRIMARY_BTN =
   "rounded-pill inline-flex h-11 items-center justify-center px-[22px] text-[15px] font-medium text-on-ink transition-transform hover:-translate-y-px disabled:translate-y-0 disabled:opacity-60";
 const SECONDARY_BTN =
@@ -57,7 +54,7 @@ const SECONDARY_BTN =
 
 export function GrammarRunner() {
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const { status } = useSession();
 
   const [currentPart, setCurrentPart] = useState(1);
   const [answers, setAnswers] = useState<Answers>(() => ({
@@ -66,6 +63,8 @@ export function GrammarRunner() {
   }));
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [feedback, setFeedback] = useState("");
+  const [partial, setPartial] = useState(false);
+  const [progressError, setProgressError] = useState<string | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
 
   const { data: hasCompleted, isLoading: isLoadingCompletionStatus } =
@@ -73,7 +72,39 @@ export function GrammarRunner() {
       enabled: status === "authenticated",
     });
 
-  const submitAnswersMutation = useSubmitAnswersMutation();
+  const apiUtils = api.useUtils();
+  const {
+    data: pendingReport,
+    isLoading: isLoadingProgress,
+    isFetching: isFetchingProgress,
+  } = api.diagnostics.getPendingDiagnostics.useQuery(undefined, {
+    enabled: status === "authenticated" && !hasCompleted && !isSubmitted,
+    refetchOnWindowFocus: false,
+    staleTime: 0,
+  });
+
+  useEffect(() => {
+    // A cached partial report may be older than the run on the server. Wait
+    // for the refetch before restoring it and disabling this query.
+    if (!pendingReport || isSubmitted || isFetchingProgress) return;
+    setAnswers({
+      part1: Object.fromEntries(
+        pendingReport.submission.part1.map((task) => [
+          task.id,
+          task.userAnswers,
+        ]),
+      ),
+      part2: Object.fromEntries(
+        pendingReport.submission.part2.map((task) => [
+          task.id,
+          task.userTranslation,
+        ]),
+      ),
+    });
+    setFeedback(pendingReport.feedback);
+    setPartial(true);
+    setIsSubmitted(true);
+  }, [pendingReport, isSubmitted, isFetchingProgress]);
 
   useEffect(() => {
     if (status === "unauthenticated") setShowAuthModal(true);
@@ -81,26 +112,35 @@ export function GrammarRunner() {
   }, [status, hasCompleted, router]);
 
   const checkGrammarMutation = api.diagnostics.checkGrammar.useMutation({
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       setFeedback(data.feedback);
+      setPartial(true); // Do not claim completion before reading persisted status.
       setIsSubmitted(true);
+      setProgressError(null);
       window.scrollTo(0, 0);
-
-      posthog.capture("diagnostics_completed", { diagnostics_type: "grammar" });
-
-      if (session?.user) {
-        submitAnswersMutation.mutate({
-          /*
-          TODO: list of diagnostics is not stored in the DB yet.
-          Setting activityId: 1 here to satisfy the table's schema.
-          When there are more diagnostics types and they are stored in the DB,
-          set the ID of the current diagnostics here.
-           */
-          activityId: 1,
-          activityType: "diagnostics",
-          result: "",
-          details: { userAnswers: answers, feedback: data.feedback },
-        });
+      try {
+        // The pre-submit query may have cached null. Always read the status
+        // persisted by this mutation, not that earlier completion snapshot.
+        await apiUtils.diagnostics.getPendingDiagnostics.cancel();
+        const pending = await apiUtils.diagnostics.getPendingDiagnostics.fetch(
+          undefined,
+          { staleTime: 0 },
+        );
+        setPartial(!!pending);
+        posthog.capture(
+          pending ? "diagnostics_partial" : "diagnostics_completed",
+          {
+            diagnostics_type: "grammar",
+          },
+        );
+        if (!pending) {
+          void apiUtils.user.getStreak.invalidate();
+          void apiUtils.user.getActivity.invalidate();
+        }
+      } catch {
+        setProgressError(
+          "Не удалось уточнить статус проверки. Разбор доступен ниже; попробуй повторить запрос позднее.",
+        );
       }
     },
   });
@@ -132,19 +172,13 @@ export function GrammarRunner() {
 
   const handleSubmit = () => {
     const payload = {
+      version: DIAGNOSTICS_VERSION as typeof DIAGNOSTICS_VERSION,
       part1: part1Questions.map((q) => ({
         id: q.id,
-        text: q.text,
-        userAnswers:
-          answers.part1[q.id]?.map((a) => normalizeAnswer(a) || "") ?? [],
-        correctAnswers: q.correctAnswers,
-        checkResults: q.correctAnswers.map((corA, index) =>
-          corA.includes(answers.part1[q.id]?.[index] ?? ""),
-        ),
+        userAnswers: answers.part1[q.id] ?? [],
       })),
       part2: part2Questions.map((q) => ({
-        ...q,
-        text: q.text.replace(/\*\*/g, ""),
+        id: q.id,
         userTranslation: answers.part2[q.id] ?? "",
       })),
     };
@@ -153,11 +187,18 @@ export function GrammarRunner() {
       part1_answers_count: part1Answered,
       part2_answers_count: part2Answered,
     });
+    setProgressError(null);
     checkGrammarMutation.mutate(payload);
   };
 
   // ── Loading ──────────────────────────────────────────────────────────────
-  if (status === "loading" || isLoadingCompletionStatus) {
+  if (
+    status === "loading" ||
+    isLoadingCompletionStatus ||
+    (status === "authenticated" &&
+      (isLoadingProgress || isFetchingProgress) &&
+      !isSubmitted)
+  ) {
     return (
       <div className="text-ink-3 grid place-items-center py-32 text-[15px]">
         Загрузка...
@@ -201,7 +242,15 @@ export function GrammarRunner() {
 
   // ── Results / feedback ─────────────────────────────────────────────────────
   if (isSubmitted) {
-    return <DiagnosticResultView feedback={feedback} />;
+    return (
+      <DiagnosticResultView
+        feedback={feedback}
+        partial={partial}
+        onRetry={handleSubmit}
+        isRetrying={checkGrammarMutation.isPending}
+        retryError={checkGrammarMutation.error?.message ?? progressError}
+      />
+    );
   }
 
   // ── Test (Part 1 / Part 2) ─────────────────────────────────────────────────
