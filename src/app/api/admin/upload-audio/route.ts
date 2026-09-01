@@ -3,6 +3,8 @@ import { auth } from "@/server/auth";
 import { writeFile, mkdir } from "node:fs/promises";
 import path from "node:path";
 
+const MAX_AUDIO_FILE_SIZE = 20 * 1024 * 1024;
+
 export async function POST(req: Request) {
   const session = await auth();
   if (!session || session.user?.role !== "admin") {
@@ -15,6 +17,13 @@ export async function POST(req: Request) {
 
     if (!file) {
       return NextResponse.json({ error: "Файл не загружен" }, { status: 400 });
+    }
+
+    if (file.size > MAX_AUDIO_FILE_SIZE) {
+      return NextResponse.json(
+        { error: "Размер аудиофайла не должен превышать 20 МБ" },
+        { status: 413 },
+      );
     }
 
     const allowedExtensions = /\.(mp3|wav|ogg|m4a|aac)$/i;

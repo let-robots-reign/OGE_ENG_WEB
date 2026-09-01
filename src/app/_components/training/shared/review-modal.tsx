@@ -57,26 +57,26 @@ export function ReviewItems({ items }: { items: ReviewItem[] }) {
         let html = "";
         if (item.explanation) {
           const { text, highlightedText } = item.explanation;
+          const formatText = (value: string) => value.replace(/\n/g, "<br />");
 
           if (highlightedText?.trim()) {
-            const escaped = highlightedText.replace(
-              /[.*+?^${}()|[\]\\]/g,
-              "\\$&",
-            );
-            const regex = new RegExp(escaped, "gi");
-            const parts = text.split(regex);
-            const matches = text.match(regex) ?? [];
+            const phrases = highlightedText
+              .split(/[\n;]+/)
+              .map((phrase) => phrase.trim())
+              .filter(Boolean)
+              .sort((a, b) => b.length - a.length);
 
-            html = parts.reduce((acc, part, i) => {
-              const formattedPart = part.replace(/\n/g, "<br />");
-              const match = matches[i];
-              const formattedMatch = match
-                ? `<strong>${match.replace(/\n/g, "<br />")}</strong>`
-                : "";
-              return acc + formattedPart + formattedMatch;
-            }, "");
+            if (phrases.length > 0) {
+              const escapedPhrases = phrases.map((phrase) =>
+                phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+              );
+              const regex = new RegExp(`(${escapedPhrases.join("|")})`, "gi");
+              html = formatText(text.replace(regex, "<strong>$1</strong>"));
+            } else {
+              html = formatText(text);
+            }
           } else {
-            html = text.replace(/\n/g, "<br />");
+            html = formatText(text);
           }
         }
 

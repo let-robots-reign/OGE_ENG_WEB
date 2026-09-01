@@ -102,6 +102,11 @@ jobs:
               exit 1
             fi
 
+            # nginx.conf is bind-mounted, so updating the checkout does not
+            # recreate the container. Validate and reload it explicitly.
+            docker compose -f docker-compose.prod.yml exec -T nginx nginx -t
+            docker compose -f docker-compose.prod.yml exec -T nginx nginx -s reload
+
             # The failure mode this job had was silent: pull skipped the image,
             # the old container kept running, and the step still passed. Assert
             # the outcome so that can only ever come back as a red build.

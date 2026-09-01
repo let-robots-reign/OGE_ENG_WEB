@@ -223,6 +223,29 @@ describe("Training UI Utils Suite", () => {
     expect(screen.getByText("пояснение")).toBeInTheDocument();
   });
 
+  it("should highlight multiple explanation fragments separated by a newline", () => {
+    render(
+      <ReviewModal
+        items={[
+          {
+            badge: "1",
+            title: "Test Task",
+            userLabel: "My answer",
+            isCorrect: false,
+            explanation: {
+              text: "The first quote supports the answer. A transition follows. The second quote confirms it.",
+              highlightedText: "first quote\nsecond quote",
+            },
+          },
+        ]}
+        onClose={() => {}}
+      />,
+    );
+
+    expect(screen.getByText("first quote").tagName).toBe("STRONG");
+    expect(screen.getByText("second quote").tagName).toBe("STRONG");
+  });
+
   it("should render TrainingSubHeader statistics", () => {
     render(
       <TrainingSubHeader
