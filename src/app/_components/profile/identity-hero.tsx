@@ -61,10 +61,7 @@ export function IdentityHero({
           }}
         >
           {initials}
-          <span
-            className="border-line pointer-events-none absolute rounded-full border"
-            style={{ inset: -6 }}
-          />
+          <span className="border-line pointer-events-none absolute -inset-1.5 rounded-full border" />
         </div>
         <Link
           href="#settings"

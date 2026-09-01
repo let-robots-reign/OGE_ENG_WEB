@@ -7,21 +7,8 @@ interface SectionHeadProps {
 
 export function SectionHead({ index, en, title, subtitle }: SectionHeadProps) {
   return (
-    <div
-      className="mb-6 grid items-start"
-      style={{ gridTemplateColumns: "auto 1fr", gap: 22 }}
-    >
-      <div
-        className="text-on-ink font-display grid place-items-center italic"
-        style={{
-          width: 56,
-          height: 56,
-          borderRadius: 14,
-          background: "var(--color-ink)",
-          fontSize: 28,
-          letterSpacing: "-0.02em",
-        }}
-      >
+    <div className="mb-6 grid grid-cols-[auto_1fr] items-start gap-[22px]">
+      <div className="text-on-ink bg-ink font-display grid size-14 place-items-center rounded-[14px] text-[28px] tracking-[-0.02em] italic">
         {index}
       </div>
       <div>
@@ -42,10 +29,7 @@ export function SectionHead({ index, en, title, subtitle }: SectionHeadProps) {
 
 export function SectionCard({ children }: { children: React.ReactNode }) {
   return (
-    <section
-      className="bg-surface border-line mb-8 rounded-lg border"
-      style={{ padding: "36px 40px" }}
-    >
+    <section className="bg-surface border-line mb-8 rounded-lg border px-10 py-9">
       {children}
     </section>
   );

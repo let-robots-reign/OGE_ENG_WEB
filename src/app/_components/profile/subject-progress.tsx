@@ -14,30 +14,36 @@ interface Subject {
 
 const META: Record<
   SubjectKey,
-  { title: string; en: string; tone: { bg: string; ink: string } }
+  {
+    title: string;
+    en: string;
+    pillClass: string;
+    barClass: string;
+  }
 > = {
   audio: {
     title: "Аудирование",
     en: "Listening",
-    tone: {
-      bg: "var(--color-tone-indigo)",
-      ink: "var(--color-tone-indigo-ink)",
-    },
+    pillClass: "bg-tone-indigo text-tone-indigo-ink",
+    barClass: "bg-tone-indigo-ink",
   },
   reading: {
     title: "Чтение",
     en: "Reading",
-    tone: { bg: "var(--color-tone-warm)", ink: "var(--color-tone-warm-ink)" },
+    pillClass: "bg-tone-warm text-tone-warm-ink",
+    barClass: "bg-tone-warm-ink",
   },
   "use-of-english": {
     title: "Языковой материал",
     en: "Use of English",
-    tone: { bg: "var(--color-tone-mint)", ink: "var(--color-tone-mint-ink)" },
+    pillClass: "bg-tone-mint text-tone-mint-ink",
+    barClass: "bg-tone-mint-ink",
   },
   writing: {
     title: "Письмо",
     en: "Writing",
-    tone: { bg: "var(--color-tone-sand)", ink: "var(--color-tone-sand-ink)" },
+    pillClass: "bg-tone-sand text-tone-sand-ink",
+    barClass: "bg-tone-sand-ink",
   },
 };
 
@@ -58,7 +64,8 @@ export function SubjectProgress({ subjects }: { subjects: Subject[] }) {
               key={s.key}
               title={meta.title}
               en={meta.en}
-              tone={meta.tone}
+              pillClass={meta.pillClass}
+              barClass={meta.barClass}
               done={s.done}
               total={s.total}
               pct={s.pct}

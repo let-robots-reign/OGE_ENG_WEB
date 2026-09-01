@@ -184,8 +184,7 @@ export function WritingRunner() {
         <p className="text-ink-3 mt-3">Попробуйте ещё раз.</p>
         <Link
           href={BACK_HREF}
-          className="rounded-pill text-on-ink mt-6 inline-flex h-11 items-center justify-center px-[22px] text-[15px] font-medium"
-          style={{ background: "var(--color-ink)" }}
+          className="bg-ink rounded-pill text-on-ink mt-6 inline-flex h-11 items-center justify-center px-[22px] text-[15px] font-medium"
         >
           К списку тренировок →
         </Link>
@@ -317,8 +316,7 @@ export function WritingRunner() {
               </button>
               <Link
                 href={BACK_HREF}
-                className="rounded-pill text-on-ink inline-flex h-11 items-center justify-center px-[22px] text-[15px] font-medium"
-                style={{ background: "var(--color-ink)" }}
+                className="bg-ink rounded-pill text-on-ink inline-flex h-11 items-center justify-center px-[22px] text-[15px] font-medium"
               >
                 К списку тренировок →
               </Link>
@@ -328,8 +326,7 @@ export function WritingRunner() {
               type="button"
               onClick={handleCheck}
               disabled={isChecking}
-              className="rounded-pill text-on-ink inline-flex h-11 items-center justify-center px-[22px] text-[15px] font-medium disabled:opacity-60"
-              style={{ background: "var(--color-ink)" }}
+              className="bg-ink rounded-pill text-on-ink inline-flex h-11 items-center justify-center px-[22px] text-[15px] font-medium disabled:opacity-60"
             >
               {isChecking ? "Проверяем..." : "Проверить →"}
             </button>

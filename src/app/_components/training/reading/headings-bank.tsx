@@ -33,10 +33,7 @@ export function HeadingsBank({
           <span className="bg-accent h-1.5 w-1.5 rounded-full" />
           заголовки · 1–{headings.length}
         </div>
-        <div
-          className="font-display mt-2"
-          style={{ fontSize: 28, lineHeight: 1.05, letterSpacing: "-0.02em" }}
-        >
+        <div className="font-display mt-2 text-[28px] leading-[1.05] tracking-[-0.02em]">
           Один заголовок <span className="text-ink-3 italic">лишний</span>
         </div>
         <div className="text-ink-3 mt-2.5 text-[13.5px] leading-relaxed">
@@ -58,63 +55,44 @@ export function HeadingsBank({
             : null;
           const isActive = !checked && activeHeading === h.n;
 
-          let badgeBg = "var(--color-surface-2)";
-          let badgeColor = "var(--color-ink-3)";
-          let rowBg = "transparent";
-          let rowBorder = "transparent";
-
-          if (checked) {
-            if (assignedLetter) {
-              const isRight = correctLetter === assignedLetter;
-              badgeBg = isRight ? "var(--color-ok)" : "var(--color-err)";
-              badgeColor = "#fff";
-              rowBg = isRight
-                ? "var(--color-ok-soft)"
-                : "var(--color-err-soft)";
-            } else if (!hasCorrectText) {
-              badgeBg = "var(--color-ink-2)";
-              badgeColor = "var(--color-on-ink)";
-            }
-          } else if (isActive) {
-            badgeBg = "var(--color-ink)";
-            badgeColor = "var(--color-on-ink)";
-            rowBg = "var(--color-surface-2)";
-            rowBorder = "var(--color-ink)";
-          } else if (assignedLetter) {
-            badgeBg = "var(--color-accent)";
-            badgeColor = "#fff";
-            rowBg = "var(--color-accent-soft)";
-          }
-
           return (
             <li key={h.n}>
               <button
                 type="button"
                 onClick={() => !checked && onPickHeading(h.n)}
                 disabled={checked}
-                className="grid w-full items-start gap-3 text-left transition-[background,border-color]"
-                style={{
-                  gridTemplateColumns: "36px 1fr auto",
-                  padding: "10px 12px",
-                  borderRadius: "var(--radius-md)",
-                  border: "1px solid " + rowBorder,
-                  background: rowBg,
-                  color: "var(--color-ink)",
-                  cursor: checked ? "default" : "pointer",
-                }}
+                className={`text-ink grid w-full grid-cols-[36px_1fr_auto] items-start gap-3 rounded-md border px-3 py-2.5 text-left transition-[background,border-color] ${
+                  checked ? "cursor-default" : "cursor-pointer"
+                } ${
+                  checked
+                    ? assignedLetter
+                      ? correctLetter === assignedLetter
+                        ? "bg-ok-soft border-transparent"
+                        : "bg-err-soft border-transparent"
+                      : "border-transparent bg-transparent"
+                    : isActive
+                      ? "border-ink bg-surface-2"
+                      : assignedLetter
+                        ? "bg-accent-soft border-transparent"
+                        : "border-transparent bg-transparent"
+                }`}
               >
                 <span
-                  className="grid place-items-center font-mono"
-                  style={{
-                    width: 30,
-                    height: 30,
-                    borderRadius: 9,
-                    background: badgeBg,
-                    color: badgeColor,
-                    fontSize: 13,
-                    fontWeight: 500,
-                    marginTop: 1,
-                  }}
+                  className={`mt-px grid h-[30px] w-[30px] place-items-center rounded-[9px] font-mono text-[13px] font-medium ${
+                    checked
+                      ? assignedLetter
+                        ? correctLetter === assignedLetter
+                          ? "bg-ok text-white"
+                          : "bg-err text-white"
+                        : !hasCorrectText
+                          ? "bg-ink-2 text-on-ink"
+                          : "bg-surface-2 text-ink-3"
+                      : isActive
+                        ? "bg-ink text-on-ink"
+                        : assignedLetter
+                          ? "bg-accent text-white"
+                          : "bg-surface-2 text-ink-3"
+                  }`}
                 >
                   {h.n}
                 </span>
@@ -128,51 +106,22 @@ export function HeadingsBank({
                       лишний
                     </span>
                   ) : !assignedLetter ? (
-                    <span
-                      className="font-display grid place-items-center italic"
-                      style={{
-                        width: 28,
-                        height: 28,
-                        borderRadius: 8,
-                        background: "var(--color-surface-2)",
-                        color: "var(--color-ink-3)",
-                        fontSize: 16,
-                      }}
-                    >
+                    <span className="font-display bg-surface-2 text-ink-3 grid size-7 place-items-center rounded-xs text-[16px] italic">
                       {correctLetter}
                     </span>
                   ) : (
                     <span className="flex items-center gap-1">
                       <span
-                        className="font-display grid place-items-center text-white italic"
-                        style={{
-                          width: 28,
-                          height: 28,
-                          borderRadius: 8,
-                          background:
-                            correctLetter === assignedLetter
-                              ? "var(--color-ok)"
-                              : "var(--color-err)",
-                          fontSize: 16,
-                        }}
+                        className={`font-display grid size-7 place-items-center rounded-xs text-[16px] text-white italic ${
+                          correctLetter === assignedLetter ? "bg-ok" : "bg-err"
+                        }`}
                       >
                         {assignedLetter}
                       </span>
                       {correctLetter !== assignedLetter && (
                         <>
                           <span className="text-ink-4 text-[11px]">→</span>
-                          <span
-                            className="font-display grid place-items-center italic"
-                            style={{
-                              width: 28,
-                              height: 28,
-                              borderRadius: 8,
-                              background: "var(--color-ok-soft)",
-                              color: "var(--color-ok)",
-                              border: "1px solid var(--color-ok)",
-                              fontSize: 16,
-                            }}
-                          >
+                          <span className="font-display border-ok bg-ok-soft text-ok grid size-7 place-items-center rounded-xs border text-[16px] italic">
                             {correctLetter}
                           </span>
                         </>
@@ -186,25 +135,15 @@ export function HeadingsBank({
                       onDetachText(assignedTextIdx);
                     }}
                     title={`Прикреплено к тексту ${assignedLetter} — нажмите, чтобы открепить`}
-                    className="text-on-ink font-display grid shrink-0 cursor-pointer place-items-center italic"
-                    style={{
-                      width: 28,
-                      height: 28,
-                      borderRadius: 8,
-                      background: "var(--color-ink)",
-                      fontSize: 16,
-                    }}
+                    className="text-on-ink bg-ink font-display grid size-7 shrink-0 cursor-pointer place-items-center rounded-xs text-[16px] italic"
                   >
                     {assignedLetter}
                   </span>
                 ) : (
                   <span
-                    className="mt-2 font-mono text-[10.5px] tracking-[0.06em] whitespace-nowrap"
-                    style={{
-                      color: isActive
-                        ? "var(--color-ink)"
-                        : "var(--color-ink-4)",
-                    }}
+                    className={`mt-2 font-mono text-[10.5px] tracking-[0.06em] whitespace-nowrap ${
+                      isActive ? "text-ink" : "text-ink-4"
+                    }`}
                   >
                     {isActive ? "выбран →" : "—"}
                   </span>

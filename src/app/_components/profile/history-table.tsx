@@ -15,10 +15,10 @@ interface ActivityRow {
   max: number | null;
 }
 
-const TONES: Record<Tone, { bg: string; fg: string }> = {
-  ok: { bg: "var(--color-ok-soft)", fg: "var(--color-ok)" },
-  warn: { bg: "var(--color-warn-soft)", fg: "var(--color-warn)" },
-  neutral: { bg: "var(--color-surface-2)", fg: "var(--color-ink-3)" },
+const TONES: Record<Tone, string> = {
+  ok: "bg-ok-soft text-ok",
+  warn: "bg-warn-soft text-warn",
+  neutral: "bg-surface-2 text-ink-3",
 };
 
 function formatDate(d: Date): string {
@@ -82,7 +82,6 @@ export function HistoryTable({ rows }: { rows: ActivityRow[] }) {
               </tr>
             ) : (
               rows.map((r) => {
-                const tone = TONES[r.tone];
                 return (
                   <tr
                     key={r.id}
@@ -98,8 +97,7 @@ export function HistoryTable({ rows }: { rows: ActivityRow[] }) {
                     </td>
                     <td className={tdClass}>
                       <span
-                        className="rounded-pill px-2.5 py-1 text-[12px] font-medium"
-                        style={{ background: tone.bg, color: tone.fg }}
+                        className={`rounded-pill px-2.5 py-1 text-[12px] font-medium ${TONES[r.tone]}`}
                       >
                         {r.kind}
                       </span>

@@ -30,8 +30,7 @@ export function ReviewModal({ items, onClose }: ReviewModalProps) {
           type="button"
           onClick={onClose}
           aria-label="Закрыть"
-          className="bg-surface-2 text-ink-2 grid place-items-center rounded-full"
-          style={{ width: 36, height: 36 }}
+          className="bg-surface-2 text-ink-2 grid size-9 place-items-center rounded-full"
         >
           <svg
             width="14"
@@ -88,16 +87,9 @@ export function ReviewItems({ items }: { items: ReviewItem[] }) {
           >
             <div className="flex items-start gap-3">
               <div
-                className="grid shrink-0 place-items-center font-mono text-white"
-                style={{
-                  width: 30,
-                  height: 30,
-                  borderRadius: 8,
-                  fontSize: 13,
-                  background: item.isCorrect
-                    ? "var(--color-ok)"
-                    : "var(--color-err)",
-                }}
+                className={`grid size-[30px] shrink-0 place-items-center rounded-xs font-mono text-[13px] text-white ${
+                  item.isCorrect ? "bg-ok" : "bg-err"
+                }`}
               >
                 {item.badge}
               </div>
@@ -107,13 +99,7 @@ export function ReviewItems({ items }: { items: ReviewItem[] }) {
             </div>
 
             <div className="mt-3 flex flex-col gap-1.5 pl-[42px] text-[14.5px]">
-              <div
-                style={{
-                  color: item.isCorrect
-                    ? "var(--color-ok)"
-                    : "var(--color-err)",
-                }}
-              >
+              <div className={item.isCorrect ? "text-ok" : "text-err"}>
                 Ваш ответ: {item.userLabel}
               </div>
               {!item.isCorrect && item.correctLabel && (

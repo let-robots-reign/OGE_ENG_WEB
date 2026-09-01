@@ -24,13 +24,7 @@ export const BaseRadioGroup = ({
   return (
     <div>
       {options.map((option) => (
-        <div
-          key={option}
-          style={{
-            display: vertical ? "block" : "inline-block",
-            marginRight: vertical ? 0 : "20px",
-          }}
-        >
+        <div key={option} className={vertical ? "block" : "mr-5 inline-block"}>
           <BaseRadio
             value={option}
             label={String(option)}

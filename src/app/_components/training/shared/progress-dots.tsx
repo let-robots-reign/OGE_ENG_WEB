@@ -11,14 +11,9 @@ export function ProgressDots({ total, answered }: ProgressDotsProps) {
         return (
           <div
             key={i}
-            style={{
-              width: 28,
-              height: 6,
-              borderRadius: 3,
-              background: isDone
-                ? "var(--color-accent)"
-                : "var(--color-line-2)",
-            }}
+            className={`h-1.5 w-7 rounded-[3px] ${
+              isDone ? "bg-accent" : "bg-line-2"
+            }`}
           />
         );
       })}

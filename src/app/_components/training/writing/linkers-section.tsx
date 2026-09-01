@@ -44,20 +44,15 @@ function BankChip({
       ref={setNodeRef}
       {...attributes}
       {...listeners}
+      className={`rounded-pill touch-none border px-3.5 py-2 text-[13px] font-medium select-none ${
+        disabled ? "cursor-default" : "cursor-grab"
+      } ${
+        used
+          ? "border-line-2 text-ink-4 border-dashed bg-transparent line-through"
+          : "border-line-2 bg-surface text-ink border-solid"
+      } ${isDragging ? "opacity-40" : "opacity-100"}`}
       style={{
         transform: CSS.Translate.toString(transform),
-        padding: "8px 14px",
-        borderRadius: 999,
-        background: used ? "transparent" : "var(--color-surface)",
-        border: `1px ${used ? "dashed" : "solid"} var(--color-line-2)`,
-        color: used ? "var(--color-ink-4)" : "var(--color-ink)",
-        fontSize: 13,
-        fontWeight: 500,
-        cursor: disabled ? "default" : "grab",
-        textDecoration: used ? "line-through" : "none",
-        opacity: isDragging ? 0.4 : 1,
-        userSelect: "none",
-        touchAction: "none",
       }}
     >
       {ru}
@@ -86,67 +81,37 @@ function Slot({
   });
 
   const correct = checked && !!value && correctness;
-  const wrong = checked && !!value && !correctness;
   const empty = checked && !value;
-
-  const border = checked
-    ? correct
-      ? "var(--color-ok)"
-      : empty
-        ? "var(--color-line-2)"
-        : "var(--color-err)"
-    : isOver
-      ? "var(--color-accent)"
-      : "var(--color-line-2)";
-  const bg =
-    isOver && !checked
-      ? "var(--color-accent-soft)"
-      : correct
-        ? "var(--color-ok-soft)"
-        : wrong
-          ? "var(--color-err-soft)"
-          : "var(--color-surface)";
 
   return (
     <div
       ref={setNodeRef}
-      className="grid items-center"
-      style={{
-        gridTemplateColumns: "96px 1fr",
-        gap: 10,
-        padding: "10px 12px",
-        minHeight: 50,
-        border: `1.5px solid ${border}`,
-        borderRadius: 10,
-        background: bg,
-      }}
+      className={`grid min-h-[50px] grid-cols-[96px_1fr] items-center gap-2.5 rounded-[10px] border-[1.5px] px-3 py-2.5 ${
+        checked
+          ? correct
+            ? "border-ok bg-ok-soft"
+            : empty
+              ? "border-line-2 bg-surface"
+              : "border-err bg-err-soft"
+          : isOver
+            ? "border-accent bg-accent-soft"
+            : "border-line-2 bg-surface"
+      }`}
     >
-      <div
-        className="text-ink-2 truncate font-mono font-medium"
-        style={{ fontSize: 13 }}
-      >
+      <div className="text-ink-2 truncate font-mono text-[13px] font-medium">
         {en}
       </div>
-      <div
-        className="flex flex-wrap items-center gap-1.5"
-        style={{ minWidth: 0, minHeight: 28 }}
-      >
+      <div className="flex min-h-7 min-w-0 flex-wrap items-center gap-1.5">
         {value ? (
           <>
             <span
-              style={{
-                padding: "5px 10px",
-                borderRadius: 999,
-                fontSize: 12.5,
-                fontWeight: 500,
-                whiteSpace: "nowrap",
-                color: checked ? "#fff" : "var(--color-on-ink)",
-                background: checked
+              className={`rounded-pill px-2.5 py-1 text-[12.5px] font-medium whitespace-nowrap ${
+                checked
                   ? correct
-                    ? "var(--color-ok)"
-                    : "var(--color-err)"
-                  : "var(--color-ink)",
-              }}
+                    ? "bg-ok text-white"
+                    : "bg-err text-white"
+                  : "bg-ink text-on-ink"
+              }`}
             >
               {value}
             </span>
@@ -154,14 +119,7 @@ function Slot({
               <button
                 type="button"
                 onClick={() => onClear(enIndex)}
-                className="text-ink-4 grid place-items-center"
-                style={{
-                  width: 18,
-                  height: 18,
-                  borderRadius: "50%",
-                  border: "none",
-                  background: "transparent",
-                }}
+                className="text-ink-4 grid size-[18px] place-items-center rounded-full border-none bg-transparent"
               >
                 <svg
                   width="10"
@@ -177,10 +135,7 @@ function Slot({
             )}
           </>
         ) : (
-          <span
-            className="font-display italic"
-            style={{ fontSize: 12, color: "var(--color-ink-4)" }}
-          >
+          <span className="font-display text-ink-4 text-[12px] italic">
             перетащите перевод
           </span>
         )}
@@ -223,15 +178,7 @@ export function LinkersSection({
         subtitle="Перетащите русский перевод к каждому английскому слову. Их 24 — связки нужны и в письме, и в устной речи."
       />
       <DndContext sensors={sensors} onDragEnd={onDragEnd}>
-        <div
-          className="mb-6 rounded-lg"
-          style={{
-            padding: "20px 22px",
-            background:
-              "linear-gradient(180deg, var(--color-surface-2) 0%, var(--color-surface) 100%)",
-            border: "1px dashed var(--color-line-2)",
-          }}
-        >
+        <div className="border-line-2 from-surface-2 to-surface mb-6 rounded-lg border border-dashed bg-gradient-to-b px-[22px] py-5">
           <div className="mb-3 flex items-center justify-between">
             <div className="text-ink-3 font-mono text-[11px] tracking-[0.1em] uppercase">
               банк переводов

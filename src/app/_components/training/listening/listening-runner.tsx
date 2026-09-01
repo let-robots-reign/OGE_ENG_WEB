@@ -143,8 +143,7 @@ export function ListeningRunner() {
         </p>
         <Link
           href={BACK_HREF}
-          className="text-on-ink rounded-pill mt-6 inline-flex h-11 items-center justify-center px-[22px] text-[15px] font-medium"
-          style={{ background: "var(--color-ink)" }}
+          className="bg-ink text-on-ink rounded-pill mt-6 inline-flex h-11 items-center justify-center px-[22px] text-[15px] font-medium"
         >
           К списку заданий →
         </Link>
@@ -233,13 +232,10 @@ export function ListeningRunner() {
             </p>
           </div>
         ) : (
-          <div
-            className="mb-7 flex flex-col gap-4 rounded-lg p-6 text-white sm:flex-row sm:items-center sm:gap-7"
-            style={{ background: "var(--color-ink-panel)" }}
-          >
+          <div className="bg-ink-panel mb-7 flex flex-col gap-4 rounded-lg p-6 text-white sm:flex-row sm:items-center sm:gap-7">
             <div className="font-display text-[44px] leading-none tracking-[-0.025em] sm:text-[56px]">
               {result?.correctCount ?? 0}
-              <span style={{ color: "rgba(255,255,255,0.5)" }}>/{total}</span>
+              <span className="text-white/50">/{total}</span>
             </div>
             <div className="font-display text-[26px] leading-[1.05] tracking-[-0.02em] sm:flex-1 sm:text-[32px]">
               Ваш результат
@@ -247,11 +243,7 @@ export function ListeningRunner() {
             <button
               type="button"
               onClick={() => setShowReview(true)}
-              className="rounded-pill inline-flex h-9 items-center justify-center self-start px-4 text-[14px] font-medium text-white sm:self-auto"
-              style={{
-                background: "rgba(255,255,255,0.1)",
-                border: "1px solid rgba(255,255,255,0.2)",
-              }}
+              className="rounded-pill inline-flex h-9 items-center justify-center self-start border border-white/20 bg-white/10 px-4 text-[14px] font-medium text-white sm:self-auto"
             >
               Посмотреть пояснения
             </button>
@@ -314,8 +306,7 @@ export function ListeningRunner() {
                 </button>
                 <Link
                   href={BACK_HREF}
-                  className="text-on-ink rounded-pill inline-flex h-11 items-center justify-center px-[22px] text-[15px] font-medium"
-                  style={{ background: "var(--color-ink)" }}
+                  className="bg-ink text-on-ink rounded-pill inline-flex h-11 items-center justify-center px-[22px] text-[15px] font-medium"
                 >
                   К списку заданий →
                 </Link>
@@ -333,8 +324,7 @@ export function ListeningRunner() {
                   type="button"
                   onClick={handleCheck}
                   disabled={isChecking || answeredCount === 0}
-                  className="text-on-ink rounded-pill inline-flex h-11 items-center justify-center px-[22px] text-[15px] font-medium disabled:opacity-60"
-                  style={{ background: "var(--color-ink)" }}
+                  className="bg-ink text-on-ink rounded-pill inline-flex h-11 items-center justify-center px-[22px] text-[15px] font-medium disabled:opacity-60"
                 >
                   {isChecking ? "Проверяем..." : "Проверить ответы →"}
                 </button>

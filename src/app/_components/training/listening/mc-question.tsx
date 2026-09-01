@@ -26,62 +26,39 @@ export function MCQuestion({
   const isCorrect = checked && isCorrectAnswer;
   const empty = checked && value == null;
 
-  const borderTone = checked
-    ? isCorrect
-      ? "var(--color-ok)"
-      : "var(--color-err)"
-    : "var(--color-line)";
-  const numBg = checked
-    ? isCorrect
-      ? "var(--color-ok)"
-      : "var(--color-err)"
-    : "var(--color-ink)";
-
-  const cardBg = checked
-    ? isCorrect
-      ? "linear-gradient(180deg, var(--color-surface) 0%, rgba(26,164,99,0.04) 100%)"
-      : "linear-gradient(180deg, var(--color-surface) 0%, rgba(220,38,38,0.03) 100%)"
-    : "var(--color-surface)";
-
   return (
     <div
-      className="rounded-lg border"
-      style={{ padding: 28, borderColor: borderTone, background: cardBg }}
+      className={`rounded-lg border p-7 ${
+        checked
+          ? isCorrect
+            ? "border-ok bg-[linear-gradient(180deg,var(--color-surface)_0%,rgba(26,164,99,0.04)_100%)]"
+            : "border-err bg-[linear-gradient(180deg,var(--color-surface)_0%,rgba(220,38,38,0.03)_100%)]"
+          : "border-line bg-surface"
+      }`}
     >
       <div className="flex items-start gap-[18px]">
         <div
-          className="grid shrink-0 place-items-center font-mono"
-          style={{
-            width: 36,
-            height: 36,
-            borderRadius: 10,
-            background: numBg,
-            color: checked ? "#fff" : "var(--color-on-ink)",
-            fontSize: 14,
-            fontWeight: 500,
-          }}
+          className={`grid size-9 shrink-0 place-items-center rounded-[10px] font-mono text-[14px] font-medium ${
+            checked
+              ? isCorrect
+                ? "bg-ok text-white"
+                : "bg-err text-white"
+              : "bg-ink text-on-ink"
+          }`}
         >
           {idx}
         </div>
 
         <div className="flex-1">
           <div className="flex items-start justify-between gap-4">
-            <div
-              className="font-display flex-1"
-              style={{
-                fontSize: 24,
-                letterSpacing: "-0.015em",
-                lineHeight: 1.25,
-              }}
-            >
+            <div className="font-display flex-1 text-[24px] leading-[1.25] tracking-[-0.015em]">
               {question}
             </div>
             {checked && (
               <div
-                className="mt-1.5 inline-flex items-center gap-1.5 text-[12px] font-medium whitespace-nowrap"
-                style={{
-                  color: isCorrect ? "var(--color-ok)" : "var(--color-err)",
-                }}
+                className={`mt-1.5 inline-flex items-center gap-1.5 text-[12px] font-medium whitespace-nowrap ${
+                  isCorrect ? "text-ok" : "text-err"
+                }`}
               >
                 {isCorrect ? (
                   <>
@@ -123,72 +100,38 @@ export function MCQuestion({
               const isCorrectOpt = checked && optNum === correct;
               const isWrongPick = checked && selected && !isCorrect;
 
-              let border = "var(--color-line-2)";
-              let bg = "var(--color-surface)";
-              let color = "var(--color-ink)";
-              let codeColor = "var(--color-ink-3)";
-
-              if (checked) {
-                if (isCorrectOpt) {
-                  border = "var(--color-ok)";
-                  bg = "var(--color-ok-soft)";
-                  color = "var(--color-ok)";
-                  codeColor = "var(--color-ok)";
-                } else if (isWrongPick) {
-                  border = "var(--color-err)";
-                  bg = "var(--color-err-soft)";
-                  color = "var(--color-err)";
-                  codeColor = "var(--color-err)";
-                } else {
-                  color = "var(--color-ink-3)";
-                }
-              } else if (selected) {
-                border = "var(--color-ink)";
-                bg = "var(--color-ink)";
-                color = "var(--color-on-ink)";
-                codeColor =
-                  "color-mix(in srgb, var(--color-on-ink) 60%, transparent)";
-              }
-
               return (
                 <button
                   key={i}
                   type="button"
                   onClick={() => !checked && onChange(optNum)}
                   disabled={checked}
-                  className="flex items-center gap-3.5 rounded-md text-left text-[15px] transition-all"
-                  style={{
-                    padding: "16px 20px",
-                    border: `1px solid ${border}`,
-                    background: bg,
-                    color,
-                    cursor: checked ? "default" : "pointer",
-                  }}
+                  className={`flex items-center gap-3.5 rounded-md border px-5 py-4 text-left text-[15px] transition-all ${
+                    checked ? "cursor-default" : "cursor-pointer"
+                  } ${
+                    checked
+                      ? isCorrectOpt
+                        ? "border-ok bg-ok-soft text-ok"
+                        : isWrongPick
+                          ? "border-err bg-err-soft text-err"
+                          : "border-line-2 bg-surface text-ink-3"
+                      : selected
+                        ? "border-ink bg-ink text-on-ink"
+                        : "border-line-2 bg-surface text-ink"
+                  }`}
                 >
                   <span
-                    className="grid shrink-0 place-items-center"
-                    style={{
-                      width: 24,
-                      height: 24,
-                      borderRadius: "50%",
-                      border: `1.5px solid ${
-                        checked
-                          ? isCorrectOpt
-                            ? "var(--color-ok)"
-                            : isWrongPick
-                              ? "var(--color-err)"
-                              : "var(--color-line-2)"
-                          : selected
-                            ? "var(--color-on-ink)"
-                            : "var(--color-line-2)"
-                      }`,
-                      background:
-                        checked && isCorrectOpt
-                          ? "var(--color-ok)"
-                          : checked && isWrongPick
-                            ? "var(--color-err)"
-                            : "transparent",
-                    }}
+                    className={`grid size-6 shrink-0 place-items-center rounded-full border-[1.5px] ${
+                      checked
+                        ? isCorrectOpt
+                          ? "border-ok bg-ok"
+                          : isWrongPick
+                            ? "border-err bg-err"
+                            : "border-line-2 bg-transparent"
+                        : selected
+                          ? "border-on-ink bg-transparent"
+                          : "border-line-2 bg-transparent"
+                    }`}
                   >
                     {checked && isCorrectOpt && (
                       <svg
@@ -215,38 +158,30 @@ export function MCQuestion({
                       </svg>
                     )}
                     {!checked && selected && (
-                      <span
-                        style={{
-                          width: 10,
-                          height: 10,
-                          borderRadius: "50%",
-                          background: "var(--color-on-ink)",
-                        }}
-                      />
+                      <span className="bg-on-ink size-2.5 rounded-full" />
                     )}
                   </span>
                   <span
-                    className="mr-1 font-mono text-[12px]"
-                    style={{ color: codeColor }}
+                    className={`mr-1 font-mono text-[12px] ${
+                      checked
+                        ? isCorrectOpt
+                          ? "text-ok"
+                          : isWrongPick
+                            ? "text-err"
+                            : "text-ink-3"
+                        : selected
+                          ? "text-on-ink/60"
+                          : "text-ink-3"
+                    }`}
                   >
                     {optNum})
                   </span>
                   <span className="flex-1">{opt}</span>
                   {checked && selected && (
                     <span
-                      className="font-mono uppercase"
-                      style={{
-                        fontSize: 10.5,
-                        letterSpacing: ".08em",
-                        padding: "3px 8px",
-                        borderRadius: 6,
-                        background: isCorrect
-                          ? "rgba(26,164,99,0.15)"
-                          : "rgba(220,38,38,0.12)",
-                        color: isCorrect
-                          ? "var(--color-ok)"
-                          : "var(--color-err)",
-                      }}
+                      className={`rounded-[6px] px-2 py-[3px] font-mono text-[10.5px] tracking-[0.08em] uppercase ${
+                        isCorrect ? "bg-ok/15 text-ok" : "bg-err/12 text-err"
+                      }`}
                     >
                       ваш ответ
                     </span>

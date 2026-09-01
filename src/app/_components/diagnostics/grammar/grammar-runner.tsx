@@ -51,7 +51,7 @@ const normalizeAnswer = (answer: string) =>
   answer.toLowerCase().trim().replace(/’/g, "'").replace(/\s+/g, " ");
 
 const PRIMARY_BTN =
-  "rounded-pill inline-flex h-11 items-center justify-center px-[22px] text-[15px] font-medium text-on-ink transition-transform hover:-translate-y-px disabled:translate-y-0 disabled:opacity-60";
+  "bg-ink rounded-pill inline-flex h-11 items-center justify-center px-[22px] text-[15px] font-medium text-on-ink transition-transform hover:-translate-y-px disabled:translate-y-0 disabled:opacity-60";
 const SECONDARY_BTN =
   "rounded-pill border-line-2 inline-flex h-11 items-center justify-center border px-[22px] text-[15px] font-medium transition-colors hover:bg-surface-2";
 
@@ -182,7 +182,6 @@ export function GrammarRunner() {
               type="button"
               onClick={() => router.push("/auth/signin")}
               className={`${PRIMARY_BTN} flex-1`}
-              style={{ background: "var(--color-ink)" }}
             >
               Войти
             </button>
@@ -330,7 +329,6 @@ export function GrammarRunner() {
                   type="button"
                   onClick={() => goToPart(2)}
                   className={`${PRIMARY_BTN} flex-1 sm:flex-none`}
-                  style={{ background: "var(--color-ink)" }}
                 >
                   Далее →
                 </button>
@@ -349,7 +347,6 @@ export function GrammarRunner() {
                   onClick={handleSubmit}
                   disabled={isChecking}
                   className={`${PRIMARY_BTN} flex-1 sm:flex-none`}
-                  style={{ background: "var(--color-ink)" }}
                 >
                   {isChecking ? "Анализируем..." : "Отправить на проверку →"}
                 </button>

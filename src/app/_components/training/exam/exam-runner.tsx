@@ -252,8 +252,7 @@ export function ExamRunner({ category }: { category: Category }) {
         </p>
         <Link
           href={backHref}
-          className="text-on-ink rounded-pill mt-6 inline-flex h-11 items-center px-[22px] text-[15px] font-medium"
-          style={{ background: "var(--color-ink)" }}
+          className="bg-ink text-on-ink rounded-pill mt-6 inline-flex h-11 items-center px-[22px] text-[15px] font-medium"
         >
           К списку заданий →
         </Link>
@@ -336,15 +335,10 @@ export function ExamRunner({ category }: { category: Category }) {
         className={`mx-auto w-full px-6 pt-8 pb-20 ${category === "reading" ? "max-w-[1240px] lg:px-8" : "max-w-[880px]"}`}
       >
         {checked ? (
-          <div
-            className="mb-7 flex flex-col gap-4 rounded-lg p-6 text-white sm:flex-row sm:items-center sm:gap-7"
-            style={{ background: "var(--color-ink-panel)" }}
-          >
+          <div className="bg-ink-panel mb-7 flex flex-col gap-4 rounded-lg p-6 text-white sm:flex-row sm:items-center sm:gap-7">
             <div className="font-display text-[44px] leading-none tracking-[-0.025em] sm:text-[56px]">
               {result?.correctCount ?? 0}
-              <span style={{ color: "rgba(255,255,255,0.5)" }}>
-                /{result?.total ?? 0}
-              </span>
+              <span className="text-white/50">/{result?.total ?? 0}</span>
             </div>
             <div className="font-display text-[26px] leading-[1.05] tracking-[-0.02em] sm:flex-1 sm:text-[32px]">
               Результат {category === "audio" ? "аудирования" : "чтения"}
@@ -450,21 +444,13 @@ export function ExamRunner({ category }: { category: Category }) {
                 type="button"
                 onClick={() => setCurrentStep(index)}
                 aria-label={`Перейти к заданию ${index + 1}`}
-                className="grid h-8 min-w-8 place-items-center rounded-full px-2 font-mono text-[12px]"
-                style={{
-                  background:
-                    index === currentStep
-                      ? "var(--color-ink)"
-                      : answeredPerStep[index]
-                        ? "var(--color-accent-soft)"
-                        : "var(--color-surface-2)",
-                  color:
-                    index === currentStep
-                      ? "var(--color-on-ink)"
-                      : answeredPerStep[index]
-                        ? "var(--color-accent)"
-                        : "var(--color-ink-3)",
-                }}
+                className={`grid h-8 min-w-8 place-items-center rounded-full px-2 font-mono text-[12px] ${
+                  index === currentStep
+                    ? "bg-ink text-on-ink"
+                    : answeredPerStep[index]
+                      ? "bg-accent-soft text-accent"
+                      : "bg-surface-2 text-ink-3"
+                }`}
               >
                 {index + 1}
               </button>
@@ -498,8 +484,7 @@ export function ExamRunner({ category }: { category: Category }) {
             {checked ? (
               <Link
                 href={backHref}
-                className="text-on-ink rounded-pill inline-flex h-11 items-center justify-center px-[20px] text-[14px] font-medium"
-                style={{ background: "var(--color-ink)" }}
+                className="bg-ink text-on-ink rounded-pill inline-flex h-11 items-center justify-center px-[20px] text-[14px] font-medium"
               >
                 К списку заданий →
               </Link>
@@ -508,8 +493,7 @@ export function ExamRunner({ category }: { category: Category }) {
                 type="button"
                 onClick={() => setShowConfirm(true)}
                 disabled={checkMutation.isPending}
-                className="text-on-ink rounded-pill inline-flex h-11 items-center justify-center px-[20px] text-[14px] font-medium disabled:opacity-60"
-                style={{ background: "var(--color-ink)" }}
+                className="bg-ink text-on-ink rounded-pill inline-flex h-11 items-center justify-center px-[20px] text-[14px] font-medium disabled:opacity-60"
               >
                 {checkMutation.isPending ? "Проверяем..." : "Завершить"}
               </button>
@@ -520,7 +504,7 @@ export function ExamRunner({ category }: { category: Category }) {
 
       {!checked && showConfirm && (
         <Modal size={500} onClose={() => setShowConfirm(false)}>
-          <div className="px-7 pt-8 sm:px-9" style={{ paddingBottom: 28 }}>
+          <div className="px-7 pt-8 pb-7 sm:px-9">
             <div className="font-display text-[30px] leading-tight tracking-[-0.02em]">
               Завершить тренировку?
             </div>
@@ -540,8 +524,7 @@ export function ExamRunner({ category }: { category: Category }) {
                 type="button"
                 onClick={() => void handleSubmit(false)}
                 disabled={checkMutation.isPending}
-                className="text-on-ink rounded-pill inline-flex h-11 flex-1 items-center justify-center px-5 text-[15px] font-medium disabled:opacity-60"
-                style={{ background: "var(--color-ink)" }}
+                className="bg-ink text-on-ink rounded-pill inline-flex h-11 flex-1 items-center justify-center px-5 text-[15px] font-medium disabled:opacity-60"
               >
                 {checkMutation.isPending ? "Проверяем..." : "Завершить"}
               </button>

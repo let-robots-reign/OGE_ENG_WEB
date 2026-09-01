@@ -1,16 +1,7 @@
 export function ReviewBanner() {
   return (
-    <div
-      className="mt-7 flex flex-col items-start gap-5 rounded-lg px-6 py-6 sm:px-8 md:grid md:grid-cols-[auto_1fr_auto] md:items-center"
-      style={{
-        background: "var(--color-accent-soft)",
-        border: "1px solid transparent",
-      }}
-    >
-      <div
-        className="grid h-[52px] w-[52px] shrink-0 place-items-center rounded-[14px]"
-        style={{ background: "var(--color-accent)", color: "#fff" }}
-      >
+    <div className="bg-accent-soft mt-7 flex flex-col items-start gap-5 rounded-lg border border-transparent px-6 py-6 sm:px-8 md:grid md:grid-cols-[auto_1fr_auto] md:items-center">
+      <div className="bg-accent grid h-[52px] w-[52px] shrink-0 place-items-center rounded-[14px] text-white">
         <svg
           width="22"
           height="22"
@@ -26,28 +17,16 @@ export function ReviewBanner() {
 
       <div>
         <div className="font-display text-[24px] leading-[1.1] tracking-[-0.02em]">
-          У вас{" "}
-          <strong
-            className="font-normal"
-            style={{ color: "var(--color-accent)" }}
-          >
-            42 ошибки
-          </strong>{" "}
-          к разбору
+          У вас <strong className="text-accent font-normal">42 ошибки</strong> к
+          разбору
         </div>
-        <p
-          className="mt-1.5 max-w-[540px] text-[14px]"
-          style={{ color: "var(--color-ink-2)" }}
-        >
+        <p className="text-ink-2 mt-1.5 max-w-[540px] text-[14px]">
           Повторите задания, в которых ошиблись. Система подберёт похожие —
           чтобы закрепить, а не вспомнить ответ.
         </p>
       </div>
 
-      <div
-        className="rounded-pill inline-flex h-[44px] shrink-0 items-center justify-center px-5 text-[15px] font-medium"
-        style={{ background: "var(--color-accent)", color: "#fff" }}
-      >
+      <div className="rounded-pill bg-accent inline-flex h-[44px] shrink-0 items-center justify-center px-5 text-[15px] font-medium text-white">
         Разобрать ошибки →
       </div>
     </div>

@@ -54,58 +54,35 @@ export function FullAnswersSection({
                   const selected = picks[qi] === text;
                   const showCorrect = checked && selected && isQCorrect;
                   const showWrong = checked && selected && !isQCorrect;
-                  const border = showCorrect
-                    ? "var(--color-ok)"
-                    : showWrong
-                      ? "var(--color-err)"
-                      : selected
-                        ? "var(--color-accent)"
-                        : "var(--color-line-2)";
-                  const bg = showCorrect
-                    ? "var(--color-ok-soft)"
-                    : showWrong
-                      ? "var(--color-err-soft)"
-                      : selected
-                        ? "var(--color-accent-soft)"
-                        : "var(--color-surface)";
-                  const dot = showCorrect
-                    ? "var(--color-ok)"
-                    : showWrong
-                      ? "var(--color-err)"
-                      : "var(--color-accent)";
                   return (
                     <label
                       key={oi}
-                      className="grid items-start gap-3.5"
-                      style={{
-                        gridTemplateColumns: "auto 1fr",
-                        padding: "16px 18px",
-                        borderRadius: 12,
-                        border: `1.5px solid ${border}`,
-                        background: bg,
-                        cursor: checked ? "default" : "pointer",
-                      }}
+                      className={`grid grid-cols-[auto_1fr] items-start gap-3.5 rounded-sm border-[1.5px] px-[18px] py-4 ${
+                        checked ? "cursor-default" : "cursor-pointer"
+                      } ${
+                        showCorrect
+                          ? "border-ok bg-ok-soft"
+                          : showWrong
+                            ? "border-err bg-err-soft"
+                            : selected
+                              ? "border-accent bg-accent-soft"
+                              : "border-line-2 bg-surface"
+                      }`}
                     >
-                      <span style={{ paddingTop: 2 }}>
+                      <span className="pt-0.5">
                         <span
-                          className="grid place-items-center"
-                          style={{
-                            width: 18,
-                            height: 18,
-                            borderRadius: "50%",
-                            border: `2px solid ${selected ? dot : "var(--color-line-2)"}`,
-                            background: selected ? dot : "var(--color-surface)",
-                          }}
+                          className={`grid size-[18px] place-items-center rounded-full border-2 ${
+                            selected
+                              ? showCorrect
+                                ? "border-ok bg-ok"
+                                : showWrong
+                                  ? "border-err bg-err"
+                                  : "border-accent bg-accent"
+                              : "border-line-2 bg-surface"
+                          }`}
                         >
                           {selected && (
-                            <span
-                              style={{
-                                width: 6,
-                                height: 6,
-                                borderRadius: "50%",
-                                background: "#fff",
-                              }}
-                            />
+                            <span className="size-1.5 rounded-full bg-white" />
                           )}
                         </span>
                       </span>
@@ -115,14 +92,11 @@ export function FullAnswersSection({
                         </div>
                         {checked && selected && explanations[oi] && (
                           <div
-                            className="font-display mt-2.5 pt-2.5 italic"
-                            style={{
-                              borderTop: `1px dashed ${isQCorrect ? "var(--color-ok)" : "var(--color-err)"}`,
-                              fontSize: 12.5,
-                              color: isQCorrect
-                                ? "var(--color-ok)"
-                                : "var(--color-err)",
-                            }}
+                            className={`font-display mt-2.5 border-t border-dashed pt-2.5 text-[12.5px] italic ${
+                              isQCorrect
+                                ? "border-ok text-ok"
+                                : "border-err text-err"
+                            }`}
                           >
                             {isQCorrect ? "✓ " : "✕ "}
                             {explanations[oi]}

@@ -51,47 +51,26 @@ function WordChip({
     isDragging,
   } = useSortable({ id, disabled: checked });
 
-  const border = checked
-    ? correct
-      ? "var(--color-ok)"
-      : "var(--color-err)"
-    : "var(--color-line-2)";
-  const bg = checked
-    ? correct
-      ? "var(--color-ok-soft)"
-      : "var(--color-err-soft)"
-    : "var(--color-surface)";
-  const color = checked
-    ? correct
-      ? "var(--color-ok)"
-      : "var(--color-err)"
-    : "var(--color-ink-2)";
-
   return (
     <div
       ref={setNodeRef}
       {...attributes}
       {...listeners}
-      className="inline-flex items-center gap-1.5 font-mono"
+      className={`rounded-pill inline-flex items-center gap-1.5 border-[1.5px] px-4 py-[9px] font-mono text-[13.5px] font-medium ${
+        checked ? "cursor-default" : "cursor-grab"
+      } ${
+        checked
+          ? correct
+            ? "border-ok bg-ok-soft text-ok"
+            : "border-err bg-err-soft text-err"
+          : "border-line-2 bg-surface text-ink-2"
+      } ${isDragging ? "opacity-40" : "opacity-100"}`}
       style={{
         transform: CSS.Transform.toString(transform),
         transition,
-        padding: "9px 16px",
-        borderRadius: 999,
-        border: `1.5px solid ${border}`,
-        background: bg,
-        color,
-        fontSize: 13.5,
-        fontWeight: 500,
-        cursor: checked ? "default" : "grab",
-        opacity: isDragging ? 0.4 : 1,
       }}
     >
-      {!checked && (
-        <span className="text-ink-4" style={{ fontSize: 10 }}>
-          ⋮⋮
-        </span>
-      )}
+      {!checked && <span className="text-ink-4 text-[10px]">⋮⋮</span>}
       {word}
     </div>
   );
@@ -129,22 +108,8 @@ function PhraseRow({
     checked && correctness.length > 0 && correctness.every(Boolean);
 
   return (
-    <div
-      className="grid items-center"
-      style={{ gridTemplateColumns: "auto 1fr auto", gap: 18 }}
-    >
-      <div
-        className="grid place-items-center font-mono"
-        style={{
-          width: 30,
-          height: 30,
-          borderRadius: 8,
-          background: "var(--color-surface-2)",
-          color: "var(--color-ink-2)",
-          fontSize: 13,
-          fontWeight: 500,
-        }}
-      >
+    <div className="grid grid-cols-[auto_1fr_auto] items-center gap-[18px]">
+      <div className="bg-surface-2 text-ink-2 grid size-[30px] place-items-center rounded-xs font-mono text-[13px] font-medium">
         {rowIdx + 1}
       </div>
       <DndContext
@@ -171,18 +136,9 @@ function PhraseRow({
       </DndContext>
       {checked && (
         <div
-          className="inline-flex items-center gap-1.5 font-mono uppercase"
-          style={{
-            padding: "4px 10px",
-            borderRadius: 999,
-            fontSize: 11.5,
-            fontWeight: 500,
-            letterSpacing: ".04em",
-            background: allCorrect
-              ? "var(--color-ok-soft)"
-              : "var(--color-err-soft)",
-            color: allCorrect ? "var(--color-ok)" : "var(--color-err)",
-          }}
+          className={`rounded-pill inline-flex items-center gap-1.5 px-2.5 py-1 font-mono text-[11.5px] font-medium tracking-[0.04em] uppercase ${
+            allCorrect ? "bg-ok-soft text-ok" : "bg-err-soft text-err"
+          }`}
         >
           {allCorrect ? "✓ верно" : "✕ ошибка"}
         </div>

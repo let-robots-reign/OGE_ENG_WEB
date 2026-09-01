@@ -38,7 +38,7 @@ function FlameSVG({ num }: { num: number }) {
       xmlns="http://www.w3.org/2000/svg"
       width="100%"
       height="100%"
-      style={{ filter: "drop-shadow(0 10px 22px rgba(255,91,58,0.4))" }}
+      className="drop-shadow-[0_10px_22px_rgba(255,91,58,0.4)]"
     >
       <defs>
         <linearGradient id="pf-flame-outer" x1="0" y1="0" x2="0" y2="1">
@@ -85,13 +85,12 @@ function FlameSVG({ num }: { num: number }) {
         x="60"
         y="104"
         textAnchor="middle"
-        className="font-sans"
+        className="font-sans tabular-nums"
         fontWeight="700"
         fontSize="42"
         fill="#fff"
         letterSpacing="-1"
         filter="url(#pf-flame-shadow)"
-        style={{ fontFeatureSettings: '"tnum", "lnum"' }}
       >
         {num}
       </text>
@@ -142,17 +141,8 @@ export function ActivitySection() {
                       : "Сегодня ещё не занимались — вернитесь, чтобы продолжить серию."}
                 </div>
               </div>
-              <div
-                className="rounded-pill inline-flex items-center gap-2 px-3 py-1.5 text-[12.5px] font-medium"
-                style={{
-                  background: "var(--color-accent-2-soft)",
-                  color: "var(--color-accent-2)",
-                }}
-              >
-                <span
-                  className="h-1.5 w-1.5 rounded-full"
-                  style={{ background: "var(--color-accent-2)" }}
-                />
+              <div className="rounded-pill bg-accent-2-soft text-accent-2 inline-flex items-center gap-2 px-3 py-1.5 text-[12.5px] font-medium">
+                <span className="bg-accent-2 h-1.5 w-1.5 rounded-full" />
                 лучшая серия — {data.bestStreak}{" "}
                 {pluralizeDays(data.bestStreak)}
               </div>
@@ -162,21 +152,15 @@ export function ActivitySection() {
             <div className="flex flex-col gap-3">
               <div className="grid grid-cols-[auto_1fr] gap-0">
                 <div className="flex flex-col pr-2.5">
-                  <div style={{ height: 18 }} />
-                  <div
-                    className="text-ink-4 grid flex-1 items-center gap-1 font-mono text-[10.5px] tracking-[0.06em]"
-                    style={{ gridTemplateRows: "repeat(7, 1fr)" }}
-                  >
+                  <div className="h-[18px]" />
+                  <div className="text-ink-4 grid flex-1 grid-rows-7 items-center gap-1 font-mono text-[10.5px] tracking-[0.06em]">
                     {WEEKDAYS.map((w, i) => (
                       <div key={i}>{w}</div>
                     ))}
                   </div>
                 </div>
                 <div>
-                  <div
-                    className="text-ink-4 mb-2 grid gap-1 font-mono text-[10.5px] tracking-[0.08em] uppercase"
-                    style={{ gridAutoFlow: "column", gridAutoColumns: "1fr" }}
-                  >
+                  <div className="text-ink-4 mb-2 grid auto-cols-fr grid-flow-col gap-1 font-mono text-[10.5px] tracking-[0.08em] uppercase">
                     {Array.from({ length: data.weeks }, (_, c) => {
                       const first = data.days[c * 7];
                       const prev = c > 0 ? data.days[(c - 1) * 7] : undefined;
@@ -190,15 +174,7 @@ export function ActivitySection() {
                       );
                     })}
                   </div>
-                  <div
-                    className="grid gap-1"
-                    style={{
-                      gridAutoFlow: "column",
-                      gridTemplateRows: "repeat(7, 1fr)",
-                      gridAutoColumns: "1fr",
-                      width: "100%",
-                    }}
-                  >
+                  <div className="grid w-full auto-cols-fr grid-flow-col grid-rows-7 gap-1">
                     {data.days.map((d, i) => {
                       const lvl = d.isFuture ? 0 : levelFromCount(d.count);
                       const isToday = i === data.todayIndex;
@@ -212,14 +188,13 @@ export function ActivitySection() {
                                 ? `${d.ymd}: ${Math.round(d.seconds / 60)} мин`
                                 : `${d.ymd}: —`
                           }
+                          className={`aspect-square rounded-[4px] ${
+                            isToday
+                              ? "border-ink border"
+                              : "border border-transparent"
+                          } ${d.isFuture ? "opacity-50" : "opacity-100"}`}
                           style={{
-                            aspectRatio: "1",
-                            borderRadius: 4,
                             background: LEVEL_BG[lvl],
-                            border: isToday
-                              ? "1px solid var(--color-ink)"
-                              : "1px solid transparent",
-                            opacity: d.isFuture ? 0.5 : 1,
                           }}
                         />
                       );

@@ -27,15 +27,9 @@ export function DiagnosticResultView({
         backHref="/"
       />
       <div className="mx-auto w-full max-w-[820px] px-5 pt-6 pb-24 sm:px-8 sm:pt-8">
-        <div
-          className="rounded-lg p-6 text-white sm:p-8"
-          style={{ background: "var(--color-ink-panel)" }}
-        >
-          <div className="inline-flex items-center gap-2 text-[12px] font-medium tracking-[0.12em] text-white/55 uppercase">
-            <span
-              className="h-1.5 w-1.5 rounded-full"
-              style={{ background: "var(--color-accent-2)" }}
-            />
+        <div className="bg-ink-panel rounded-lg p-6 text-white sm:p-8">
+          <div className="inline-flex items-center gap-2 text-[12.5px] font-medium tracking-[0.12em] text-white/55 uppercase">
+            <span className="bg-accent-2 h-1.5 w-1.5 rounded-full" />
             разбор готов
           </div>
           <h1 className="font-display mt-3 text-[28px] leading-tight tracking-[-0.025em] sm:text-[40px]">
@@ -59,8 +53,7 @@ export function DiagnosticResultView({
         <div className="mt-7 flex sm:justify-end">
           <Link
             href="/"
-            className="rounded-pill text-on-ink inline-flex h-12 w-full items-center justify-center px-7 text-[15px] font-medium transition-transform hover:-translate-y-px sm:w-auto"
-            style={{ background: "var(--color-ink)" }}
+            className="bg-ink rounded-pill text-on-ink inline-flex h-12 w-full items-center justify-center px-7 text-[15px] font-medium transition-transform hover:-translate-y-px sm:w-auto"
           >
             На главную →
           </Link>

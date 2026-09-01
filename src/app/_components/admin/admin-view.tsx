@@ -9,29 +9,24 @@ const tabsOptions = z.enum(["training", "diagnostics"]);
 type Tab = z.infer<typeof tabsOptions>;
 
 // Category pill tones mirror the subject tones used on home/profile.
-const CATEGORY_META: Record<string, { label: string; bg: string; fg: string }> =
-  {
-    audio: {
-      label: "Аудирование",
-      bg: "var(--color-tone-indigo)",
-      fg: "var(--color-tone-indigo-ink)",
-    },
-    reading: {
-      label: "Чтение",
-      bg: "var(--color-tone-warm)",
-      fg: "var(--color-tone-warm-ink)",
-    },
-    "use-of-english": {
-      label: "Языковой материал",
-      bg: "var(--color-tone-mint)",
-      fg: "var(--color-tone-mint-ink)",
-    },
-    writing: {
-      label: "Письмо",
-      bg: "var(--color-tone-sand)",
-      fg: "var(--color-tone-sand-ink)",
-    },
-  };
+const CATEGORY_META: Record<string, { label: string; className: string }> = {
+  audio: {
+    label: "Аудирование",
+    className: "bg-tone-indigo text-tone-indigo-ink",
+  },
+  reading: {
+    label: "Чтение",
+    className: "bg-tone-warm text-tone-warm-ink",
+  },
+  "use-of-english": {
+    label: "Языковой материал",
+    className: "bg-tone-mint text-tone-mint-ink",
+  },
+  writing: {
+    label: "Письмо",
+    className: "bg-tone-sand text-tone-sand-ink",
+  },
+};
 
 const formatDate = (d: Date): string =>
   new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "short" })
@@ -188,8 +183,7 @@ export function AdminView() {
                         <td className={tdClass}>
                           {meta ? (
                             <span
-                              className="rounded-pill px-2.5 py-1 text-[12px] font-medium whitespace-nowrap"
-                              style={{ background: meta.bg, color: meta.fg }}
+                              className={`rounded-pill px-2.5 py-1 text-[12px] font-medium whitespace-nowrap ${meta.className}`}
                             >
                               {meta.label}
                             </span>

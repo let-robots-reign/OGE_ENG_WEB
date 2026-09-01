@@ -93,7 +93,8 @@ describe("Profile Components Suite", () => {
           pct={50}
           avgCorrect={8}
           avgMax={10}
-          tone={{ bg: "pink", ink: "red" }}
+          pillClass="bg-tone-warm text-tone-warm-ink"
+          barClass="bg-tone-warm-ink"
         />,
       );
 

@@ -56,15 +56,11 @@ export function ExamReviewModal({ steps, onClose }: ExamReviewModalProps) {
               key={`${step.label}-${index}`}
               type="button"
               onClick={() => setActiveTab(index)}
-              className="shrink-0 border-b-2 px-4 py-3 text-[13.5px] font-medium"
-              style={{
-                borderColor:
-                  index === activeTab ? "var(--color-ink)" : "transparent",
-                color:
-                  index === activeTab
-                    ? "var(--color-ink)"
-                    : "var(--color-ink-3)",
-              }}
+              className={`shrink-0 border-b-2 px-4 py-3 text-[13.5px] font-medium ${
+                index === activeTab
+                  ? "border-ink text-ink"
+                  : "text-ink-3 border-transparent"
+              }`}
             >
               {step.label}
             </button>

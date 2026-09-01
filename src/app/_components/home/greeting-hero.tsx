@@ -5,13 +5,7 @@ import { getExamCountdownText, EXAM_NAME } from "@/app/_utils/exam";
 // TODO: implement
 export function GreetingHero({ userName }: { userName: string }) {
   return (
-    <div
-      className="bg-surface border-line mb-9 grid grid-cols-1 items-center gap-9 rounded-lg border p-6 shadow-sm sm:p-9 lg:grid-cols-[1.4fr_1fr]"
-      style={{
-        background:
-          "linear-gradient(135deg, var(--color-surface) 0%, var(--color-surface-2) 100%)",
-      }}
-    >
+    <div className="border-line from-surface to-surface-2 mb-9 grid grid-cols-1 items-center gap-9 rounded-lg border bg-gradient-to-br p-6 shadow-sm sm:p-9 lg:grid-cols-[1.4fr_1fr]">
       <div>
         <div className="text-ink-3 mb-[14px] inline-flex items-center gap-2 text-[12.5px] font-medium tracking-[0.12em] uppercase">
           <span className="bg-accent h-1.5 w-1.5 rounded-full" />

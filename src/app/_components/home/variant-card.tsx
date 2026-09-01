@@ -11,10 +11,10 @@ interface VariantCardProps {
   accent: Accent;
 }
 
-const TONES: Record<Accent, { tag: string; text: string }> = {
-  ok: { tag: "var(--color-ok-soft)", text: "var(--color-ok)" },
-  warn: { tag: "var(--color-warn-soft)", text: "var(--color-warn)" },
-  neutral: { tag: "var(--color-surface-2)", text: "var(--color-ink-3)" },
+const TONES: Record<Accent, string> = {
+  ok: "bg-ok-soft text-ok",
+  warn: "bg-warn-soft text-warn",
+  neutral: "bg-surface-2 text-ink-3",
 };
 
 export function VariantCard({
@@ -25,7 +25,6 @@ export function VariantCard({
   date,
   accent,
 }: VariantCardProps) {
-  const t = TONES[accent];
   const inProgress = accent === "warn";
   const hasScore = typeof scoreValue === "number";
 
@@ -33,8 +32,7 @@ export function VariantCard({
     <div className="bg-surface border-line relative flex min-h-[180px] flex-col gap-[18px] rounded-lg border p-[22px]">
       <div className="flex items-center justify-between">
         <span
-          className="rounded-pill px-3 py-[5px] text-[12.5px] font-medium"
-          style={{ background: t.tag, color: t.text }}
+          className={`rounded-pill px-3 py-[5px] text-[12.5px] font-medium ${TONES[accent]}`}
         >
           {state}
         </span>

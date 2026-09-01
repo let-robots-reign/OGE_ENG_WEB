@@ -61,18 +61,14 @@ function Toggle({
         onClick={onToggle}
         aria-label={label}
         aria-pressed={on}
-        className="rounded-pill relative h-7 w-[46px] shrink-0 transition-colors"
-        style={{
-          background: on ? "var(--color-accent)" : "var(--color-line-2)",
-        }}
+        className={`rounded-pill relative h-7 w-[46px] shrink-0 transition-colors ${
+          on ? "bg-accent" : "bg-line-2"
+        }`}
       >
         <span
-          className="absolute top-[3px] h-[22px] w-[22px] rounded-full bg-white transition-[left]"
-          style={{
-            left: on ? 21 : 3,
-            boxShadow:
-              "0 1px 3px rgba(10,23,51,0.18), 0 1px 1px rgba(10,23,51,0.06)",
-          }}
+          className={`absolute top-[3px] h-[22px] w-[22px] rounded-full bg-white shadow-xs transition-[left] ${
+            on ? "left-[21px]" : "left-[3px]"
+          }`}
         />
       </button>
     </div>
@@ -241,10 +237,7 @@ export function SettingsSection({ initialData }: SettingsSectionProps) {
 
           {error && <p className="text-err mt-4 text-[13.5px]">{error}</p>}
           {saved && !error && (
-            <p
-              className="mt-4 text-[13.5px]"
-              style={{ color: "var(--color-ok)" }}
-            >
+            <p className="text-ok mt-4 text-[13.5px]">
               Сохранено. Профиль обновлён.
             </p>
           )}

@@ -11,7 +11,7 @@ function FlameIcon({ active }: { active: boolean }) {
       width={16}
       height={16}
       alt=""
-      style={active ? {} : { filter: "grayscale(1)", opacity: 0.45 }}
+      className={active ? undefined : "opacity-45 grayscale"}
     />
   );
 }
@@ -30,12 +30,9 @@ export function StreakBadge() {
 
   return (
     <div
-      className="border-line bg-surface rounded-pill inline-flex h-9 items-center gap-2 border px-[14px] text-[13.5px] font-medium"
-      style={
-        isActiveToday
-          ? { color: "var(--color-accent-2)" }
-          : { color: "var(--color-ink-4)" }
-      }
+      className={`border-line bg-surface rounded-pill inline-flex h-9 items-center gap-2 border px-[14px] text-[13.5px] font-medium ${
+        isActiveToday ? "text-accent-2" : "text-ink-4"
+      }`}
     >
       <FlameIcon active={isActiveToday} />
       {count} {pluralizeDays(count)} подряд

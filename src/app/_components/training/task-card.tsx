@@ -37,20 +37,18 @@ export function TaskCard({
 
   const inner = (
     <div
-      className="grid grid-cols-1 gap-6 rounded-lg border p-6 sm:p-7 lg:grid-cols-[250px_1fr_200px] lg:items-center lg:gap-8"
-      style={{
-        background: isExam ? "var(--color-ink-panel)" : "var(--color-surface)",
-        color: isExam ? "#fff" : "var(--color-ink)",
-        borderColor: isExam ? "var(--color-ink-panel)" : "var(--color-line)",
-      }}
+      className={`grid grid-cols-1 gap-6 rounded-lg border p-6 sm:p-7 lg:grid-cols-[250px_1fr_200px] lg:items-center lg:gap-8 ${
+        isExam
+          ? "bg-ink-panel border-ink-panel text-white"
+          : "bg-surface border-line text-ink"
+      }`}
     >
       {/* Left: kicker + range */}
       <div>
         <div
-          className="mb-2 font-mono text-[11.5px] tracking-[0.1em] uppercase"
-          style={{
-            color: isExam ? "rgba(255,255,255,0.55)" : "var(--color-ink-3)",
-          }}
+          className={`mb-2 font-mono text-[11.5px] tracking-[0.1em] uppercase ${
+            isExam ? "text-white/55" : "text-ink-3"
+          }`}
         >
           {kicker}
         </div>
@@ -63,18 +61,16 @@ export function TaskCard({
       <div>
         <div className="mb-2 text-[18px] font-medium">{title}</div>
         <p
-          className="max-w-[520px] text-[14px] leading-relaxed"
-          style={{
-            color: isExam ? "rgba(255,255,255,0.65)" : "var(--color-ink-3)",
-          }}
+          className={`max-w-[520px] text-[14px] leading-relaxed ${
+            isExam ? "text-white/65" : "text-ink-3"
+          }`}
         >
           {desc}
         </p>
         <div
-          className="mt-3.5 flex gap-[18px] text-[13px]"
-          style={{
-            color: isExam ? "rgba(255,255,255,0.55)" : "var(--color-ink-3)",
-          }}
+          className={`mt-3.5 flex gap-[18px] text-[13px] ${
+            isExam ? "text-white/55" : "text-ink-3"
+          }`}
         >
           <span>{type}</span>
           <span>·</span>
@@ -87,13 +83,7 @@ export function TaskCard({
       {/* Right: progress / badge / button */}
       <div className="flex flex-col items-start gap-3.5 lg:items-end">
         {disabled ? (
-          <div
-            className="rounded-pill inline-flex items-center px-2.5 py-1 text-[11px] font-semibold tracking-[0.1em] uppercase"
-            style={{
-              background: "var(--color-surface-2)",
-              color: "var(--color-ink-3)",
-            }}
-          >
+          <div className="bg-surface-2 text-ink-3 rounded-pill inline-flex items-center px-2.5 py-1 text-[11px] font-semibold tracking-[0.1em] uppercase">
             в разработке
           </div>
         ) : (
@@ -101,40 +91,33 @@ export function TaskCard({
             {!isExam && progress != null && (
               <div className="w-[120px]">
                 <div
-                  className="mb-1 flex justify-between text-[11.5px]"
-                  style={{
-                    color: isExam
-                      ? "rgba(255,255,255,0.5)"
-                      : "var(--color-ink-3)",
-                  }}
+                  className={`mb-1 flex justify-between text-[11.5px] ${
+                    isExam ? "text-white/50" : "text-ink-3"
+                  }`}
                 >
                   <span>пройдено</span>
                   <span>{Math.round(progress * 100)}%</span>
                 </div>
                 <div
-                  className="h-1 overflow-hidden rounded-sm"
-                  style={{
-                    background: isExam
-                      ? "rgba(255,255,255,0.15)"
-                      : "var(--color-surface-2)",
-                  }}
+                  className={`h-1 overflow-hidden rounded-sm ${
+                    isExam ? "bg-white/15" : "bg-surface-2"
+                  }`}
                 >
                   <div
-                    className="h-full rounded-sm"
+                    className={`h-full rounded-sm ${
+                      isExam ? "bg-white" : "bg-accent"
+                    }`}
                     style={{
                       width: `${progress * 100}%`,
-                      background: isExam ? "#fff" : "var(--color-accent)",
                     }}
                   />
                 </div>
               </div>
             )}
             <div
-              className="rounded-pill inline-flex h-9 items-center justify-center px-4 text-[13.5px] font-medium"
-              style={{
-                background: isExam ? "#fff" : "var(--color-ink)",
-                color: isExam ? "#0a1733" : "var(--color-on-ink)",
-              }}
+              className={`rounded-pill inline-flex h-9 items-center justify-center px-4 text-[13.5px] font-medium ${
+                isExam ? "bg-white text-[#0a1733]" : "bg-ink text-on-ink"
+              }`}
             >
               Начать →
             </div>

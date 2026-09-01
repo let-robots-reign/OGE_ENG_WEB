@@ -49,57 +49,33 @@ function SortableSentence({
     isDragging,
   } = useSortable({ id, disabled: checked });
 
-  const border = checked
-    ? correct
-      ? "var(--color-ok)"
-      : "var(--color-err)"
-    : "var(--color-line-2)";
-  const badge = checked
-    ? correct
-      ? "var(--color-ok)"
-      : "var(--color-err)"
-    : "var(--color-ink)";
-
   return (
     <div
       ref={setNodeRef}
       {...attributes}
       {...listeners}
+      className={`grid grid-cols-[auto_auto_1fr_auto] items-start gap-[18px] rounded-[14px] border-[1.5px] px-[18px] py-4 ${
+        checked ? "cursor-default" : "cursor-grab"
+      } ${isDragging ? "bg-surface-2 opacity-50" : "bg-surface opacity-100"} ${
+        checked ? (correct ? "border-ok" : "border-err") : "border-line-2"
+      }`}
       style={{
         transform: CSS.Transform.toString(transform),
         transition,
-        display: "grid",
-        gridTemplateColumns: "auto auto 1fr auto",
-        gap: 18,
-        padding: "16px 18px",
-        background: isDragging
-          ? "var(--color-surface-2)"
-          : "var(--color-surface)",
-        border: `1.5px solid ${border}`,
-        borderRadius: 14,
-        opacity: isDragging ? 0.5 : 1,
-        cursor: checked ? "default" : "grab",
-        alignItems: "start",
       }}
     >
       <div
-        className="grid place-items-center font-mono"
-        style={{
-          width: 36,
-          height: 36,
-          borderRadius: 9,
-          background: badge,
-          color: checked ? "#fff" : "var(--color-on-ink)",
-          fontSize: 14,
-          fontWeight: 500,
-        }}
+        className={`grid size-9 place-items-center rounded-[9px] font-mono text-[14px] font-medium ${
+          checked
+            ? correct
+              ? "bg-ok text-white"
+              : "bg-err text-white"
+            : "bg-ink text-on-ink"
+        }`}
       >
         {position + 1}
       </div>
-      <div
-        className="text-ink-4 grid place-items-center"
-        style={{ width: 18, marginTop: 8 }}
-      >
+      <div className="text-ink-4 mt-2 grid w-[18px] place-items-center">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
           <circle cx="8" cy="6" r="1.5" />
           <circle cx="16" cy="6" r="1.5" />
@@ -110,20 +86,15 @@ function SortableSentence({
         </svg>
       </div>
       <div
-        className="text-ink-2 leading-relaxed"
-        style={{ fontSize: text.length > 200 ? 14.5 : 15.5, paddingTop: 6 }}
+        className={`text-ink-2 pt-1.5 leading-relaxed ${text.length > 200 ? "text-[14.5px]" : "text-[15.5px]"}`}
       >
         {text}
       </div>
       {checked && (
         <div
-          className="font-mono uppercase"
-          style={{
-            fontSize: 11,
-            letterSpacing: ".08em",
-            color: correct ? "var(--color-ok)" : "var(--color-err)",
-            paddingTop: 12,
-          }}
+          className={`pt-3 font-mono text-[11px] tracking-[0.08em] uppercase ${
+            correct ? "text-ok" : "text-err"
+          }`}
         >
           {correct ? "✓ верно" : "ошибка"}
         </div>

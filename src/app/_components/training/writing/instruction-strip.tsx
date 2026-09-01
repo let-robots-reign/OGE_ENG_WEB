@@ -20,31 +20,13 @@ const STEPS = [
 
 export function InstructionStrip() {
   return (
-    <div
-      className="border-line mb-7 grid grid-cols-1 items-start gap-5 rounded-lg border p-5 sm:p-6 md:grid-cols-3 md:gap-5"
-      style={{
-        background:
-          "linear-gradient(180deg, var(--color-surface) 0%, var(--color-accent-soft) 280%)",
-      }}
-    >
+    <div className="border-line mb-7 grid grid-cols-1 items-start gap-5 rounded-lg border bg-[linear-gradient(180deg,var(--color-surface)_0%,var(--color-accent-soft)_280%)] p-5 sm:p-6 md:grid-cols-3 md:gap-5">
       {STEPS.map((s) => (
         <div
           key={s.n}
-          className="grid items-start"
-          style={{ gridTemplateColumns: "auto 1fr", gap: 14 }}
+          className="grid grid-cols-[auto_1fr] items-start gap-3.5"
         >
-          <div
-            className="grid place-items-center font-mono"
-            style={{
-              width: 32,
-              height: 32,
-              borderRadius: 8,
-              background: "var(--color-accent-soft)",
-              color: "var(--color-accent)",
-              fontSize: 11,
-              fontWeight: 500,
-            }}
-          >
+          <div className="bg-accent-soft text-accent grid size-8 place-items-center rounded-xs font-mono text-[11px] font-medium">
             {s.n}
           </div>
           <div>

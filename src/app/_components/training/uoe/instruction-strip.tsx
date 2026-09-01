@@ -17,23 +17,8 @@ const STEPS = [
 
 export function InstructionStrip() {
   return (
-    <div
-      className="border-line mb-7 grid grid-cols-[auto_1fr] items-center gap-4 rounded-lg border p-4 sm:gap-6 sm:p-7"
-      style={{
-        background:
-          "linear-gradient(180deg, var(--color-surface) 0%, var(--color-accent-soft) 240%)",
-      }}
-    >
-      <div
-        className="grid place-items-center"
-        style={{
-          width: 48,
-          height: 48,
-          borderRadius: 12,
-          background: "var(--color-accent-soft)",
-          color: "var(--color-accent)",
-        }}
-      >
+    <div className="border-line mb-7 grid grid-cols-[auto_1fr] items-center gap-4 rounded-lg border bg-[linear-gradient(180deg,var(--color-surface)_0%,var(--color-accent-soft)_240%)] p-4 sm:gap-6 sm:p-7">
+      <div className="bg-accent-soft text-accent grid size-12 place-items-center rounded-sm">
         <svg
           width="22"
           height="22"
