@@ -319,6 +319,50 @@ describe("Training Router tRPC Procedures", () => {
       expect(result.tasks[0]).not.toHaveProperty("answer");
     });
 
+    it("returns a chain for the word-formation topic", async () => {
+      vi.mocked(db.query.trainingTopics.findFirst).mockResolvedValue({
+        id: 8,
+        title: "Словообразование",
+      } as any);
+      const items = Array.from({ length: 9 }, (_, index) => ({
+        id: index + 1,
+        chainId: 56,
+        taskId: 200 + index,
+        position: index + 1,
+        task: {
+          id: 200 + index,
+          task: `Word formation sentence ${index + 1}`,
+          origin: "WORD",
+          answer: "ANSWER",
+          topicId: 8,
+          isDeleted: false,
+          topic: {
+            id: 8,
+            title: "Словообразование",
+            category: "use-of-english",
+            isActive: true,
+          },
+        },
+      }));
+      vi.mocked(db.query.uoeTaskChains.findMany).mockResolvedValue([
+        { id: 56, topicId: 8, isDeleted: false, items },
+      ] as any);
+
+      const caller = createCaller({
+        db: db as any,
+        session: null,
+        headers: new Headers(),
+      });
+      const result = await caller.getUoeTraining({ topicId: 8 });
+
+      expect(result.chainId).toBe(56);
+      expect(result.topicTitle).toBe("Словообразование");
+      expect(result.tasks.map((task) => task.id)).toEqual(
+        items.map((item) => item.taskId),
+      );
+      expect(db.select).not.toHaveBeenCalled();
+    });
+
     it("does not fall back to random tasks when no UoE chain exists", async () => {
       vi.mocked(db.query.trainingTopics.findFirst).mockResolvedValue({
         id: 7,

@@ -59,6 +59,7 @@ import {
   adminRouter,
   audioTaskInputSchema,
   readingTaskInputSchema,
+  uoeChainInputSchema,
   uoeChainTaskIdsSchema,
 } from "@/server/api/routers/admin";
 import { createCallerFactory } from "@/server/api/trpc";
@@ -328,6 +329,15 @@ describe("Admin Router tRPC Procedures", () => {
       expect(
         uoeChainTaskIdsSchema.safeParse([1, 2, 3, 4, 5, 6, 7, 8, 8]).success,
       ).toBe(false);
+    });
+
+    it("requires a topic when creating a chain", () => {
+      const taskIds = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+      expect(
+        uoeChainInputSchema.safeParse({ topicId: 7, taskIds }).success,
+      ).toBe(true);
+      expect(uoeChainInputSchema.safeParse({ taskIds }).success).toBe(false);
     });
   });
 });

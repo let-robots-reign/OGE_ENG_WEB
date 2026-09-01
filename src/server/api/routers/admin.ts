@@ -13,6 +13,7 @@ import { and, eq, inArray } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 const UOE_CHAIN_LENGTH = 9;
+const UOE_CHAIN_TOPIC_TITLES = ["По всем темам", "Словообразование"] as const;
 
 export const uoeChainTaskIdsSchema = z
   .array(z.number().int().positive())
@@ -29,6 +30,11 @@ export const uoeChainTaskIdsSchema = z
     }
   });
 
+export const uoeChainInputSchema = z.object({
+  topicId: z.number().int().positive(),
+  taskIds: uoeChainTaskIdsSchema,
+});
+
 type ChainCandidateTask = {
   id: number;
   isDeleted: boolean;
@@ -39,9 +45,27 @@ type ChainCandidateTask = {
   } | null;
 };
 
+type ChainTopic = {
+  id: number;
+  title: string;
+  category: string;
+  isActive: boolean;
+};
+
+function isAllowedChainTopic(
+  topic: ChainTopic | null | undefined,
+): topic is ChainTopic {
+  return (
+    topic?.isActive === true &&
+    topic.category === "use-of-english" &&
+    UOE_CHAIN_TOPIC_TITLES.some((title) => title === topic.title)
+  );
+}
+
 function validateChainCandidateTasks(
   tasks: ChainCandidateTask[],
   taskIds: number[],
+  chainTopic: ChainTopic,
 ) {
   if (tasks.length !== taskIds.length) {
     throw new TRPCError({
@@ -57,7 +81,10 @@ function validateChainCandidateTasks(
         !task.topic ||
         !task.topic.isActive ||
         task.topic.category !== "use-of-english" ||
-        task.topic.title === "Словообразование",
+        (chainTopic.title === "Словообразование"
+          ? task.topic.title !== "Словообразование"
+          : task.topic.title === "Словообразование" ||
+            task.topic.title === "По всем темам"),
     )
     .map((task) => task.id);
 
@@ -650,11 +677,17 @@ export const adminRouter = createTRPCRouter({
     .input(
       z.object({
         search: z.string().default(""),
+        chainTopicId: z.number().int().positive(),
         topicId: z.number().int().positive().optional(),
         limit: z.number().int().min(1).max(100).default(50),
       }),
     )
     .query(async ({ ctx, input }) => {
+      const chainTopic = await ctx.db.query.trainingTopics.findFirst({
+        where: eq(trainingTopics.id, input.chainTopicId),
+      });
+      if (!isAllowedChainTopic(chainTopic)) return [];
+
       const tasks = await ctx.db.query.uoeTasks.findMany({
         where: and(
           eq(uoeTasks.isDeleted, false),
@@ -673,7 +706,10 @@ export const adminRouter = createTRPCRouter({
           if (
             !topic?.isActive ||
             topic.category !== "use-of-english" ||
-            topic.title === "Словообразование"
+            (chainTopic.title === "Словообразование"
+              ? topic.title !== "Словообразование"
+              : topic.title === "Словообразование" ||
+                topic.title === "По всем темам")
           ) {
             return false;
           }
@@ -694,6 +730,7 @@ export const adminRouter = createTRPCRouter({
     return await ctx.db.query.uoeTaskChains.findMany({
       where: eq(uoeTaskChains.isDeleted, false),
       with: {
+        topic: true,
         items: {
           orderBy: (items, { asc }) => [asc(items.position)],
           with: { task: { with: { topic: true } } },
@@ -712,6 +749,7 @@ export const adminRouter = createTRPCRouter({
           eq(uoeTaskChains.isDeleted, false),
         ),
         with: {
+          topic: true,
           items: {
             orderBy: (items, { asc }) => [asc(items.position)],
             with: { task: { with: { topic: true } } },
@@ -723,18 +761,28 @@ export const adminRouter = createTRPCRouter({
     }),
 
   createUoeTaskChain: adminProcedure
-    .input(z.object({ taskIds: uoeChainTaskIdsSchema }))
+    .input(uoeChainInputSchema)
     .mutation(async ({ ctx, input }) => {
       return await ctx.db.transaction(async (tx) => {
+        const chainTopic = await tx.query.trainingTopics.findFirst({
+          where: eq(trainingTopics.id, input.topicId),
+        });
+        if (!isAllowedChainTopic(chainTopic)) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Выберите доступную тему цепочки",
+          });
+        }
+
         const tasks = await tx.query.uoeTasks.findMany({
           where: inArray(uoeTasks.id, input.taskIds),
           with: { topic: true },
         });
-        validateChainCandidateTasks(tasks, input.taskIds);
+        validateChainCandidateTasks(tasks, input.taskIds, chainTopic);
 
         const [chain] = await tx
           .insert(uoeTaskChains)
-          .values({ isDeleted: false })
+          .values({ topicId: chainTopic.id, isDeleted: false })
           .returning();
         if (!chain) {
           throw new TRPCError({
@@ -770,6 +818,7 @@ export const adminRouter = createTRPCRouter({
             eq(uoeTaskChains.isDeleted, false),
           ),
           columns: { id: true },
+          with: { topic: true },
         });
         if (!chain) {
           throw new TRPCError({
@@ -782,7 +831,13 @@ export const adminRouter = createTRPCRouter({
           where: inArray(uoeTasks.id, input.taskIds),
           with: { topic: true },
         });
-        validateChainCandidateTasks(tasks, input.taskIds);
+        if (!isAllowedChainTopic(chain.topic)) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "У цепочки выбрана недоступная тема",
+          });
+        }
+        validateChainCandidateTasks(tasks, input.taskIds, chain.topic);
 
         await tx
           .delete(uoeTaskChainItems)
@@ -942,33 +997,43 @@ export const adminRouter = createTRPCRouter({
           });
         }
 
-        const makesLinkedTaskInvalid =
-          !topic.isActive ||
-          topic.category !== "use-of-english" ||
-          topic.title === "Словообразование";
-        if (makesLinkedTaskInvalid) {
-          const linkedChains = await tx
-            .select({ chainId: uoeTaskChainItems.chainId })
-            .from(uoeTaskChainItems)
-            .innerJoin(
-              uoeTaskChains,
-              eq(uoeTaskChains.id, uoeTaskChainItems.chainId),
-            )
-            .where(
-              and(
-                eq(uoeTaskChainItems.taskId, input.id),
-                eq(uoeTaskChains.isDeleted, false),
-              ),
-            );
+        const linkedChains = await tx
+          .select({
+            chainId: uoeTaskChainItems.chainId,
+            chainTopicTitle: trainingTopics.title,
+          })
+          .from(uoeTaskChainItems)
+          .innerJoin(
+            uoeTaskChains,
+            eq(uoeTaskChains.id, uoeTaskChainItems.chainId),
+          )
+          .innerJoin(
+            trainingTopics,
+            eq(trainingTopics.id, uoeTaskChains.topicId),
+          )
+          .where(
+            and(
+              eq(uoeTaskChainItems.taskId, input.id),
+              eq(uoeTaskChains.isDeleted, false),
+            ),
+          );
+        const invalidLinkedChains = linkedChains.filter(
+          ({ chainTopicTitle }) =>
+            !topic.isActive ||
+            topic.category !== "use-of-english" ||
+            (chainTopicTitle === "Словообразование"
+              ? topic.title !== "Словообразование"
+              : topic.title === "Словообразование" ||
+                topic.title === "По всем темам"),
+        );
 
-          if (linkedChains.length > 0) {
-            throw new TRPCError({
-              code: "CONFLICT",
-              message: `Задание #${input.id} используется в цепочках ${linkedChains
-                .map(({ chainId }) => `#${chainId}`)
-                .join(", ")} и не может быть перенесено в выбранную тему`,
-            });
-          }
+        if (invalidLinkedChains.length > 0) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: `Задание #${input.id} используется в цепочках ${invalidLinkedChains
+              .map(({ chainId }) => `#${chainId}`)
+              .join(", ")} и не может быть перенесено в выбранную тему`,
+          });
         }
 
         const [updated] = await tx

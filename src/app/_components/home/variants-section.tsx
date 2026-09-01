@@ -6,10 +6,10 @@ const VARIANTS = [
   { num: "02", state: "Сдан", scoreValue: 29, date: "21 апр", accent: "ok" },
   {
     num: "03",
-    state: "В работе",
-    scoreValue: null,
-    date: "вчера",
-    accent: "warn",
+    state: "Сдан",
+    scoreValue: 30,
+    date: "29 апр",
+    accent: "ok",
   },
   {
     num: "04",

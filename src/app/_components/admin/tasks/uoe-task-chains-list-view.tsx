@@ -33,7 +33,7 @@ export function UoeTaskChainsListView() {
     <div className="mx-auto max-w-[1200px] space-y-6">
       <AdminHeader
         title="Цепочки заданий"
-        description="Связные наборы из 9 заданий для темы «По всем темам»."
+        description="Связные наборы из 9 заданий для тематических тренировок."
         createHref="/admin/tasks/uoe/chains/create"
         createLabel="Создать цепочку"
       />
@@ -50,6 +50,7 @@ export function UoeTaskChainsListView() {
             <thead className="bg-surface-2 text-ink-3 border-line border-b text-xs font-semibold tracking-wider uppercase">
               <tr>
                 <th className="w-24 px-5 py-3.5">ID</th>
+                <th className="w-48 px-5 py-3.5">Тема</th>
                 <th className="w-32 px-5 py-3.5">Заданий</th>
                 <th className="px-5 py-3.5">Превью цепочки</th>
                 <th className="w-32 px-5 py-3.5 text-right">Действия</th>
@@ -58,19 +59,19 @@ export function UoeTaskChainsListView() {
             <tbody className="divide-line divide-y">
               {isLoading ? (
                 <tr>
-                  <td colSpan={4} className="text-ink-3 py-12 text-center">
+                  <td colSpan={5} className="text-ink-3 py-12 text-center">
                     Загрузка цепочек...
                   </td>
                 </tr>
               ) : !chains?.length ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-14 text-center">
+                  <td colSpan={5} className="px-6 py-14 text-center">
                     <div className="font-display text-ink text-xl">
                       Цепочки ещё не созданы
                     </div>
                     <p className="text-ink-3 mx-auto mt-2 max-w-lg text-sm">
                       Создайте хотя бы одну цепочку, чтобы ученики могли начать
-                      тренировку «По всем темам».
+                      тематические тренировки.
                     </p>
                     <Link
                       href="/admin/tasks/uoe/chains/create"
@@ -85,6 +86,9 @@ export function UoeTaskChainsListView() {
                   <tr key={chain.id} className="hover:bg-surface-2/60">
                     <td className="text-ink px-5 py-4 font-mono font-semibold">
                       #{chain.id}
+                    </td>
+                    <td className="text-ink-2 px-5 py-4">
+                      {chain.topic.title}
                     </td>
                     <td className="text-ink-2 px-5 py-4 font-mono">
                       {chain.items.length} / 9

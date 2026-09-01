@@ -39,6 +39,7 @@ type UoeTaskChainForValidation = {
 
 function filterValidTasksChain<T extends UoeTaskChainForValidation>(
   chains: T[],
+  chainTopicTitle: string,
 ) {
   return chains.filter(
     (chain) =>
@@ -52,7 +53,10 @@ function filterValidTasksChain<T extends UoeTaskChainForValidation>(
           topic !== null &&
           topic.isActive &&
           topic.category === "use-of-english" &&
-          topic.title !== "Словообразование"
+          (chainTopicTitle === "Словообразование"
+            ? topic.title === "Словообразование"
+            : topic.title !== "Словообразование" &&
+              topic.title !== "По всем темам")
         );
       }),
   );
@@ -499,9 +503,15 @@ export const trainingRouter = createTRPCRouter({
         });
       }
 
-      if (topic.title === "По всем темам") {
+      if (
+        topic.title === "По всем темам" ||
+        topic.title === "Словообразование"
+      ) {
         const chains = await ctx.db.query.uoeTaskChains.findMany({
-          where: eq(uoeTaskChains.isDeleted, false),
+          where: and(
+            eq(uoeTaskChains.topicId, topic.id),
+            eq(uoeTaskChains.isDeleted, false),
+          ),
           with: {
             items: {
               orderBy: (items, { asc }) => [asc(items.position)],
@@ -510,7 +520,7 @@ export const trainingRouter = createTRPCRouter({
           },
         });
 
-        const validChains = filterValidTasksChain(chains);
+        const validChains = filterValidTasksChain(chains, topic.title);
 
         if (validChains.length === 0) {
           throw new TRPCError({

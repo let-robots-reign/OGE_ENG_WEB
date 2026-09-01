@@ -125,6 +125,7 @@ export const trainingTopicsRelations = relations(
     audioTasks: many(audioTasks),
     readingTasks: many(readingTasks),
     uoeTasks: many(uoeTasks),
+    uoeTaskChains: many(uoeTaskChains),
     writingTasks: many(writingTasks),
   }),
 );
@@ -238,6 +239,10 @@ export const uoeTasksRelations = relations(uoeTasks, ({ one, many }) => ({
 
 export const uoeTaskChains = createTable("uoe_task_chain", (d) => ({
   id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
+  topicId: d
+    .integer()
+    .notNull()
+    .references(() => trainingTopics.id, { onDelete: "restrict" }),
   isDeleted: d.boolean().default(false).notNull(),
 }));
 
@@ -264,9 +269,16 @@ export const uoeTaskChainItems = createTable(
   ],
 );
 
-export const uoeTaskChainsRelations = relations(uoeTaskChains, ({ many }) => ({
-  items: many(uoeTaskChainItems),
-}));
+export const uoeTaskChainsRelations = relations(
+  uoeTaskChains,
+  ({ one, many }) => ({
+    topic: one(trainingTopics, {
+      fields: [uoeTaskChains.topicId],
+      references: [trainingTopics.id],
+    }),
+    items: many(uoeTaskChainItems),
+  }),
+);
 
 export const uoeTaskChainItemsRelations = relations(
   uoeTaskChainItems,
