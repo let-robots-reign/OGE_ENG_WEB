@@ -21,44 +21,13 @@ interface TrueFalseFormState {
   explanations: { text: string; highlightedText: string }[];
 }
 
-const DEFAULT_PASSAGES = (): PassageItem[] => [
-  {
+const DEFAULT_PASSAGES = (): PassageItem[] =>
+  Array.from({ length: 6 }, () => ({
     text: "",
-    selectedHeadingIndex: 0,
+    selectedHeadingIndex: -1,
     explanationText: "",
     highlightedText: "",
-  },
-  {
-    text: "",
-    selectedHeadingIndex: 1,
-    explanationText: "",
-    highlightedText: "",
-  },
-  {
-    text: "",
-    selectedHeadingIndex: 2,
-    explanationText: "",
-    highlightedText: "",
-  },
-  {
-    text: "",
-    selectedHeadingIndex: 3,
-    explanationText: "",
-    highlightedText: "",
-  },
-  {
-    text: "",
-    selectedHeadingIndex: 4,
-    explanationText: "",
-    highlightedText: "",
-  },
-  {
-    text: "",
-    selectedHeadingIndex: 5,
-    explanationText: "",
-    highlightedText: "",
-  },
-];
+  }));
 
 const DEFAULT_HEADINGS = (): string[] => ["", "", "", "", "", "", ""];
 
