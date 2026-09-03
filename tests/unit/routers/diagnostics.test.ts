@@ -5,11 +5,12 @@ const mocks = vi.hoisted(() => ({
   mockCerebrasCreate: vi.fn(),
   mockGeminiGenerate: vi.fn(),
   mockGroqCreate: vi.fn(),
+  mockInsertValues: vi.fn(),
 }));
 
 vi.mock("@/server/db", () => ({
   db: {
-    insert: vi.fn(),
+    insert: vi.fn(() => ({ values: mocks.mockInsertValues })),
     query: {
       userResults: {
         findFirst: vi.fn(),
@@ -105,13 +106,23 @@ describe("Diagnostics Router tRPC Procedures", () => {
 
       const caller = createCaller({
         db: db as any,
-        session: null,
+        session: { user: { id: "user-1", role: "student" }, expires: "" },
         headers: new Headers(),
       });
 
       const res = await caller.checkGrammar(mockInput);
       expect(res).toEqual({ feedback: "Cerebras feedback text" });
       expect(mocks.mockCerebrasCreate).toHaveBeenCalled();
+      expect(mocks.mockInsertValues).toHaveBeenCalledWith({
+        userId: "user-1",
+        activityId: 1,
+        activityType: "diagnostics",
+        result: "",
+        details: {
+          userAnswers: mockInput,
+          feedback: "Cerebras feedback text",
+        },
+      });
     });
 
     it("should fallback to Gemini if Cerebras fails", async () => {
@@ -124,7 +135,7 @@ describe("Diagnostics Router tRPC Procedures", () => {
 
       const caller = createCaller({
         db: db as any,
-        session: null,
+        session: { user: { id: "user-1", role: "student" }, expires: "" },
         headers: new Headers(),
       });
 
@@ -144,7 +155,7 @@ describe("Diagnostics Router tRPC Procedures", () => {
 
       const caller = createCaller({
         db: db as any,
-        session: null,
+        session: { user: { id: "user-1", role: "student" }, expires: "" },
         headers: new Headers(),
       });
 
@@ -163,7 +174,7 @@ describe("Diagnostics Router tRPC Procedures", () => {
 
       const caller = createCaller({
         db: db as any,
-        session: null,
+        session: { user: { id: "user-1", role: "student" }, expires: "" },
         headers: new Headers(),
       });
 
@@ -181,7 +192,7 @@ describe("Diagnostics Router tRPC Procedures", () => {
 
       const caller = createCaller({
         db: db as any,
-        session: null,
+        session: { user: { id: "user-1", role: "student" }, expires: "" },
         headers: new Headers(),
       });
 

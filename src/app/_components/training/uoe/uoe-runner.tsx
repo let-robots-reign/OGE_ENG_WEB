@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { useSession } from "next-auth/react";
 import posthog from "posthog-js";
 import { api } from "@/trpc/react";
 import { InstructionStrip } from "./instruction-strip";
@@ -11,7 +10,6 @@ import { QuestionCard } from "./question-card";
 import { ResultModal } from "../shared/result-modal";
 import { TrainingSubHeader } from "../shared/training-sub-header";
 import { useElapsedTimer } from "@/app/_composables/use-elapsed-timer";
-import { useSubmitAnswersMutation } from "@/app/_composables/use-submit-answers-mutation";
 import { formatClock } from "@/app/_utils/formatClock";
 
 const BACK_HREF = "/training/use-of-english/topics";
@@ -19,7 +17,7 @@ const BACK_HREF = "/training/use-of-english/topics";
 export function UoERunner() {
   const searchParams = useSearchParams();
   const topicId = Number(searchParams.get("topic"));
-  const { data: session } = useSession();
+  const utils = api.useUtils();
 
   const { data, error, isLoading, refetch } =
     api.training.getUoeTraining.useQuery(
@@ -33,7 +31,6 @@ export function UoERunner() {
     );
 
   const checkMutation = api.training.checkUoeTraining.useMutation();
-  const submitAnswersMutation = useSubmitAnswersMutation();
 
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [checked, setChecked] = useState(false);
@@ -77,6 +74,7 @@ export function UoERunner() {
     const res = await checkMutation.mutateAsync({
       answers: payload,
       ...(data.chainId ? { chainId: data.chainId } : {}),
+      timeSpent: elapsedSec,
     });
     setResult(res);
     setChecked(true);
@@ -93,14 +91,10 @@ export function UoERunner() {
       result: resultRatio,
     });
 
-    if (session?.user) {
-      submitAnswersMutation.mutate({
-        activityId: topicId,
-        activityType: "training",
-        result: resultRatio,
-        timeSpent: elapsedSec,
-      });
-    }
+    void Promise.all([
+      utils.user.getStreak.invalidate(),
+      utils.user.getActivity.invalidate(),
+    ]);
   };
 
   const handleRetry = () => {

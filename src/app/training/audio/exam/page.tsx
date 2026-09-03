@@ -1,7 +1,7 @@
 "use client";
 
-import { ExamRunner } from "@/app/_components/training/exam/exam-runner";
+import { TrainingExamModeRunner } from "@/app/_components/training/exam/training-exam-mode-runner";
 
 export default function AudioExamPage() {
-  return <ExamRunner category="audio" />;
+  return <TrainingExamModeRunner category="audio" />;
 }

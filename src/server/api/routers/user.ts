@@ -11,9 +11,14 @@ import {
 } from "@/server/db/schema";
 import { and, eq, inArray, ne, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
+import { isMockExamResultDetails } from "@/server/api/lib/mock-exams";
 
 /** Topic titles that represent the "Письмо" (Writing) section. */
-const WRITING_TITLES = ["Письмо", "Письмо Упражнения"];
+const WRITING_TITLES = [
+  "Письмо",
+  "Письмо Упражнения",
+  "Навыки написания письма",
+];
 
 function subOneDayYmd(ymd: string): string {
   return addDaysYmd(ymd, -1);
@@ -376,7 +381,11 @@ export const userRouter = createTRPCRouter({
       const trainingTopicIds = [
         ...new Set(
           rows
-            .filter((r) => r.activityType === "training")
+            .filter(
+              (r) =>
+                r.activityType === "training" ||
+                r.activityType === "training_exam_mode",
+            )
             .map((r) => r.activityId),
         ),
       ];
@@ -397,12 +406,22 @@ export const userRouter = createTRPCRouter({
       return rows.map((r) => {
         const topic = topicById.get(r.activityId);
         const parsed = parseResult(r.result);
+        const mockDetails = isMockExamResultDetails(r.details)
+          ? r.details
+          : null;
 
         let kind = "Тренировка";
         let title = "Тренировка";
         if (r.activityType === "mock_exam") {
           kind = "Вариант";
-          title = "Тренировочный вариант";
+          title = mockDetails?.mockExam.title ?? "Тренировочный вариант";
+        } else if (r.activityType === "training_exam_mode") {
+          kind = topic
+            ? (sectionLabel[topic.category] ?? "Тренировка")
+            : "Тренировка";
+          title = topic
+            ? `${topic.title} · exam mode`
+            : "Тренировка · exam mode";
         } else if (r.activityType === "diagnostics") {
           kind = "Диагностика";
           title = "Грамматическая диагностика";
@@ -428,6 +447,10 @@ export const userRouter = createTRPCRouter({
           timeSpent: r.timeSpent,
           correct: parsed?.correct ?? null,
           max: parsed?.total ?? null,
+          grade: mockDetails?.grade ?? null,
+          href: mockDetails
+            ? `/mock-exams/${r.activityId}/result/${r.id}`
+            : null,
         };
       });
     }),

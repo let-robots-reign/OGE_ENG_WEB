@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { SectionEyebrow } from "./section-eyebrow";
 
 type Tone = "ok" | "warn" | "neutral";
@@ -13,6 +14,8 @@ interface ActivityRow {
   timeSpent: number | null;
   correct: number | null;
   max: number | null;
+  grade?: number | null;
+  href?: string | null;
 }
 
 const TONES: Record<Tone, string> = {
@@ -102,7 +105,18 @@ export function HistoryTable({ rows }: { rows: ActivityRow[] }) {
                         {r.kind}
                       </span>
                     </td>
-                    <td className={`${tdClass} text-ink`}>{r.title}</td>
+                    <td className={`${tdClass} text-ink`}>
+                      {r.href ? (
+                        <Link
+                          href={r.href}
+                          className="text-accent font-medium hover:underline"
+                        >
+                          {r.title} →
+                        </Link>
+                      ) : (
+                        r.title
+                      )}
+                    </td>
                     <td
                       className={`${tdClass} text-ink-2 font-mono text-[13px]`}
                     >
@@ -116,6 +130,11 @@ export function HistoryTable({ rows }: { rows: ActivityRow[] }) {
                             {" "}
                             / {r.max}
                           </span>
+                          {r.grade && (
+                            <span className="text-ok ml-2 text-[12px] not-italic">
+                              оценка {r.grade}
+                            </span>
+                          )}
                         </span>
                       ) : (
                         <span className="text-ink-3 text-[13px]">—</span>

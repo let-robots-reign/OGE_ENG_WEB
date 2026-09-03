@@ -1,4 +1,10 @@
 import { defineConfig, devices } from "@playwright/test";
+import { loadEnvFile } from "node:process";
+
+if (!process.env.DATABASE_URL) loadEnvFile();
+
+const port = Number(process.env.PLAYWRIGHT_PORT ?? 3000);
+const baseURL = `http://localhost:${port}`;
 
 export default defineConfig({
   testDir: "./tests/e2e",
@@ -18,7 +24,7 @@ export default defineConfig({
 
   /* Shared settings for all the projects below. */
   use: {
-    baseURL: "http://localhost:3000",
+    baseURL,
     /* Collect trace on first retry (great for debugging CI failures). */
     trace: "on-first-retry",
     /* Screenshot on failure. */
@@ -38,8 +44,8 @@ export default defineConfig({
 
   /* Run the local dev server before starting the tests. */
   webServer: {
-    command: "pnpm run dev",
-    url: "http://localhost:3000",
+    command: `pnpm exec next dev --turbo --port ${port}`,
+    url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
   },

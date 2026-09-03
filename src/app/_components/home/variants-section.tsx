@@ -1,40 +1,16 @@
+"use client";
+
+import { api } from "@/trpc/react";
 import { VariantCard } from "./variant-card";
 
-// TODO: implement real Варианты logic
-const VARIANTS = [
-  { num: "01", state: "Сдан", scoreValue: 32, date: "12 апр", accent: "ok" },
-  { num: "02", state: "Сдан", scoreValue: 29, date: "21 апр", accent: "ok" },
-  {
-    num: "03",
-    state: "Сдан",
-    scoreValue: 30,
-    date: "29 апр",
-    accent: "ok",
-  },
-  {
-    num: "04",
-    state: "Не начат",
-    scoreValue: null,
-    date: "",
-    accent: "neutral",
-  },
-  {
-    num: "05",
-    state: "Не начат",
-    scoreValue: null,
-    date: "",
-    accent: "neutral",
-  },
-  {
-    num: "06",
-    state: "Не начат",
-    scoreValue: null,
-    date: "",
-    accent: "neutral",
-  },
-] as const;
+const formatDate = (date: Date) =>
+  new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "short" })
+    .format(date)
+    .replace(".", "");
 
 export function VariantsSection() {
+  const { data, isLoading, error } = api.mockExams.list.useQuery();
+
   return (
     <section id="variants" className="mb-[72px]">
       <div className="mb-5 flex items-end justify-between">
@@ -51,11 +27,39 @@ export function VariantsSection() {
           Полный экзамен с таймером · 2 часа
         </div>
       </div>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
-        {VARIANTS.map((v) => (
-          <VariantCard key={v.num} {...v} />
-        ))}
-      </div>
+
+      {isLoading ? (
+        <div className="text-ink-3 border-line rounded-lg border p-8 text-center text-[14px]">
+          Загружаем варианты...
+        </div>
+      ) : error ? (
+        <div className="text-err border-line rounded-lg border p-8 text-center text-[14px]">
+          Не удалось загрузить варианты.
+        </div>
+      ) : !data?.length ? (
+        <div className="text-ink-3 border-line bg-surface rounded-lg border p-8 text-center text-[14px]">
+          Варианты скоро появятся.
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
+          {data.map((exam) => (
+            <VariantCard
+              key={exam.id}
+              num={String(exam.order).padStart(2, "0")}
+              title={exam.title}
+              state={exam.latestResult ? "Сдан" : "Не начат"}
+              scoreValue={exam.latestResult?.correct ?? null}
+              scoreMax={exam.latestResult?.total ?? null}
+              grade={exam.latestResult?.grade}
+              date={
+                exam.latestResult ? formatDate(exam.latestResult.createdAt) : ""
+              }
+              href={`/mock-exams/${exam.id}`}
+              accent={exam.latestResult ? "ok" : "neutral"}
+            />
+          ))}
+        </div>
+      )}
     </section>
   );
 }

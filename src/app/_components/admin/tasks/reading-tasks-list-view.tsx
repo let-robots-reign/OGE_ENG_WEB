@@ -37,6 +37,7 @@ export function ReadingTasksListView() {
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [isDeletingModalOpen, setIsDeletingModalOpen] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const utils = api.useUtils();
 
@@ -56,7 +57,13 @@ export function ReadingTasksListView() {
       setSelectedIds([]);
       setDeleteConfirmId(null);
       setIsDeletingModalOpen(false);
+      setDeleteError(null);
       await utils.admin.getReadingTasks.invalidate();
+    },
+    onError: (cause) => {
+      setIsDeletingModalOpen(false);
+      setDeleteConfirmId(null);
+      setDeleteError(cause.message);
     },
   });
 
@@ -110,6 +117,12 @@ export function ReadingTasksListView() {
         description="Список всех активных заданий тренировки «Чтение»."
         createHref="/admin/tasks/reading/create"
       />
+
+      {deleteError && (
+        <div className="bg-err-soft text-err rounded-xl px-4 py-3 text-[14px]">
+          {deleteError}
+        </div>
+      )}
 
       {/* Controls Bar */}
       <div className="bg-surface border-line space-y-3 rounded-xl border p-4 shadow-xs">

@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { useSession } from "next-auth/react";
 import posthog from "posthog-js";
 import { api } from "@/trpc/react";
 import { HeadingsBank } from "./headings-bank";
@@ -14,7 +13,6 @@ import { ReviewModal, type ReviewItem } from "../shared/review-modal";
 import { ProgressDots } from "../shared/progress-dots";
 import { TrainingSubHeader } from "../shared/training-sub-header";
 import { useElapsedTimer } from "@/app/_composables/use-elapsed-timer";
-import { useSubmitAnswersMutation } from "@/app/_composables/use-submit-answers-mutation";
 import { formatClock } from "@/app/_utils/formatClock";
 import type { ReadingTaskType } from "@/server/db/schema";
 import { READING_INSTRUCTIONS } from "../shared/task-instructions";
@@ -28,7 +26,7 @@ export function ReadingRunner() {
   const searchParams = useSearchParams();
   const topicId = Number(searchParams.get("topic"));
   const router = useRouter();
-  const { data: session } = useSession();
+  const utils = api.useUtils();
 
   const { data, isLoading } = api.training.getReadingTraining.useQuery(
     { topicId },
@@ -36,7 +34,6 @@ export function ReadingRunner() {
   );
 
   const checkMutation = api.training.checkReadingTraining.useMutation();
-  const submitAnswersMutation = useSubmitAnswersMutation();
 
   const taskType: ReadingTaskType =
     data?.task.taskType === "true_false" ? "true_false" : "matching";
@@ -131,6 +128,7 @@ export function ReadingRunner() {
     const res = await checkMutation.mutateAsync({
       id: data.task.id,
       answers,
+      timeSpent: elapsedSec,
     });
     setResult(res);
     setChecked(true);
@@ -148,15 +146,10 @@ export function ReadingRunner() {
       result: resultRatio,
     });
 
-    if (session?.user) {
-      submitAnswersMutation.mutate({
-        activityId: topicId,
-        activityType: "training",
-        result: resultRatio,
-        taskId: data.task.id,
-        timeSpent: elapsedSec,
-      });
-    }
+    void Promise.all([
+      utils.user.getStreak.invalidate(),
+      utils.user.getActivity.invalidate(),
+    ]);
   };
 
   // --- Loading / error ---

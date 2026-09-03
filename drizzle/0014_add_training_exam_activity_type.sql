@@ -1,0 +1,1 @@
+ALTER TYPE "public"."activity_type" ADD VALUE 'training_exam_mode' BEFORE 'mock_exam';

@@ -1,9 +1,5 @@
 import { z } from "zod";
-import {
-  createTRPCRouter,
-  protectedProcedure,
-  publicProcedure,
-} from "@/server/api/trpc";
+import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import { and, eq } from "drizzle-orm";
 import Groq from "groq-sdk";
 import { diagnosticsSystemPrompt } from "@/server/api/lib/prompts/diagnostics";
@@ -308,9 +304,9 @@ export const diagnosticsRouter = createTRPCRouter({
     };
   }),
 
-  checkGrammar: publicProcedure
+  checkGrammar: protectedProcedure
     .input(z.object({ part1: part1Schema, part2: part2Schema }))
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
       const userAnswers = JSON.stringify(input, null, 2);
       // const userAnswers = JSON.stringify(testUserAnswers, null, 2);
 
@@ -417,6 +413,14 @@ export const diagnosticsRouter = createTRPCRouter({
       if (!feedback) {
         throw new Error("Failed to get feedback from any AI model.");
       }
+
+      await ctx.db.insert(userResults).values({
+        userId: ctx.session.user.id,
+        activityId: 1,
+        activityType: "diagnostics",
+        result: "",
+        details: { userAnswers: input, feedback },
+      });
 
       return { feedback };
     }),

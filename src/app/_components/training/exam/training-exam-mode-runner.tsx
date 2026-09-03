@@ -2,12 +2,10 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useSession } from "next-auth/react";
 import posthog from "posthog-js";
 import { api, type RouterOutputs } from "@/trpc/react";
 import type { AudioTaskContent, AudioTaskQuestion } from "@/server/db/schema";
 import { useCountdownTimer } from "@/app/_composables/use-countdown-timer";
-import { useSubmitAnswersMutation } from "@/app/_composables/use-submit-answers-mutation";
 import { formatClock } from "@/app/_utils/formatClock";
 import {
   formatGapFillAnswer,
@@ -59,8 +57,8 @@ const asAudioContent = (step: ExamStep): AudioTaskContent => {
   } as AudioTaskContent;
 };
 
-export function ExamRunner({ category }: { category: Category }) {
-  const { data: session } = useSession();
+export function TrainingExamModeRunner({ category }: { category: Category }) {
+  const utils = api.useUtils();
   const backHref = `/training/${category}/topics`;
   const { data, isLoading, error } = api.training.getExamSection.useQuery(
     { category },
@@ -73,7 +71,6 @@ export function ExamRunner({ category }: { category: Category }) {
     },
   );
   const checkMutation = api.training.checkExamSection.useMutation();
-  const submitAnswersMutation = useSubmitAnswersMutation();
 
   const [currentStep, setCurrentStep] = useState(0);
   const [allAnswers, setAllAnswers] = useState<Map<number, ExamAnswer[]>>(
@@ -137,6 +134,7 @@ export function ExamRunner({ category }: { category: Category }) {
             answers: allAnswers.get(index) ?? [],
           })),
           timeSpent,
+          timedOut: didTimeOut,
         });
 
         setResult(response);
@@ -153,38 +151,15 @@ export function ExamRunner({ category }: { category: Category }) {
           timed_out: didTimeOut,
         });
 
-        if (session?.user) {
-          const firstTask = data.steps[0]?.task;
-          submitAnswersMutation.mutate({
-            activityId: firstTask?.topicId ?? firstTask?.id ?? 0,
-            activityType: "mock_exam",
-            result: resultRatio,
-            timeSpent,
-            details: {
-              category,
-              timedOut: didTimeOut,
-              tasks: response.steps.map((step) => ({
-                taskId: step.taskId,
-                correctCount: step.correctCount,
-                total: step.total,
-              })),
-            },
-          });
-        }
+        void Promise.all([
+          utils.user.getStreak.invalidate(),
+          utils.user.getActivity.invalidate(),
+        ]);
       } catch {
         setSubmitError("Не удалось проверить экзамен. Попробуйте ещё раз.");
       }
     },
-    [
-      allAnswers,
-      category,
-      checkMutation,
-      checked,
-      data,
-      submitAnswersMutation,
-      secondsLeft,
-      session?.user,
-    ],
+    [allAnswers, category, checkMutation, checked, data, secondsLeft, utils],
   );
 
   useEffect(() => {

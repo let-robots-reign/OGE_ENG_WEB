@@ -2,6 +2,7 @@ import { trainingRouter } from "@/server/api/routers/training";
 import { diagnosticsRouter } from "@/server/api/routers/diagnostics";
 import { adminRouter } from "@/server/api/routers/admin";
 import { userRouter } from "@/server/api/routers/user";
+import { mockExamsRouter } from "@/server/api/routers/mock-exams";
 import { createCallerFactory, createTRPCRouter } from "@/server/api/trpc";
 
 /**
@@ -14,6 +15,7 @@ export const appRouter = createTRPCRouter({
   diagnostics: diagnosticsRouter,
   admin: adminRouter,
   user: userRouter,
+  mockExams: mockExamsRouter,
 });
 
 // export type definition of API

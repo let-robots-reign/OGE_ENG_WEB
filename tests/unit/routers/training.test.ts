@@ -32,7 +32,7 @@ vi.mock("@/server/db", () => ({
     activityType: "user_results_activity_type",
   },
   activityTypeEnum: {
-    enumValues: ["training", "diagnostic"],
+    enumValues: ["training", "training_exam_mode", "mock_exam", "diagnostics"],
   },
 }));
 
@@ -409,48 +409,23 @@ describe("Training Router tRPC Procedures", () => {
       ).rejects.toMatchObject({ code: "BAD_REQUEST" });
       expect(db.query.uoeTasks.findMany).not.toHaveBeenCalled();
     });
-  });
 
-  describe("submitAnswers", () => {
-    it("should record training user activity to DB", async () => {
-      const mockInsertValues = vi.fn().mockResolvedValue([{ success: true }]);
-      vi.mocked(db.insert).mockReturnValue({
-        values: mockInsertValues,
-      } as any);
-
-      const caller = createCaller({
-        db: db as any,
-        session: { user: { id: "user-1", role: "student" }, expires: "" },
-        headers: new Headers(),
-      });
-
-      await caller.submitAnswers({
-        activityId: 1,
-        activityType: "training",
-        result: "4/5",
-      });
-
-      expect(db.insert).toHaveBeenCalled();
-    });
-
-    it("should throw UNAUTHORIZED if trying to log result without session", async () => {
+    it("does not accept an empty answer from a trailing slash", async () => {
+      vi.mocked(db.query.uoeTasks.findMany).mockResolvedValue([
+        { id: 1, topicId: 7, answer: "WAS/", isDeleted: false },
+      ] as any);
       const caller = createCaller({
         db: db as any,
         session: null,
         headers: new Headers(),
       });
 
-      await expect(
-        caller.submitAnswers({
-          activityId: 1,
-          activityType: "training",
-          result: "4/5",
-        }),
-      ).rejects.toThrow(
-        new TRPCError({
-          code: "UNAUTHORIZED",
-        }),
-      );
+      const result = await caller.checkUoeTraining({
+        answers: [{ id: 1, answer: "" }],
+      });
+
+      expect(result.correctCount).toBe(0);
+      expect(result.results[0]?.isCorrect).toBe(false);
     });
   });
 
@@ -549,6 +524,39 @@ describe("Training Router tRPC Procedures", () => {
       expect(res.total).toBe(4);
       expect(res.correctCount).toBe(2);
       expect(res.results).toEqual([true, false, true, false]);
+    });
+
+    it("grades and saves an authenticated result in the same procedure", async () => {
+      vi.mocked(db.query.audioTasks.findFirst).mockResolvedValue({
+        id: 53,
+        topicId: 7,
+        taskType: "multiple_choice",
+        answers: [1, 2],
+        explanations: [],
+      } as any);
+      const values = vi.fn().mockResolvedValue(undefined);
+      vi.mocked(db.insert).mockReturnValue({ values } as any);
+      const caller = createCaller({
+        db: db as any,
+        session: { user: { id: "user-1", role: "student" }, expires: "" },
+        headers: new Headers(),
+      });
+
+      const result = await caller.checkListeningTraining({
+        id: 53,
+        answers: [1, 1],
+        timeSpent: 42,
+      });
+
+      expect(result.correctCount).toBe(1);
+      expect(values).toHaveBeenCalledWith({
+        userId: "user-1",
+        activityId: 7,
+        activityType: "training",
+        result: "1/2",
+        taskId: 53,
+        timeSpent: 42,
+      });
     });
 
     it("should throw NOT_FOUND error when audio task does not exist", async () => {

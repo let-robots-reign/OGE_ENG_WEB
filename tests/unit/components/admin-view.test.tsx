@@ -26,6 +26,9 @@ vi.mock("@/trpc/react", () => ({
       getDiagnosticsResults: {
         useQuery: vi.fn(),
       },
+      getMockExamResults: {
+        useQuery: vi.fn(),
+      },
     },
   },
 }));
@@ -41,6 +44,10 @@ describe("AdminView Components Panel", () => {
       isLoading: false,
     } as any);
     vi.mocked(api.admin.getDiagnosticsResults.useQuery).mockReturnValue({
+      data: [],
+      isLoading: false,
+    } as any);
+    vi.mocked(api.admin.getMockExamResults.useQuery).mockReturnValue({
       data: [],
       isLoading: false,
     } as any);
@@ -97,5 +104,39 @@ describe("AdminView Components Panel", () => {
     expect(
       screen.getByText("Пока нет результатов диагностик."),
     ).toBeInTheDocument();
+  });
+
+  it("should render empty state on the mock-exams tab", () => {
+    mockGet.mockReturnValue("mock-exams");
+    render(<AdminView />);
+    expect(
+      screen.getByText("Пока нет завершённых вариантов."),
+    ).toBeInTheDocument();
+  });
+
+  it("should render a lightweight mock exam summary", () => {
+    mockGet.mockReturnValue("mock-exams");
+    vi.mocked(api.admin.getMockExamResults.useQuery).mockReturnValue({
+      data: [
+        {
+          id: 9,
+          result: "32/47",
+          createdAt: new Date("2026-09-03T10:00:00Z"),
+          user: { name: "Masha", email: "masha@example.com" },
+          mockExamTitle: "Вариант 1",
+          timedOut: false,
+          percentage: 68,
+          grade: 4,
+          timeSpent: 3600,
+        },
+      ],
+      isLoading: false,
+    } as any);
+
+    render(<AdminView />);
+
+    expect(screen.getByText("Вариант 1")).toBeInTheDocument();
+    expect(screen.getByText("68%")).toBeInTheDocument();
+    expect(screen.getByText("4")).toBeInTheDocument();
   });
 });

@@ -1,13 +1,17 @@
 import { IconArrow } from "./icons";
+import Link from "next/link";
 
 type Accent = "ok" | "warn" | "neutral";
 
 interface VariantCardProps {
   num: string;
+  title?: string;
   state: string;
   scoreValue: number | null;
-  scoreMax?: number;
+  scoreMax: number | null;
   date?: string;
+  grade?: number | null;
+  href: string;
   accent: Accent;
 }
 
@@ -19,17 +23,23 @@ const TONES: Record<Accent, string> = {
 
 export function VariantCard({
   num,
+  title,
   state,
   scoreValue,
-  scoreMax = 35,
+  scoreMax,
   date,
+  grade,
+  href,
   accent,
 }: VariantCardProps) {
-  const inProgress = accent === "warn";
-  const hasScore = typeof scoreValue === "number";
+  const hasScore =
+    typeof scoreValue === "number" && typeof scoreMax === "number";
 
   return (
-    <div className="bg-surface border-line relative flex min-h-[180px] flex-col gap-[18px] rounded-lg border p-[22px]">
+    <Link
+      href={href}
+      className="bg-surface border-line relative flex min-h-[180px] flex-col gap-[18px] rounded-lg border p-[22px] transition-transform hover:-translate-y-0.5"
+    >
       <div className="flex items-center justify-between">
         <span
           className={`rounded-pill px-3 py-[5px] text-[12.5px] font-medium ${TONES[accent]}`}
@@ -41,7 +51,7 @@ export function VariantCard({
         </div>
       </div>
       <div className="font-display flex-1 text-[26px] leading-[1.1] tracking-[-0.02em]">
-        Тренировочный вариант {num}
+        {title ?? `Тренировочный вариант ${num}`}
       </div>
       <div className="flex items-end justify-between gap-3">
         {hasScore ? (
@@ -53,15 +63,20 @@ export function VariantCard({
               / {scoreMax}
             </span>
           </div>
-        ) : inProgress ? (
-          <span className="text-ink-3 text-[13px]">продолжить →</span>
         ) : (
           <span className="text-ink-3 text-[13px]">начать экзамен</span>
         )}
-        {date && (
-          <span className="text-ink-3 font-mono text-[12.5px]">{date}</span>
-        )}
+        <div className="text-right">
+          {grade && (
+            <div className="text-ok text-[13px] font-medium">
+              оценка {grade}
+            </div>
+          )}
+          {date && (
+            <span className="text-ink-3 font-mono text-[12.5px]">{date}</span>
+          )}
+        </div>
       </div>
-    </div>
+    </Link>
   );
 }

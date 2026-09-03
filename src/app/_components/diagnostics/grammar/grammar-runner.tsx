@@ -7,7 +7,6 @@ import Link from "next/link";
 import posthog from "posthog-js";
 
 import { api } from "@/trpc/react";
-import { useSubmitAnswersMutation } from "@/app/_composables/use-submit-answers-mutation";
 import { part1Questions, part2Questions } from "@/app/diagnostics/grammar/data";
 import { SectionSubHeader } from "@/app/_components/training/shared/training-sub-header";
 import { Modal } from "@/app/_components/Modal";
@@ -57,7 +56,8 @@ const SECONDARY_BTN =
 
 export function GrammarRunner() {
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const { status } = useSession();
+  const utils = api.useUtils();
 
   const [currentPart, setCurrentPart] = useState(1);
   const [answers, setAnswers] = useState<Answers>(() => ({
@@ -73,8 +73,6 @@ export function GrammarRunner() {
       enabled: status === "authenticated",
     });
 
-  const submitAnswersMutation = useSubmitAnswersMutation();
-
   useEffect(() => {
     if (status === "unauthenticated") setShowAuthModal(true);
     if (hasCompleted) router.push("/");
@@ -88,20 +86,10 @@ export function GrammarRunner() {
 
       posthog.capture("diagnostics_completed", { diagnostics_type: "grammar" });
 
-      if (session?.user) {
-        submitAnswersMutation.mutate({
-          /*
-          TODO: list of diagnostics is not stored in the DB yet.
-          Setting activityId: 1 here to satisfy the table's schema.
-          When there are more diagnostics types and they are stored in the DB,
-          set the ID of the current diagnostics here.
-           */
-          activityId: 1,
-          activityType: "diagnostics",
-          result: "",
-          details: { userAnswers: answers, feedback: data.feedback },
-        });
-      }
+      void Promise.all([
+        utils.user.getStreak.invalidate(),
+        utils.user.getActivity.invalidate(),
+      ]);
     },
   });
 
