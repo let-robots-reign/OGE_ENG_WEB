@@ -58,8 +58,7 @@ export function MockExamResultView({
               Оценка {details.grade}
             </div>
             <div className="mt-1 text-[14px] text-white/60">
-              {details.percentage}% · {formatClock(details.timeSpent)} ·{" "}
-              {details.timedOut ? "время истекло" : "завершён вручную"}
+              {details.percentage}% · {formatClock(details.timeSpent)}
             </div>
           </div>
         </div>
@@ -71,8 +70,12 @@ export function MockExamResultView({
             key={part.slot}
             className="border-line bg-surface rounded-lg border p-5"
           >
-            <div className="text-ink-3 text-[12px] uppercase">{part.kind}</div>
-            <div className="font-display mt-2 text-[21px]">{part.label}</div>
+            <div className="text-ink-3 text-[11px] uppercase">
+              {part.label.split("·")[0] ?? " "}
+            </div>
+            <div className="font-display mt-2 text-[21px]">
+              {part.label.split("·")[1] ?? part.label}
+            </div>
             <div className="mt-3 font-mono text-[16px]">
               {part.correctCount} / {part.total}
             </div>

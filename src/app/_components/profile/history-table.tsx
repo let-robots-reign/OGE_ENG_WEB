@@ -130,8 +130,9 @@ export function HistoryTable({ rows }: { rows: ActivityRow[] }) {
                             {" "}
                             / {r.max}
                           </span>
+                          <br />
                           {r.grade && (
-                            <span className="text-ok ml-2 text-[12px] not-italic">
+                            <span className="text-ok text-[12px] not-italic">
                               оценка {r.grade}
                             </span>
                           )}

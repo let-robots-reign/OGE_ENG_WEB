@@ -258,9 +258,6 @@ export function AdminView() {
                       </td>
                       <td className={`${tdClass} font-medium`}>
                         {r.mockExamTitle}
-                        <div className="text-ink-3 mt-1 text-[12px]">
-                          {r.timedOut ? "Время истекло" : "Завершён вручную"}
-                        </div>
                       </td>
                       <td className={tdClass}>
                         <ResultCell result={r.result} />
@@ -281,7 +278,7 @@ export function AdminView() {
                           href={`/admin/mock-exams/results/${r.id}`}
                           className="text-accent text-[14px] font-medium hover:underline"
                         >
-                          Просмотреть →
+                          Просмотреть&nbsp;→
                         </Link>
                       </td>
                     </tr>

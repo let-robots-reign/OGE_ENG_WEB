@@ -55,14 +55,14 @@ export function MockExamsListView() {
                       {exam.title}
                     </div>
                     <div className="text-ink-3 mt-1 text-[13px]">
-                      Выбрано частей: {exam.parts.length} / 7 · обновлён{" "}
+                      обновлён{" "}
                       {new Intl.DateTimeFormat("ru-RU").format(exam.updatedAt)}
                     </div>
                     <div className="mt-2 flex flex-wrap gap-1.5">
                       {exam.parts.map((part) => (
                         <span
                           key={part.slot}
-                          className="bg-surface-2 text-ink-3 rounded px-2 py-1 font-mono text-[10.5px]"
+                          className="bg-surface-2 text-ink-3 rounded-md px-2 py-1 font-mono text-[10.5px]"
                         >
                           {part.slot}: #
                           {part.audioTaskId ??

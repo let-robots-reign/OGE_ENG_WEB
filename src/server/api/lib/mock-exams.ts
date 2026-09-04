@@ -63,9 +63,9 @@ export function getMockExamGrade(percentage: number): 2 | 3 | 4 | 5 {
   // Product default for the reduced written variant (letter/oral parts are not
   // included). Keep the thresholds centralized so an approved scale can be
   // substituted without changing API or UI code.
-  if (percentage >= 80) return 5;
-  if (percentage >= 60) return 4;
-  if (percentage >= 40) return 3;
+  if (percentage >= 85) return 5;
+  if (percentage >= 65) return 4;
+  if (percentage >= 50) return 3;
   return 2;
 }
 
