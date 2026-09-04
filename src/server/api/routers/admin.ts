@@ -1,7 +1,11 @@
 import { z } from "zod";
 import { adminProcedure, createTRPCRouter } from "@/server/api/trpc";
+import type { createTRPCContext } from "@/server/api/trpc";
 import {
   audioTasks,
+  mockExamParts,
+  mockExamSlotEnum,
+  mockExams,
   readingTasks,
   trainingTopics,
   uoeTaskChainItems,
@@ -9,10 +13,134 @@ import {
   uoeTasks,
   userResults,
 } from "@/server/db/schema";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
+import {
+  isMockExamResultDetails,
+  MOCK_EXAM_SLOT_META,
+  MOCK_EXAM_SLOT_ORDER,
+} from "@/server/api/lib/mock-exams";
 
 const UOE_CHAIN_LENGTH = 9;
+const UOE_CHAIN_TOPIC_TITLES = ["По всем темам", "Словообразование"] as const;
+
+const mockExamPartInputSchema = z.object({
+  slot: z.enum(mockExamSlotEnum.enumValues),
+  resourceId: z.number().int().positive(),
+});
+
+export const mockExamInputSchema = z.object({
+  title: z.string().trim().min(1).max(255),
+  order: z.number().int().positive(),
+  parts: z
+    .array(mockExamPartInputSchema)
+    .length(MOCK_EXAM_SLOT_ORDER.length)
+    .superRefine((parts, ctx) => {
+      const slots = new Set(parts.map((part) => part.slot));
+      if (
+        slots.size !== MOCK_EXAM_SLOT_ORDER.length ||
+        !MOCK_EXAM_SLOT_ORDER.every((slot) => slots.has(slot))
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Нужно выбрать ровно по одному заданию для каждой части",
+        });
+      }
+    }),
+});
+
+type AppDb = Awaited<ReturnType<typeof createTRPCContext>>["db"];
+type MockExamPartInput = z.infer<typeof mockExamPartInputSchema>;
+
+async function validateMockExamParts(db: AppDb, parts: MockExamPartInput[]) {
+  const audioIds = parts
+    .filter((part) => MOCK_EXAM_SLOT_META[part.slot].kind === "audio")
+    .map((part) => part.resourceId);
+  const readingIds = parts
+    .filter((part) => MOCK_EXAM_SLOT_META[part.slot].kind === "reading")
+    .map((part) => part.resourceId);
+  const chainIds = parts
+    .filter((part) => MOCK_EXAM_SLOT_META[part.slot].kind === "uoe")
+    .map((part) => part.resourceId);
+
+  const [audio, reading, chains] = await Promise.all([
+    db.query.audioTasks.findMany({
+      where: inArray(audioTasks.id, audioIds),
+      with: { topic: true },
+    }),
+    db.query.readingTasks.findMany({
+      where: inArray(readingTasks.id, readingIds),
+      with: { topic: true },
+    }),
+    db.query.uoeTaskChains.findMany({
+      where: inArray(uoeTaskChains.id, chainIds),
+      with: {
+        topic: true,
+        items: { with: { task: true } },
+      },
+    }),
+  ]);
+  const audioById = new Map(audio.map((task) => [task.id, task]));
+  const readingById = new Map(reading.map((task) => [task.id, task]));
+  const chainById = new Map(chains.map((chain) => [chain.id, chain]));
+
+  for (const part of parts) {
+    const meta = MOCK_EXAM_SLOT_META[part.slot];
+    if (meta.kind === "audio") {
+      const task = audioById.get(part.resourceId);
+      if (
+        !task ||
+        task.isDeleted ||
+        !task.topic?.isActive ||
+        task.topic.title !== meta.topicTitle
+      ) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: `Для части «${meta.label}» выбрано недоступное задание`,
+        });
+      }
+    } else if (meta.kind === "reading") {
+      const task = readingById.get(part.resourceId);
+      if (
+        !task ||
+        task.isDeleted ||
+        !task.topic?.isActive ||
+        task.topic.title !== meta.topicTitle
+      ) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: `Для части «${meta.label}» выбрано недоступное задание`,
+        });
+      }
+    } else {
+      const chain = chainById.get(part.resourceId);
+      if (
+        !chain ||
+        chain.isDeleted ||
+        !chain.topic?.isActive ||
+        chain.topic.title !== meta.topicTitle ||
+        chain.items.length === 0 ||
+        chain.items.some((item) => item.task.isDeleted)
+      ) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: `Для части «${meta.label}» выбрана недоступная цепочка`,
+        });
+      }
+    }
+  }
+}
+
+const partValues = (mockExamId: number, part: MockExamPartInput) => {
+  const kind = MOCK_EXAM_SLOT_META[part.slot].kind;
+  return {
+    mockExamId,
+    slot: part.slot,
+    audioTaskId: kind === "audio" ? part.resourceId : null,
+    readingTaskId: kind === "reading" ? part.resourceId : null,
+    uoeTaskChainId: kind === "uoe" ? part.resourceId : null,
+  };
+};
 
 export const uoeChainTaskIdsSchema = z
   .array(z.number().int().positive())
@@ -29,6 +157,11 @@ export const uoeChainTaskIdsSchema = z
     }
   });
 
+export const uoeChainInputSchema = z.object({
+  topicId: z.number().int().positive(),
+  taskIds: uoeChainTaskIdsSchema,
+});
+
 type ChainCandidateTask = {
   id: number;
   isDeleted: boolean;
@@ -39,9 +172,27 @@ type ChainCandidateTask = {
   } | null;
 };
 
+type ChainTopic = {
+  id: number;
+  title: string;
+  category: string;
+  isActive: boolean;
+};
+
+function isAllowedChainTopic(
+  topic: ChainTopic | null | undefined,
+): topic is ChainTopic {
+  return (
+    topic?.isActive === true &&
+    topic.category === "use-of-english" &&
+    UOE_CHAIN_TOPIC_TITLES.some((title) => title === topic.title)
+  );
+}
+
 function validateChainCandidateTasks(
   tasks: ChainCandidateTask[],
   taskIds: number[],
+  chainTopic: ChainTopic,
 ) {
   if (tasks.length !== taskIds.length) {
     throw new TRPCError({
@@ -57,7 +208,10 @@ function validateChainCandidateTasks(
         !task.topic ||
         !task.topic.isActive ||
         task.topic.category !== "use-of-english" ||
-        task.topic.title === "Словообразование",
+        (chainTopic.title === "Словообразование"
+          ? task.topic.title !== "Словообразование"
+          : task.topic.title === "Словообразование" ||
+            task.topic.title === "По всем темам"),
     )
     .map((task) => task.id);
 
@@ -280,9 +434,266 @@ export const readingTaskInputSchema = z
   });
 
 export const adminRouter = createTRPCRouter({
+  getMockExams: adminProcedure.query(async ({ ctx }) => {
+    return await ctx.db.query.mockExams.findMany({
+      with: { parts: true },
+      orderBy: (exam, { asc }) => [asc(exam.order), asc(exam.id)],
+    });
+  }),
+
+  getMockExamById: adminProcedure
+    .input(z.object({ id: z.number().int().positive() }))
+    .query(async ({ ctx, input }) => {
+      return (
+        (await ctx.db.query.mockExams.findFirst({
+          where: eq(mockExams.id, input.id),
+          with: { parts: true },
+        })) ?? null
+      );
+    }),
+
+  getMockExamOptions: adminProcedure.query(async ({ ctx }) => {
+    const [audio, reading, chains] = await Promise.all([
+      ctx.db.query.audioTasks.findMany({
+        where: eq(audioTasks.isDeleted, false),
+        with: { topic: true },
+        orderBy: (task, { asc }) => [asc(task.id)],
+      }),
+      ctx.db.query.readingTasks.findMany({
+        where: eq(readingTasks.isDeleted, false),
+        with: { topic: true },
+        orderBy: (task, { asc }) => [asc(task.id)],
+      }),
+      ctx.db.query.uoeTaskChains.findMany({
+        where: eq(uoeTaskChains.isDeleted, false),
+        with: {
+          topic: true,
+          items: {
+            with: { task: true },
+            orderBy: (item, { asc }) => [asc(item.position)],
+          },
+        },
+        orderBy: (chain, { asc }) => [asc(chain.id)],
+      }),
+    ]);
+
+    return MOCK_EXAM_SLOT_ORDER.map((slot) => {
+      const meta = MOCK_EXAM_SLOT_META[slot];
+      const options =
+        meta.kind === "audio"
+          ? audio
+              .filter(
+                (task) =>
+                  task.topic?.isActive && task.topic.title === meta.topicTitle,
+              )
+              .map((task) => {
+                const question = task.questions[0];
+                return {
+                  id: task.id,
+                  topicTitle: task.topic?.title ?? "",
+                  type: task.taskType,
+                  total: task.answers.length,
+                  preview:
+                    typeof question === "string"
+                      ? question
+                      : (question?.questionText ?? `Аудиозадание #${task.id}`),
+                };
+              })
+          : meta.kind === "reading"
+            ? reading
+                .filter(
+                  (task) =>
+                    task.topic?.isActive &&
+                    task.topic.title === meta.topicTitle,
+                )
+                .map((task) => ({
+                  id: task.id,
+                  topicTitle: task.topic?.title ?? "",
+                  type: task.taskType,
+                  total: task.answers.length,
+                  preview:
+                    task.texts[0]?.slice(0, 160) ?? `Задание #${task.id}`,
+                }))
+            : chains
+                .filter(
+                  (chain) =>
+                    chain.topic?.isActive &&
+                    chain.topic.title === meta.topicTitle &&
+                    chain.items.length > 0 &&
+                    chain.items.every((item) => !item.task.isDeleted),
+                )
+                .map((chain) => ({
+                  id: chain.id,
+                  topicTitle: chain.topic?.title ?? "",
+                  type: "chain",
+                  total: chain.items.length,
+                  preview:
+                    chain.items[0]?.task.task.slice(0, 160) ??
+                    `Цепочка #${chain.id}`,
+                }));
+      return { slot, label: meta.label, kind: meta.kind, options };
+    });
+  }),
+
+  createMockExam: adminProcedure
+    .input(mockExamInputSchema)
+    .mutation(async ({ ctx, input }) => {
+      const duplicates = await ctx.db.query.mockExams.findMany();
+      if (
+        duplicates.some(
+          (exam) =>
+            exam.title.toLowerCase() === input.title.trim().toLowerCase() ||
+            exam.order === input.order,
+        )
+      ) {
+        throw new TRPCError({
+          code: "CONFLICT",
+          message:
+            "Вариант с таким названием или порядковым номером уже существует",
+        });
+      }
+      await validateMockExamParts(ctx.db, input.parts);
+      return await ctx.db.transaction(async (tx) => {
+        const [exam] = await tx
+          .insert(mockExams)
+          .values({ title: input.title.trim(), order: input.order })
+          .returning();
+        if (!exam) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Не удалось создать вариант",
+          });
+        }
+        await tx
+          .insert(mockExamParts)
+          .values(input.parts.map((part) => partValues(exam.id, part)));
+        return exam;
+      });
+    }),
+
+  updateMockExam: adminProcedure
+    .input(mockExamInputSchema.extend({ id: z.number().int().positive() }))
+    .mutation(async ({ ctx, input }) => {
+      const duplicates = await ctx.db.query.mockExams.findMany();
+      if (
+        duplicates.some(
+          (exam) =>
+            exam.id !== input.id &&
+            (exam.title.toLowerCase() === input.title.trim().toLowerCase() ||
+              exam.order === input.order),
+        )
+      ) {
+        throw new TRPCError({
+          code: "CONFLICT",
+          message:
+            "Вариант с таким названием или порядковым номером уже существует",
+        });
+      }
+      await validateMockExamParts(ctx.db, input.parts);
+      return await ctx.db.transaction(async (tx) => {
+        const [exam] = await tx
+          .update(mockExams)
+          .set({
+            title: input.title.trim(),
+            order: input.order,
+            updatedAt: new Date(),
+          })
+          .where(eq(mockExams.id, input.id))
+          .returning();
+        if (!exam) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Вариант не найден",
+          });
+        }
+        await tx
+          .delete(mockExamParts)
+          .where(eq(mockExamParts.mockExamId, input.id));
+        await tx
+          .insert(mockExamParts)
+          .values(input.parts.map((part) => partValues(exam.id, part)));
+        return exam;
+      });
+    }),
+
+  getMockExamResults: adminProcedure.query(async ({ ctx }) => {
+    const rows = await ctx.db.query.userResults.findMany({
+      where: eq(userResults.activityType, "mock_exam"),
+      columns: { id: true, result: true, createdAt: true },
+      extras: {
+        mockExamTitle: sql<
+          string | null
+        >`${userResults.details} -> 'mockExam' ->> 'title'`.as(
+          "mock_exam_title",
+        ),
+        timedOut: sql<
+          boolean | null
+        >`CASE WHEN jsonb_typeof(${userResults.details} -> 'timedOut') = 'boolean' THEN (${userResults.details} ->> 'timedOut')::boolean ELSE NULL END`.as(
+          "mock_exam_timed_out",
+        ),
+        percentage: sql<
+          number | null
+        >`CASE WHEN jsonb_typeof(${userResults.details} -> 'percentage') = 'number' THEN (${userResults.details} ->> 'percentage')::integer ELSE NULL END`.as(
+          "mock_exam_percentage",
+        ),
+        grade: sql<
+          number | null
+        >`CASE WHEN jsonb_typeof(${userResults.details} -> 'grade') = 'number' THEN (${userResults.details} ->> 'grade')::integer ELSE NULL END`.as(
+          "mock_exam_grade",
+        ),
+        timeSpent: sql<
+          number | null
+        >`CASE WHEN jsonb_typeof(${userResults.details} -> 'timeSpent') = 'number' THEN (${userResults.details} ->> 'timeSpent')::integer ELSE NULL END`.as(
+          "mock_exam_time_spent",
+        ),
+      },
+      with: { user: { columns: { name: true, email: true } } },
+      orderBy: (result, { desc }) => [desc(result.createdAt)],
+    });
+    return rows.flatMap((row) => {
+      if (
+        row.mockExamTitle === null ||
+        row.timedOut === null ||
+        row.percentage === null ||
+        row.grade === null ||
+        row.timeSpent === null
+      ) {
+        return [];
+      }
+      return [
+        {
+          ...row,
+          mockExamTitle: row.mockExamTitle,
+          timedOut: row.timedOut,
+          percentage: row.percentage,
+          grade: row.grade,
+          timeSpent: row.timeSpent,
+        },
+      ];
+    });
+  }),
+
+  getMockExamResultById: adminProcedure
+    .input(z.object({ id: z.number().int().positive() }))
+    .query(async ({ ctx, input }) => {
+      const row = await ctx.db.query.userResults.findFirst({
+        where: and(
+          eq(userResults.id, input.id),
+          eq(userResults.activityType, "mock_exam"),
+        ),
+        with: { user: { columns: { name: true, email: true } } },
+      });
+      return row && isMockExamResultDetails(row.details)
+        ? { ...row, details: row.details }
+        : null;
+    }),
+
   getTrainingResults: adminProcedure.query(async ({ ctx }) => {
     const results = await ctx.db.query.userResults.findMany({
-      where: eq(userResults.activityType, "training"),
+      where: inArray(userResults.activityType, [
+        "training",
+        "training_exam_mode",
+      ]),
       with: {
         user: {
           columns: {
@@ -485,12 +896,26 @@ export const adminRouter = createTRPCRouter({
   deleteAudioTasks: adminProcedure
     .input(z.object({ ids: z.array(z.number()).min(1) }))
     .mutation(async ({ ctx, input }) => {
-      await ctx.db
-        .update(audioTasks)
-        .set({ isDeleted: true })
-        .where(inArray(audioTasks.id, input.ids));
-
-      return { success: true, deletedCount: input.ids.length };
+      return await ctx.db.transaction(async (tx) => {
+        const links = await tx.query.mockExamParts.findMany({
+          where: inArray(mockExamParts.audioTaskId, input.ids),
+          with: { mockExam: true },
+        });
+        if (links.length > 0) {
+          const variants = [
+            ...new Set(links.map((link) => link.mockExam.title)),
+          ];
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: `Нельзя удалить задания: они используются в вариантах ${variants.join(", ")}`,
+          });
+        }
+        await tx
+          .update(audioTasks)
+          .set({ isDeleted: true })
+          .where(inArray(audioTasks.id, input.ids));
+        return { success: true, deletedCount: input.ids.length };
+      });
     }),
 
   getReadingTopics: adminProcedure.query(async ({ ctx }) => {
@@ -631,12 +1056,26 @@ export const adminRouter = createTRPCRouter({
   deleteReadingTasks: adminProcedure
     .input(z.object({ ids: z.array(z.number()).min(1) }))
     .mutation(async ({ ctx, input }) => {
-      await ctx.db
-        .update(readingTasks)
-        .set({ isDeleted: true })
-        .where(inArray(readingTasks.id, input.ids));
-
-      return { success: true, deletedCount: input.ids.length };
+      return await ctx.db.transaction(async (tx) => {
+        const links = await tx.query.mockExamParts.findMany({
+          where: inArray(mockExamParts.readingTaskId, input.ids),
+          with: { mockExam: true },
+        });
+        if (links.length > 0) {
+          const variants = [
+            ...new Set(links.map((link) => link.mockExam.title)),
+          ];
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: `Нельзя удалить задания: они используются в вариантах ${variants.join(", ")}`,
+          });
+        }
+        await tx
+          .update(readingTasks)
+          .set({ isDeleted: true })
+          .where(inArray(readingTasks.id, input.ids));
+        return { success: true, deletedCount: input.ids.length };
+      });
     }),
 
   getUoeTopics: adminProcedure.query(async ({ ctx }) => {
@@ -650,11 +1089,17 @@ export const adminRouter = createTRPCRouter({
     .input(
       z.object({
         search: z.string().default(""),
+        chainTopicId: z.number().int().positive(),
         topicId: z.number().int().positive().optional(),
         limit: z.number().int().min(1).max(100).default(50),
       }),
     )
     .query(async ({ ctx, input }) => {
+      const chainTopic = await ctx.db.query.trainingTopics.findFirst({
+        where: eq(trainingTopics.id, input.chainTopicId),
+      });
+      if (!isAllowedChainTopic(chainTopic)) return [];
+
       const tasks = await ctx.db.query.uoeTasks.findMany({
         where: and(
           eq(uoeTasks.isDeleted, false),
@@ -673,7 +1118,10 @@ export const adminRouter = createTRPCRouter({
           if (
             !topic?.isActive ||
             topic.category !== "use-of-english" ||
-            topic.title === "Словообразование"
+            (chainTopic.title === "Словообразование"
+              ? topic.title !== "Словообразование"
+              : topic.title === "Словообразование" ||
+                topic.title === "По всем темам")
           ) {
             return false;
           }
@@ -694,6 +1142,7 @@ export const adminRouter = createTRPCRouter({
     return await ctx.db.query.uoeTaskChains.findMany({
       where: eq(uoeTaskChains.isDeleted, false),
       with: {
+        topic: true,
         items: {
           orderBy: (items, { asc }) => [asc(items.position)],
           with: { task: { with: { topic: true } } },
@@ -712,6 +1161,7 @@ export const adminRouter = createTRPCRouter({
           eq(uoeTaskChains.isDeleted, false),
         ),
         with: {
+          topic: true,
           items: {
             orderBy: (items, { asc }) => [asc(items.position)],
             with: { task: { with: { topic: true } } },
@@ -723,18 +1173,28 @@ export const adminRouter = createTRPCRouter({
     }),
 
   createUoeTaskChain: adminProcedure
-    .input(z.object({ taskIds: uoeChainTaskIdsSchema }))
+    .input(uoeChainInputSchema)
     .mutation(async ({ ctx, input }) => {
       return await ctx.db.transaction(async (tx) => {
+        const chainTopic = await tx.query.trainingTopics.findFirst({
+          where: eq(trainingTopics.id, input.topicId),
+        });
+        if (!isAllowedChainTopic(chainTopic)) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Выберите доступную тему цепочки",
+          });
+        }
+
         const tasks = await tx.query.uoeTasks.findMany({
           where: inArray(uoeTasks.id, input.taskIds),
           with: { topic: true },
         });
-        validateChainCandidateTasks(tasks, input.taskIds);
+        validateChainCandidateTasks(tasks, input.taskIds, chainTopic);
 
         const [chain] = await tx
           .insert(uoeTaskChains)
-          .values({ isDeleted: false })
+          .values({ topicId: chainTopic.id, isDeleted: false })
           .returning();
         if (!chain) {
           throw new TRPCError({
@@ -770,6 +1230,7 @@ export const adminRouter = createTRPCRouter({
             eq(uoeTaskChains.isDeleted, false),
           ),
           columns: { id: true },
+          with: { topic: true },
         });
         if (!chain) {
           throw new TRPCError({
@@ -782,7 +1243,13 @@ export const adminRouter = createTRPCRouter({
           where: inArray(uoeTasks.id, input.taskIds),
           with: { topic: true },
         });
-        validateChainCandidateTasks(tasks, input.taskIds);
+        if (!isAllowedChainTopic(chain.topic)) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "У цепочки выбрана недоступная тема",
+          });
+        }
+        validateChainCandidateTasks(tasks, input.taskIds, chain.topic);
 
         await tx
           .delete(uoeTaskChainItems)
@@ -802,6 +1269,18 @@ export const adminRouter = createTRPCRouter({
   deleteUoeTaskChain: adminProcedure
     .input(z.object({ id: z.number().int().positive() }))
     .mutation(async ({ ctx, input }) => {
+      const links = await ctx.db.query.mockExamParts.findMany({
+        where: eq(mockExamParts.uoeTaskChainId, input.id),
+        with: { mockExam: true },
+      });
+      if (links.length > 0) {
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: `Нельзя удалить цепочку: она используется в вариантах ${[
+            ...new Set(links.map((link) => link.mockExam.title)),
+          ].join(", ")}`,
+        });
+      }
       const [deleted] = await ctx.db
         .update(uoeTaskChains)
         .set({ isDeleted: true })
@@ -942,33 +1421,43 @@ export const adminRouter = createTRPCRouter({
           });
         }
 
-        const makesLinkedTaskInvalid =
-          !topic.isActive ||
-          topic.category !== "use-of-english" ||
-          topic.title === "Словообразование";
-        if (makesLinkedTaskInvalid) {
-          const linkedChains = await tx
-            .select({ chainId: uoeTaskChainItems.chainId })
-            .from(uoeTaskChainItems)
-            .innerJoin(
-              uoeTaskChains,
-              eq(uoeTaskChains.id, uoeTaskChainItems.chainId),
-            )
-            .where(
-              and(
-                eq(uoeTaskChainItems.taskId, input.id),
-                eq(uoeTaskChains.isDeleted, false),
-              ),
-            );
+        const linkedChains = await tx
+          .select({
+            chainId: uoeTaskChainItems.chainId,
+            chainTopicTitle: trainingTopics.title,
+          })
+          .from(uoeTaskChainItems)
+          .innerJoin(
+            uoeTaskChains,
+            eq(uoeTaskChains.id, uoeTaskChainItems.chainId),
+          )
+          .innerJoin(
+            trainingTopics,
+            eq(trainingTopics.id, uoeTaskChains.topicId),
+          )
+          .where(
+            and(
+              eq(uoeTaskChainItems.taskId, input.id),
+              eq(uoeTaskChains.isDeleted, false),
+            ),
+          );
+        const invalidLinkedChains = linkedChains.filter(
+          ({ chainTopicTitle }) =>
+            !topic.isActive ||
+            topic.category !== "use-of-english" ||
+            (chainTopicTitle === "Словообразование"
+              ? topic.title !== "Словообразование"
+              : topic.title === "Словообразование" ||
+                topic.title === "По всем темам"),
+        );
 
-          if (linkedChains.length > 0) {
-            throw new TRPCError({
-              code: "CONFLICT",
-              message: `Задание #${input.id} используется в цепочках ${linkedChains
-                .map(({ chainId }) => `#${chainId}`)
-                .join(", ")} и не может быть перенесено в выбранную тему`,
-            });
-          }
+        if (invalidLinkedChains.length > 0) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: `Задание #${input.id} используется в цепочках ${invalidLinkedChains
+              .map(({ chainId }) => `#${chainId}`)
+              .join(", ")} и не может быть перенесено в выбранную тему`,
+          });
         }
 
         const [updated] = await tx

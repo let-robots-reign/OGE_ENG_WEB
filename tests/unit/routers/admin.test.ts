@@ -6,6 +6,7 @@ const mockUpdateSet = vi.fn();
 
 vi.mock("@/server/db", () => ({
   db: {
+    transaction: vi.fn(),
     select: vi.fn(),
     insert: vi.fn(() => ({
       values: mockInsertValues,
@@ -28,6 +29,9 @@ vi.mock("@/server/db", () => ({
       readingTasks: {
         findMany: vi.fn(),
         findFirst: vi.fn(),
+      },
+      mockExamParts: {
+        findMany: vi.fn(),
       },
     },
   },
@@ -59,6 +63,7 @@ import {
   adminRouter,
   audioTaskInputSchema,
   readingTaskInputSchema,
+  uoeChainInputSchema,
   uoeChainTaskIdsSchema,
 } from "@/server/api/routers/admin";
 import { createCallerFactory } from "@/server/api/trpc";
@@ -70,6 +75,10 @@ const createCaller = createCallerFactory(adminRouter);
 describe("Admin Router tRPC Procedures", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(db.transaction).mockImplementation(
+      async (callback: any) => await callback(db as any),
+    );
+    vi.mocked(db.query.mockExamParts.findMany).mockResolvedValue([] as any);
   });
 
   describe("getTrainingResults", () => {
@@ -155,6 +164,47 @@ describe("Admin Router tRPC Procedures", () => {
       expect(res).toHaveLength(1);
       expect(res[0]!.user.name).toBe("Masha");
       expect(res[0]!.details.feedback).toBe("Well done");
+    });
+  });
+
+  describe("getMockExamResults", () => {
+    it("selects only lightweight fields needed by the admin table", async () => {
+      vi.mocked(db.query.userResults.findMany).mockResolvedValue([
+        {
+          id: 7,
+          result: "32/47",
+          createdAt: new Date("2026-09-03T10:00:00Z"),
+          user: { name: "Masha", email: "masha@example.com" },
+          mockExamTitle: "Вариант 1",
+          timedOut: false,
+          percentage: 68,
+          grade: 4,
+          timeSpent: 3600,
+        },
+      ] as any);
+
+      const caller = createCaller({
+        db: db as any,
+        session: { user: { id: "admin-1", role: "admin" }, expires: "" },
+        headers: new Headers(),
+      });
+
+      const result = await caller.getMockExamResults();
+      expect(result[0]).toMatchObject({
+        id: 7,
+        mockExamTitle: "Вариант 1",
+        percentage: 68,
+        grade: 4,
+      });
+      const query = vi
+        .mocked(db.query.userResults.findMany)
+        .mock.calls.at(-1)?.[0];
+      expect(query?.columns).toEqual({
+        id: true,
+        result: true,
+        createdAt: true,
+      });
+      expect(query?.columns).not.toHaveProperty("details");
     });
   });
 
@@ -328,6 +378,15 @@ describe("Admin Router tRPC Procedures", () => {
       expect(
         uoeChainTaskIdsSchema.safeParse([1, 2, 3, 4, 5, 6, 7, 8, 8]).success,
       ).toBe(false);
+    });
+
+    it("requires a topic when creating a chain", () => {
+      const taskIds = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+      expect(
+        uoeChainInputSchema.safeParse({ topicId: 7, taskIds }).success,
+      ).toBe(true);
+      expect(uoeChainInputSchema.safeParse({ taskIds }).success).toBe(false);
     });
   });
 });

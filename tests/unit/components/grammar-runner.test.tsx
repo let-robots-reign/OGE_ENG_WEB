@@ -32,12 +32,10 @@ global.window.scrollTo = vi.fn();
 
 // Mock tRPC Queries and Mutations
 const mockCheckGrammar = vi.fn();
-const mockSubmitAnswers = vi.fn();
 const mockGetStreakInvalidate = vi.fn();
 const mockGetActivityInvalidate = vi.fn();
 
 let checkGrammarOnSuccess: any = null;
-let submitAnswersOnSuccess: any = null;
 
 vi.mock("@/trpc/react", () => ({
   api: {
@@ -60,22 +58,6 @@ vi.mock("@/trpc/react", () => ({
             },
             isPending: false,
             error: null,
-          };
-        }),
-      },
-    },
-    training: {
-      submitAnswers: {
-        useMutation: vi.fn((options) => {
-          submitAnswersOnSuccess = options?.onSuccess;
-          return {
-            mutate: (payload: any) => {
-              mockSubmitAnswers(payload);
-              if (submitAnswersOnSuccess) {
-                submitAnswersOnSuccess();
-              }
-            },
-            isPending: false,
           };
         }),
       },
@@ -224,14 +206,6 @@ describe("GrammarRunner Component Suite", () => {
 
     // Check checkGrammar called
     expect(mockCheckGrammar).toHaveBeenCalled();
-
-    // Check submitAnswers called
-    expect(mockSubmitAnswers).toHaveBeenCalledWith(
-      expect.objectContaining({
-        activityType: "diagnostics",
-        activityId: 1,
-      }),
-    );
 
     // Check PostHog events captured
     expect(posthog.capture).toHaveBeenCalledWith(

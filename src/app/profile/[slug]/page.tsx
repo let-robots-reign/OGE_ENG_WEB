@@ -18,7 +18,7 @@ export default async function ProfilePage() {
   const [profileData, subjects, recent] = await Promise.all([
     api.user.getProfileHeader(),
     api.user.getSubjectProgress(),
-    api.user.getRecentActivity({ limit: 8 }),
+    api.user.getRecentActivity({ limit: 50 }),
   ]);
 
   const initials = getInitials(profileData.name, profileData.email);

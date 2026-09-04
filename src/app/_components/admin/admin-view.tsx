@@ -4,8 +4,9 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { z } from "zod";
 import { api } from "@/trpc/react";
+import { getMockExamGradeBadgeClass } from "@/app/_utils/mockExamGrade";
 
-const tabsOptions = z.enum(["training", "diagnostics"]);
+const tabsOptions = z.enum(["training", "mock-exams", "diagnostics"]);
 type Tab = z.infer<typeof tabsOptions>;
 
 // Category pill tones mirror the subject tones used on home/profile.
@@ -39,6 +40,13 @@ const formatTime = (d: Date): string =>
     minute: "2-digit",
     hour12: false,
   }).format(d);
+
+const formatDuration = (seconds: number) => {
+  const minutes = Math.round(seconds / 60);
+  return minutes >= 60
+    ? `${Math.floor(minutes / 60)} ч ${minutes % 60} м`
+    : `${minutes} м`;
+};
 
 const thClass =
   "bg-surface-2 px-5 py-3 text-left font-mono text-[11px] font-medium uppercase tracking-[0.1em] text-ink-4";
@@ -122,8 +130,17 @@ export function AdminView() {
       enabled: activeTab === "diagnostics",
     });
 
+  const { data: mockExamData, isLoading: isLoadingMockExams } =
+    api.admin.getMockExamResults.useQuery(undefined, {
+      enabled: activeTab === "mock-exams",
+    });
+
   const rowCount =
-    activeTab === "training" ? trainingData?.length : diagnosticsData?.length;
+    activeTab === "training"
+      ? trainingData?.length
+      : activeTab === "mock-exams"
+        ? mockExamData?.length
+        : diagnosticsData?.length;
 
   return (
     <div className="px-2 pt-4 pb-16 sm:px-4 lg:px-8">
@@ -134,7 +151,9 @@ export function AdminView() {
             <h1 className="font-display text-[32px] leading-none tracking-[-0.03em] sm:text-[44px]">
               {activeTab === "training"
                 ? "Результаты тренировок"
-                : "Результаты диагностик"}
+                : activeTab === "mock-exams"
+                  ? "Результаты вариантов"
+                  : "Результаты диагностик"}
             </h1>
           </div>
           {rowCount != null && (
@@ -202,6 +221,71 @@ export function AdminView() {
                       </tr>
                     );
                   })
+                )}
+              </tbody>
+            </table>
+          ) : activeTab === "mock-exams" ? (
+            <table className="w-full min-w-[1080px] border-collapse">
+              <thead>
+                <tr>
+                  <th className={`${thClass} w-[110px]`}>Когда</th>
+                  <th className={thClass}>Пользователь</th>
+                  <th className={thClass}>Вариант</th>
+                  <th className={`${thClass} w-[110px]`}>Результат</th>
+                  <th className={`${thClass} w-[90px]`}>Процент</th>
+                  <th className={`${thClass} w-[90px]`}>Оценка</th>
+                  <th className={`${thClass} w-[110px]`}>Время</th>
+                  <th className={`${thClass} w-[130px]`}></th>
+                </tr>
+              </thead>
+              <tbody>
+                {isLoadingMockExams ? (
+                  <StateRow colSpan={8}>Загрузка данных...</StateRow>
+                ) : !mockExamData || mockExamData.length === 0 ? (
+                  <StateRow colSpan={8}>
+                    Пока нет завершённых вариантов.
+                  </StateRow>
+                ) : (
+                  mockExamData.map((r) => (
+                    <tr
+                      key={r.id}
+                      className="transition-colors hover:bg-[rgba(79,70,255,0.025)] last:[&>td]:border-b-0"
+                    >
+                      <td className={tdClass}>
+                        <WhenCell date={r.createdAt} />
+                      </td>
+                      <td className={tdClass}>
+                        <UserCell name={r.user.name} email={r.user.email} />
+                      </td>
+                      <td className={`${tdClass} font-medium`}>
+                        {r.mockExamTitle}
+                      </td>
+                      <td className={tdClass}>
+                        <ResultCell result={r.result} />
+                      </td>
+                      <td className={`${tdClass} font-mono`}>
+                        {r.percentage}%
+                      </td>
+                      <td className={tdClass}>
+                        <span
+                          className={`${getMockExamGradeBadgeClass(r.grade)} grid size-8 place-items-center rounded-full font-semibold`}
+                        >
+                          {r.grade}
+                        </span>
+                      </td>
+                      <td className={`${tdClass} font-mono text-[13px]`}>
+                        {formatDuration(r.timeSpent)}
+                      </td>
+                      <td className={`${tdClass} text-right`}>
+                        <Link
+                          href={`/admin/mock-exams/results/${r.id}`}
+                          className="text-accent text-[14px] font-medium hover:underline"
+                        >
+                          Просмотреть&nbsp;→
+                        </Link>
+                      </td>
+                    </tr>
+                  ))
                 )}
               </tbody>
             </table>

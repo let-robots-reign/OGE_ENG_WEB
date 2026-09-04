@@ -122,15 +122,22 @@ export function UoeTaskChainFormView({ chainId }: { chainId?: number }) {
   const isEditMode = chainId !== undefined;
   const [search, setSearch] = useState("");
   const [topicId, setTopicId] = useState<number | undefined>();
+  const [chainTopicId, setChainTopicId] = useState<number | undefined>();
   const [selectedTasks, setSelectedTasks] = useState<CatalogTask[]>([]);
   const [initialTaskIds, setInitialTaskIds] = useState<number[] | null>(
     isEditMode ? null : [],
   );
+  const [initialChainTopicId, setInitialChainTopicId] = useState<
+    number | undefined | null
+  >(isEditMode ? null : undefined);
   const [formError, setFormError] = useState<string | null>(null);
 
   const { data: topics } = api.admin.getUoeTopics.useQuery();
   const { data: catalog = [], isLoading: isCatalogLoading } =
-    api.admin.getUoeChainCatalog.useQuery({ search, topicId, limit: 50 });
+    api.admin.getUoeChainCatalog.useQuery(
+      { search, chainTopicId: chainTopicId!, topicId, limit: 50 },
+      { enabled: chainTopicId !== undefined },
+    );
   const { data: existingChain, isLoading: isChainLoading } =
     api.admin.getUoeTaskChainById.useQuery(
       { id: chainId! },
@@ -140,6 +147,8 @@ export function UoeTaskChainFormView({ chainId }: { chainId?: number }) {
   useEffect(() => {
     if (!existingChain || initialTaskIds !== null) return;
     const tasks = existingChain.items.map((item) => item.task);
+    setChainTopicId(existingChain.topicId);
+    setInitialChainTopicId(existingChain.topicId);
     setSelectedTasks(tasks);
     setInitialTaskIds(tasks.map((task) => task.id));
   }, [existingChain, initialTaskIds]);
@@ -147,7 +156,9 @@ export function UoeTaskChainFormView({ chainId }: { chainId?: number }) {
   const selectedIds = selectedTasks.map((task) => task.id);
   const isDirty =
     initialTaskIds !== null &&
-    selectedIds.join(",") !== initialTaskIds.join(",");
+    initialChainTopicId !== null &&
+    (selectedIds.join(",") !== initialTaskIds.join(",") ||
+      chainTopicId !== initialChainTopicId);
 
   useEffect(() => {
     const handleBeforeUnload = (event: BeforeUnloadEvent) => {
@@ -184,6 +195,23 @@ export function UoeTaskChainFormView({ chainId }: { chainId?: number }) {
     [topics],
   );
 
+  const chainTopicOptions = useMemo(
+    () =>
+      topics
+        ?.filter(
+          (topic) =>
+            topic.isActive &&
+            (topic.title === "По всем темам" ||
+              topic.title === "Словообразование"),
+        )
+        .map((topic) => ({ value: topic.id, label: topic.title })) ?? [],
+    [topics],
+  );
+
+  const chainTopicTitle = chainTopicOptions.find(
+    (option) => option.value === chainTopicId,
+  )?.label;
+
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
     if (!over || active.id === over.id) return;
     setSelectedTasks((current) => {
@@ -207,7 +235,7 @@ export function UoeTaskChainFormView({ chainId }: { chainId?: number }) {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (selectedTasks.length !== 9) return;
+    if (selectedTasks.length !== 9 || chainTopicId === undefined) return;
     setFormError(null);
 
     try {
@@ -215,13 +243,14 @@ export function UoeTaskChainFormView({ chainId }: { chainId?: number }) {
       if (chainId !== undefined) {
         await updateMutation.mutateAsync({ id: chainId, taskIds });
       } else {
-        await createMutation.mutateAsync({ taskIds });
+        await createMutation.mutateAsync({ topicId: chainTopicId, taskIds });
       }
       await utils.admin.getUoeTaskChains.invalidate();
       if (chainId !== undefined) {
         await utils.admin.getUoeTaskChainById.invalidate({ id: chainId });
       }
       setInitialTaskIds(taskIds);
+      setInitialChainTopicId(chainTopicId);
       router.push("/admin/tasks/uoe?tab=chains");
     } catch (error) {
       setFormError(
@@ -267,6 +296,28 @@ export function UoeTaskChainFormView({ chainId }: { chainId?: number }) {
           Добавьте ровно 9 заданий и расположите предложения в порядке связного
           текста.
         </p>
+        <div className="mt-4 max-w-sm">
+          <label className="text-ink-2 mb-1.5 block text-sm font-medium">
+            Тема цепочки
+          </label>
+          {isEditMode ? (
+            <div className="bg-surface-2 border-line rounded-lg border px-3.5 py-2 text-sm">
+              {chainTopicTitle ?? "Загрузка..."}
+            </div>
+          ) : (
+            <CustomSelect
+              options={chainTopicOptions}
+              value={chainTopicId}
+              onChange={(value) => {
+                setChainTopicId(value);
+                setTopicId(undefined);
+                setSelectedTasks([]);
+              }}
+              placeholder="Выберите тему"
+              className="w-full"
+            />
+          )}
+        </div>
       </div>
 
       {formError && (
@@ -286,16 +337,24 @@ export function UoeTaskChainFormView({ chainId }: { chainId?: number }) {
               aria-label="Поиск заданий"
               className="bg-surface-2 border-line min-w-0 flex-1 rounded-lg border px-3.5 py-2 text-sm"
             />
-            <CustomSelect
-              options={topicOptions}
-              value={topicId ?? 0}
-              onChange={(value) => setTopicId(value === 0 ? undefined : value)}
-              className="w-full sm:w-56"
-            />
+            {chainTopicTitle !== "Словообразование" && (
+              <CustomSelect
+                options={topicOptions}
+                value={topicId ?? 0}
+                onChange={(value) =>
+                  setTopicId(value === 0 ? undefined : value)
+                }
+                className="w-full sm:w-56"
+              />
+            )}
           </div>
 
           <div className="mt-4 max-h-[680px] space-y-2 overflow-y-auto pr-1">
-            {isCatalogLoading ? (
+            {chainTopicId === undefined ? (
+              <div className="text-ink-3 py-10 text-center text-sm">
+                Сначала выберите тему цепочки.
+              </div>
+            ) : isCatalogLoading ? (
               <div className="text-ink-3 py-10 text-center text-sm">
                 Загрузка заданий...
               </div>
@@ -417,7 +476,9 @@ export function UoeTaskChainFormView({ chainId }: { chainId?: number }) {
         </Link>
         <button
           type="submit"
-          disabled={selectedTasks.length !== 9 || isSaving}
+          disabled={
+            chainTopicId === undefined || selectedTasks.length !== 9 || isSaving
+          }
           className="bg-ink text-on-ink rounded-lg px-6 py-2.5 text-sm font-medium disabled:opacity-40"
         >
           {isSaving ? "Сохранение..." : "Сохранить цепочку"}

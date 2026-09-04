@@ -21,12 +21,6 @@ vi.mock("next/navigation", () => ({
   }),
 }));
 
-vi.mock("next-auth/react", () => ({
-  useSession: vi.fn(() => ({
-    data: { user: { id: "user-1" } },
-  })),
-}));
-
 vi.mock("posthog-js", () => ({
   default: {
     capture: vi.fn(),
@@ -47,7 +41,6 @@ const mockCheckUoe = vi.fn();
 const mockCheckListening = vi.fn();
 const mockCheckReading = vi.fn();
 const mockCheckWriting = vi.fn();
-const mockSubmitAnswers = vi.fn();
 
 vi.mock("@/trpc/react", () => ({
   api: {
@@ -86,16 +79,6 @@ vi.mock("@/trpc/react", () => ({
         useMutation: vi.fn(() => ({
           mutateAsync: mockCheckWriting,
           isPending: false,
-        })),
-      },
-      getTopicByTopicTitle: {
-        useQuery: vi.fn(() => ({
-          data: { id: 777 },
-        })),
-      },
-      submitAnswers: {
-        useMutation: vi.fn(() => ({
-          mutate: mockSubmitAnswers,
         })),
       },
     },
@@ -150,18 +133,20 @@ describe("Training Runners Integration Suite", () => {
       fireEvent.click(checkBtn);
 
       await waitFor(() => {
-        expect(mockCheckUoe).toHaveBeenCalledWith({
-          chainId: 55,
-          answers: [{ id: 101, answer: "RUNNING" }],
-        });
+        expect(mockCheckUoe).toHaveBeenCalledWith(
+          expect.objectContaining({
+            chainId: 55,
+            answers: [{ id: 101, answer: "RUNNING" }],
+            timeSpent: expect.any(Number),
+          }),
+        );
       });
 
-      // PostHog and submitAnswers should be triggered
+      // Completion analytics should be triggered after the server saves it.
       expect(posthog.capture).toHaveBeenCalledWith(
         "training_completed",
         expect.objectContaining({ chain_id: 55 }),
       );
-      expect(mockSubmitAnswers).toHaveBeenCalled();
     });
 
     it("should show loading spinner when data is fetching", () => {
@@ -202,9 +187,12 @@ describe("Training Runners Integration Suite", () => {
       fireEvent.click(checkBtn);
 
       await waitFor(() => {
-        expect(mockCheckUoe).toHaveBeenCalledWith({
-          answers: [{ id: 101, answer: "RUNNING" }],
-        });
+        expect(mockCheckUoe).toHaveBeenCalledWith(
+          expect.objectContaining({
+            answers: [{ id: 101, answer: "RUNNING" }],
+            timeSpent: expect.any(Number),
+          }),
+        );
       });
     });
   });
@@ -251,10 +239,13 @@ describe("Training Runners Integration Suite", () => {
       fireEvent.click(checkBtn);
 
       await waitFor(() => {
-        expect(mockCheckListening).toHaveBeenCalledWith({
-          id: 201,
-          answers: [1],
-        });
+        expect(mockCheckListening).toHaveBeenCalledWith(
+          expect.objectContaining({
+            id: 201,
+            answers: [1],
+            timeSpent: expect.any(Number),
+          }),
+        );
       });
     });
 
@@ -310,10 +301,13 @@ describe("Training Runners Integration Suite", () => {
       fireEvent.click(checkBtn);
 
       await waitFor(() => {
-        expect(mockCheckListening).toHaveBeenCalledWith({
-          id: 202,
-          answers: [1, 2, 3, 4, 5],
-        });
+        expect(mockCheckListening).toHaveBeenCalledWith(
+          expect.objectContaining({
+            id: 202,
+            answers: [1, 2, 3, 4, 5],
+            timeSpent: expect.any(Number),
+          }),
+        );
       });
     });
 
@@ -376,10 +370,20 @@ describe("Training Runners Integration Suite", () => {
       fireEvent.click(checkBtn);
 
       await waitFor(() => {
-        expect(mockCheckListening).toHaveBeenCalledWith({
-          id: 203,
-          answers: ["FIFTEEN", "MAY", "SWIMMING", "MATHS", "FRENCH", "DOCTOR"],
-        });
+        expect(mockCheckListening).toHaveBeenCalledWith(
+          expect.objectContaining({
+            id: 203,
+            answers: [
+              "FIFTEEN",
+              "MAY",
+              "SWIMMING",
+              "MATHS",
+              "FRENCH",
+              "DOCTOR",
+            ],
+            timeSpent: expect.any(Number),
+          }),
+        );
       });
     });
   });
@@ -439,10 +443,13 @@ describe("Training Runners Integration Suite", () => {
       fireEvent.click(checkBtn);
 
       await waitFor(() => {
-        expect(mockCheckReading).toHaveBeenCalledWith({
-          id: 301,
-          answers: [1, 2],
-        });
+        expect(mockCheckReading).toHaveBeenCalledWith(
+          expect.objectContaining({
+            id: 301,
+            answers: [1, 2],
+            timeSpent: expect.any(Number),
+          }),
+        );
       });
     });
 
@@ -495,10 +502,13 @@ describe("Training Runners Integration Suite", () => {
       fireEvent.click(checkBtn);
 
       await waitFor(() => {
-        expect(mockCheckReading).toHaveBeenCalledWith({
-          id: 302,
-          answers: [2, 3],
-        });
+        expect(mockCheckReading).toHaveBeenCalledWith(
+          expect.objectContaining({
+            id: 302,
+            answers: [2, 3],
+            timeSpent: expect.any(Number),
+          }),
+        );
       });
     });
   });

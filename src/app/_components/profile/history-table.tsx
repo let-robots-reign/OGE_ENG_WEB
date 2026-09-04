@@ -1,25 +1,34 @@
 "use client";
 
+import Link from "next/link";
 import { SectionEyebrow } from "./section-eyebrow";
-
-type Tone = "ok" | "warn" | "neutral";
+import { getMockExamGradeTextClass } from "@/app/_utils/mockExamGrade";
 
 interface ActivityRow {
   id: number;
   createdAt: Date;
   kind: string;
-  tone: Tone;
   title: string;
   timeSpent: number | null;
   correct: number | null;
   max: number | null;
+  grade?: number | null;
+  href?: string | null;
 }
 
-const TONES: Record<Tone, string> = {
-  ok: "bg-ok-soft text-ok",
-  warn: "bg-warn-soft text-warn",
-  neutral: "bg-surface-2 text-ink-3",
+// Colour the section badge by training type (matching the home training
+// cards), not by result. Falls back to a neutral pill for unmapped kinds.
+const KIND_TONES: Record<string, string> = {
+  Аудирование: "bg-tone-indigo text-tone-indigo-ink",
+  Чтение: "bg-tone-warm text-tone-warm-ink",
+  "Языковой материал": "bg-tone-mint text-tone-mint-ink",
+  Письмо: "bg-tone-sand text-tone-sand-ink",
+  Вариант: "bg-ink text-on-ink",
 };
+
+// Диагностика and any unmapped kind (Тренировка) fall back to a neutral pill —
+// the tone palette has no distinct hue left, and these aren't core sections.
+const NEUTRAL_TONE = "bg-surface-2 text-ink-3";
 
 function formatDate(d: Date): string {
   return new Intl.DateTimeFormat("ru-RU", {
@@ -63,10 +72,10 @@ export function HistoryTable({ rows }: { rows: ActivityRow[] }) {
           <thead>
             <tr>
               <th className={`${thClass} w-[130px]`}>Когда</th>
-              <th className={`${thClass} w-[150px]`}>Раздел</th>
+              <th className={`${thClass} w-[200px]`}>Раздел</th>
               <th className={thClass}>Задание</th>
               <th className={`${thClass} w-[130px]`}>Длительность</th>
-              <th className={`${thClass} w-[120px]`}>Результат</th>
+              <th className={`${thClass} w-[130px]`}>Результат</th>
             </tr>
           </thead>
           <tbody>
@@ -97,12 +106,23 @@ export function HistoryTable({ rows }: { rows: ActivityRow[] }) {
                     </td>
                     <td className={tdClass}>
                       <span
-                        className={`rounded-pill px-2.5 py-1 text-[12px] font-medium ${TONES[r.tone]}`}
+                        className={`rounded-pill inline-block px-2.5 py-1 text-[12px] font-medium whitespace-nowrap ${KIND_TONES[r.kind] ?? NEUTRAL_TONE}`}
                       >
                         {r.kind}
                       </span>
                     </td>
-                    <td className={`${tdClass} text-ink`}>{r.title}</td>
+                    <td className={`${tdClass} text-ink`}>
+                      {r.href ? (
+                        <Link
+                          href={r.href}
+                          className="text-accent font-medium hover:underline"
+                        >
+                          {r.title} →
+                        </Link>
+                      ) : (
+                        r.title
+                      )}
+                    </td>
                     <td
                       className={`${tdClass} text-ink-2 font-mono text-[13px]`}
                     >
@@ -116,6 +136,14 @@ export function HistoryTable({ rows }: { rows: ActivityRow[] }) {
                             {" "}
                             / {r.max}
                           </span>
+                          <br />
+                          {r.grade != null && (
+                            <span
+                              className={`${getMockExamGradeTextClass(r.grade)} text-[12px] not-italic`}
+                            >
+                              оценка {r.grade}
+                            </span>
+                          )}
                         </span>
                       ) : (
                         <span className="text-ink-3 text-[13px]">—</span>
