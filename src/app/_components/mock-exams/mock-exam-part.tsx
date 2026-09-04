@@ -16,6 +16,7 @@ import { TrueFalseTask } from "@/app/_components/training/reading/true-false-tas
 import { HeadingsBank } from "@/app/_components/training/reading/headings-bank";
 import { TextCard } from "@/app/_components/training/reading/text-card";
 import { QuestionCard } from "@/app/_components/training/uoe/question-card";
+import { MOCK_EXAM_UOE_START_NUMBERS } from "@/server/api/lib/mock-exams";
 
 type Part = RouterOutputs["mockExams"]["start"]["parts"][number];
 
@@ -80,6 +81,10 @@ export function MockExamPart({
   }
 
   if (part.kind === "uoe") {
+    const firstQuestionNumber =
+      part.slot === "uoe_all_topics"
+        ? MOCK_EXAM_UOE_START_NUMBERS.uoe_all_topics
+        : MOCK_EXAM_UOE_START_NUMBERS.uoe_word_formation;
     return (
       <>
         <MockExamInstruction part={part} />
@@ -87,7 +92,7 @@ export function MockExamPart({
           {(part.tasks ?? []).map((task, index) => (
             <QuestionCard
               key={task.id}
-              n={(part.slot === "uoe_all_topics" ? 20 : 29) + index}
+              n={firstQuestionNumber + index}
               task={task.task}
               origin={task.origin}
               value={(answers[index] as string | null) ?? ""}

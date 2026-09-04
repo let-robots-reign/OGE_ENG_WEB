@@ -1,5 +1,6 @@
 import { IconArrow } from "./icons";
 import Link from "next/link";
+import { getMockExamGradeTextClass } from "@/app/_utils/mockExamGrade";
 
 type Accent = "ok" | "warn" | "neutral";
 
@@ -67,8 +68,10 @@ export function VariantCard({
           <span className="text-ink-3 text-[13px]">начать экзамен</span>
         )}
         <div className="text-right">
-          {grade && (
-            <div className="text-ok text-[13px] font-medium">
+          {grade != null && (
+            <div
+              className={`${getMockExamGradeTextClass(grade)} text-[13px] font-medium`}
+            >
               оценка {grade}
             </div>
           )}

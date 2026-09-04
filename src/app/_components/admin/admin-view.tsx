@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { z } from "zod";
 import { api } from "@/trpc/react";
+import { getMockExamGradeBadgeClass } from "@/app/_utils/mockExamGrade";
 
 const tabsOptions = z.enum(["training", "mock-exams", "diagnostics"]);
 type Tab = z.infer<typeof tabsOptions>;
@@ -266,7 +267,9 @@ export function AdminView() {
                         {r.percentage}%
                       </td>
                       <td className={tdClass}>
-                        <span className="bg-ok-soft text-ok grid size-8 place-items-center rounded-full font-semibold">
+                        <span
+                          className={`${getMockExamGradeBadgeClass(r.grade)} grid size-8 place-items-center rounded-full font-semibold`}
+                        >
                           {r.grade}
                         </span>
                       </td>

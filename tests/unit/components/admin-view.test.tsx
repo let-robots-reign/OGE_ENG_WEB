@@ -137,6 +137,9 @@ describe("AdminView Components Panel", () => {
 
     expect(screen.getByText("Вариант 1")).toBeInTheDocument();
     expect(screen.getByText("68%")).toBeInTheDocument();
-    expect(screen.getByText("4")).toBeInTheDocument();
+    expect(screen.getByText("4")).toHaveClass(
+      "bg-grade-4-soft",
+      "text-grade-4",
+    );
   });
 });

@@ -46,12 +46,12 @@ const snapshot: MockExamSnapshot = {
 describe("mock exam grading", () => {
   it.each([
     [0, 2],
-    [39, 2],
-    [40, 3],
-    [59, 3],
-    [60, 4],
-    [79, 4],
-    [80, 5],
+    [49, 2],
+    [50, 3],
+    [64, 3],
+    [65, 4],
+    [84, 4],
+    [85, 5],
     [100, 5],
   ] as const)("maps %s%% to grade %s", (percentage, grade) => {
     expect(getMockExamGrade(percentage)).toBe(grade);

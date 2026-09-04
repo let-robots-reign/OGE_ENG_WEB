@@ -59,6 +59,11 @@ export const MOCK_EXAM_SLOT_ORDER = Object.keys(
   MOCK_EXAM_SLOT_META,
 ) as MockExamSlot[];
 
+export const MOCK_EXAM_UOE_START_NUMBERS = {
+  uoe_all_topics: 20,
+  uoe_word_formation: 29,
+} as const;
+
 export function getMockExamGrade(percentage: number): 2 | 3 | 4 | 5 {
   // Product default for the reduced written variant (letter/oral parts are not
   // included). Keep the thresholds centralized so an approved scale can be
@@ -135,8 +140,10 @@ const itemLabel = (slot: MockExamSlot, index: number) => {
   if (slot === "audio_6_11") return String(index + 6);
   if (slot === "reading_12") return String.fromCharCode(65 + index);
   if (slot === "reading_13_19") return String(index + 13);
-  if (slot === "uoe_all_topics") return String(index + 20);
-  return String(index + 29);
+  if (slot === "uoe_all_topics") {
+    return String(index + MOCK_EXAM_UOE_START_NUMBERS.uoe_all_topics);
+  }
+  return String(index + MOCK_EXAM_UOE_START_NUMBERS.uoe_word_formation);
 };
 
 function gradePart(

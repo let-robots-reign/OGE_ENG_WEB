@@ -150,6 +150,7 @@ describe("Profile Components Suite", () => {
           timeSpent: 95, // ~2 min
           correct: 4,
           max: 5,
+          grade: 5,
         },
         {
           id: 2,
@@ -170,6 +171,7 @@ describe("Profile Components Suite", () => {
       expect(screen.getByText("1 ч")).toBeInTheDocument();
       expect(screen.getByText("4")).toBeInTheDocument();
       expect(screen.getByText("1")).toBeInTheDocument();
+      expect(screen.getByText("оценка 5")).toHaveClass("text-grade-5");
     });
   });
 

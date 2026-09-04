@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { SectionEyebrow } from "./section-eyebrow";
+import { getMockExamGradeTextClass } from "@/app/_utils/mockExamGrade";
 
 type Tone = "ok" | "warn" | "neutral";
 
@@ -131,8 +132,10 @@ export function HistoryTable({ rows }: { rows: ActivityRow[] }) {
                             / {r.max}
                           </span>
                           <br />
-                          {r.grade && (
-                            <span className="text-ok text-[12px] not-italic">
+                          {r.grade != null && (
+                            <span
+                              className={`${getMockExamGradeTextClass(r.grade)} text-[12px] not-italic`}
+                            >
                               оценка {r.grade}
                             </span>
                           )}
