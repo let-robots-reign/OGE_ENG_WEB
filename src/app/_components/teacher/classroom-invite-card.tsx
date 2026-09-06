@@ -28,7 +28,7 @@ export function ClassroomInviteCard({
   });
 
   return (
-    <div className="border-line bg-surface w-full max-w-[380px] rounded-lg border p-4 lg:min-w-[340px]">
+    <div className="border-line bg-surface w-full max-w-[380px] rounded-lg border p-4 lg:max-w-[460px] lg:min-w-[420px]">
       <div className="text-ink-4 mb-2.5 font-mono text-[10.5px] tracking-[0.1em] uppercase">
         Ссылка-приглашение
       </div>
@@ -57,8 +57,21 @@ export function ClassroomInviteCard({
           <button
             type="button"
             onClick={() => setConfirming(true)}
-            className="text-ink-3 hover:text-ink text-[12px] transition-colors"
+            className="rounded-pill border-line-2 text-ink-3 hover:bg-surface-2 hover:text-ink inline-flex items-center gap-1.5 border px-3.5 py-1.5 text-[12px] font-medium transition-colors"
           >
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M23 4v6h-6M1 20v-6h6" />
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+            </svg>
             Обновить ссылку — старая перестанет работать
           </button>
         )}

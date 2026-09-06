@@ -56,13 +56,17 @@ export function CreateClassroomModal({
 
   const createClassroom = api.teacher.createClassroom.useMutation({
     onSuccess: (room) => {
+      // Don't refresh here: on the empty /teacher state that swaps the page
+      // branch and unmounts this modal, so the success panel flashes and
+      // vanishes. Refresh on close instead, once the panel is dismissed.
       setCreated(room);
-      router.refresh();
     },
   });
 
   const close = () => {
     setOpen(false);
+    // If a class was created while this modal was open, sync the list now.
+    if (created) router.refresh();
     // Reset after the close so the form is fresh next time.
     setTimeout(() => {
       setName("");
@@ -112,33 +116,31 @@ export function CreateClassroomModal({
           role="presentation"
         >
           <div
-            className="bg-surface border-line w-full max-w-[468px] rounded-xl border p-7 shadow-lg"
+            className="bg-surface border-line relative w-full max-w-[468px] rounded-xl border p-7 shadow-lg"
             onClick={(e) => e.stopPropagation()}
             role="dialog"
             aria-modal="true"
           >
+            <button
+              type="button"
+              aria-label="Закрыть"
+              onClick={close}
+              className="border-line text-ink-3 hover:bg-surface-2 absolute top-5 right-5 grid h-[34px] w-[34px] shrink-0 place-items-center rounded-full border transition-colors"
+            >
+              <CloseIcon />
+            </button>
             {!created ? (
               <>
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h2 className="font-display m-0 text-[28px] leading-[1.05] tracking-[-0.025em]">
-                      Новый класс
-                    </h2>
-                    <div className="text-ink-3 mt-1.5 text-[13.5px]">
-                      Создайте группу и пригласите учеников по ссылке
-                    </div>
+                <div className="text-center">
+                  <h2 className="font-display m-0 text-[28px] leading-[1.05] tracking-[-0.025em]">
+                    Новый класс
+                  </h2>
+                  <div className="text-ink-3 mt-1.5 text-[13.5px]">
+                    Создайте группу и пригласите учеников по ссылке
                   </div>
-                  <button
-                    type="button"
-                    aria-label="Закрыть"
-                    onClick={close}
-                    className="border-line text-ink-3 hover:bg-surface-2 grid h-[34px] w-[34px] shrink-0 place-items-center rounded-full border transition-colors"
-                  >
-                    <CloseIcon />
-                  </button>
                 </div>
 
-                <div className="mt-6">
+                <div className="mt-6 text-left">
                   <label className="text-ink-4 mb-2.5 block font-mono text-[10.5px] tracking-[0.1em] uppercase">
                     Название класса
                   </label>
@@ -183,16 +185,6 @@ export function CreateClassroomModal({
               </>
             ) : (
               <>
-                <div className="flex justify-end">
-                  <button
-                    type="button"
-                    aria-label="Закрыть"
-                    onClick={close}
-                    className="border-line text-ink-3 hover:bg-surface-2 grid h-[34px] w-[34px] place-items-center rounded-full border transition-colors"
-                  >
-                    <CloseIcon />
-                  </button>
-                </div>
                 <div className="text-center">
                   <span className="bg-ok-soft text-ok inline-grid h-14 w-14 place-items-center rounded-full">
                     <svg

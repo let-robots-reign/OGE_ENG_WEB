@@ -367,14 +367,20 @@ describe("Admin Router tRPC Procedures", () => {
   });
 
   describe("UoE chain input validation", () => {
-    it("accepts exactly nine unique task IDs", () => {
+    it("accepts the supported chain lengths with unique task IDs", () => {
       expect(
         uoeChainTaskIdsSchema.safeParse([1, 2, 3, 4, 5, 6, 7, 8, 9]).success,
       ).toBe(true);
+      expect(uoeChainTaskIdsSchema.safeParse([1, 2, 3, 4, 5, 6]).success).toBe(
+        true,
+      );
     });
 
     it("rejects an incomplete or duplicate task list", () => {
       expect(uoeChainTaskIdsSchema.safeParse([1, 2, 3]).success).toBe(false);
+      expect(
+        uoeChainTaskIdsSchema.safeParse([1, 2, 3, 4, 5, 6, 7]).success,
+      ).toBe(false);
       expect(
         uoeChainTaskIdsSchema.safeParse([1, 2, 3, 4, 5, 6, 7, 8, 8]).success,
       ).toBe(false);

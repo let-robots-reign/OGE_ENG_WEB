@@ -46,14 +46,8 @@ export function SignInForm({ providers }: { providers: SimpleProvider[] }) {
 
   return (
     <div>
-      {/* Eyebrow */}
-      <div className="text-ink-3 mb-3 inline-flex items-center gap-2 text-[12.5px] font-medium tracking-[0.12em] uppercase">
-        <span className="bg-accent h-1.5 w-1.5 rounded-full" />
-        вход
-      </div>
-
       <h1 className="font-display text-ink mb-3 text-[40px] leading-none tracking-[-0.03em] sm:text-[56px]">
-        С возвращением.
+        С возвращением
       </h1>
       <p className="text-ink-3 mb-8 text-[15px]">
         Войдите, чтобы продолжить тренировки.
