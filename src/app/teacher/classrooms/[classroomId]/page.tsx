@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { TRPCError } from "@trpc/server";
 import { api } from "@/trpc/server";
 import { ClassroomInviteCard } from "@/app/_components/teacher/classroom-invite-card";
+import { ClassroomSettings } from "@/app/_components/teacher/classroom-settings";
 import { ClassroomTabs } from "@/app/_components/teacher/classroom-tabs";
 import { formatLongDate } from "@/app/_components/teacher/utils";
 import { pluralize } from "@/app/_utils/pluralize";
@@ -45,6 +46,7 @@ export default async function ClassroomPage({
             {pluralize(room.memberCount, "ученик", "ученика", "учеников")} ·
             создан {formatLongDate(room.createdAt)}
           </div>
+          <ClassroomSettings classroomId={room.id} name={room.name} />
         </div>
 
         <ClassroomInviteCard

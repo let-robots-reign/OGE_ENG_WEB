@@ -98,6 +98,43 @@ export function parseResult(
   return { correct, total };
 }
 
+/**
+ * Mean training score with one vote per student: first average each student's
+ * attempt percentages, then average those student percentages. Invalid result
+ * strings are ignored.
+ */
+export function averageAttemptPercentByStudent(
+  rows: ReadonlyArray<{ userId: string; result: string }>,
+): { byStudent: Map<string, number>; averagePercent: number | null } {
+  const totals = new Map<string, { sum: number; count: number }>();
+
+  for (const row of rows) {
+    const parsed = parseResult(row.result);
+    if (!parsed) continue;
+
+    const current = totals.get(row.userId) ?? { sum: 0, count: 0 };
+    current.sum += (parsed.correct / parsed.total) * 100;
+    current.count += 1;
+    totals.set(row.userId, current);
+  }
+
+  const byStudent = new Map(
+    [...totals].map(([userId, value]) => [userId, value.sum / value.count]),
+  );
+  const percentages = [...byStudent.values()];
+
+  return {
+    byStudent,
+    averagePercent:
+      percentages.length > 0
+        ? Math.round(
+            percentages.reduce((sum, percentage) => sum + percentage, 0) /
+              percentages.length,
+          )
+        : null,
+  };
+}
+
 /** Current consecutive-day streak anchored at today (or yesterday). */
 export function computeCurrentStreak(
   daysDesc: string[],
@@ -278,26 +315,13 @@ export interface SubjectProgressRow {
   avgMax: number;
 }
 
-/** Progress per exam section: tasks done / available + average score. */
-export async function getSubjectProgress(
+/**
+ * Count of active (non-deleted) tasks per section — the "available tasks"
+ * denominator for a user's subject progress.
+ */
+export async function countActiveTasksByKey(
   db: AppDb,
-  userId: string,
-): Promise<SubjectProgressRow[]> {
-  const topics = await db.query.trainingTopics.findMany({
-    columns: { id: true, category: true, title: true },
-  });
-
-  const idsByKey: Record<SubjectKey, number[]> = {
-    audio: topics.filter((t) => t.category === "audio").map((t) => t.id),
-    reading: topics.filter((t) => t.category === "reading").map((t) => t.id),
-    "use-of-english": topics
-      .filter((t) => t.category === "use-of-english")
-      .map((t) => t.id),
-    writing: topics
-      .filter((t) => WRITING_TITLES.includes(t.title))
-      .map((t) => t.id),
-  };
-
+): Promise<Record<SubjectKey, number>> {
   const countActive = async (
     table:
       | typeof audioTasks
@@ -319,12 +343,35 @@ export async function getSubjectProgress(
     countActive(writingTasks),
   ]);
 
-  const totalByKey: Record<SubjectKey, number> = {
+  return {
     audio: audioTotal,
     reading: readingTotal,
     "use-of-english": uoeTotal,
     writing: writingTotal,
   };
+}
+
+/** Progress per exam section: tasks done / available + average score. */
+export async function getSubjectProgress(
+  db: AppDb,
+  userId: string,
+): Promise<SubjectProgressRow[]> {
+  const topics = await db.query.trainingTopics.findMany({
+    columns: { id: true, category: true, title: true },
+  });
+
+  const idsByKey: Record<SubjectKey, number[]> = {
+    audio: topics.filter((t) => t.category === "audio").map((t) => t.id),
+    reading: topics.filter((t) => t.category === "reading").map((t) => t.id),
+    "use-of-english": topics
+      .filter((t) => t.category === "use-of-english")
+      .map((t) => t.id),
+    writing: topics
+      .filter((t) => WRITING_TITLES.includes(t.title))
+      .map((t) => t.id),
+  };
+
+  const totalByKey = await countActiveTasksByKey(db);
 
   const results = await db
     .select({
@@ -422,7 +469,9 @@ export async function getRecentActivity(
       kind = "Вариант";
       title = mockDetails?.mockExam.title ?? "Тренировочный вариант";
     } else if (r.activityType === "training_exam_mode") {
-      kind = topic ? (SECTION_LABEL[topic.category] ?? "Тренировка") : "Тренировка";
+      kind = topic
+        ? (SECTION_LABEL[topic.category] ?? "Тренировка")
+        : "Тренировка";
       title = topic ? `${topic.title} · exam mode` : "Тренировка · exam mode";
     } else if (r.activityType === "diagnostics") {
       kind = "Диагностика";

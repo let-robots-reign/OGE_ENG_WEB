@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
+  averageAttemptPercentByStudent,
   computeBestStreak,
   computeCurrentStreak,
   parseResult,
@@ -17,6 +18,31 @@ describe("progress helpers (extracted from userRouter)", () => {
       expect(parseResult("abc")).toBeNull();
       expect(parseResult("5/0")).toBeNull();
       expect(parseResult("5")).toBeNull();
+    });
+  });
+
+  describe("averageAttemptPercentByStudent", () => {
+    it("averages attempts within students before averaging the class", () => {
+      const result = averageAttemptPercentByStudent([
+        { userId: "student-1", result: "1/1" },
+        ...Array.from({ length: 9 }, () => ({
+          userId: "student-1",
+          result: "0/1",
+        })),
+        { userId: "student-2", result: "1/1" },
+      ]);
+
+      expect(result.byStudent.get("student-1")).toBe(10);
+      expect(result.byStudent.get("student-2")).toBe(100);
+      expect(result.averagePercent).toBe(55);
+    });
+
+    it("ignores malformed results and returns null without valid attempts", () => {
+      expect(
+        averageAttemptPercentByStudent([
+          { userId: "student-1", result: "invalid" },
+        ]),
+      ).toEqual({ byStudent: new Map(), averagePercent: null });
     });
   });
 

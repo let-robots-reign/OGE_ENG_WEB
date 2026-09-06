@@ -20,6 +20,7 @@ import {
   generateInviteToken,
 } from "@/server/api/lib/classrooms";
 import {
+  averageAttemptPercentByStudent,
   computeCurrentStreak,
   getActivity,
   getRecentActivity,
@@ -32,6 +33,7 @@ import {
   WRITING_TITLES,
   type SubjectKey,
 } from "@/server/api/lib/progress";
+import { isMockExamResultDetails } from "@/server/api/lib/mock-exams";
 
 type AppDb = Awaited<ReturnType<typeof createTRPCContext>>["db"];
 
@@ -67,20 +69,27 @@ async function memberMockRows(db: AppDb, memberIds: string[]) {
     ),
     columns: { id: true, userId: true, activityId: true, createdAt: true },
     extras: {
-      mockExamTitle:
-        sql<string | null>`${userResults.details} -> 'mockExam' ->> 'title'`.as(
-          "mock_exam_title",
-        ),
-      percentage: sql<number | null>`CASE WHEN jsonb_typeof(${userResults.details} -> 'percentage') = 'number' THEN (${userResults.details} ->> 'percentage')::integer ELSE NULL END`.as(
+      mockExamTitle: sql<
+        string | null
+      >`${userResults.details} -> 'mockExam' ->> 'title'`.as("mock_exam_title"),
+      percentage: sql<
+        number | null
+      >`CASE WHEN jsonb_typeof(${userResults.details} -> 'percentage') = 'number' THEN (${userResults.details} ->> 'percentage')::integer ELSE NULL END`.as(
         "mock_exam_percentage",
       ),
-      grade: sql<number | null>`CASE WHEN jsonb_typeof(${userResults.details} -> 'grade') = 'number' THEN (${userResults.details} ->> 'grade')::integer ELSE NULL END`.as(
+      grade: sql<
+        number | null
+      >`CASE WHEN jsonb_typeof(${userResults.details} -> 'grade') = 'number' THEN (${userResults.details} ->> 'grade')::integer ELSE NULL END`.as(
         "mock_exam_grade",
       ),
-      correctCount: sql<number | null>`CASE WHEN jsonb_typeof(${userResults.details} -> 'correctCount') = 'number' THEN (${userResults.details} ->> 'correctCount')::integer ELSE NULL END`.as(
+      correctCount: sql<
+        number | null
+      >`CASE WHEN jsonb_typeof(${userResults.details} -> 'correctCount') = 'number' THEN (${userResults.details} ->> 'correctCount')::integer ELSE NULL END`.as(
         "mock_exam_correct",
       ),
-      total: sql<number | null>`CASE WHEN jsonb_typeof(${userResults.details} -> 'total') = 'number' THEN (${userResults.details} ->> 'total')::integer ELSE NULL END`.as(
+      total: sql<
+        number | null
+      >`CASE WHEN jsonb_typeof(${userResults.details} -> 'total') = 'number' THEN (${userResults.details} ->> 'total')::integer ELSE NULL END`.as(
         "mock_exam_total",
       ),
     },
@@ -392,8 +401,10 @@ export const teacherRouter = createTRPCRouter({
       // One pass over EVERY activity type. Activity days / streak / last-active
       // must match the student's own profile heatmap (getActivity counts all
       // user_results), so we do NOT filter by activityType here. The average
-      // score, however, is derived only from `training` results, weighted by
-      // task count — the same source and formula as `classSections`.
+      // score, however, is derived only from `training` results. Both class
+      // tabs use averageAttemptPercentByStudent for their headline, so they
+      // cannot drift when students make different numbers of attempts across
+      // different sections.
       const results = await ctx.db
         .select({
           userId: userResults.userId,
@@ -406,11 +417,14 @@ export const teacherRouter = createTRPCRouter({
 
       const perStudent = new Map<
         string,
-        { days: Set<string>; last: Date | null; correct: number; max: number }
+        { days: Set<string>; last: Date | null }
       >();
       for (const id of memberIds) {
-        perStudent.set(id, { days: new Set(), last: null, correct: 0, max: 0 });
+        perStudent.set(id, { days: new Set(), last: null });
       }
+      const trainingScores = averageAttemptPercentByStudent(
+        results.filter((result) => result.activityType === "training"),
+      );
       const weekAgo = new Date(Date.now() - 7 * DAY_MS);
       for (const r of results) {
         const s = perStudent.get(r.userId);
@@ -418,14 +432,6 @@ export const teacherRouter = createTRPCRouter({
         // Every activity type contributes an active day / last-active time.
         s.days.add(localDay(r.createdAt));
         if (!s.last || r.createdAt > s.last) s.last = r.createdAt;
-        // Average score: training only, pooled (weighted) like classSections.
-        if (r.activityType === "training") {
-          const p = parseResult(r.result);
-          if (p) {
-            s.correct += p.correct;
-            s.max += p.total;
-          }
-        }
       }
 
       const mockRows = await memberMockRows(ctx.db, memberIds);
@@ -435,8 +441,9 @@ export const teacherRouter = createTRPCRouter({
         const s = perStudent.get(m.userId)!;
         const daysDesc = [...s.days].sort().reverse();
         const { count: currentStreak } = computeCurrentStreak(daysDesc, today);
+        const rawAvgPercent = trainingScores.byStudent.get(m.userId);
         const avgPercent =
-          s.max > 0 ? Math.round((s.correct / s.max) * 100) : null;
+          rawAvgPercent === undefined ? null : Math.round(rawAvgPercent);
         return {
           userId: m.userId,
           name: m.user?.name ?? null,
@@ -452,14 +459,6 @@ export const teacherRouter = createTRPCRouter({
       const activeThisWeek = students.filter(
         (s) => s.lastActivity && s.lastActivity >= weekAgo,
       ).length;
-      const allPct = students.filter((s) => s.avgPercent !== null);
-      const avgPercent =
-        allPct.length > 0
-          ? Math.round(
-              allPct.reduce((sum, s) => sum + (s.avgPercent ?? 0), 0) /
-                allPct.length,
-            )
-          : null;
       const avgGrade =
         mockRows.length > 0
           ? Math.round(
@@ -473,7 +472,7 @@ export const teacherRouter = createTRPCRouter({
         summary: {
           studentCount: members.length,
           activeThisWeek,
-          avgPercent,
+          avgPercent: trainingScores.averagePercent,
           mockCount: mockRows.length,
           avgGrade,
         },
@@ -493,7 +492,8 @@ export const teacherRouter = createTRPCRouter({
       });
       const sectionOfTopic = new Map<number, SubjectKey>();
       for (const t of topics) {
-        if (WRITING_TITLES.includes(t.title)) sectionOfTopic.set(t.id, "writing");
+        if (WRITING_TITLES.includes(t.title))
+          sectionOfTopic.set(t.id, "writing");
         else if (t.category === "audio") sectionOfTopic.set(t.id, "audio");
         else if (t.category === "reading") sectionOfTopic.set(t.id, "reading");
         else if (t.category === "use-of-english")
@@ -517,47 +517,78 @@ export const teacherRouter = createTRPCRouter({
               )
           : [];
 
+      // Aggregate per section. The headline percentage must be "averaged by
+      // students" and must not let a larger task dominate: so each attempt
+      // contributes its OWN percentage (correct/total), those are averaged
+      // within a student, and finally averaged across students. `submissions`
+      // is the raw count of training submissions in the section.
       const agg = new Map<
         SubjectKey,
-        { students: Set<string>; correct: number; max: number; n: number }
+        {
+          students: Set<string>;
+          perStudent: Map<string, { pctSum: number; count: number }>;
+          submissions: number;
+        }
       >();
       for (const key of SUBJECT_ORDER) {
-        agg.set(key, { students: new Set(), correct: 0, max: 0, n: 0 });
+        agg.set(key, {
+          students: new Set(),
+          perStudent: new Map(),
+          submissions: 0,
+        });
       }
       for (const r of results) {
         const key = sectionOfTopic.get(r.activityId);
         if (!key) continue;
         const a = agg.get(key)!;
         a.students.add(r.userId);
+        a.submissions += 1;
         const p = parseResult(r.result);
         if (p) {
-          a.correct += p.correct;
-          a.max += p.total;
-          a.n += 1;
+          // p.total > 0 is guaranteed by parseResult.
+          const ps = a.perStudent.get(r.userId) ?? { pctSum: 0, count: 0 };
+          ps.pctSum += (p.correct / p.total) * 100;
+          ps.count += 1;
+          a.perStudent.set(r.userId, ps);
         }
       }
 
       const sections = SUBJECT_ORDER.map((key) => {
         const a = agg.get(key)!;
-        const pct = a.max > 0 ? Math.round((a.correct / a.max) * 100) : 0;
+        // Each student's section percentage = mean of their attempt
+        // percentages; the section percentage = mean of those, one weight per
+        // student regardless of attempt count or task size.
+        const studentPcts = [...a.perStudent.values()]
+          .filter((v) => v.count > 0)
+          .map((v) => v.pctSum / v.count);
+        const pct =
+          studentPcts.length > 0
+            ? Math.round(
+                studentPcts.reduce((sum, x) => sum + x, 0) / studentPcts.length,
+              )
+            : null;
         return {
           key,
           studentsStudied: a.students.size,
           totalStudents: memberIds.length,
-          pct: a.n > 0 ? pct : null,
-          avgCorrect: a.n > 0 ? Math.round(a.correct / a.n) : 0,
-          avgMax: a.n > 0 ? Math.round(a.max / a.n) : 0,
+          // A plain submission count (result rows). Deliberately not paired with
+          // a task total: activityId is topic-level and use-of-english/writing
+          // save no per-task id, so distinct completed tasks aren't derivable
+          // across all sections — "N of M tasks" would compare unlike things.
+          // We also don't surface avgCorrect/avgMax: a pooled raw-score average
+          // would contradict the per-student-averaged percentage above.
+          submissions: a.submissions,
+          pct,
         };
       });
 
+      // The banner is the same class-wide score shown on the Students tab.
+      // Do not average the section cards here: that would give every section
+      // equal weight and diverge when students make different numbers of
+      // attempts across sections.
+      const { averagePercent: avgPercent } =
+        averageAttemptPercentByStudent(results);
       const withData = sections.filter((s) => s.pct !== null);
-      const avgPercent =
-        withData.length > 0
-          ? Math.round(
-              withData.reduce((sum, s) => sum + (s.pct ?? 0), 0) /
-                withData.length,
-            )
-          : null;
       const weakestKey =
         withData.length > 0
           ? withData.reduce((min, s) =>
@@ -606,7 +637,9 @@ export const teacherRouter = createTRPCRouter({
         total: rows.length,
         distribution,
         avgGrade:
-          rows.length > 0 ? Math.round((gradeSum / rows.length) * 10) / 10 : null,
+          rows.length > 0
+            ? Math.round((gradeSum / rows.length) * 10) / 10
+            : null,
         avgPercent: rows.length > 0 ? Math.round(pctSum / rows.length) : null,
         attempts: rows.slice(0, 20).map((r) => ({
           id: r.id,
@@ -641,18 +674,32 @@ export const teacherRouter = createTRPCRouter({
         .where(
           and(
             inArray(userResults.userId, memberIds),
-            inArray(userResults.activityType, ["training", "training_exam_mode"]),
+            // Only `training`: an exam-mode result stores the whole section's
+            // score under the first task's topic (training.ts), so counting it
+            // here would blame every topic's errors on that one topic.
+            eq(userResults.activityType, "training"),
             gte(userResults.createdAt, since),
           ),
         );
 
-      const byTopic = new Map<number, { correct: number; max: number }>();
+      // `max` sums answer denominators (used for the error rate); `attempts`
+      // counts submissions separately so a single 6-question drill reads as one
+      // attempt, not six.
+      const byTopic = new Map<
+        number,
+        { correct: number; max: number; attempts: number }
+      >();
       for (const r of results) {
         const p = parseResult(r.result);
         if (!p) continue;
-        const cur = byTopic.get(r.activityId) ?? { correct: 0, max: 0 };
+        const cur = byTopic.get(r.activityId) ?? {
+          correct: 0,
+          max: 0,
+          attempts: 0,
+        };
         cur.correct += p.correct;
         cur.max += p.total;
+        cur.attempts += 1;
         byTopic.set(r.activityId, cur);
       }
       if (byTopic.size === 0) return { topics: [] };
@@ -681,7 +728,7 @@ export const teacherRouter = createTRPCRouter({
                 : (SECTION_LABEL[topic.category] ?? "Языковой материал")
               : "Языковой материал",
             errorPercent: Math.round(errorRate * 100),
-            attempts: v.max,
+            attempts: v.attempts,
           };
         })
         .sort((a, b) => b.errorPercent - a.errorPercent)
@@ -710,6 +757,17 @@ export const teacherRouter = createTRPCRouter({
         getSubjectProgress(ctx.db, input.studentId),
         getRecentActivity(ctx.db, input.studentId, 50),
       ]);
+      // The shared history rows link mock-exam results to `/mock-exams/...`,
+      // which only the result owner (or an admin) may open. Re-point them at the
+      // teacher-scoped result route so the owning teacher can open them.
+      const recentForTeacher = recent.map((r) =>
+        r.href
+          ? {
+              ...r,
+              href: `/teacher/classrooms/${input.classroomId}/students/${input.studentId}/mock-exams/${r.id}`,
+            }
+          : r,
+      );
       return {
         header: {
           name: user?.name ?? null,
@@ -717,7 +775,40 @@ export const teacherRouter = createTRPCRouter({
           joinedAt: membership.joinedAt,
         },
         subjects,
-        recent,
+        recent: recentForTeacher,
+      };
+    }),
+
+  /** Read-only mock-exam result for a student in one of the teacher's classes. */
+  getStudentMockResult: teacherProcedure
+    .input(
+      z.object({
+        classroomId: z.string(),
+        studentId: z.string(),
+        resultId: z.number().int().positive(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      await assertMemberOfOwnedClassroom(
+        ctx.db,
+        ctx.session.user.id,
+        input.classroomId,
+        input.studentId,
+      );
+      const result = await ctx.db.query.userResults.findFirst({
+        where: and(
+          eq(userResults.id, input.resultId),
+          eq(userResults.userId, input.studentId),
+          eq(userResults.activityType, "mock_exam"),
+        ),
+      });
+      if (!result || !isMockExamResultDetails(result.details)) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+      return {
+        id: result.id,
+        createdAt: result.createdAt,
+        details: result.details,
       };
     }),
 

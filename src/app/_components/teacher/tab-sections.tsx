@@ -2,6 +2,7 @@
 
 import { api } from "@/trpc/react";
 import { TabEmpty, TabLoading } from "./tab-primitives";
+import { pluralize } from "@/app/_utils/pluralize";
 
 type SubjectKey = "audio" | "reading" | "use-of-english" | "writing";
 
@@ -36,7 +37,9 @@ const META: Record<
 };
 
 export function TabSections({ classroomId }: { classroomId: string }) {
-  const { data, isLoading } = api.teacher.classSections.useQuery({ classroomId });
+  const { data, isLoading } = api.teacher.classSections.useQuery({
+    classroomId,
+  });
 
   if (isLoading || !data) return <TabLoading />;
 
@@ -69,7 +72,8 @@ export function TabSections({ classroomId }: { classroomId: string }) {
           </div>
         </div>
         <div className="max-w-[360px] text-[13.5px] leading-[1.5] text-[color:var(--color-on-ink-muted)]">
-          По всем разделам, усреднено по ученикам, которые занимались.
+          Средний балл усреднён по ученикам, которые занимались; объём — число
+          тренировок по разделу (не отдельных заданий).
           {weakLabel && (
             <>
               {" "}
@@ -94,7 +98,11 @@ export function TabSections({ classroomId }: { classroomId: string }) {
               className={`bg-surface flex min-h-[236px] flex-col gap-[18px] rounded-lg border p-6 ${
                 isWeak ? "border-warn" : "border-line"
               }`}
-              style={isWeak ? { boxShadow: "0 0 0 1px var(--color-warn)" } : undefined}
+              style={
+                isWeak
+                  ? { boxShadow: "0 0 0 1px var(--color-warn)" }
+                  : undefined
+              }
             >
               <div className="flex items-start justify-between">
                 <div>
@@ -127,15 +135,23 @@ export function TabSections({ classroomId }: { classroomId: string }) {
                     style={{ width: `${pct}%` }}
                   />
                 </div>
-                <div className="text-ink-3 mt-2.5 flex justify-between text-[12.5px]">
+                <div className="text-ink-3 mt-2.5 flex justify-between gap-2 text-[12.5px]">
                   <span>
                     <span className="text-ink font-medium">
+                      {s.submissions}
+                    </span>{" "}
+                    {pluralize(
+                      s.submissions,
+                      "тренировка",
+                      "тренировки",
+                      "тренировок",
+                    )}
+                  </span>
+                  <span>
+                    <span className="text-ink-3 font-medium">
                       {s.studentsStudied}
                     </span>{" "}
                     из {s.totalStudents} занимались
-                  </span>
-                  <span className="font-mono">
-                    {s.pct != null ? `средн. ${s.avgCorrect}/${s.avgMax}` : "—"}
                   </span>
                 </div>
               </div>
