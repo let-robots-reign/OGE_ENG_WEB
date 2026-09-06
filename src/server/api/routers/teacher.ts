@@ -309,6 +309,16 @@ export const teacherRouter = createTRPCRouter({
         });
       }
 
+      // Treat a replayed request as a no-op so the original join date remains
+      // stable (for example when the server succeeded but the response was lost).
+      const currentMembership = await ctx.db.query.classroomMembers.findFirst({
+        where: eq(classroomMembers.userId, ctx.session.user.id),
+        columns: { classroomId: true },
+      });
+      if (currentMembership?.classroomId === room.id) {
+        return { classroomId: room.id, name: room.name };
+      }
+
       // Transfer: a student belongs to exactly one class, so drop any existing
       // membership before inserting the new one (atomic).
       await ctx.db.transaction(async (tx) => {
@@ -711,6 +721,9 @@ export const teacherRouter = createTRPCRouter({
       const topicById = new Map(topics.map((t) => [t.id, t]));
 
       const rows = [...byTopic.entries()]
+        // A topic with no mistakes is not weak. Excluding it also preserves the
+        // intended empty state when every submitted answer was correct.
+        .filter(([, value]) => value.correct < value.max)
         .map(([topicId, v]) => {
           const topic = topicById.get(topicId);
           const errorRate = v.max > 0 ? 1 - v.correct / v.max : 0;

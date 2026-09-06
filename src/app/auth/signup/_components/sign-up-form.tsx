@@ -30,7 +30,6 @@ export function SignUpForm({ providers }: { providers: SimpleProvider[] }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState<"student" | "teacher">("student");
-  const [agreed, setAgreed] = useState(true);
   const [errors, setErrors] = useState<FormErrors>({});
   const [serverError, setServerError] = useState<string | null>(null);
 
@@ -223,29 +222,9 @@ export function SignUpForm({ providers }: { providers: SimpleProvider[] }) {
           ))}
         </div>
 
-        {/* <label className="text-ink-3 mt-1.5 flex cursor-pointer items-start gap-2.5 text-[13px]"> */}
-        {/* <input
-            type="checkbox"
-            checked={agreed}
-            onChange={(e) => setAgreed(e.target.checked)}
-            className="mt-[2px] shrink-0"
-          /> */}
-        {/*<span>*/}
-        {/*  Принимаю{" "}*/}
-        {/*  <a href="#" className="text-ink-2 underline">*/}
-        {/*    условия использования*/}
-        {/*  </a>{" "}*/}
-        {/*  и{" "}*/}
-        {/*  <a href="#" className="text-ink-2 underline">*/}
-        {/*    политику конфиденциальности*/}
-        {/*  </a>*/}
-        {/*</span>*/}
-        {/* </label> */}
-
         <button
           type="submit"
-          disabled={!agreed}
-          className="bg-ink text-on-ink rounded-pill mt-2 h-[52px] w-full text-[16px] font-medium transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+          className="bg-ink text-on-ink rounded-pill mt-2 h-[52px] w-full text-[16px] font-medium transition-opacity hover:opacity-90"
         >
           Создать аккаунт →
         </button>

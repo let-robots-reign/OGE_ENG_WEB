@@ -136,6 +136,21 @@ describe("teacherRouter", () => {
         caller("student").joinClassroom({ token: "bad" }),
       ).rejects.toMatchObject({ code: "NOT_FOUND" });
     });
+
+    it("does not replace an existing membership in the same class", async () => {
+      vi.mocked(db.query.classrooms.findFirst).mockResolvedValue({
+        id: "c-1",
+        name: "9A",
+      } as any);
+      vi.mocked(db.query.classroomMembers.findFirst).mockResolvedValue({
+        classroomId: "c-1",
+      } as any);
+
+      await expect(
+        caller("student", "student-1").joinClassroom({ token: "tok" }),
+      ).resolves.toEqual({ classroomId: "c-1", name: "9A" });
+      expect(db.transaction).not.toHaveBeenCalled();
+    });
   });
 
   describe("getClassroomByToken", () => {
@@ -146,6 +161,43 @@ describe("teacherRouter", () => {
       await expect(
         caller("student").getClassroomByToken({ token: "nope" }),
       ).resolves.toBeNull();
+    });
+  });
+
+  describe("classWeakTopics", () => {
+    it("omits topics where every answer was correct", async () => {
+      vi.mocked(db.query.classrooms.findFirst).mockResolvedValue({
+        id: "c-1",
+        teacherId: "teacher-1",
+        name: "9A",
+      } as any);
+
+      const membersWhere = vi.fn().mockResolvedValue([{ userId: "student-1" }]);
+      const resultsWhere = vi.fn().mockResolvedValue([
+        { activityId: 10, result: "6/6" },
+        { activityId: 11, result: "5/6" },
+      ]);
+      vi.mocked(db.select)
+        .mockReturnValueOnce({
+          from: vi.fn(() => ({ where: membersWhere })),
+        } as any)
+        .mockReturnValueOnce({
+          from: vi.fn(() => ({ where: resultsWhere })),
+        } as any);
+      vi.mocked(db.query.trainingTopics.findMany).mockResolvedValue([
+        { id: 10, title: "Perfect", category: "use-of-english" },
+        { id: 11, title: "Needs work", category: "use-of-english" },
+      ] as any);
+
+      const result = await caller("teacher").classWeakTopics({
+        classroomId: "c-1",
+      });
+
+      expect(result.topics).toHaveLength(1);
+      expect(result.topics[0]).toMatchObject({
+        topicId: 11,
+        errorPercent: 17,
+      });
     });
   });
 

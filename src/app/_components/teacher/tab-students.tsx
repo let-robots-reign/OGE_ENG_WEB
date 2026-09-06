@@ -32,7 +32,8 @@ function TrashIcon() {
 
 const thClass =
   "bg-surface-2 px-5 py-3 text-left font-mono text-[11px] font-medium uppercase tracking-[0.1em] text-ink-4";
-const tdClass = "border-b border-line px-5 py-[15px] align-middle text-[14.5px]";
+const tdClass =
+  "border-b border-line px-5 py-[15px] align-middle text-[14.5px]";
 
 function RemoveMember({
   classroomId,
@@ -95,17 +96,24 @@ export function TabStudents({
 }) {
   const utils = api.useUtils();
   const router = useRouter();
-  const { data, isLoading } = api.teacher.classActivity.useQuery({ classroomId });
+  const { data, isLoading } = api.teacher.classActivity.useQuery({
+    classroomId,
+  });
 
   if (isLoading || !data) return <TabLoading />;
   if (data.summary.studentCount === 0)
     return <ClassEmptyState inviteToken={inviteToken} />;
 
   const { summary, students } = data;
-  // Refetch the roster AND revalidate the server-rendered page (its header
-  // shows the member count from getClassroom).
+  // Refetch every member-dependent tab and revalidate the server-rendered page
+  // (its header shows the member count from getClassroom).
   const refresh = () => {
-    void utils.teacher.classActivity.invalidate({ classroomId });
+    void Promise.all([
+      utils.teacher.classActivity.invalidate({ classroomId }),
+      utils.teacher.classSections.invalidate({ classroomId }),
+      utils.teacher.classMockExams.invalidate({ classroomId }),
+      utils.teacher.classWeakTopics.invalidate({ classroomId }),
+    ]);
     router.refresh();
   };
 
@@ -125,7 +133,11 @@ export function TabStudents({
         <StatCard label="Пробников пройдено" value={summary.mockCount} />
         <StatCard
           label="Средняя оценка"
-          value={summary.avgGrade != null ? summary.avgGrade.toLocaleString("ru-RU") : "—"}
+          value={
+            summary.avgGrade != null
+              ? summary.avgGrade.toLocaleString("ru-RU")
+              : "—"
+          }
         />
       </div>
 
