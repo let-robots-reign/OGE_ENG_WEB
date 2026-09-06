@@ -6,6 +6,7 @@ import { IdentityHero } from "@/app/_components/profile/identity-hero";
 import { ActivitySection } from "@/app/_components/profile/activity-section";
 import { SubjectProgress } from "@/app/_components/profile/subject-progress";
 import { HistoryTable } from "@/app/_components/profile/history-table";
+import { MyClassroomCard } from "@/app/_components/profile/my-classroom-card";
 import { SettingsSection } from "@/app/_components/profile/settings-section";
 
 export default async function ProfilePage() {
@@ -43,6 +44,7 @@ export default async function ProfilePage() {
       <ActivitySection />
       <SubjectProgress subjects={subjects} />
       <HistoryTable rows={recent} />
+      <MyClassroomCard />
       <SettingsSection initialData={profileData} />
     </div>
   );

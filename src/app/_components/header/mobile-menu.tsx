@@ -3,15 +3,17 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { NAV_ITEMS, isNavActive } from "./nav-items";
+import { isNavActive, navItemsForRole } from "./nav-items";
 
 interface MobileMenuProps {
   loggedIn: boolean;
+  role?: string | null;
 }
 
-export function MobileMenu({ loggedIn }: MobileMenuProps) {
+export function MobileMenu({ loggedIn, role }: MobileMenuProps) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const items = navItemsForRole(role);
   const ref = useRef<HTMLDivElement>(null);
 
   // Close on outside click.
@@ -62,7 +64,7 @@ export function MobileMenu({ loggedIn }: MobileMenuProps) {
 
       {open && (
         <div className="border-line bg-surface absolute top-12 right-0 z-50 w-56 rounded-md border p-1.5 shadow-lg">
-          {NAV_ITEMS.map((item) => (
+          {items.map((item) => (
             <Link
               key={item.id}
               href={item.href}

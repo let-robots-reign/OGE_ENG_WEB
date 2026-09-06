@@ -20,8 +20,11 @@ import {
   MOCK_EXAM_SLOT_META,
   MOCK_EXAM_SLOT_ORDER,
 } from "@/server/api/lib/mock-exams";
+import {
+  getUoeChainTaskCount,
+  UOE_CHAIN_TASK_COUNTS,
+} from "@/app/_utils/uoeTaskChain";
 
-const UOE_CHAIN_LENGTH = 9;
 const UOE_CHAIN_TOPIC_TITLES = ["По всем темам", "Словообразование"] as const;
 
 const mockExamPartInputSchema = z.object({
@@ -144,9 +147,10 @@ const partValues = (mockExamId: number, part: MockExamPartInput) => {
 
 export const uoeChainTaskIdsSchema = z
   .array(z.number().int().positive())
-  .length(
-    UOE_CHAIN_LENGTH,
-    `Цепочка должна содержать ровно ${UOE_CHAIN_LENGTH} заданий`,
+  .refine(
+    (taskIds) =>
+      UOE_CHAIN_TASK_COUNTS.some((length) => length === taskIds.length),
+    "Цепочка должна содержать 6 или 9 заданий",
   )
   .superRefine((taskIds, ctx) => {
     if (new Set(taskIds).size !== taskIds.length) {
@@ -194,6 +198,14 @@ function validateChainCandidateTasks(
   taskIds: number[],
   chainTopic: ChainTopic,
 ) {
+  const expectedTaskCount = getUoeChainTaskCount(chainTopic.title);
+  if (taskIds.length !== expectedTaskCount) {
+    throw new TRPCError({
+      code: "BAD_REQUEST",
+      message: `Цепочка «${chainTopic.title}» должна содержать ровно ${expectedTaskCount} заданий`,
+    });
+  }
+
   if (tasks.length !== taskIds.length) {
     throw new TRPCError({
       code: "BAD_REQUEST",

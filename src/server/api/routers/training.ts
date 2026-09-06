@@ -12,6 +12,7 @@ import {
 } from "@/server/db/schema";
 import { shuffle } from "@/app/_utils/shuffle";
 import { isGapFillAnswerCorrect } from "@/app/_utils/gapFill";
+import { getUoeChainTaskCount } from "@/app/_utils/uoeTaskChain";
 import { and, eq, inArray, isNotNull, notInArray, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
@@ -50,7 +51,7 @@ function filterValidTasksChain<T extends UoeTaskChainForValidation>(
 ) {
   return chains.filter(
     (chain) =>
-      chain.items.length === 9 &&
+      chain.items.length === getUoeChainTaskCount(chainTopicTitle) &&
       chain.items.every((item, index) => {
         const topic = item.task.topic;
 
@@ -624,13 +625,13 @@ export const trainingRouter = createTRPCRouter({
             eq(uoeTaskChains.id, chainId),
             eq(uoeTaskChains.isDeleted, false),
           ),
-          with: { items: true },
+          with: { items: true, topic: true },
         });
         const expectedIds = chain?.items.map((item) => item.taskId) ?? [];
         chainTopicId = chain?.topicId ?? null;
         const submittedIds = new Set(ids);
         const matchesChain =
-          expectedIds.length === 9 &&
+          expectedIds.length === getUoeChainTaskCount(chain?.topic?.title) &&
           ids.length === expectedIds.length &&
           expectedIds.every((id) => submittedIds.has(id));
 

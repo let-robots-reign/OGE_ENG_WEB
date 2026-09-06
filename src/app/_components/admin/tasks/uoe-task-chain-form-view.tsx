@@ -22,6 +22,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { api, type RouterOutputs } from "@/trpc/react";
 import { CustomSelect } from "@/app/_components/ui/custom-select";
+import { getUoeChainTaskCount } from "@/app/_utils/uoeTaskChain";
 
 type CatalogTask = RouterOutputs["admin"]["getUoeChainCatalog"][number];
 
@@ -208,9 +209,10 @@ export function UoeTaskChainFormView({ chainId }: { chainId?: number }) {
     [topics],
   );
 
-  const chainTopicTitle = chainTopicOptions.find(
-    (option) => option.value === chainTopicId,
-  )?.label;
+  const chainTopicTitle =
+    chainTopicOptions.find((option) => option.value === chainTopicId)?.label ??
+    existingChain?.topic.title;
+  const expectedTaskCount = getUoeChainTaskCount(chainTopicTitle);
 
   const handleDragEnd = ({ active, over }: DragEndEvent) => {
     if (!over || active.id === over.id) return;
@@ -235,7 +237,11 @@ export function UoeTaskChainFormView({ chainId }: { chainId?: number }) {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (selectedTasks.length !== 9 || chainTopicId === undefined) return;
+    if (
+      selectedTasks.length !== expectedTaskCount ||
+      chainTopicId === undefined
+    )
+      return;
     setFormError(null);
 
     try {
@@ -293,8 +299,9 @@ export function UoeTaskChainFormView({ chainId }: { chainId?: number }) {
           {isEditMode ? `Редактирование цепочки #${chainId}` : "Новая цепочка"}
         </h1>
         <p className="text-ink-3 mt-1 text-sm">
-          Добавьте ровно 9 заданий и расположите предложения в порядке связного
-          текста.
+          {chainTopicTitle
+            ? `Добавьте ровно ${expectedTaskCount} заданий и расположите предложения в порядке связного текста.`
+            : "Выберите тему и расположите задания в порядке связного текста."}
         </p>
         <div className="mt-4 max-w-sm">
           <label className="text-ink-2 mb-1.5 block text-sm font-medium">
@@ -365,7 +372,7 @@ export function UoeTaskChainFormView({ chainId }: { chainId?: number }) {
             ) : (
               catalog.map((task) => {
                 const isSelected = selectedIds.includes(task.id);
-                const isFull = selectedTasks.length >= 9;
+                const isFull = selectedTasks.length >= expectedTaskCount;
                 return (
                   <article
                     key={task.id}
@@ -421,12 +428,12 @@ export function UoeTaskChainFormView({ chainId }: { chainId?: number }) {
             <h2 className="font-display text-xl">Текущая цепочка</h2>
             <span
               className={`rounded-lg px-3 py-1 font-mono text-sm font-semibold ${
-                selectedTasks.length === 9
+                selectedTasks.length === expectedTaskCount
                   ? "bg-emerald-500/10 text-emerald-700"
                   : "bg-surface text-ink-3"
               }`}
             >
-              {selectedTasks.length} / 9
+              {selectedTasks.length} / {expectedTaskCount}
             </span>
           </div>
 
@@ -477,7 +484,9 @@ export function UoeTaskChainFormView({ chainId }: { chainId?: number }) {
         <button
           type="submit"
           disabled={
-            chainTopicId === undefined || selectedTasks.length !== 9 || isSaving
+            chainTopicId === undefined ||
+            selectedTasks.length !== expectedTaskCount ||
+            isSaving
           }
           className="bg-ink text-on-ink rounded-lg px-6 py-2.5 text-sm font-medium disabled:opacity-40"
         >

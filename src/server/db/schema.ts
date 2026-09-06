@@ -60,10 +60,17 @@ export const users = createTable(
   }),
 );
 
-export const usersRelations = relations(users, ({ many }) => ({
+export const usersRelations = relations(users, ({ one, many }) => ({
   accounts: many(accounts),
   userResults: many(userResults),
   mockExamAttempts: many(mockExamAttempts),
+  // Classes this user teaches (only meaningful for `teacher`/`admin`).
+  ownedClassrooms: many(classrooms),
+  // The single class this user has joined as a student, if any.
+  classroomMembership: one(classroomMembers, {
+    fields: [users.id],
+    references: [classroomMembers.userId],
+  }),
 }));
 
 export const accounts = createTable(
@@ -563,3 +570,78 @@ export const userResultsRelations = relations(userResults, ({ one }) => ({
     references: [users.id],
   }),
 }));
+
+// --- TEACHER CLASSES ---
+
+export const classrooms = createTable(
+  "classroom",
+  (d) => ({
+    id: d
+      .varchar({ length: 255 })
+      .notNull()
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    teacherId: d
+      .varchar({ length: 255 })
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    name: d.varchar({ length: 255 }).notNull(),
+    // Opaque token embedded in the invite link; regenerating it invalidates
+    // any previously shared link. Unique so a token resolves to one class.
+    inviteToken: d.varchar({ length: 64 }).notNull(),
+    createdAt: d
+      .timestamp({ withTimezone: true })
+      .notNull()
+      .$defaultFn(() => new Date()),
+  }),
+  (t) => [
+    uniqueIndex("classroom_invite_token_idx").on(t.inviteToken),
+    index("classroom_teacher_id_idx").on(t.teacherId),
+  ],
+);
+
+export const classroomMembers = createTable(
+  "classroom_member",
+  (d) => ({
+    classroomId: d
+      .varchar({ length: 255 })
+      .notNull()
+      .references(() => classrooms.id, { onDelete: "cascade" }),
+    userId: d
+      .varchar({ length: 255 })
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    joinedAt: d
+      .timestamp({ withTimezone: true })
+      .notNull()
+      .$defaultFn(() => new Date()),
+  }),
+  (t) => [
+    primaryKey({ columns: [t.classroomId, t.userId] }),
+    // A student belongs to exactly one class — enforced at the DB level.
+    uniqueIndex("classroom_member_user_idx").on(t.userId),
+    index("classroom_member_classroom_idx").on(t.classroomId),
+  ],
+);
+
+export const classroomsRelations = relations(classrooms, ({ one, many }) => ({
+  teacher: one(users, {
+    fields: [classrooms.teacherId],
+    references: [users.id],
+  }),
+  members: many(classroomMembers),
+}));
+
+export const classroomMembersRelations = relations(
+  classroomMembers,
+  ({ one }) => ({
+    classroom: one(classrooms, {
+      fields: [classroomMembers.classroomId],
+      references: [classrooms.id],
+    }),
+    user: one(users, {
+      fields: [classroomMembers.userId],
+      references: [users.id],
+    }),
+  }),
+);

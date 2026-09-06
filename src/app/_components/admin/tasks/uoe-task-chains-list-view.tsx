@@ -7,6 +7,7 @@ import {
   AdminDeleteModal,
   AdminHeader,
 } from "@/app/_components/admin/admin-table-controls";
+import { getUoeChainTaskCount } from "@/app/_utils/uoeTaskChain";
 
 export function UoeTaskChainsListView() {
   const [deleteId, setDeleteId] = useState<number | null>(null);
@@ -33,7 +34,7 @@ export function UoeTaskChainsListView() {
     <div className="mx-auto max-w-[1200px] space-y-6">
       <AdminHeader
         title="Цепочки заданий"
-        description="Связные наборы из 9 заданий для тематических тренировок."
+        description="Связные наборы из 9 заданий по всем темам или 6 заданий по словообразованию."
         createHref="/admin/tasks/uoe/chains/create"
         createLabel="Создать цепочку"
       />
@@ -91,7 +92,8 @@ export function UoeTaskChainsListView() {
                       {chain.topic.title}
                     </td>
                     <td className="text-ink-2 px-5 py-4 font-mono">
-                      {chain.items.length} / 9
+                      {chain.items.length} /{" "}
+                      {getUoeChainTaskCount(chain.topic.title)}
                     </td>
                     <td className="px-5 py-4">
                       <ol className="text-ink-2 space-y-1 text-[13px]">

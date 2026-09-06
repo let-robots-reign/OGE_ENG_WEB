@@ -2,9 +2,10 @@
 
 import { signIn } from "next-auth/react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { OAuthButtons } from "@/app/auth/_components/oauth-buttons";
+import { safeCallbackUrl } from "@/app/_utils/callback-url";
 import posthog from "posthog-js";
 
 type SimpleProvider = {
@@ -17,6 +18,8 @@ const inputClass =
 
 export function SignInForm({ providers }: { providers: SimpleProvider[] }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = safeCallbackUrl(searchParams.get("callbackUrl"));
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -36,27 +39,25 @@ export function SignInForm({ providers }: { providers: SimpleProvider[] }) {
     } else {
       posthog.identify(email, { email });
       posthog.capture("user_signed_in", { method: "credentials" });
-      router.push("/");
+      router.push(callbackUrl);
       router.refresh();
     }
   };
 
   return (
     <div>
-      {/* Eyebrow */}
-      <div className="text-ink-3 mb-3 inline-flex items-center gap-2 text-[12.5px] font-medium tracking-[0.12em] uppercase">
-        <span className="bg-accent h-1.5 w-1.5 rounded-full" />
-        вход
-      </div>
-
       <h1 className="font-display text-ink mb-3 text-[40px] leading-none tracking-[-0.03em] sm:text-[56px]">
-        С возвращением.
+        С возвращением
       </h1>
       <p className="text-ink-3 mb-8 text-[15px]">
         Войдите, чтобы продолжить тренировки.
       </p>
 
-      <OAuthButtons providers={providers} layout="stacked" />
+      <OAuthButtons
+        providers={providers}
+        layout="stacked"
+        callbackUrl={callbackUrl}
+      />
 
       <div className="text-ink-3 my-6 flex items-center gap-3 text-[12px]">
         <div className="bg-line h-px flex-1" />
@@ -109,7 +110,11 @@ export function SignInForm({ providers }: { providers: SimpleProvider[] }) {
       <p className="text-ink-3 mt-7 text-[14px]">
         Нет аккаунта?{" "}
         <Link
-          href="/auth/signup"
+          href={
+            callbackUrl === "/"
+              ? "/auth/signup"
+              : `/auth/signup?callbackUrl=${encodeURIComponent(callbackUrl)}`
+          }
           className="text-ink border-ink-2 hover:border-ink border-b font-medium transition-colors"
         >
           Зарегистрироваться

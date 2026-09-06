@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { authConfig } from "@/server/auth";
 import { SignUpForm } from "./_components/sign-up-form";
 import { type CommonProviderOptions } from "next-auth/providers";
@@ -14,7 +15,9 @@ export default function SignUpPage() {
 
   return (
     <AuthSplitLayout rightPanel={<RightPanelSignUp />}>
-      <SignUpForm providers={providers} />
+      <Suspense fallback={<div>Загрузка...</div>}>
+        <SignUpForm providers={providers} />
+      </Suspense>
     </AuthSplitLayout>
   );
 }

@@ -324,7 +324,7 @@ describe("Training Router tRPC Procedures", () => {
         id: 8,
         title: "Словообразование",
       } as any);
-      const items = Array.from({ length: 9 }, (_, index) => ({
+      const items = Array.from({ length: 6 }, (_, index) => ({
         id: index + 1,
         chainId: 56,
         taskId: 200 + index,
@@ -357,6 +357,7 @@ describe("Training Router tRPC Procedures", () => {
 
       expect(result.chainId).toBe(56);
       expect(result.topicTitle).toBe("Словообразование");
+      expect(result.tasks).toHaveLength(6);
       expect(result.tasks.map((task) => task.id)).toEqual(
         items.map((item) => item.taskId),
       );
@@ -384,6 +385,43 @@ describe("Training Router tRPC Procedures", () => {
   });
 
   describe("checkUoeTraining chain validation", () => {
+    it("accepts all six answers from a word-formation chain", async () => {
+      const items = Array.from({ length: 6 }, (_, index) => ({
+        taskId: 200 + index,
+      }));
+      vi.mocked(db.query.uoeTaskChains.findFirst).mockResolvedValue({
+        id: 56,
+        topicId: 8,
+        isDeleted: false,
+        topic: { title: "Словообразование" },
+        items,
+      } as any);
+      vi.mocked(db.query.uoeTasks.findMany).mockResolvedValue(
+        items.map(({ taskId }) => ({
+          id: taskId,
+          topicId: 8,
+          answer: "ANSWER",
+          isDeleted: false,
+        })) as any,
+      );
+      const caller = createCaller({
+        db: db as any,
+        session: null,
+        headers: new Headers(),
+      });
+
+      const result = await caller.checkUoeTraining({
+        chainId: 56,
+        answers: items.map(({ taskId }) => ({
+          id: taskId,
+          answer: "answer",
+        })),
+      });
+
+      expect(result.total).toBe(6);
+      expect(result.correctCount).toBe(6);
+    });
+
     it("rejects answer IDs that do not match the selected chain", async () => {
       vi.mocked(db.query.uoeTaskChains.findFirst).mockResolvedValue({
         id: 55,
