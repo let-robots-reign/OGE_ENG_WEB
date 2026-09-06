@@ -115,7 +115,7 @@ export function QuestionCard({
         <span>{after}</span>
       </div>
 
-      <div className="border-line mt-[18px] flex items-center gap-3.5 border-t border-dashed pt-4 text-[13px]">
+      <div className="border-line mt-[18px] flex flex-wrap items-center gap-3.5 border-t border-dashed pt-4 text-[13px]">
         <div className="flex items-center gap-2">
           <span className="text-ink-3">исходное слово</span>
           <span className="text-on-ink bg-ink rounded-[6px] px-2.5 py-1 font-mono text-[13px] font-medium tracking-[0.08em]">
