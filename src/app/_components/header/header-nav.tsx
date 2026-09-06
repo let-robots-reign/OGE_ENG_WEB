@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { NAV_ITEMS, isNavActive } from "./nav-items";
+import { isNavActive, navItemsForRole } from "./nav-items";
 
-export function HeaderNav() {
+export function HeaderNav({ role }: { role?: string | null }) {
   const pathname = usePathname();
+  const items = navItemsForRole(role);
   return (
     <nav className="hidden gap-1 md:flex">
-      {NAV_ITEMS.map((item) => (
+      {items.map((item) => (
         <Link
           key={item.id}
           href={item.href}

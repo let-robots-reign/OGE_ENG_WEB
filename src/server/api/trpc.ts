@@ -147,3 +147,23 @@ export const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
     },
   });
 });
+
+/**
+ * Teacher (authenticated and teacher/admin role) procedure
+ *
+ * Gates the teacher cabinet. `admin` is allowed through so admins can inspect
+ * the feature. Note: passing this gate proves the caller *may* teach — it does
+ * NOT prove they own a given class. Any procedure that receives a `classId` /
+ * `studentId` must additionally assert ownership/membership (see
+ * `@/server/api/lib/classrooms`).
+ */
+export const teacherProcedure = protectedProcedure.use(({ ctx, next }) => {
+  if (ctx.session.user.role !== "teacher" && ctx.session.user.role !== "admin") {
+    throw new TRPCError({ code: "FORBIDDEN" });
+  }
+  return next({
+    ctx: {
+      session: { ...ctx.session, user: ctx.session.user },
+    },
+  });
+});

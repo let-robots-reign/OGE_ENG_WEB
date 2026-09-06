@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { signup } from "./actions";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { type z } from "zod";
 import { SignupSchema } from "./schema";
 import { OAuthButtons } from "@/app/auth/_components/oauth-buttons";
+import { safeCallbackUrl } from "@/app/_utils/callback-url";
 import posthog from "posthog-js";
 
 type SimpleProvider = {
@@ -23,6 +24,8 @@ const inputClass =
 
 export function SignUpForm({ providers }: { providers: SimpleProvider[] }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = safeCallbackUrl(searchParams.get("callbackUrl"));
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -112,7 +115,7 @@ export function SignUpForm({ providers }: { providers: SimpleProvider[] }) {
       if (signInResult?.ok) {
         posthog.identify(email, { name, email, role });
         posthog.capture("user_signed_up", { role, method: "credentials" });
-        router.push("/");
+        router.push(callbackUrl);
         router.refresh();
       } else {
         setServerError(
@@ -137,7 +140,12 @@ export function SignUpForm({ providers }: { providers: SimpleProvider[] }) {
         Все функции доступны абсолютно бесплатно.
       </p>
 
-      <OAuthButtons providers={providers} layout="row" role={role} />
+      <OAuthButtons
+        providers={providers}
+        layout="row"
+        role={role}
+        callbackUrl={callbackUrl}
+      />
 
       <div className="text-ink-3 my-6 flex items-center gap-3 text-[12px]">
         <div className="bg-line h-px flex-1" />
@@ -252,7 +260,11 @@ export function SignUpForm({ providers }: { providers: SimpleProvider[] }) {
       <p className="text-ink-3 mt-6 text-[14px]">
         Уже есть аккаунт?{" "}
         <Link
-          href="/auth/signin"
+          href={
+            callbackUrl === "/"
+              ? "/auth/signin"
+              : `/auth/signin?callbackUrl=${encodeURIComponent(callbackUrl)}`
+          }
           className="text-ink border-ink-2 hover:border-ink border-b font-medium transition-colors"
         >
           Войти
