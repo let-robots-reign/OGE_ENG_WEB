@@ -18,7 +18,7 @@ export const env = createEnv({
     VK_CLIENT_SECRET: z.string(),
     DATABASE_URL: z.string().url(),
     GROQ_API_KEY: z.string(),
-    CEREBRAS_API_KEY: z.string(),
+    DIAGNOSTICS_DAILY_LIMIT: z.coerce.number().int().positive().default(100),
     GEMINI_API_KEY: z.string(),
     SENTRY_AUTH_TOKEN: z.string(),
     NODE_ENV: z
@@ -50,7 +50,7 @@ export const env = createEnv({
     VK_CLIENT_SECRET: process.env.VK_CLIENT_SECRET,
     DATABASE_URL: process.env.DATABASE_URL,
     GROQ_API_KEY: process.env.GROQ_API_KEY,
-    CEREBRAS_API_KEY: process.env.CEREBRAS_API_KEY,
+    DIAGNOSTICS_DAILY_LIMIT: process.env.DIAGNOSTICS_DAILY_LIMIT,
     GEMINI_API_KEY: process.env.GEMINI_API_KEY,
     SENTRY_AUTH_TOKEN: process.env.SENTRY_AUTH_TOKEN,
     NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN:

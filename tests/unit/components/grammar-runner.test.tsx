@@ -1,9 +1,21 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call, @typescript-eslint/unbound-method, @typescript-eslint/no-unused-vars, @typescript-eslint/no-unsafe-return */
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import {
+  act,
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+} from "@testing-library/react";
+import {
+  QueryClient,
+  QueryClientProvider,
+  useQuery,
+} from "@tanstack/react-query";
 import { GrammarRunner } from "@/app/_components/diagnostics/grammar/grammar-runner";
 import { api } from "@/trpc/react";
 import posthog from "posthog-js";
+import { testStudentSubmission } from "../fixtures/diagnostics";
 
 // Mock router
 const mockPush = vi.fn();
@@ -32,6 +44,7 @@ global.window.scrollTo = vi.fn();
 
 // Mock tRPC Queries and Mutations
 const mockCheckGrammar = vi.fn();
+const mockPendingFetch = vi.fn();
 const mockGetStreakInvalidate = vi.fn();
 const mockGetActivityInvalidate = vi.fn();
 
@@ -40,6 +53,7 @@ let checkGrammarOnSuccess: any = null;
 vi.mock("@/trpc/react", () => ({
   api: {
     diagnostics: {
+      getPendingDiagnostics: { useQuery: vi.fn() },
       hasCompletedDiagnostics: {
         useQuery: vi.fn(),
       },
@@ -63,6 +77,9 @@ vi.mock("@/trpc/react", () => ({
       },
     },
     useUtils: () => ({
+      diagnostics: {
+        getPendingDiagnostics: { fetch: mockPendingFetch, cancel: vi.fn() },
+      },
       user: {
         getStreak: {
           invalidate: mockGetStreakInvalidate,
@@ -78,6 +95,11 @@ vi.mock("@/trpc/react", () => ({
 describe("GrammarRunner Component Suite", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockPendingFetch.mockReset().mockResolvedValue(null);
+    vi.mocked(api.diagnostics.getPendingDiagnostics.useQuery).mockReturnValue({
+      data: null,
+      isLoading: false,
+    } as any);
     mockUseSession.mockReturnValue({
       data: { user: { id: "user-1", name: "John Doe" } },
       status: "authenticated",
@@ -207,6 +229,20 @@ describe("GrammarRunner Component Suite", () => {
     // Check checkGrammar called
     expect(mockCheckGrammar).toHaveBeenCalled();
 
+    // Only raw answers are submitted; grading and persistence stay on the server.
+    expect(mockCheckGrammar).toHaveBeenCalledWith(
+      expect.objectContaining({
+        version: "grammar-2026-08-31-v2",
+        part1: expect.arrayContaining([
+          { id: 1, userAnswers: ["don't touch", ""] },
+        ]),
+      }),
+    );
+    const sent = mockCheckGrammar.mock.calls[0]![0];
+    expect(sent.part1[0]).not.toHaveProperty("checkResults");
+    expect(sent.part1[0]).not.toHaveProperty("correctAnswers");
+    await waitFor(() => expect(mockGetStreakInvalidate).toHaveBeenCalled());
+
     // Check PostHog events captured
     expect(posthog.capture).toHaveBeenCalledWith(
       "diagnostics_submitted",
@@ -221,5 +257,120 @@ describe("GrammarRunner Component Suite", () => {
     expect(
       screen.getByText("Mocked diagnostic feedback text"),
     ).toBeInTheDocument();
+  });
+  it("restores partial feedback and original answers, then completes by retrying", async () => {
+    vi.mocked(api.diagnostics.getPendingDiagnostics.useQuery).mockReturnValue({
+      data: {
+        feedback: "Сохранённый частичный разбор",
+        submission: testStudentSubmission,
+      },
+      isLoading: false,
+    } as any);
+    render(<GrammarRunner />);
+    expect(
+      screen.getByText("Сохранённый частичный разбор"),
+    ).toBeInTheDocument();
+    expect(screen.getByText("разбор готов частично")).toBeInTheDocument();
+    expect(mockGetStreakInvalidate).not.toHaveBeenCalled();
+    fireEvent.click(
+      screen.getByRole("button", { name: "Повторить проверку переводов" }),
+    );
+    expect(mockCheckGrammar).toHaveBeenCalledWith(testStudentSubmission);
+    await waitFor(() =>
+      expect(screen.getByText("разбор готов")).toBeInTheDocument(),
+    );
+    expect(
+      screen.queryByRole("button", { name: "Повторить проверку переводов" }),
+    ).not.toBeInTheDocument();
+    expect(mockGetStreakInvalidate).toHaveBeenCalledTimes(1);
+  });
+
+  it("restores fresh progress instead of freezing the cached partial report", async () => {
+    const cached = {
+      feedback: "Старый частичный разбор",
+      submission: testStudentSubmission,
+    };
+    const freshSubmission = structuredClone(testStudentSubmission);
+    freshSubmission.part2[0]!.userTranslation =
+      "These people are my friends. Look at them!";
+    const fresh = {
+      feedback: "Обновлённый разбор с проверенными переводами",
+      submission: freshSubmission,
+    };
+    let resolveProgress!: (value: typeof fresh) => void;
+    const progressRequest = new Promise<typeof fresh>((resolve) => {
+      resolveProgress = resolve;
+    });
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    const queryKey = ["pending-diagnostics"];
+    queryClient.setQueryData(queryKey, cached);
+    const fetchProgress = vi.fn(() => progressRequest);
+    vi.mocked(
+      api.diagnostics.getPendingDiagnostics.useQuery,
+    ).mockImplementation(function usePendingProgress(_input, options) {
+      return useQuery({
+        ...options,
+        queryKey,
+        queryFn: fetchProgress,
+      }) as any;
+    });
+    const view = render(
+      <QueryClientProvider client={queryClient}>
+        <GrammarRunner />
+      </QueryClientProvider>,
+    );
+
+    try {
+      await waitFor(() => expect(fetchProgress).toHaveBeenCalledTimes(1));
+      await act(async () => resolveProgress(fresh));
+      await waitFor(() =>
+        expect(screen.getByText(fresh.feedback)).toBeInTheDocument(),
+      );
+      expect(screen.queryByText(cached.feedback)).not.toBeInTheDocument();
+      expect(mockCheckGrammar).not.toHaveBeenCalled();
+
+      fireEvent.click(
+        screen.getByRole("button", { name: "Повторить проверку переводов" }),
+      );
+      expect(mockCheckGrammar).toHaveBeenCalledWith(freshSubmission);
+      await waitFor(() =>
+        expect(screen.getByText("разбор готов")).toBeInTheDocument(),
+      );
+    } finally {
+      view.unmount();
+      queryClient.clear();
+    }
+  });
+
+  it("keeps partial reports retryable without awarding completion", async () => {
+    const pending = {
+      feedback: "Частичный разбор",
+      submission: testStudentSubmission,
+    };
+    vi.mocked(api.diagnostics.getPendingDiagnostics.useQuery).mockReturnValue({
+      data: pending,
+      isLoading: false,
+    } as any);
+    mockPendingFetch.mockResolvedValue(pending);
+    render(<GrammarRunner />);
+    fireEvent.click(
+      screen.getByRole("button", { name: "Повторить проверку переводов" }),
+    );
+    await waitFor(() =>
+      expect(posthog.capture).toHaveBeenCalledWith(
+        "diagnostics_partial",
+        expect.any(Object),
+      ),
+    );
+    expect(mockGetStreakInvalidate).not.toHaveBeenCalled();
+    expect(
+      screen.getByRole("button", { name: "Повторить проверку переводов" }),
+    ).toBeInTheDocument();
+    expect(posthog.capture).not.toHaveBeenCalledWith(
+      "diagnostics_completed",
+      expect.any(Object),
+    );
   });
 });

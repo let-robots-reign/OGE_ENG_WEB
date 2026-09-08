@@ -1,6 +1,6 @@
 export const env = {
+  DIAGNOSTICS_DAILY_LIMIT: 100,
   GROQ_API_KEY: "mock-key",
-  CEREBRAS_API_KEY: "mock-key",
   GEMINI_API_KEY: "mock-key",
   AUTH_SECRET: "mock-secret",
   DATABASE_URL: "postgresql://localhost:5432/db",
