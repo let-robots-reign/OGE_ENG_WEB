@@ -23,7 +23,7 @@ export async function Header() {
           </div>
           ОГЭ Английский
         </Link>
-        <HeaderNav />
+        <HeaderNav role={session?.user?.role} />
       </div>
 
       <div className="flex items-center gap-2 sm:gap-3">
@@ -55,7 +55,7 @@ export async function Header() {
             </Link>
           </>
         )}
-        <MobileMenu loggedIn={loggedIn} />
+        <MobileMenu loggedIn={loggedIn} role={session?.user?.role} />
       </div>
     </header>
   );

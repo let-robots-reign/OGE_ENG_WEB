@@ -32,62 +32,33 @@ export function QuestionCard({
     Math.min(360, (value.length || origin.length) * 13 + 40),
   );
 
-  const inputBg = checked
-    ? correct
-      ? "var(--color-ok-soft)"
-      : "var(--color-err-soft)"
-    : "var(--color-surface)";
-  const inputBorder = checked
-    ? correct
-      ? "var(--color-ok)"
-      : "var(--color-err)"
-    : "var(--color-line-2)";
-  const inputColor = checked
-    ? correct
-      ? "var(--color-ok)"
-      : "var(--color-err)"
-    : "var(--color-ink)";
-
   return (
     <div
-      className="rounded-lg border"
-      style={{
-        padding: "26px 32px 28px",
-        borderColor: checked
+      className={`rounded-lg border px-8 pt-[26px] pb-7 ${
+        checked
           ? correct
-            ? "var(--color-ok)"
-            : "var(--color-err)"
-          : "var(--color-line)",
-        background: checked
-          ? correct
-            ? "linear-gradient(180deg, var(--color-surface) 0%, rgba(26,164,99,0.04) 100%)"
-            : "linear-gradient(180deg, var(--color-surface) 0%, rgba(220,38,38,0.03) 100%)"
-          : "var(--color-surface)",
-      }}
+            ? "border-ok bg-[linear-gradient(180deg,var(--color-surface)_0%,rgba(26,164,99,0.04)_100%)]"
+            : "border-err bg-[linear-gradient(180deg,var(--color-surface)_0%,rgba(220,38,38,0.03)_100%)]"
+          : "border-line bg-surface"
+      }`}
     >
       <div className="mb-4 flex items-start justify-between">
         <div
-          className="grid place-items-center font-mono"
-          style={{
-            width: 34,
-            height: 34,
-            borderRadius: 10,
-            fontSize: 13,
-            fontWeight: 500,
-            color: checked ? "#fff" : "var(--color-on-ink)",
-            background: checked
+          className={`grid size-[34px] place-items-center rounded-[10px] font-mono text-[13px] font-medium ${
+            checked
               ? correct
-                ? "var(--color-ok)"
-                : "var(--color-err)"
-              : "var(--color-ink)",
-          }}
+                ? "bg-ok text-white"
+                : "bg-err text-white"
+              : "bg-ink text-on-ink"
+          }`}
         >
           {n}
         </div>
         {checked && (
           <div
-            className="inline-flex items-center gap-1.5 text-[12px] font-medium"
-            style={{ color: correct ? "var(--color-ok)" : "var(--color-err)" }}
+            className={`inline-flex items-center gap-1.5 text-[12px] font-medium ${
+              correct ? "text-ok" : "text-err"
+            }`}
           >
             {correct ? (
               <>
@@ -122,17 +93,7 @@ export function QuestionCard({
         )}
       </div>
 
-      <div
-        className="text-ink"
-        style={{
-          fontSize: 19,
-          lineHeight: 1.7,
-          display: "flex",
-          flexWrap: "wrap",
-          alignItems: "center",
-          gap: "0 4px",
-        }}
-      >
+      <div className="text-ink flex flex-wrap items-center gap-x-1 text-[19px] leading-[1.7]">
         <span>{before}</span>
         <input
           type="text"
@@ -142,65 +103,31 @@ export function QuestionCard({
           }
           readOnly={checked}
           placeholder={origin}
-          className="align-middle font-mono outline-none"
-          style={{
-            width,
-            padding: "10px 14px",
-            fontSize: 17,
-            fontWeight: 500,
-            letterSpacing: "0.02em",
-            border: `1.5px solid ${inputBorder}`,
-            borderRadius: 10,
-            background: inputBg,
-            color: inputColor,
-            transition: "border-color .15s, background .15s",
-          }}
-          onFocus={(e) => {
-            if (!checked)
-              e.currentTarget.style.borderColor = "var(--color-accent)";
-          }}
-          onBlur={(e) => {
-            if (!checked)
-              e.currentTarget.style.borderColor = "var(--color-line-2)";
-          }}
+          className={`rounded-[10px] border-[1.5px] px-3.5 py-2.5 align-middle font-mono text-[17px] font-medium tracking-[0.02em] transition-[border-color,background-color] outline-none ${
+            checked
+              ? correct
+                ? "border-ok bg-ok-soft text-ok"
+                : "border-err bg-err-soft text-err"
+              : "border-line-2 bg-surface text-ink focus:border-accent"
+          }`}
+          style={{ width }}
         />
         <span>{after}</span>
       </div>
 
-      <div
-        className="mt-[18px] flex items-center gap-3.5 pt-4 text-[13px]"
-        style={{ borderTop: "1px dashed var(--color-line)" }}
-      >
+      <div className="border-line mt-[18px] flex flex-wrap items-center gap-3.5 border-t border-dashed pt-4 text-[13px]">
         <div className="flex items-center gap-2">
           <span className="text-ink-3">исходное слово</span>
-          <span
-            className="text-on-ink font-mono font-medium"
-            style={{
-              fontSize: 13,
-              letterSpacing: ".08em",
-              padding: "4px 10px",
-              borderRadius: 6,
-              background: "var(--color-ink)",
-            }}
-          >
+          <span className="text-on-ink bg-ink rounded-[6px] px-2.5 py-1 font-mono text-[13px] font-medium tracking-[0.08em]">
             {origin}
           </span>
         </div>
         {checked && !correct && correctAnswer && (
           <>
-            <span style={{ color: "var(--color-line-2)" }}>·</span>
+            <span className="text-line-2">·</span>
             <div className="flex items-center gap-2">
               <span className="text-ink-3">правильный ответ</span>
-              <span
-                className="font-mono font-medium"
-                style={{
-                  fontSize: 13,
-                  padding: "4px 10px",
-                  borderRadius: 6,
-                  background: "var(--color-ok-soft)",
-                  color: "var(--color-ok)",
-                }}
-              >
+              <span className="bg-ok-soft text-ok rounded-[6px] px-2.5 py-1 font-mono text-[13px] font-medium">
                 {correctAnswer.replace(/\//g, " / ")}
               </span>
             </div>

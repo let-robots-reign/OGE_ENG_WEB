@@ -17,13 +17,7 @@ export function RightPanelSignIn() {
       />
 
       {/* Top */}
-      <div
-        className="rounded-pill inline-flex w-fit items-center gap-2.5 px-4 py-2 font-mono text-[12.5px] tracking-[0.05em]"
-        style={{
-          background: "rgba(255,255,255,0.08)",
-          border: "1px solid rgba(255,255,255,0.12)",
-        }}
-      >
+      <div className="rounded-pill inline-flex w-fit items-center gap-2.5 border border-white/12 bg-white/8 px-4 py-2 font-mono text-[12.5px] tracking-[0.05em]">
         <span className="bg-accent-2 h-1.5 w-1.5 rounded-full" />
         {EXAM_NAME} · {getExamCountdownText()}
       </div>
@@ -41,14 +35,7 @@ export function RightPanelSignIn() {
         </div>
 
         {/* Progress mini-chart */}
-        <div
-          className="mt-10 max-w-[360px] rounded-lg p-6"
-          style={{
-            background: "rgba(255,255,255,0.06)",
-            border: "1px solid rgba(255,255,255,0.1)",
-            backdropFilter: "blur(6px)",
-          }}
-        >
+        <div className="mt-10 max-w-[360px] rounded-lg border border-white/10 bg-white/6 p-6 backdrop-blur-md">
           <div className="mb-4 flex justify-between font-mono text-[12.5px] tracking-[0.05em] text-white/55 uppercase">
             <span>прогресс на этой неделе</span>
             <span>+12%</span>
@@ -57,10 +44,11 @@ export function RightPanelSignIn() {
             {BAR_HEIGHTS.map((h, i) => (
               <div
                 key={i}
-                className="flex-1 rounded-[4px]"
+                className={`flex-1 rounded-[4px] ${
+                  i === 6 ? "bg-accent-2" : "bg-white/18"
+                }`}
                 style={{
                   height: `${h * 100}%`,
-                  background: i === 6 ? "#ff5b3a" : "rgba(255,255,255,0.18)",
                 }}
               />
             ))}
@@ -74,14 +62,8 @@ export function RightPanelSignIn() {
       </div>
 
       {/* Bottom — testimonial */}
-      <div
-        className="relative flex items-center gap-4 pt-6"
-        style={{ borderTop: "1px solid rgba(255,255,255,0.1)" }}
-      >
-        <div
-          className="grid h-11 w-11 shrink-0 place-items-center rounded-full font-semibold text-white"
-          style={{ background: "linear-gradient(135deg, #c8c4ff, #4f46ff)" }}
-        >
+      <div className="relative flex items-center gap-4 border-t border-white/10 pt-6">
+        <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-gradient-to-br from-[#c8c4ff] to-[#4f46ff] font-semibold text-white">
           В
         </div>
         <div>

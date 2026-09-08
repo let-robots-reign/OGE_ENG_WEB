@@ -2,13 +2,11 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useSession } from "next-auth/react";
 import posthog from "posthog-js";
 import { api } from "@/trpc/react";
 import { TrainingSubHeader } from "../shared/training-sub-header";
 import { ResultModal, type ResultSegment } from "../shared/result-modal";
 import { useElapsedTimer } from "@/app/_composables/use-elapsed-timer";
-import { useSubmitAnswersMutation } from "@/app/_composables/use-submit-answers-mutation";
 import { InstructionStrip } from "./instruction-strip";
 import { ResultBanner } from "./result-banner";
 import { StructureSection } from "./structure-section";
@@ -29,18 +27,13 @@ function segment(label: string, arr: boolean[]): ResultSegment {
 }
 
 export function WritingRunner() {
-  const { data: session } = useSession();
+  const utils = api.useUtils();
 
   const { data, isLoading, refetch } = api.training.getWritingTraining.useQuery(
     undefined,
     { gcTime: 0 },
   );
-  const { data: topicData } =
-    api.training.getTopicByTopicTitle.useQuery("Письмо Упражнения");
-  const topicId = topicData?.id;
-
   const checkMutation = api.training.checkWritingTraining.useMutation();
-  const submitAnswersMutation = useSubmitAnswersMutation();
 
   const [initialized, setInitialized] = useState(false);
   const [structureOrder, setStructureOrder] = useState<number[]>([]);
@@ -137,7 +130,10 @@ export function WritingRunner() {
       })),
     };
 
-    const res = await checkMutation.mutateAsync({ answers });
+    const res = await checkMutation.mutateAsync({
+      answers,
+      timeSpent: elapsedSec,
+    });
     setResult(res);
     setChecked(true);
     setShowResult(true);
@@ -151,14 +147,10 @@ export function WritingRunner() {
       result: resultRatio,
     });
 
-    if (session?.user && topicId) {
-      submitAnswersMutation.mutate({
-        activityId: topicId,
-        activityType: "training",
-        result: resultRatio,
-        timeSpent: elapsedSec,
-      });
-    }
+    void Promise.all([
+      utils.user.getStreak.invalidate(),
+      utils.user.getActivity.invalidate(),
+    ]);
   };
 
   const handleRetry = () => {
@@ -184,8 +176,7 @@ export function WritingRunner() {
         <p className="text-ink-3 mt-3">Попробуйте ещё раз.</p>
         <Link
           href={BACK_HREF}
-          className="rounded-pill text-on-ink mt-6 inline-flex h-11 items-center justify-center px-[22px] text-[15px] font-medium"
-          style={{ background: "var(--color-ink)" }}
+          className="bg-ink rounded-pill text-on-ink mt-6 inline-flex h-11 items-center justify-center px-[22px] text-[15px] font-medium"
         >
           К списку тренировок →
         </Link>
@@ -317,8 +308,7 @@ export function WritingRunner() {
               </button>
               <Link
                 href={BACK_HREF}
-                className="rounded-pill text-on-ink inline-flex h-11 items-center justify-center px-[22px] text-[15px] font-medium"
-                style={{ background: "var(--color-ink)" }}
+                className="bg-ink rounded-pill text-on-ink inline-flex h-11 items-center justify-center px-[22px] text-[15px] font-medium"
               >
                 К списку тренировок →
               </Link>
@@ -328,8 +318,7 @@ export function WritingRunner() {
               type="button"
               onClick={handleCheck}
               disabled={isChecking}
-              className="rounded-pill text-on-ink inline-flex h-11 items-center justify-center px-[22px] text-[15px] font-medium disabled:opacity-60"
-              style={{ background: "var(--color-ink)" }}
+              className="bg-ink rounded-pill text-on-ink inline-flex h-11 items-center justify-center px-[22px] text-[15px] font-medium disabled:opacity-60"
             >
               {isChecking ? "Проверяем..." : "Проверить →"}
             </button>

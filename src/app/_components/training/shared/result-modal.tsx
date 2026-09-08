@@ -78,31 +78,22 @@ function ScoreRing({
 function Stat({
   label,
   value,
-  color,
+  colorClass = "text-ink",
   mono,
 }: {
   label: string;
   value: string | number;
-  color?: string;
+  colorClass?: string;
   mono?: boolean;
 }) {
   return (
     <div>
       <div
-        className={mono ? "font-mono" : "font-display"}
-        style={{
-          fontSize: mono ? 22 : 28,
-          letterSpacing: "-0.02em",
-          color: color ?? "var(--color-ink)",
-          lineHeight: 1,
-        }}
+        className={`leading-none tracking-[-0.02em] ${colorClass} ${mono ? "font-mono text-[22px]" : "font-display text-[28px]"}`}
       >
         {value}
       </div>
-      <div
-        className="text-ink-3 mt-1.5 uppercase"
-        style={{ fontSize: 12, letterSpacing: ".08em" }}
-      >
+      <div className="text-ink-3 mt-1.5 text-[12px] tracking-[0.08em] uppercase">
         {label}
       </div>
     </div>
@@ -142,13 +133,7 @@ export function ResultModal({
 
   return (
     <Modal size={size} onClose={onClose}>
-      <div
-        className="grid grid-cols-1 items-center justify-items-center gap-5 px-7 pt-8 pb-6 text-center sm:grid-cols-[auto_1fr] sm:justify-items-start sm:gap-7 sm:px-10 sm:pt-9 sm:text-left"
-        style={{
-          background:
-            "linear-gradient(180deg, var(--color-surface) 0%, var(--color-surface-2) 100%)",
-        }}
-      >
+      <div className="from-surface to-surface-2 grid grid-cols-1 items-center justify-items-center gap-5 bg-gradient-to-b px-7 pt-8 pb-6 text-center sm:grid-cols-[auto_1fr] sm:justify-items-start sm:gap-7 sm:px-10 sm:pt-9 sm:text-left">
         <ScoreRing value={correct} max={total} tone={tone} />
         <div>
           <div className="text-ink-3 mb-1.5 inline-flex items-center gap-2 text-[12.5px] font-medium tracking-[0.12em] uppercase">
@@ -163,12 +148,8 @@ export function ResultModal({
             <span className="text-ink-3"> / {total}</span>
           </div>
           <div
-            className="mt-2.5 inline-block font-mono uppercase"
+            className="rounded-pill mt-2.5 inline-block px-3 py-1 font-mono text-[11px] tracking-[0.1em] uppercase"
             style={{
-              fontSize: 11,
-              letterSpacing: ".1em",
-              padding: "5px 12px",
-              borderRadius: 999,
               background: toneSoft,
               color: tone,
             }}
@@ -188,20 +169,14 @@ export function ResultModal({
           {segments.map((s) => (
             <div key={s.label}>
               <div
-                className="font-mono"
+                className="font-mono text-[17px] font-medium tracking-[-0.01em]"
                 style={{
-                  fontSize: 17,
-                  fontWeight: 500,
                   color: SEGMENT_TONE[s.tone],
-                  letterSpacing: "-0.01em",
                 }}
               >
                 {s.value}
               </div>
-              <div
-                className="text-ink-3 mt-1 uppercase"
-                style={{ fontSize: 11, letterSpacing: ".08em" }}
-              >
+              <div className="text-ink-3 mt-1 text-[11px] tracking-[0.08em] uppercase">
                 {s.label}
               </div>
             </div>
@@ -209,16 +184,9 @@ export function ResultModal({
           {timeText && <Stat label="время" value={timeText} mono />}
         </div>
       ) : (
-        <div
-          className="border-line grid border-t px-7 py-5 sm:px-10"
-          style={{ gridTemplateColumns: "1fr 1fr 1fr" }}
-        >
-          <Stat label="верно" value={correct} color="var(--color-ok)" />
-          <Stat
-            label="ошибок"
-            value={total - correct}
-            color="var(--color-err)"
-          />
+        <div className="border-line grid grid-cols-3 border-t px-7 py-5 sm:px-10">
+          <Stat label="верно" value={correct} colorClass="text-ok" />
+          <Stat label="ошибок" value={total - correct} colorClass="text-err" />
           {timeText && <Stat label="время" value={timeText} mono />}
         </div>
       )}
@@ -238,8 +206,7 @@ export function ResultModal({
           <button
             type="button"
             onClick={onReview}
-            className="rounded-pill text-on-ink inline-flex h-11 flex-[2] items-center justify-center px-[22px] text-[15px] font-medium transition-transform hover:-translate-y-px"
-            style={{ background: "var(--color-ink)" }}
+            className="bg-ink rounded-pill text-on-ink inline-flex h-11 flex-[2] items-center justify-center px-[22px] text-[15px] font-medium transition-transform hover:-translate-y-px"
           >
             Посмотреть пояснения →
           </button>

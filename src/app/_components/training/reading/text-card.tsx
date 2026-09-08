@@ -29,46 +29,32 @@ export function TextCard({
   correctN,
   correctHeadingQ,
 }: TextCardProps) {
-  let borderTone = "var(--color-line)";
-  let bgTint = "var(--color-surface)";
-  let numBg = "var(--color-ink)";
-
-  if (checked) {
-    borderTone = isCorrect ? "var(--color-ok)" : "var(--color-err)";
-    numBg = isCorrect ? "var(--color-ok)" : "var(--color-err)";
-    bgTint = isCorrect
-      ? "linear-gradient(180deg, var(--color-surface) 0%, rgba(26,164,99,0.04) 100%)"
-      : "linear-gradient(180deg, var(--color-surface) 0%, rgba(220,38,38,0.03) 100%)";
-  } else if (assignedN) {
-    borderTone = "var(--color-accent)";
-  } else if (armed) {
-    borderTone = "var(--color-ink)";
-  }
-
   return (
     <div
       onClick={() => armed && onAssign()}
-      className="border transition-[border-color,box-shadow]"
-      style={{
-        padding: 28,
-        borderRadius: "var(--radius-lg)",
-        cursor: armed ? "pointer" : "default",
-        borderColor: borderTone,
-        background: bgTint,
-        boxShadow: armed ? "0 0 0 4px var(--color-accent-soft)" : "none",
-      }}
+      className={`rounded-lg border p-7 transition-[border-color,box-shadow] ${
+        armed ? "ring-accent-soft cursor-pointer ring-4" : "cursor-default"
+      } ${
+        checked
+          ? isCorrect
+            ? "border-ok bg-[linear-gradient(180deg,var(--color-surface)_0%,rgba(26,164,99,0.04)_100%)]"
+            : "border-err bg-[linear-gradient(180deg,var(--color-surface)_0%,rgba(220,38,38,0.03)_100%)]"
+          : assignedN
+            ? "border-accent bg-surface"
+            : armed
+              ? "border-ink bg-surface"
+              : "border-line bg-surface"
+      }`}
     >
       <div className="flex items-start gap-[18px]">
         <div
-          className="font-display grid shrink-0 place-items-center italic"
-          style={{
-            width: 36,
-            height: 36,
-            borderRadius: 10,
-            background: numBg,
-            color: checked ? "#fff" : "var(--color-on-ink)",
-            fontSize: 19,
-          }}
+          className={`font-display grid size-9 shrink-0 place-items-center rounded-[10px] text-[19px] italic ${
+            checked
+              ? isCorrect
+                ? "bg-ok text-white"
+                : "bg-err text-white"
+              : "bg-ink text-on-ink"
+          }`}
         >
           {letter}
         </div>
@@ -96,10 +82,9 @@ export function TextCard({
 
             {checked ? (
               <div
-                className="mt-0.5 inline-flex items-center gap-1.5 text-[12px] font-medium whitespace-nowrap"
-                style={{
-                  color: isCorrect ? "var(--color-ok)" : "var(--color-err)",
-                }}
+                className={`mt-0.5 inline-flex items-center gap-1.5 text-[12px] font-medium whitespace-nowrap ${
+                  isCorrect ? "text-ok" : "text-err"
+                }`}
               >
                 {isCorrect ? (
                   <>
@@ -138,80 +123,33 @@ export function TextCard({
                   e.stopPropagation();
                   onClear();
                 }}
-                className="inline-flex items-center gap-2 text-[12.5px] font-medium text-white"
-                style={{
-                  padding: "4px 12px 4px 4px",
-                  borderRadius: "var(--radius-pill)",
-                  border: "1px solid var(--color-accent)",
-                  background: "var(--color-accent)",
-                }}
+                className="rounded-pill bg-accent border-accent inline-flex items-center gap-2 border py-1 pr-3 pl-1 text-[12.5px] font-medium text-white"
               >
-                <span
-                  className="grid place-items-center font-mono"
-                  style={{
-                    width: 24,
-                    height: 24,
-                    borderRadius: "50%",
-                    background: "#fff",
-                    color: "var(--color-accent)",
-                    fontSize: 12,
-                    fontWeight: 600,
-                  }}
-                >
+                <span className="text-accent grid size-6 place-items-center rounded-full bg-white font-mono text-[12px] font-semibold">
                   {assignedN}
                 </span>
                 открепить
               </button>
             ) : (
               <div
-                className="grid place-items-center font-mono"
-                style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: "50%",
-                  background: armed
-                    ? "var(--color-accent-soft)"
-                    : "var(--color-surface-2)",
-                  border:
-                    "1px dashed " +
-                    (armed ? "var(--color-accent)" : "var(--color-line-2)"),
-                  color: armed ? "var(--color-accent)" : "var(--color-ink-4)",
-                  fontSize: 14,
-                }}
+                className={`grid size-9 place-items-center rounded-full border border-dashed font-mono text-[14px] ${
+                  armed
+                    ? "border-accent bg-accent-soft text-accent"
+                    : "border-line-2 bg-surface-2 text-ink-4"
+                }`}
               >
                 {armed ? activeHeading : "?"}
               </div>
             )}
           </div>
 
-          <div
-            className="text-ink-2 mt-4 text-[15px]"
-            style={{ lineHeight: 1.65 }}
-          >
+          <div className="text-ink-2 mt-4 text-[15px] leading-[1.65]">
             <span className="text-ink font-semibold">{letter}.</span> {body}
           </div>
 
           {checked && !isCorrect && (
-            <div
-              className="mt-4 flex items-center gap-3"
-              style={{
-                padding: "12px 16px",
-                borderRadius: "var(--radius-md)",
-                background: "var(--color-ok-soft)",
-                border: "1px solid rgba(26,164,99,0.25)",
-              }}
-            >
-              <span
-                className="grid shrink-0 place-items-center font-mono text-white"
-                style={{
-                  width: 28,
-                  height: 28,
-                  borderRadius: 8,
-                  background: "var(--color-ok)",
-                  fontSize: 13,
-                  fontWeight: 500,
-                }}
-              >
+            <div className="bg-ok-soft border-ok/25 mt-4 flex items-center gap-3 rounded-md border px-4 py-3">
+              <span className="bg-ok grid size-7 shrink-0 place-items-center rounded-xs font-mono text-[13px] font-medium text-white">
                 {correctN}
               </span>
               <div className="text-ink-2 text-[13.5px] leading-snug">

@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { useSession } from "next-auth/react";
 import posthog from "posthog-js";
 import { api } from "@/trpc/react";
 import { HeadingsBank } from "./headings-bank";
@@ -14,7 +13,6 @@ import { ReviewModal, type ReviewItem } from "../shared/review-modal";
 import { ProgressDots } from "../shared/progress-dots";
 import { TrainingSubHeader } from "../shared/training-sub-header";
 import { useElapsedTimer } from "@/app/_composables/use-elapsed-timer";
-import { useSubmitAnswersMutation } from "@/app/_composables/use-submit-answers-mutation";
 import { formatClock } from "@/app/_utils/formatClock";
 import type { ReadingTaskType } from "@/server/db/schema";
 import { READING_INSTRUCTIONS } from "../shared/task-instructions";
@@ -28,7 +26,7 @@ export function ReadingRunner() {
   const searchParams = useSearchParams();
   const topicId = Number(searchParams.get("topic"));
   const router = useRouter();
-  const { data: session } = useSession();
+  const utils = api.useUtils();
 
   const { data, isLoading } = api.training.getReadingTraining.useQuery(
     { topicId },
@@ -36,7 +34,6 @@ export function ReadingRunner() {
   );
 
   const checkMutation = api.training.checkReadingTraining.useMutation();
-  const submitAnswersMutation = useSubmitAnswersMutation();
 
   const taskType: ReadingTaskType =
     data?.task.taskType === "true_false" ? "true_false" : "matching";
@@ -131,6 +128,7 @@ export function ReadingRunner() {
     const res = await checkMutation.mutateAsync({
       id: data.task.id,
       answers,
+      timeSpent: elapsedSec,
     });
     setResult(res);
     setChecked(true);
@@ -148,15 +146,10 @@ export function ReadingRunner() {
       result: resultRatio,
     });
 
-    if (session?.user) {
-      submitAnswersMutation.mutate({
-        activityId: topicId,
-        activityType: "training",
-        result: resultRatio,
-        taskId: data.task.id,
-        timeSpent: elapsedSec,
-      });
-    }
+    void Promise.all([
+      utils.user.getStreak.invalidate(),
+      utils.user.getActivity.invalidate(),
+    ]);
   };
 
   // --- Loading / error ---
@@ -179,8 +172,7 @@ export function ReadingRunner() {
         </p>
         <Link
           href={BACK_HREF}
-          className="text-on-ink rounded-pill mt-6 inline-flex h-11 items-center justify-center px-[22px] text-[15px] font-medium"
-          style={{ background: "var(--color-ink)" }}
+          className="bg-ink text-on-ink rounded-pill mt-6 inline-flex h-11 items-center justify-center px-[22px] text-[15px] font-medium"
         >
           К списку заданий →
         </Link>
@@ -261,13 +253,10 @@ export function ReadingRunner() {
             </p>
           </div>
         ) : (
-          <div
-            className="mb-7 flex flex-col gap-4 rounded-lg p-6 text-white sm:flex-row sm:items-center sm:gap-7"
-            style={{ background: "var(--color-ink-panel)" }}
-          >
+          <div className="bg-ink-panel mb-7 flex flex-col gap-4 rounded-lg p-6 text-white sm:flex-row sm:items-center sm:gap-7">
             <div className="font-display text-[44px] leading-none tracking-[-0.025em] sm:text-[56px]">
               {result?.correctCount ?? 0}
-              <span style={{ color: "rgba(255,255,255,0.5)" }}>/{total}</span>
+              <span className="text-white/50">/{total}</span>
             </div>
             <div className="font-display text-[26px] leading-[1.05] tracking-[-0.02em] sm:flex-1 sm:text-[32px]">
               Ваш результат
@@ -275,11 +264,7 @@ export function ReadingRunner() {
             <button
               type="button"
               onClick={() => setShowReview(true)}
-              className="rounded-pill inline-flex h-9 items-center justify-center self-start px-4 text-[14px] font-medium text-white sm:self-auto"
-              style={{
-                background: "rgba(255,255,255,0.1)",
-                border: "1px solid rgba(255,255,255,0.2)",
-              }}
+              className="rounded-pill inline-flex h-9 items-center justify-center self-start border border-white/20 bg-white/10 px-4 text-[14px] font-medium text-white sm:self-auto"
             >
               Посмотреть пояснения
             </button>
@@ -349,8 +334,7 @@ export function ReadingRunner() {
                 </button>
                 <Link
                   href={BACK_HREF}
-                  className="text-on-ink rounded-pill inline-flex h-11 items-center justify-center px-[22px] text-[15px] font-medium"
-                  style={{ background: "var(--color-ink)" }}
+                  className="bg-ink text-on-ink rounded-pill inline-flex h-11 items-center justify-center px-[22px] text-[15px] font-medium"
                 >
                   К списку заданий →
                 </Link>
@@ -368,8 +352,7 @@ export function ReadingRunner() {
                   type="button"
                   onClick={handleCheck}
                   disabled={isChecking || !allAnswered}
-                  className="text-on-ink rounded-pill inline-flex h-11 items-center justify-center px-[22px] text-[15px] font-medium disabled:cursor-not-allowed disabled:opacity-50"
-                  style={{ background: "var(--color-ink)" }}
+                  className="bg-ink text-on-ink rounded-pill inline-flex h-11 items-center justify-center px-[22px] text-[15px] font-medium disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {isChecking ? "Проверяем..." : "Проверить ответы →"}
                 </button>

@@ -1,3 +1,5 @@
+import { UOE_WORD_FORMATION_CHAIN_TASK_COUNT } from "@/app/_utils/uoeTaskChain";
+
 export type Topic = {
   id: number;
   title: string;
@@ -178,7 +180,7 @@ export const UOE_META: Record<string, UoeMeta> = {
   Словообразование: {
     en: "Word formation",
     desc: "Преобразование однокоренных слов: суффиксы и приставки, изменение части речи.",
-    items: 15,
+    items: UOE_WORD_FORMATION_CHAIN_TASK_COUNT,
     sample: { from: "DECIDE", to: "decision" },
     score: null,
   },

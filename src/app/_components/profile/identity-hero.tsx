@@ -61,10 +61,7 @@ export function IdentityHero({
           }}
         >
           {initials}
-          <span
-            className="border-line pointer-events-none absolute rounded-full border"
-            style={{ inset: -6 }}
-          />
+          <span className="border-line pointer-events-none absolute -inset-1.5 rounded-full border" />
         </div>
         <Link
           href="#settings"
@@ -112,6 +109,14 @@ export function IdentityHero({
           >
             Редактировать профиль
           </Link>
+          {(role === "teacher" || role === "admin") && (
+            <Link
+              href="/teacher"
+              className="rounded-pill border-line-2 text-ink hover:bg-surface-2 inline-flex h-11 items-center justify-center border px-[22px] text-[15px] font-medium no-underline transition-colors"
+            >
+              Мои классы
+            </Link>
+          )}
           {/* TODO: implement */}
           {/*<span className="rounded-pill border-line-2 text-ink-3 inline-flex h-11 cursor-default items-center justify-center border px-[22px] text-[15px] font-medium">*/}
           {/*  Поделиться прогрессом*/}

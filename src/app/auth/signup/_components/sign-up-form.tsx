@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { signup } from "./actions";
 import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { type z } from "zod";
 import { SignupSchema } from "./schema";
 import { OAuthButtons } from "@/app/auth/_components/oauth-buttons";
+import { safeCallbackUrl } from "@/app/_utils/callback-url";
 import posthog from "posthog-js";
 
 type SimpleProvider = {
@@ -23,11 +24,12 @@ const inputClass =
 
 export function SignUpForm({ providers }: { providers: SimpleProvider[] }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = safeCallbackUrl(searchParams.get("callbackUrl"));
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState<"student" | "teacher">("student");
-  const [agreed, setAgreed] = useState(true);
   const [errors, setErrors] = useState<FormErrors>({});
   const [serverError, setServerError] = useState<string | null>(null);
 
@@ -112,7 +114,7 @@ export function SignUpForm({ providers }: { providers: SimpleProvider[] }) {
       if (signInResult?.ok) {
         posthog.identify(email, { name, email, role });
         posthog.capture("user_signed_up", { role, method: "credentials" });
-        router.push("/");
+        router.push(callbackUrl);
         router.refresh();
       } else {
         setServerError(
@@ -124,12 +126,6 @@ export function SignUpForm({ providers }: { providers: SimpleProvider[] }) {
 
   return (
     <div>
-      {/* Eyebrow */}
-      <div className="text-ink-3 mb-3 inline-flex items-center gap-2 text-[12.5px] font-medium tracking-[0.12em] uppercase">
-        <span className="bg-accent h-1.5 w-1.5 rounded-full" />
-        регистрация
-      </div>
-
       <h1 className="font-display text-ink mb-3 text-[40px] leading-none tracking-[-0.03em] sm:text-[56px]">
         Создайте аккаунт
       </h1>
@@ -137,7 +133,12 @@ export function SignUpForm({ providers }: { providers: SimpleProvider[] }) {
         Все функции доступны абсолютно бесплатно.
       </p>
 
-      <OAuthButtons providers={providers} layout="row" role={role} />
+      <OAuthButtons
+        providers={providers}
+        layout="row"
+        role={role}
+        callbackUrl={callbackUrl}
+      />
 
       <div className="text-ink-3 my-6 flex items-center gap-3 text-[12px]">
         <div className="bg-line h-px flex-1" />
@@ -221,29 +222,9 @@ export function SignUpForm({ providers }: { providers: SimpleProvider[] }) {
           ))}
         </div>
 
-        <label className="text-ink-3 mt-1.5 flex cursor-pointer items-start gap-2.5 text-[13px]">
-          <input
-            type="checkbox"
-            checked={agreed}
-            onChange={(e) => setAgreed(e.target.checked)}
-            className="mt-[2px] shrink-0"
-          />
-          {/*<span>*/}
-          {/*  Принимаю{" "}*/}
-          {/*  <a href="#" className="text-ink-2 underline">*/}
-          {/*    условия использования*/}
-          {/*  </a>{" "}*/}
-          {/*  и{" "}*/}
-          {/*  <a href="#" className="text-ink-2 underline">*/}
-          {/*    политику конфиденциальности*/}
-          {/*  </a>*/}
-          {/*</span>*/}
-        </label>
-
         <button
           type="submit"
-          disabled={!agreed}
-          className="bg-ink text-on-ink rounded-pill mt-2 h-[52px] w-full text-[16px] font-medium transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+          className="bg-ink text-on-ink rounded-pill mt-2 h-[52px] w-full text-[16px] font-medium transition-opacity hover:opacity-90"
         >
           Создать аккаунт →
         </button>
@@ -252,7 +233,11 @@ export function SignUpForm({ providers }: { providers: SimpleProvider[] }) {
       <p className="text-ink-3 mt-6 text-[14px]">
         Уже есть аккаунт?{" "}
         <Link
-          href="/auth/signin"
+          href={
+            callbackUrl === "/"
+              ? "/auth/signin"
+              : `/auth/signin?callbackUrl=${encodeURIComponent(callbackUrl)}`
+          }
           className="text-ink border-ink-2 hover:border-ink border-b font-medium transition-colors"
         >
           Войти

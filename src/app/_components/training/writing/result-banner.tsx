@@ -2,10 +2,10 @@
 
 import type { ResultSegment } from "../shared/result-modal";
 
-const TONE: Record<ResultSegment["tone"], string> = {
-  ok: "var(--color-ok)",
-  warn: "var(--color-accent-2)",
-  err: "var(--color-err)",
+const TONE_CLASS: Record<ResultSegment["tone"], string> = {
+  ok: "text-ok",
+  warn: "text-accent-2",
+  err: "text-err",
 };
 
 interface ResultBannerProps {
@@ -22,57 +22,25 @@ export function ResultBanner({
   onRetry,
 }: ResultBannerProps) {
   return (
-    <div
-      className="mb-8 flex flex-col gap-5 rounded-lg p-6 text-white sm:p-7 lg:grid lg:grid-cols-[auto_1fr_auto] lg:items-center lg:gap-7"
-      style={{ background: "var(--color-ink-panel)" }}
-    >
+    <div className="bg-ink-panel mb-8 flex flex-col gap-5 rounded-lg p-6 text-white sm:p-7 lg:grid lg:grid-cols-[auto_1fr_auto] lg:items-center lg:gap-7">
       <div>
-        <div
-          className="font-mono uppercase"
-          style={{
-            fontSize: 11,
-            letterSpacing: ".1em",
-            color: "rgba(255,255,255,0.5)",
-          }}
-        >
+        <div className="font-mono text-[11px] tracking-[0.1em] text-white/50 uppercase">
           проверено · общий балл
         </div>
         <div className="font-display mt-1.5 text-[44px] leading-none tracking-[-0.025em] sm:text-[60px]">
           {correct}
-          <span style={{ color: "rgba(255,255,255,0.4)" }}>/{total}</span>
+          <span className="text-white/40">/{total}</span>
         </div>
       </div>
 
-      <div
-        className="flex gap-px overflow-hidden"
-        style={{
-          background: "rgba(255,255,255,0.1)",
-          borderRadius: 10,
-          padding: 1,
-        }}
-      >
+      <div className="flex gap-px overflow-hidden rounded-[10px] bg-white/10 p-px">
         {segments.map((s) => (
-          <div
-            key={s.label}
-            className="flex-1"
-            style={{
-              padding: "12px 14px",
-              background: "var(--color-ink-panel)",
-            }}
-          >
-            <div
-              className="mb-1 uppercase"
-              style={{
-                fontSize: 11,
-                letterSpacing: ".08em",
-                color: "rgba(255,255,255,0.55)",
-              }}
-            >
+          <div key={s.label} className="bg-ink-panel flex-1 px-3.5 py-3">
+            <div className="mb-1 text-[11px] tracking-[0.08em] text-white/55 uppercase">
               {s.label}
             </div>
             <div
-              className="font-mono"
-              style={{ fontSize: 17, fontWeight: 500, color: TONE[s.tone] }}
+              className={`font-mono text-[17px] font-medium ${TONE_CLASS[s.tone]}`}
             >
               {s.value}
             </div>
@@ -83,13 +51,7 @@ export function ResultBanner({
       <button
         type="button"
         onClick={onRetry}
-        className="rounded-pill inline-flex items-center justify-center text-[15px] font-medium"
-        style={{
-          background: "#fff",
-          color: "#0a1733",
-          height: 44,
-          padding: "0 22px",
-        }}
+        className="rounded-pill inline-flex h-11 items-center justify-center bg-white px-[22px] text-[15px] font-medium text-[#0a1733]"
       >
         Пройти ещё раз
       </button>

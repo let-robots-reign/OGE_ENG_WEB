@@ -45,12 +45,10 @@ global.window.scrollTo = vi.fn();
 // Mock tRPC Queries and Mutations
 const mockCheckGrammar = vi.fn();
 const mockPendingFetch = vi.fn();
-const mockSubmitAnswers = vi.fn();
 const mockGetStreakInvalidate = vi.fn();
 const mockGetActivityInvalidate = vi.fn();
 
 let checkGrammarOnSuccess: any = null;
-let submitAnswersOnSuccess: any = null;
 
 vi.mock("@/trpc/react", () => ({
   api: {
@@ -74,22 +72,6 @@ vi.mock("@/trpc/react", () => ({
             },
             isPending: false,
             error: null,
-          };
-        }),
-      },
-    },
-    training: {
-      submitAnswers: {
-        useMutation: vi.fn((options) => {
-          submitAnswersOnSuccess = options?.onSuccess;
-          return {
-            mutate: (payload: any) => {
-              mockSubmitAnswers(payload);
-              if (submitAnswersOnSuccess) {
-                submitAnswersOnSuccess();
-              }
-            },
-            isPending: false,
           };
         }),
       },
@@ -247,8 +229,7 @@ describe("GrammarRunner Component Suite", () => {
     // Check checkGrammar called
     expect(mockCheckGrammar).toHaveBeenCalled();
 
-    // The server saves the report. The browser cannot submit arbitrary feedback.
-    expect(mockSubmitAnswers).not.toHaveBeenCalled();
+    // Only raw answers are submitted; grading and persistence stay on the server.
     expect(mockCheckGrammar).toHaveBeenCalledWith(
       expect.objectContaining({
         version: "grammar-2026-08-31-v2",

@@ -60,6 +60,23 @@ export function AdminSidebar({
           ),
         },
         {
+          label: "Результаты вариантов",
+          href: "/admin?tab=mock-exams",
+          activeMatch: (path, params) =>
+            (path === "/admin" && params.get("tab") === "mock-exams") ||
+            path.startsWith("/admin/mock-exams/results"),
+          icon: (
+            <svg
+              className="h-5 w-5 shrink-0"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeWidth={2} d="M4 5h16v14H4zM8 9h8M8 13h5" />
+            </svg>
+          ),
+        },
+        {
           label: "Диагностика",
           href: "/admin?tab=diagnostics",
           activeMatch: (path, params) =>
@@ -86,6 +103,23 @@ export function AdminSidebar({
     {
       title: "Управление заданиями",
       items: [
+        {
+          label: "Варианты",
+          href: "/admin/mock-exams",
+          activeMatch: (path) =>
+            path.startsWith("/admin/mock-exams") &&
+            !path.startsWith("/admin/mock-exams/results"),
+          icon: (
+            <svg
+              className="h-5 w-5 shrink-0"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeWidth={2} d="M5 3h14v18H5zM8 7h8M8 11h8M8 15h5" />
+            </svg>
+          ),
+        },
         {
           label: "Аудирование",
           href: "/admin/tasks/audio",

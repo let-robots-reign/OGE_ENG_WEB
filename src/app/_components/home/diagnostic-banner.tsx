@@ -41,12 +41,9 @@ export function DiagnosticBanner({
           <div>
             <div className="inline-flex items-center gap-2 text-[12.5px] font-medium tracking-[0.12em] text-white/55 uppercase">
               <span
-                className="h-1.5 w-1.5 rounded-full"
-                style={{
-                  background: completed
-                    ? "var(--color-ok)"
-                    : "var(--color-accent-2)",
-                }}
+                className={`h-1.5 w-1.5 rounded-full ${
+                  completed ? "bg-ok" : "bg-accent-2"
+                }`}
               />
               {completed ? "04 — пройдено" : "04 — диагностика (бета-версия)"}
             </div>

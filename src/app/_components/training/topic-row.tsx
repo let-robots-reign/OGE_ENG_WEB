@@ -54,10 +54,7 @@ export function TopicRow({ topic, meta, href }: TopicRowProps) {
                 {score}/{items}
               </span>
             </div>
-            <div
-              className="h-1 overflow-hidden rounded-sm"
-              style={{ background: "var(--color-surface-2)" }}
-            >
+            <div className="bg-surface-2 h-1 overflow-hidden rounded-sm">
               <div
                 className="h-full rounded-sm"
                 style={{
@@ -73,13 +70,7 @@ export function TopicRow({ topic, meta, href }: TopicRowProps) {
             )}
           </div>
         ) : (
-          <div
-            className="rounded-pill inline-flex items-center self-start px-2.5 py-1 text-[11px] font-semibold tracking-[0.1em] uppercase"
-            style={{
-              background: "var(--color-accent-2-soft)",
-              color: "var(--color-accent-2)",
-            }}
-          >
+          <div className="rounded-pill bg-accent-2-soft text-accent-2 inline-flex items-center self-start px-2.5 py-1 text-[11px] font-semibold tracking-[0.1em] uppercase">
             не пройдено
           </div>
         )}

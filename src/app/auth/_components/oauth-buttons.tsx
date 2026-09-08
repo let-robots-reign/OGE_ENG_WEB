@@ -28,14 +28,21 @@ interface OAuthButtonsProps {
   providers: SimpleProvider[];
   layout: "stacked" | "row";
   role?: "student" | "teacher";
+  /** Where to land after OAuth completes. Defaults to the home page. */
+  callbackUrl?: string;
 }
 
-export function OAuthButtons({ providers, layout, role }: OAuthButtonsProps) {
+export function OAuthButtons({
+  providers,
+  layout,
+  role,
+  callbackUrl = "/",
+}: OAuthButtonsProps) {
   const oauthProviders = providers.filter((p) => p.id !== "credentials");
 
   const handleSignIn = (providerId: string) => {
     void signIn(providerId, {
-      callbackUrl: "/",
+      callbackUrl,
       ...(role ? { role } : {}),
     });
   };

@@ -6,7 +6,8 @@ interface SubjectCardProps {
   pct: number;
   avgCorrect: number;
   avgMax: number;
-  tone: { bg: string; ink: string };
+  pillClass: string;
+  barClass: string;
 }
 
 export function SubjectCard({
@@ -17,7 +18,8 @@ export function SubjectCard({
   pct,
   avgCorrect,
   avgMax,
-  tone,
+  pillClass,
+  barClass,
 }: SubjectCardProps) {
   return (
     <div className="border-line bg-surface flex min-h-[230px] flex-col gap-[18px] rounded-lg border p-6">
@@ -29,8 +31,7 @@ export function SubjectCard({
           <div className="font-display text-ink-3 mt-1 text-[13px]">{en}</div>
         </div>
         <div
-          className="rounded-pill inline-flex h-8 min-w-[52px] items-center justify-center px-3 font-mono text-[12px] font-medium tracking-[0.02em] whitespace-nowrap"
-          style={{ background: tone.bg, color: tone.ink }}
+          className={`rounded-pill inline-flex h-8 min-w-[52px] items-center justify-center px-3 font-mono text-[12px] font-medium tracking-[0.02em] whitespace-nowrap ${pillClass}`}
         >
           {pct}%
         </div>
@@ -39,13 +40,10 @@ export function SubjectCard({
       <div className="flex-1" />
 
       <div>
-        <div
-          className="rounded-pill h-1.5 overflow-hidden"
-          style={{ background: "var(--color-surface-2)" }}
-        >
+        <div className="bg-surface-2 rounded-pill h-1.5 overflow-hidden">
           <div
-            className="rounded-pill h-full"
-            style={{ width: `${pct}%`, background: tone.ink }}
+            className={`rounded-pill h-full ${barClass}`}
+            style={{ width: `${pct}%` }}
           />
         </div>
         <div className="text-ink-3 mt-2.5 flex justify-between text-[12.5px]">

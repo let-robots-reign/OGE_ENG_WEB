@@ -24,13 +24,7 @@ export function GenreStrip() {
             key={item.tag}
             className="bg-surface border-line flex flex-col gap-2.5 rounded-lg border p-[22px]"
           >
-            <div
-              className="rounded-pill inline-flex items-center self-start px-2.5 py-1 text-[11px] font-semibold tracking-[0.1em] uppercase"
-              style={{
-                background: "var(--color-surface-2)",
-                color: "var(--color-ink-3)",
-              }}
-            >
+            <div className="bg-surface-2 text-ink-3 rounded-pill inline-flex items-center self-start px-2.5 py-1 text-[11px] font-semibold tracking-[0.1em] uppercase">
               {item.tag}
             </div>
             <div className="font-display text-[22px] tracking-[-0.01em] italic">

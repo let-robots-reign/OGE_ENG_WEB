@@ -1,11 +1,7 @@
 import { z } from "zod";
+import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
+import type { createTRPCContext } from "@/server/api/trpc";
 import {
-  createTRPCRouter,
-  protectedProcedure,
-  publicProcedure,
-} from "@/server/api/trpc";
-import {
-  activityTypeEnum,
   audioTasks,
   readingTasks,
   trainingTopics,
@@ -16,12 +12,24 @@ import {
 } from "@/server/db/schema";
 import { shuffle } from "@/app/_utils/shuffle";
 import { isGapFillAnswerCorrect } from "@/app/_utils/gapFill";
+import { getUoeChainTaskCount } from "@/app/_utils/uoeTaskChain";
 import { and, eq, inArray, isNotNull, notInArray, sql } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 type AudioTask = typeof audioTasks.$inferSelect;
 type ReadingTask = typeof readingTasks.$inferSelect;
 type ExamAnswer = number | string | null;
+type AppDb = Awaited<ReturnType<typeof createTRPCContext>>["db"];
+type UserResultInsert = typeof userResults.$inferInsert;
+
+async function saveAuthenticatedResult(
+  db: AppDb,
+  userId: string | undefined,
+  values: Omit<UserResultInsert, "userId">,
+) {
+  if (!userId) return;
+  await db.insert(userResults).values({ ...values, userId });
+}
 
 type UoeTaskChainForValidation = {
   items: Array<{
@@ -39,10 +47,11 @@ type UoeTaskChainForValidation = {
 
 function filterValidTasksChain<T extends UoeTaskChainForValidation>(
   chains: T[],
+  chainTopicTitle: string,
 ) {
   return chains.filter(
     (chain) =>
-      chain.items.length === 9 &&
+      chain.items.length === getUoeChainTaskCount(chainTopicTitle) &&
       chain.items.every((item, index) => {
         const topic = item.task.topic;
 
@@ -52,7 +61,10 @@ function filterValidTasksChain<T extends UoeTaskChainForValidation>(
           topic !== null &&
           topic.isActive &&
           topic.category === "use-of-english" &&
-          topic.title !== "Словообразование"
+          (chainTopicTitle === "Словообразование"
+            ? topic.title === "Словообразование"
+            : topic.title !== "Словообразование" &&
+              topic.title !== "По всем темам")
         );
       }),
   );
@@ -119,14 +131,16 @@ export const trainingRouter = createTRPCRouter({
   getExamSection: publicProcedure
     .input(z.object({ category: examCategorySchema }))
     .query(async ({ ctx, input }) => {
+      const expectedTopicTitles = EXAM_TOPIC_ORDER[input.category];
       const topics = await ctx.db.query.trainingTopics.findMany({
         where: and(
           eq(trainingTopics.category, input.category),
           eq(trainingTopics.isActive, true),
+          inArray(trainingTopics.title, [...expectedTopicTitles]),
         ),
       });
       const topicOrder = new Map(
-        EXAM_TOPIC_ORDER[input.category].map((title, index) => [title, index]),
+        expectedTopicTitles.map((title, index) => [title, index]),
       );
       topics.sort((left, right) => {
         const leftOrder = topicOrder.get(left.title) ?? Number.MAX_SAFE_INTEGER;
@@ -207,8 +221,8 @@ export const trainingRouter = createTRPCRouter({
 
       const availableSteps = steps.filter((step) => step !== null);
       if (
-        availableSteps.length === 0 ||
-        availableSteps.length !== topics.length
+        topics.length !== expectedTopicTitles.length ||
+        availableSteps.length !== expectedTopicTitles.length
       ) {
         throw new TRPCError({
           code: "NOT_FOUND",
@@ -228,9 +242,18 @@ export const trainingRouter = createTRPCRouter({
           .min(1)
           .max(10),
         timeSpent: z.number().int().min(0).max(1800),
+        timedOut: z.boolean().default(false),
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      const expectedTopicTitles = EXAM_TOPIC_ORDER[input.category];
+      if (input.steps.length !== expectedTopicTitles.length) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "A complete exam section must be submitted.",
+        });
+      }
+
       const taskIds = input.steps.map((step) => step.taskId);
 
       if (new Set(taskIds).size !== taskIds.length) {
@@ -262,6 +285,29 @@ export const trainingRouter = createTRPCRouter({
         });
       }
 
+      const topicIds = tasks.flatMap((task) =>
+        task.topicId === null ? [] : [task.topicId],
+      );
+      const topics = await ctx.db.query.trainingTopics.findMany({
+        where: and(
+          inArray(trainingTopics.id, topicIds),
+          eq(trainingTopics.category, input.category),
+          eq(trainingTopics.isActive, true),
+        ),
+      });
+      const topicsById = new Map(topics.map((topic) => [topic.id, topic]));
+      const hasExpectedTopicOrder = input.steps.every((step, index) => {
+        const task = tasks.find((candidate) => candidate.id === step.taskId);
+        const topic = task?.topicId ? topicsById.get(task.topicId) : undefined;
+        return topic?.title === expectedTopicTitles[index];
+      });
+      if (!hasExpectedTopicOrder) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Exam tasks do not match the requested section.",
+        });
+      }
+
       const stepResults = input.steps.map((step) => {
         const task = tasks.find((candidate) => candidate.id === step.taskId);
         if (!task) {
@@ -276,10 +322,17 @@ export const trainingRouter = createTRPCRouter({
             ? gradeAudioTask(task as AudioTask, step.answers)
             : gradeReadingTask(task as ReadingTask, step.answers);
 
+        if (step.answers.length !== grade.total) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Every exam answer field must be submitted.",
+          });
+        }
+
         return { taskId: step.taskId, ...grade };
       });
 
-      return {
+      const result = {
         steps: stepResults,
         correctCount: stepResults.reduce(
           (sum, step) => sum + step.correctCount,
@@ -288,6 +341,25 @@ export const trainingRouter = createTRPCRouter({
         total: stepResults.reduce((sum, step) => sum + step.total, 0),
         timeSpent: input.timeSpent,
       };
+      const firstTask = tasks.find(
+        (task) => task.id === input.steps[0]?.taskId,
+      );
+      await saveAuthenticatedResult(ctx.db, ctx.session?.user?.id, {
+        activityId: firstTask!.topicId!,
+        activityType: "training_exam_mode",
+        result: `${result.correctCount}/${result.total}`,
+        timeSpent: input.timeSpent,
+        details: {
+          category: input.category,
+          timedOut: input.timedOut,
+          tasks: stepResults.map((step) => ({
+            taskId: step.taskId,
+            correctCount: step.correctCount,
+            total: step.total,
+          })),
+        },
+      });
+      return result;
     }),
 
   getTopicsByCategory: publicProcedure
@@ -458,36 +530,6 @@ export const trainingRouter = createTRPCRouter({
       );
     }),
 
-  submitAnswers: protectedProcedure
-    .input(
-      z.object({
-        activityId: z.number(),
-        activityType: z.enum(activityTypeEnum.enumValues),
-        result: z.string(),
-        taskId: z.number().optional(),
-        timeSpent: z.number().optional(),
-        details: z.any().optional(),
-      }),
-    )
-    .mutation(async ({ ctx, input }) => {
-      if (input.activityType === "diagnostics") {
-        throw new TRPCError({
-          code: "BAD_REQUEST",
-          message:
-            "Результат диагностики сохраняется только после серверной проверки.",
-        });
-      }
-      await ctx.db.insert(userResults).values({
-        userId: ctx.session.user.id,
-        activityId: input.activityId,
-        activityType: input.activityType,
-        result: input.result,
-        taskId: input.taskId,
-        timeSpent: input.timeSpent,
-        details: input.details,
-      });
-    }),
-
   // --- Use of English ---
   getUoeTraining: publicProcedure
     .input(z.object({ topicId: z.number(), batchSize: z.number().default(10) }))
@@ -506,9 +548,15 @@ export const trainingRouter = createTRPCRouter({
         });
       }
 
-      if (topic.title === "По всем темам") {
+      if (
+        topic.title === "По всем темам" ||
+        topic.title === "Словообразование"
+      ) {
         const chains = await ctx.db.query.uoeTaskChains.findMany({
-          where: eq(uoeTaskChains.isDeleted, false),
+          where: and(
+            eq(uoeTaskChains.topicId, topic.id),
+            eq(uoeTaskChains.isDeleted, false),
+          ),
           with: {
             items: {
               orderBy: (items, { asc }) => [asc(items.position)],
@@ -517,7 +565,7 @@ export const trainingRouter = createTRPCRouter({
           },
         });
 
-        const validChains = filterValidTasksChain(chains);
+        const validChains = filterValidTasksChain(chains, topic.title);
 
         if (validChains.length === 0) {
           throw new TRPCError({
@@ -556,6 +604,7 @@ export const trainingRouter = createTRPCRouter({
       z.object({
         chainId: z.number().int().positive().optional(),
         answers: z.array(z.object({ id: z.number(), answer: z.string() })),
+        timeSpent: z.number().int().min(0).max(86_400).default(0),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -569,18 +618,20 @@ export const trainingRouter = createTRPCRouter({
         });
       }
 
+      let chainTopicId: number | null = null;
       if (chainId !== undefined) {
         const chain = await ctx.db.query.uoeTaskChains.findFirst({
           where: and(
             eq(uoeTaskChains.id, chainId),
             eq(uoeTaskChains.isDeleted, false),
           ),
-          with: { items: true },
+          with: { items: true, topic: true },
         });
         const expectedIds = chain?.items.map((item) => item.taskId) ?? [];
+        chainTopicId = chain?.topicId ?? null;
         const submittedIds = new Set(ids);
         const matchesChain =
-          expectedIds.length === 9 &&
+          expectedIds.length === getUoeChainTaskCount(chain?.topic?.title) &&
           ids.length === expectedIds.length &&
           expectedIds.every((id) => submittedIds.has(id));
 
@@ -601,16 +652,41 @@ export const trainingRouter = createTRPCRouter({
           message: "Одно или несколько заданий не найдены",
         });
       }
+      if (
+        chainId === undefined &&
+        new Set(correctTasks.map((task) => task.topicId)).size !== 1
+      ) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Все задания тренировки должны относиться к одной теме",
+        });
+      }
       const results = answers.map((userAnswer) => {
         const correctTask = correctTasks.find((t) => t.id === userAnswer.id);
-        const acceptedAnswers = correctTask?.answer.split("/") ?? [];
+        const submittedAnswer = userAnswer.answer.trim().toUpperCase();
+        const acceptedAnswers =
+          correctTask?.answer
+            .split("/")
+            .map((answer) => answer.trim().toUpperCase())
+            .filter(Boolean) ?? [];
         return {
           id: userAnswer.id,
-          isCorrect: acceptedAnswers.includes(userAnswer.answer),
+          isCorrect:
+            submittedAnswer !== "" && acceptedAnswers.includes(submittedAnswer),
           correctAnswer: correctTask?.answer,
         };
       });
       const correctCount = results.filter((r) => r.isCorrect).length;
+      const activityId =
+        chainTopicId ?? correctTasks.find((task) => task.topicId)?.topicId;
+      if (activityId != null) {
+        await saveAuthenticatedResult(ctx.db, ctx.session?.user?.id, {
+          activityId,
+          activityType: "training",
+          result: `${correctCount}/${answers.length}`,
+          timeSpent: input.timeSpent,
+        });
+      }
       return { results, correctCount, total: answers.length };
     }),
 
@@ -715,11 +791,15 @@ export const trainingRouter = createTRPCRouter({
       z.object({
         id: z.number(),
         answers: z.array(z.number().nullable()),
+        timeSpent: z.number().int().min(0).max(86_400).default(0),
       }),
     )
     .mutation(async ({ ctx, input }) => {
       const task = await ctx.db.query.readingTasks.findFirst({
-        where: eq(readingTasks.id, input.id),
+        where: and(
+          eq(readingTasks.id, input.id),
+          eq(readingTasks.isDeleted, false),
+        ),
       });
 
       if (!task) {
@@ -729,7 +809,22 @@ export const trainingRouter = createTRPCRouter({
         });
       }
 
-      return gradeReadingTask(task, input.answers);
+      if (input.answers.length !== (task.answers ?? []).length) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Every answer field must be submitted.",
+        });
+      }
+
+      const result = gradeReadingTask(task, input.answers);
+      await saveAuthenticatedResult(ctx.db, ctx.session?.user?.id, {
+        activityId: task.topicId ?? task.id,
+        activityType: "training",
+        result: `${result.correctCount}/${result.total}`,
+        taskId: task.id,
+        timeSpent: input.timeSpent,
+      });
+      return result;
     }),
 
   // --- Writing ---
@@ -787,6 +882,7 @@ export const trainingRouter = createTRPCRouter({
   checkWritingTraining: publicProcedure
     .input(
       z.object({
+        timeSpent: z.number().int().min(0).max(86_400).default(0),
         answers: z.object({
           structure: z.object({ id: z.number(), answer: z.array(z.number()) }),
           cliches: z.array(
@@ -809,9 +905,27 @@ export const trainingRouter = createTRPCRouter({
         ...input.answers.fullAnswers.map((a) => a.id),
       ];
 
+      if (new Set(allIds).size !== allIds.length) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Задания не должны повторяться",
+        });
+      }
+
       const correctTasks = await ctx.db.query.writingTasks.findMany({
-        where: inArray(writingTasks.id, allIds),
+        where: eq(writingTasks.isDeleted, false),
       });
+
+      const activeIds = new Set(correctTasks.map((task) => task.id));
+      if (
+        correctTasks.length !== allIds.length ||
+        allIds.some((id) => !activeIds.has(id))
+      ) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Нужно отправить полный набор актуальных заданий",
+        });
+      }
 
       const getTask = (id: number) => correctTasks.find((t) => t.id === id);
 
@@ -869,6 +983,16 @@ export const trainingRouter = createTRPCRouter({
           return isCorrect;
         },
       );
+
+      const activityId = correctTasks.find((task) => task.topicId)?.topicId;
+      if (activityId != null) {
+        await saveAuthenticatedResult(ctx.db, ctx.session?.user?.id, {
+          activityId,
+          activityType: "training",
+          result: `${correctCount}/${total}`,
+          timeSpent: input.timeSpent,
+        });
+      }
 
       return {
         correctCount,
@@ -975,6 +1099,7 @@ export const trainingRouter = createTRPCRouter({
     .input(
       z.object({
         id: z.number(),
+        timeSpent: z.number().int().min(0).max(86_400).default(0),
         answers: z
           .array(z.union([z.number(), z.string().max(100)]).nullable())
           .max(20),
@@ -982,7 +1107,10 @@ export const trainingRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const task = await ctx.db.query.audioTasks.findFirst({
-        where: eq(audioTasks.id, input.id),
+        where: and(
+          eq(audioTasks.id, input.id),
+          eq(audioTasks.isDeleted, false),
+        ),
       });
 
       if (!task) {
@@ -992,6 +1120,21 @@ export const trainingRouter = createTRPCRouter({
         });
       }
 
-      return gradeAudioTask(task, input.answers);
+      if (input.answers.length !== (task.answers ?? []).length) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Every answer field must be submitted.",
+        });
+      }
+
+      const result = gradeAudioTask(task, input.answers);
+      await saveAuthenticatedResult(ctx.db, ctx.session?.user?.id, {
+        activityId: task.topicId ?? task.id,
+        activityType: "training",
+        result: `${result.correctCount}/${result.total}`,
+        taskId: task.id,
+        timeSpent: input.timeSpent,
+      });
+      return result;
     }),
 });

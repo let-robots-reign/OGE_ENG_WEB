@@ -40,6 +40,10 @@
   --color-accent-2-soft: #ffece6;
   --color-ok: #1aa463;
   --color-ok-soft: #e3f7ec;
+  --color-grade-4: #29945a;
+  --color-grade-4-soft: #e8f8ef;
+  --color-grade-5: #0b6638;
+  --color-grade-5-soft: #d7f0e1;
   --color-warn: #d97706;
   --color-warn-soft: #fff3e0;
   --color-err: #dc2626;
@@ -96,6 +100,10 @@
   --color-accent-2-soft: #3a1c17;
   --color-ok: #2fd17e;
   --color-ok-soft: #11331f;
+  --color-grade-4: #76d99f;
+  --color-grade-4-soft: #173527;
+  --color-grade-5: #38b970;
+  --color-grade-5-soft: #0c2819;
   --color-warn: #f5a623;
   --color-warn-soft: #38280c;
   --color-err: #f1556a;

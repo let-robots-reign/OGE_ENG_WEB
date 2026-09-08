@@ -75,6 +75,7 @@ const TASK_TYPE_LABELS: Record<AudioTaskType, string> = {
 };
 
 const SPEAKER_LETTERS = ["A", "B", "C", "D", "E"];
+const MAX_AUDIO_FILE_SIZE = 20 * 1024 * 1024;
 
 export function AudioTaskFormView({ taskId }: { taskId?: number }) {
   const router = useRouter();
@@ -100,6 +101,7 @@ export function AudioTaskFormView({ taskId }: { taskId?: number }) {
   const [gapFill, setGapFill] = useState<GapFillFormState>(DEFAULT_GAP_FILL());
 
   const [isUploading, setIsUploading] = useState(false);
+  const [isDraggingAudio, setIsDraggingAudio] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -188,6 +190,11 @@ export function AudioTaskFormView({ taskId }: { taskId?: number }) {
   // ─── Audio upload ──────────────────────────────────────────────────────────
 
   const handleFileUpload = async (file: File) => {
+    if (file.size > MAX_AUDIO_FILE_SIZE) {
+      setUploadError("Размер аудиофайла не должен превышать 20 МБ");
+      return;
+    }
+
     setIsUploading(true);
     setUploadError(null);
 
@@ -200,7 +207,17 @@ export function AudioTaskFormView({ taskId }: { taskId?: number }) {
         body: formData,
       });
 
-      const data = (await res.json()) as { url?: string; error?: string };
+      let data: { url?: string; error?: string };
+      try {
+        data = (await res.json()) as { url?: string; error?: string };
+      } catch {
+        setUploadError(
+          res.status === 413
+            ? "Аудиофайл слишком большой. Максимальный размер — 20 МБ"
+            : `Сервер вернул некорректный ответ (HTTP ${res.status})`,
+        );
+        return;
+      }
 
       if (!res.ok || data.error) {
         setUploadError(data.error ?? "Ошибка при загрузке аудиофайла");
@@ -213,6 +230,28 @@ export function AudioTaskFormView({ taskId }: { taskId?: number }) {
     } finally {
       setIsUploading(false);
     }
+  };
+
+  const handleAudioDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    event.dataTransfer.dropEffect = "copy";
+    setIsDraggingAudio(true);
+  };
+
+  const handleAudioDragLeave = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setIsDraggingAudio(false);
+  };
+
+  const handleAudioDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setIsDraggingAudio(false);
+
+    const file = event.dataTransfer.files[0];
+    if (file) void handleFileUpload(file);
   };
 
   // ─── Multiple-choice helpers ───────────────────────────────────────────────
@@ -578,7 +617,15 @@ export function AudioTaskFormView({ taskId }: { taskId?: number }) {
           <label className="text-ink block text-[14px] font-medium">
             Аудиозапись *
           </label>
-          <div className="border-line bg-surface-2/50 relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-6 text-center">
+          <div
+            onDragEnter={handleAudioDragOver}
+            onDragOver={handleAudioDragOver}
+            onDragLeave={handleAudioDragLeave}
+            onDrop={handleAudioDrop}
+            className={`bg-surface-2/50 relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-6 text-center transition-colors ${
+              isDraggingAudio ? "border-accent bg-accent/5" : "border-line"
+            }`}
+          >
             <svg
               className="text-ink-4 mb-2 h-8 w-8"
               fill="none"
@@ -874,6 +921,11 @@ function MatchingSection({
   ) => void;
 }) {
   const usedRubrics = new Set(state.speakerAnswers.filter((a) => a > 0));
+  const rubricColumnSize = Math.ceil(state.rubrics.length / 2);
+  const rubricColumns = [
+    state.rubrics.slice(0, rubricColumnSize),
+    state.rubrics.slice(rubricColumnSize),
+  ];
 
   return (
     <div className="space-y-6">
@@ -885,19 +937,27 @@ function MatchingSection({
         <p className="text-ink-3 text-[13px]">
           Введите текст каждой рубрики (одна из них будет лишней — дистрактор).
         </p>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {state.rubrics.map((rubric, idx) => (
-            <div key={idx} className="flex items-center gap-2">
-              <span className="bg-ink text-on-ink flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[13px] font-semibold">
-                {idx + 1}
-              </span>
-              <input
-                type="text"
-                value={rubric}
-                onChange={(e) => updateRubric(idx, e.target.value)}
-                placeholder={`Рубрика ${idx + 1}`}
-                className="bg-surface-2 border-line text-ink flex-1 rounded-lg border px-3 py-2 text-[14px] focus:outline-hidden"
-              />
+        <div className="grid grid-cols-1 items-start gap-3 sm:grid-cols-2">
+          {rubricColumns.map((column, columnIndex) => (
+            <div key={columnIndex} className="space-y-3">
+              {column.map((rubric, columnItemIndex) => {
+                const idx = columnIndex * rubricColumnSize + columnItemIndex;
+
+                return (
+                  <div key={idx} className="flex items-center gap-2">
+                    <span className="bg-ink text-on-ink flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[13px] font-semibold">
+                      {idx + 1}
+                    </span>
+                    <input
+                      type="text"
+                      value={rubric}
+                      onChange={(e) => updateRubric(idx, e.target.value)}
+                      placeholder={`Рубрика ${idx + 1}`}
+                      className="bg-surface-2 border-line text-ink flex-1 rounded-lg border px-3 py-2 text-[14px] focus:outline-hidden"
+                    />
+                  </div>
+                );
+              })}
             </div>
           ))}
         </div>
@@ -925,7 +985,7 @@ function MatchingSection({
                     const disabled = usedRubrics.has(num) && currentVal !== num;
                     return {
                       value: num,
-                      label: `${num}${disabled ? " (занята)" : ""}`,
+                      label: num.toString(),
                       disabled,
                     };
                   })}

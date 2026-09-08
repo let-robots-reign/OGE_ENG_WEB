@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { useSession } from "next-auth/react";
 import posthog from "posthog-js";
 import { api } from "@/trpc/react";
 import { InstructionStrip } from "./instruction-strip";
@@ -11,7 +10,6 @@ import { QuestionCard } from "./question-card";
 import { ResultModal } from "../shared/result-modal";
 import { TrainingSubHeader } from "../shared/training-sub-header";
 import { useElapsedTimer } from "@/app/_composables/use-elapsed-timer";
-import { useSubmitAnswersMutation } from "@/app/_composables/use-submit-answers-mutation";
 import { formatClock } from "@/app/_utils/formatClock";
 
 const BACK_HREF = "/training/use-of-english/topics";
@@ -19,7 +17,7 @@ const BACK_HREF = "/training/use-of-english/topics";
 export function UoERunner() {
   const searchParams = useSearchParams();
   const topicId = Number(searchParams.get("topic"));
-  const { data: session } = useSession();
+  const utils = api.useUtils();
 
   const { data, error, isLoading, refetch } =
     api.training.getUoeTraining.useQuery(
@@ -33,7 +31,6 @@ export function UoERunner() {
     );
 
   const checkMutation = api.training.checkUoeTraining.useMutation();
-  const submitAnswersMutation = useSubmitAnswersMutation();
 
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [checked, setChecked] = useState(false);
@@ -77,6 +74,7 @@ export function UoERunner() {
     const res = await checkMutation.mutateAsync({
       answers: payload,
       ...(data.chainId ? { chainId: data.chainId } : {}),
+      timeSpent: elapsedSec,
     });
     setResult(res);
     setChecked(true);
@@ -93,14 +91,10 @@ export function UoERunner() {
       result: resultRatio,
     });
 
-    if (session?.user) {
-      submitAnswersMutation.mutate({
-        activityId: topicId,
-        activityType: "training",
-        result: resultRatio,
-        timeSpent: elapsedSec,
-      });
-    }
+    void Promise.all([
+      utils.user.getStreak.invalidate(),
+      utils.user.getActivity.invalidate(),
+    ]);
   };
 
   const handleRetry = () => {
@@ -137,8 +131,7 @@ export function UoERunner() {
         </p>
         <Link
           href={BACK_HREF}
-          className="rounded-pill text-on-ink mt-6 inline-flex h-11 items-center justify-center px-[22px] text-[15px] font-medium"
-          style={{ background: "var(--color-ink)" }}
+          className="bg-ink text-on-ink rounded-pill mt-6 inline-flex h-11 items-center justify-center px-[22px] text-[15px] font-medium"
         >
           К списку тем →
         </Link>
@@ -161,20 +154,14 @@ export function UoERunner() {
         <InstructionStrip />
 
         {checked && (
-          <div
-            className="mb-6 flex flex-col gap-4 rounded-lg p-5 text-white sm:flex-row sm:items-center sm:gap-[22px]"
-            style={{ background: "var(--color-ink-panel)" }}
-          >
+          <div className="bg-ink-panel mb-6 flex flex-col gap-4 rounded-lg p-5 text-white sm:flex-row sm:items-center sm:gap-[22px]">
             <div className="font-display text-[36px] leading-none tracking-[-0.025em] sm:text-[44px]">
               {result?.correctCount ?? 0}
-              <span style={{ color: "rgba(255,255,255,0.5)" }}>/{total}</span>
+              <span className="text-white/50">/{total}</span>
             </div>
             <div className="sm:flex-1">
               <div className="text-[14px] font-medium">Разбор ответов</div>
-              <div
-                className="mt-0.5 text-[13px]"
-                style={{ color: "rgba(255,255,255,0.55)" }}
-              >
+              <div className="mt-0.5 text-[13px] text-white/55">
                 Зелёные карточки — верные ответы, красные — ошибки с правильным
                 вариантом.
               </div>
@@ -182,11 +169,7 @@ export function UoERunner() {
             <button
               type="button"
               onClick={handleRetry}
-              className="rounded-pill inline-flex h-9 items-center justify-center self-start px-4 text-[14px] font-medium text-white sm:self-auto"
-              style={{
-                background: "rgba(255,255,255,0.1)",
-                border: "1px solid rgba(255,255,255,0.2)",
-              }}
+              className="rounded-pill inline-flex h-9 items-center justify-center self-start border border-white/20 bg-white/10 px-4 text-[14px] font-medium text-white sm:self-auto"
             >
               Пройти ещё раз
             </button>
@@ -231,8 +214,7 @@ export function UoERunner() {
                 </button>
                 <Link
                   href={BACK_HREF}
-                  className="rounded-pill text-on-ink inline-flex h-11 items-center justify-center px-[22px] text-[15px] font-medium"
-                  style={{ background: "var(--color-ink)" }}
+                  className="bg-ink text-on-ink rounded-pill inline-flex h-11 items-center justify-center px-[22px] text-[15px] font-medium"
                 >
                   К списку тем →
                 </Link>
@@ -242,8 +224,7 @@ export function UoERunner() {
                 type="button"
                 onClick={handleCheck}
                 disabled={isChecking || answeredCount === 0}
-                className="rounded-pill text-on-ink inline-flex h-11 items-center justify-center px-[22px] text-[15px] font-medium disabled:opacity-60"
-                style={{ background: "var(--color-ink)" }}
+                className="bg-ink text-on-ink rounded-pill inline-flex h-11 items-center justify-center px-[22px] text-[15px] font-medium disabled:opacity-60"
               >
                 {isChecking ? "Проверяем..." : "Проверить →"}
               </button>

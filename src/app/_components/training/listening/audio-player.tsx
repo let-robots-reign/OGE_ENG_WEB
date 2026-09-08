@@ -71,13 +71,7 @@ export function AudioPlayer({ src, label = "" }: AudioPlayerProps) {
   };
 
   return (
-    <div
-      className="border-line grid grid-cols-[auto_1fr_auto] items-center gap-4 rounded-lg border p-4 sm:gap-7 sm:p-7"
-      style={{
-        background:
-          "linear-gradient(180deg, var(--color-surface) 0%, var(--color-surface-2) 100%)",
-      }}
-    >
+    <div className="border-line from-surface to-surface-2 grid grid-cols-[auto_1fr_auto] items-center gap-4 rounded-lg border bg-gradient-to-b p-4 sm:gap-7 sm:p-7">
       <audio
         ref={audioRef}
         src={src}
@@ -93,13 +87,7 @@ export function AudioPlayer({ src, label = "" }: AudioPlayerProps) {
         type="button"
         onClick={togglePlay}
         aria-label={playing ? "Пауза" : "Воспроизвести"}
-        className="text-on-ink grid place-items-center rounded-full border-0"
-        style={{
-          width: 64,
-          height: 64,
-          background: "var(--color-ink)",
-          boxShadow: "0 8px 22px rgba(10,23,51,0.18)",
-        }}
+        className="text-on-ink bg-ink grid size-16 place-items-center rounded-full border-0 shadow-md"
       >
         {playing ? (
           <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
@@ -121,8 +109,7 @@ export function AudioPlayer({ src, label = "" }: AudioPlayerProps) {
           </div>
         </div>
         <div
-          className="flex min-w-0 cursor-pointer items-center gap-0.5 overflow-hidden"
-          style={{ height: 36 }}
+          className="flex h-9 min-w-0 cursor-pointer items-center gap-0.5 overflow-hidden"
           onClick={seek}
         >
           {bars.map((b, i) => (
@@ -144,8 +131,7 @@ export function AudioPlayer({ src, label = "" }: AudioPlayerProps) {
         <button
           type="button"
           onClick={restart}
-          className="rounded-pill border-line-2 inline-flex items-center justify-center gap-2 border text-[14px] font-medium"
-          style={{ height: 36, padding: "0 12px" }}
+          className="rounded-pill border-line-2 inline-flex h-9 items-center justify-center gap-2 border px-3 text-[14px] font-medium"
         >
           <svg
             width="14"
@@ -166,20 +152,8 @@ export function AudioPlayer({ src, label = "" }: AudioPlayerProps) {
           onMouseLeave={() => setShowRateMenu(false)}
         >
           {showRateMenu && (
-            <div
-              className="absolute bottom-full left-0 z-10 pb-1.5"
-              style={{ minWidth: "100%" }}
-            >
-              <div
-                className="flex flex-col gap-0.5"
-                style={{
-                  background: "var(--color-surface)",
-                  border: "1px solid var(--color-line)",
-                  borderRadius: 10,
-                  padding: 4,
-                  boxShadow: "0 4px 14px rgba(0,0,0,0.1)",
-                }}
-              >
+            <div className="absolute bottom-full left-0 z-10 min-w-full pb-1.5">
+              <div className="bg-surface border-line flex flex-col gap-0.5 rounded-[10px] border p-1 shadow-md">
                 {AUDIO_SPEED_OPTIONS.map((rate, idx) => (
                   <button
                     key={idx}
@@ -189,17 +163,11 @@ export function AudioPlayer({ src, label = "" }: AudioPlayerProps) {
                       if (audioRef.current)
                         audioRef.current.playbackRate = rate;
                     }}
-                    className="rounded-pill inline-flex items-center justify-center font-mono text-[13px] font-medium"
-                    style={{
-                      height: 30,
-                      padding: "0 10px",
-                      background:
-                        idx === rateIdx ? "var(--color-ink)" : "transparent",
-                      color:
-                        idx === rateIdx
-                          ? "var(--color-on-ink)"
-                          : "var(--color-ink)",
-                    }}
+                    className={`rounded-pill inline-flex h-[30px] items-center justify-center px-2.5 font-mono text-[13px] font-medium ${
+                      idx === rateIdx
+                        ? "bg-ink text-on-ink"
+                        : "text-ink bg-transparent"
+                    }`}
                   >
                     {rate}×
                   </button>
@@ -210,8 +178,7 @@ export function AudioPlayer({ src, label = "" }: AudioPlayerProps) {
           <button
             type="button"
             onClick={cycleRate}
-            className="rounded-pill border-line-2 inline-flex w-full items-center justify-center border font-mono text-[14px] font-medium"
-            style={{ height: 36, padding: "0 12px" }}
+            className="rounded-pill border-line-2 inline-flex h-9 w-full items-center justify-center border px-3 font-mono text-[14px] font-medium"
           >
             {AUDIO_SPEED_OPTIONS[rateIdx]}×
           </button>

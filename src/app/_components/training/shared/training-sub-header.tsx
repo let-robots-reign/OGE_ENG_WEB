@@ -17,8 +17,7 @@ function SubHeaderLeft({
       <Link
         href={backHref}
         aria-label={ariaLabel}
-        className="bg-surface border-line text-ink-2 grid shrink-0 place-items-center rounded-full border"
-        style={{ width: 38, height: 38 }}
+        className="bg-surface border-line text-ink-2 grid size-[38px] shrink-0 place-items-center rounded-full border"
       >
         <svg
           width="14"
@@ -93,23 +92,9 @@ export function TrainingSubHeader({
           title={taskTitle}
         />
 
-        <div
-          className="rounded-pill border-line bg-surface inline-flex items-center gap-2.5 border"
-          style={{ padding: "8px 14px" }}
-        >
-          <span
-            style={{
-              width: 8,
-              height: 8,
-              borderRadius: 50,
-              background: "var(--color-accent-2)",
-              boxShadow: "0 0 0 4px var(--color-accent-2-soft)",
-            }}
-          />
-          <span
-            className="font-mono text-[15px]"
-            style={{ fontVariantNumeric: "tabular-nums" }}
-          >
+        <div className="rounded-pill border-line bg-surface inline-flex items-center gap-2.5 border px-3.5 py-2">
+          <span className="bg-accent-2 ring-accent-2-soft size-2 rounded-full ring-4" />
+          <span className="font-mono text-[15px] tabular-nums">
             {formatClock(elapsedSec)}
           </span>
           <span className="text-ink-3 hidden text-[12px] sm:inline">
@@ -158,27 +143,16 @@ export function ExamSubHeader({
         />
 
         <div
-          className={`rounded-pill border-line bg-surface inline-flex items-center gap-2.5 justify-self-center border ${isWarning ? "text-err" : ""}`}
-          style={{ padding: "8px 14px" }}
+          className={`rounded-pill border-line bg-surface inline-flex items-center gap-2.5 justify-self-center border px-3.5 py-2 ${isWarning ? "text-err" : ""}`}
         >
           <span
-            className={isWarning ? "animate-pulse" : ""}
-            style={{
-              width: 8,
-              height: 8,
-              borderRadius: 50,
-              background: isWarning
-                ? "var(--color-err)"
-                : "var(--color-accent-2)",
-              boxShadow: isWarning
-                ? "0 0 0 4px var(--color-err-soft)"
-                : "0 0 0 4px var(--color-accent-2-soft)",
-            }}
+            className={`size-2 rounded-full ${
+              isWarning
+                ? "bg-err ring-err-soft animate-pulse ring-4"
+                : "bg-accent-2 ring-accent-2-soft ring-4"
+            }`}
           />
-          <span
-            className="font-mono text-[15px]"
-            style={{ fontVariantNumeric: "tabular-nums" }}
-          >
+          <span className="font-mono text-[15px] tabular-nums">
             {formatClock(secondsLeft)}
           </span>
           <span className="hidden text-[12px] sm:inline">осталось</span>

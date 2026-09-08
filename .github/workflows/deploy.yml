@@ -102,6 +102,14 @@ jobs:
               exit 1
             fi
 
+            # nginx.conf is bind-mounted as a single file. `git reset --hard`
+            # can replace that file with a new inode while the running
+            # container keeps the old mount. Validate the new host file in a
+            # temporary container, then recreate nginx so it mounts that file.
+            docker compose -f docker-compose.prod.yml run --rm --no-deps nginx nginx -t
+            docker compose -f docker-compose.prod.yml up -d --no-deps --force-recreate nginx
+            docker compose -f docker-compose.prod.yml exec -T nginx nginx -t
+
             # The failure mode this job had was silent: pull skipped the image,
             # the old container kept running, and the step still passed. Assert
             # the outcome so that can only ever come back as a red build.

@@ -49,14 +49,14 @@ beforeAll(async () => {
   created = true;
   await client.unsafe('CREATE TABLE "user" (id varchar(255) PRIMARY KEY)');
   const migration = (
-    await readFile("drizzle/0013_diagnostics_runs.sql", "utf8")
+    await readFile("drizzle/0017_diagnostics_runs.sql", "utf8")
   ).replace('REFERENCES "public"."user"', `REFERENCES "${namespace}"."user"`);
   await client.unsafe(migration);
   await client.unsafe(`CREATE TABLE user_result (
     id integer GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     "userId" varchar(255) REFERENCES "user"(id), activity_type text NOT NULL,
     "activityId" integer NOT NULL, result varchar(255) NOT NULL,
-    "taskId" integer, "timeSpent" integer, details jsonb,
+    "taskId" integer, "timeSpent" integer, "attemptKey" varchar(255) UNIQUE, details jsonb,
     "createdAt" timestamptz NOT NULL DEFAULT now()
   )`);
   await client.unsafe(

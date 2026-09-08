@@ -21,44 +21,13 @@ interface TrueFalseFormState {
   explanations: { text: string; highlightedText: string }[];
 }
 
-const DEFAULT_PASSAGES = (): PassageItem[] => [
-  {
+const DEFAULT_PASSAGES = (): PassageItem[] =>
+  Array.from({ length: 6 }, () => ({
     text: "",
-    selectedHeadingIndex: 0,
+    selectedHeadingIndex: -1,
     explanationText: "",
     highlightedText: "",
-  },
-  {
-    text: "",
-    selectedHeadingIndex: 1,
-    explanationText: "",
-    highlightedText: "",
-  },
-  {
-    text: "",
-    selectedHeadingIndex: 2,
-    explanationText: "",
-    highlightedText: "",
-  },
-  {
-    text: "",
-    selectedHeadingIndex: 3,
-    explanationText: "",
-    highlightedText: "",
-  },
-  {
-    text: "",
-    selectedHeadingIndex: 4,
-    explanationText: "",
-    highlightedText: "",
-  },
-  {
-    text: "",
-    selectedHeadingIndex: 5,
-    explanationText: "",
-    highlightedText: "",
-  },
-];
+  }));
 
 const DEFAULT_HEADINGS = (): string[] => ["", "", "", "", "", "", ""];
 
@@ -550,6 +519,12 @@ function MatchingSection({
     value: string | number,
   ) => void;
 }) {
+  const headingColumnSize = Math.ceil(headings.length / 2);
+  const headingColumns = [
+    headings.slice(0, headingColumnSize),
+    headings.slice(headingColumnSize),
+  ];
+
   return (
     <>
       {/* 2. Headings List */}
@@ -572,41 +547,49 @@ function MatchingSection({
           </button>
         </div>
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {headings.map((heading, index) => (
-            <div key={index} className="flex items-center gap-2">
-              <span className="text-ink-3 w-6 shrink-0 text-right font-mono text-xs font-semibold">
-                {index + 1}.
-              </span>
-              <input
-                type="text"
-                value={heading}
-                onChange={(e) => onHeadingChange(index, e.target.value)}
-                placeholder={`Заголовок ${index + 1}...`}
-                className="border-line bg-surface-2 text-ink placeholder:text-ink-4 focus:border-accent focus:ring-accent w-full rounded-xl border px-3.5 py-2 text-sm transition-colors focus:outline-none"
-              />
-              {headings.length > 1 && (
-                <button
-                  type="button"
-                  onClick={() => onRemoveHeading(index)}
-                  className="shrink-0 rounded-lg p-1.5 text-red-500 transition-colors hover:bg-red-500/10"
-                  title="Удалить заголовок"
-                >
-                  <svg
-                    className="h-4 w-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+        <div className="grid grid-cols-1 items-start gap-3 sm:grid-cols-2">
+          {headingColumns.map((column, columnIndex) => (
+            <div key={columnIndex} className="space-y-3">
+              {column.map((heading, columnItemIndex) => {
+                const index = columnIndex * headingColumnSize + columnItemIndex;
+
+                return (
+                  <div key={index} className="flex items-center gap-2">
+                    <span className="text-ink-3 w-6 shrink-0 text-right font-mono text-xs font-semibold">
+                      {index + 1}.
+                    </span>
+                    <input
+                      type="text"
+                      value={heading}
+                      onChange={(e) => onHeadingChange(index, e.target.value)}
+                      placeholder={`Заголовок ${index + 1}...`}
+                      className="border-line bg-surface-2 text-ink placeholder:text-ink-4 focus:border-accent focus:ring-accent w-full rounded-xl border px-3.5 py-2 text-sm transition-colors focus:outline-none"
                     />
-                  </svg>
-                </button>
-              )}
+                    {headings.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => onRemoveHeading(index)}
+                        className="shrink-0 rounded-lg p-1.5 text-red-500 transition-colors hover:bg-red-500/10"
+                        title="Удалить заголовок"
+                      >
+                        <svg
+                          className="h-4 w-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                          />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           ))}
         </div>
