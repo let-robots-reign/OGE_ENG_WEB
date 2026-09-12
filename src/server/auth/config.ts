@@ -21,6 +21,7 @@ import {
   users,
   verificationTokens,
 } from "@/server/db/schema";
+import { OAUTH_SIGNUP_ROLE_COOKIE } from "@/shared/oauth-signup-role";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -55,6 +56,22 @@ interface VkIdProfile {
   avatar?: string;
   photo?: string;
 }
+
+const adapter = DrizzleAdapter(db, {
+  usersTable: users,
+  accountsTable: accounts,
+  sessionsTable: sessions,
+  verificationTokensTable: verificationTokens,
+}) as NonNullable<NextAuthConfig["adapter"]>;
+
+// Role picked on the signup page. OAuth from the sign-in page carries none:
+// the user is created without a role and RoleGate asks for it after login.
+// Never trust the cookie with anything above teacher.
+const getOAuthSignupRole = async () => {
+  const cookieStore = await cookies();
+  const value = cookieStore.get(OAUTH_SIGNUP_ROLE_COOKIE)?.value;
+  return value === "student" || value === "teacher" ? value : null;
+};
 
 /**
  * Options for NextAuth.js used to configure adapters, providers, callbacks, etc.
@@ -193,12 +210,16 @@ export const authConfig = {
      * @see https://next-auth.js.org/providers/github
      */
   ],
-  adapter: DrizzleAdapter(db, {
-    usersTable: users,
-    accountsTable: accounts,
-    sessionsTable: sessions,
-    verificationTokensTable: verificationTokens,
-  }) as NonNullable<NextAuthConfig["adapter"]>,
+  adapter: {
+    ...adapter,
+    // Only OAuth sign-ups go through the adapter (credentials users are
+    // inserted by the signup action), and provider profiles carry no role.
+    createUser: async (user) =>
+      adapter.createUser!({
+        ...user,
+        role: user.role ?? (await getOAuthSignupRole()),
+      }),
+  },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {

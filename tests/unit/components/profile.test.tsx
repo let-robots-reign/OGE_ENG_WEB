@@ -102,7 +102,7 @@ describe("Profile Components Suite", () => {
       expect(screen.getByText("Reading")).toBeInTheDocument();
       expect(screen.getByText("50%")).toBeInTheDocument();
       expect(screen.getByText("5")).toBeInTheDocument();
-      expect(screen.getByText(/средн\. 8\/10/)).toBeInTheDocument();
+      expect(screen.getByText(/средний балл 8\/10/)).toBeInTheDocument();
     });
 
     it("should render subjects grid in SubjectProgress", () => {

@@ -3,6 +3,8 @@
 import { signIn } from "next-auth/react";
 import Image from "next/image";
 
+import { OAUTH_SIGNUP_ROLE_COOKIE } from "@/shared/oauth-signup-role";
+
 type SimpleProvider = {
   id: string;
   name: string;
@@ -41,10 +43,12 @@ export function OAuthButtons({
   const oauthProviders = providers.filter((p) => p.id !== "credentials");
 
   const handleSignIn = (providerId: string) => {
-    void signIn(providerId, {
-      callbackUrl,
-      ...(role ? { role } : {}),
-    });
+    // Read by the adapter when it creates a new user; cleared on the sign-in
+    // page so a stale choice from an abandoned signup doesn't leak.
+    document.cookie = role
+      ? `${OAUTH_SIGNUP_ROLE_COOKIE}=${role}; path=/; max-age=600; samesite=lax`
+      : `${OAUTH_SIGNUP_ROLE_COOKIE}=; path=/; max-age=0`;
+    void signIn(providerId, { callbackUrl });
   };
 
   if (layout === "stacked") {

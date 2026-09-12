@@ -7,6 +7,7 @@ import { TRPCReactProvider } from "@/trpc/react";
 import { Header } from "@/app/_components/header/header";
 import { Footer } from "@/app/_components/footer";
 import { AuthProvider } from "./_components/auth-provider";
+import { RoleGate } from "./_components/role-gate";
 
 export const metadata: Metadata = {
   title: "ОГЭ Английский",
@@ -57,6 +58,7 @@ export default function RootLayout({
               <main>{children}</main>
               <Footer />
             </div>
+            <RoleGate />
           </AuthProvider>
         </TRPCReactProvider>
       </body>
