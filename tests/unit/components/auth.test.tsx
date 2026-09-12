@@ -7,15 +7,24 @@ import { signIn } from "next-auth/react";
 
 const mocks = vi.hoisted(() => ({
   mockSignUpAction: vi.fn(),
+  mockPush: vi.fn(),
+  mockReplace: vi.fn(),
+  callbackUrl: null as string | null,
 }));
 
 // Mock routers/searchparams
 vi.mock("next/navigation", () => ({
   useSearchParams: () => ({
-    get: (key: string) => (key === "error" ? "CredentialsSignin" : null),
+    get: (key: string) =>
+      key === "callbackUrl"
+        ? mocks.callbackUrl
+        : key === "error"
+          ? "CredentialsSignin"
+          : null,
   }),
   useRouter: () => ({
-    push: vi.fn(),
+    push: mocks.mockPush,
+    replace: mocks.mockReplace,
     refresh: vi.fn(),
   }),
 }));
@@ -31,6 +40,7 @@ vi.mock("@/app/auth/signup/_components/actions", () => ({
 describe("Authentication Views Suite", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.callbackUrl = null;
   });
 
   describe("SignInForm", () => {
@@ -65,6 +75,45 @@ describe("Authentication Views Suite", () => {
       fireEvent.click(yandexBtn);
 
       expect(signIn).toHaveBeenCalledWith("yandex", { callbackUrl: "/" });
+    });
+
+    it("returns to the classroom invite after credentials sign-in", async () => {
+      mocks.callbackUrl = "/classes/join/invite-token";
+      vi.mocked(signIn).mockResolvedValue({
+        error: undefined,
+        code: undefined,
+        ok: true,
+        status: 200,
+        url: null,
+      });
+
+      render(<SignInForm providers={[]} />);
+      fireEvent.change(screen.getByPlaceholderText("masha@example.com"), {
+        target: { value: "student@example.com" },
+      });
+      fireEvent.change(screen.getByPlaceholderText("••••••••"), {
+        target: { value: "password" },
+      });
+      fireEvent.click(screen.getByRole("button", { name: "Войти →" }));
+
+      await waitFor(() => {
+        expect(mocks.mockReplace).toHaveBeenCalledWith(
+          "/classes/join/invite-token",
+        );
+      });
+    });
+
+    it("preserves the classroom invite for OAuth sign-in", () => {
+      mocks.callbackUrl = "/classes/join/invite-token";
+
+      render(<SignInForm providers={[{ id: "yandex", name: "Yandex" }]} />);
+      fireEvent.click(
+        screen.getByRole("button", { name: /Войти через Яндекс/i }),
+      );
+
+      expect(signIn).toHaveBeenCalledWith("yandex", {
+        callbackUrl: "/classes/join/invite-token",
+      });
     });
   });
 

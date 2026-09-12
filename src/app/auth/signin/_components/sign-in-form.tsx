@@ -39,8 +39,10 @@ export function SignInForm({ providers }: { providers: SimpleProvider[] }) {
     } else {
       posthog.identify(email, { email });
       posthog.capture("user_signed_in", { method: "credentials" });
-      router.push(callbackUrl);
-      router.refresh();
+      // Replacing the sign-in page is enough to fetch the destination with the
+      // newly-set session cookie. Refreshing here races that navigation: the
+      // refreshed sign-in page sees an authenticated user and redirects home.
+      router.replace(callbackUrl);
     }
   };
 
