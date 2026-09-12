@@ -120,6 +120,12 @@ export const authConfig = {
         url: "https://id.vk.ru/oauth2/auth",
         conform: async (response: Response) => {
           const data = (await response.json()) as Record<string, unknown>;
+          // VK ID returns a non-standard id_token (`iis`/`app` instead of
+          // `iss`/`aud`, and no `aud` claim), which fails Auth.js's OIDC
+          // id_token validation ("aud claim missing"). We resolve the profile
+          // via the userinfo request instead, so drop the id_token entirely so
+          // Auth.js treats this as a plain OAuth2 flow.
+          delete data.id_token;
           return new Response(
             JSON.stringify({
               ...data,
