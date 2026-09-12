@@ -1,5 +1,11 @@
 name: oge-eng-web
 
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
   migrator:
     image: ${IMAGE_NAME:-ghcr.io/let-robots-reign/oge_eng_web:latest}
@@ -9,6 +15,7 @@ services:
       db:
         condition: service_healthy
     command: ["migrate.mjs"]
+    logging: *default-logging
 
   web:
     image: ${IMAGE_NAME:-ghcr.io/let-robots-reign/oge_eng_web:latest}
@@ -24,6 +31,7 @@ services:
       - AUTH_URL=https://oge-eng.ru
     volumes:
       - audio_uploads:/app/public/uploads/audio
+    logging: *default-logging
 
   db:
     image: postgres:15-alpine
@@ -41,6 +49,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    logging: *default-logging
 
   nginx:
     image: nginx:1.23-alpine
@@ -56,6 +65,7 @@ services:
     depends_on:
       - web
     command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+    logging: *default-logging
 
   certbot:
     image: certbot/certbot
@@ -68,6 +78,7 @@ services:
     # Always use the webroot shared with nginx. This overrides stale renewal
     # metadata if the certificate was previously issued in standalone mode.
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew --webroot -w /var/www/certbot; sleep 12h & wait $${!}; done;'"
+    logging: *default-logging
 
 volumes:
   postgres_data:

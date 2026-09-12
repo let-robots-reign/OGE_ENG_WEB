@@ -219,7 +219,7 @@ export function TabStudents({
                         href={`/teacher/classrooms/${classroomId}/students/${s.userId}`}
                         className="text-accent text-[14px] font-medium hover:underline"
                       >
-                        Прогресс →
+                        Прогресс&nbsp;→
                       </Link>
                       <RemoveMember
                         classroomId={classroomId}

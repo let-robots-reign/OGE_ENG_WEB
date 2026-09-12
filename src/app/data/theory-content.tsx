@@ -1504,49 +1504,39 @@ export const theoryContent: Record<string, React.ReactNode> = {
   "cliche-phrases": (
     <div>
       <div className="border-line bg-surface-2 my-6 rounded-xl border p-5 sm:p-6">
-        <div className="mb-4 text-right">
-          <div className="font-medium">Moscow*, Russia</div>
-          <div className="font-medium">May 24th**, 2019</div>
-        </div>
         <div className="space-y-4">
-          <div className="font-medium">Dear Ben***,</div>
+          <div className="font-medium">Dear Ben*,</div>
           <div className="pl-4 leading-relaxed sm:pl-6">
-            Thank you for your recent letter. I was glad to hear from you again.
+            Thank you for your recent email. I was glad to hear from you again.
           </div>
           <div className="pl-4 leading-relaxed sm:pl-6">
-            In your letter you asked me about ...
+            In your email you asked me about ...
           </div>
           <div className="pl-4 leading-relaxed sm:pl-6">
             Hope to hear from you soon.
           </div>
           <div>
             <div className="font-medium">Best wishes,</div>
-            <div className="font-medium">Sasha****</div>
+            <div className="font-medium">Sasha**</div>
           </div>
         </div>
       </div>
 
       <div className="text-ink-3 mb-6 space-y-1 text-[14px]">
-        <div>* Ваш город</div>
-        <div>** Дата Вашего экзамена</div>
-        <div>*** Имя, которое указано в задании</div>
-        <div>**** Ваше имя</div>
+        <div>* Имя, которое указано в задании</div>
+        <div>** Ваше имя</div>
       </div>
 
       <h5>Образец письма, иллюстрирующий структуру:</h5>
 
       <div className="border-line bg-surface-2 my-4 rounded-xl border p-5 italic sm:p-6">
-        <div className="mb-4 text-right">
-          <div>Moscow, Russia</div>
-          <div>May 24th, 2019</div>
-        </div>
         <div className="space-y-4">
           <div>Dear Ben,</div>
           <div className="pl-4 leading-relaxed sm:pl-6">
-            Thank you for your recent letter. I was glad to hear from you again.
+            Thank you for your recent email. I was glad to hear from you again.
           </div>
           <div className="pl-4 leading-relaxed sm:pl-6">
-            In your letter you asked me about my future job. Well, I’d like to
+            In your email you asked me about my future job. Well, I’d like to
             become a programmer as I believe it’s one of the most important
             professions today. Besides learning how to code, I will need to use
             English a lot because with the help of English I can get access to
@@ -1566,9 +1556,9 @@ export const theoryContent: Record<string, React.ReactNode> = {
       </div>
 
       <p className="mt-6">
-        Обратите внимание, что после адреса, даты и Вашего имени точка{" "}
-        <b>НЕ СТАВИТСЯ</b>. После приветствия (<i>Ben</i>) и пожелания перед
-        Вашим именем ставится запятая.
+        Обратите внимание, что после Вашего имени точка <b>НЕ СТАВИТСЯ</b>.
+        После приветствия (<i>Ben</i>) и пожелания перед Вашим именем ставится
+        запятая.
       </p>
       <p>
         Каждая часть письма начинается с красной строки или после пропуска

@@ -121,4 +121,8 @@ jobs:
             fi
             echo "Verified: web is running $RUNNING"
 
-            docker image prune -f
+            # Each release is tagged with its commit SHA. Plain `image prune`
+            # only removes dangling images, so every old release would remain
+            # on disk forever. `-a` also removes tagged images that are not used
+            # by any container; named database and upload volumes are untouched.
+            docker image prune -af
