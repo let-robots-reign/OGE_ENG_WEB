@@ -52,7 +52,9 @@ export function SubjectCard({
             заданий
           </span>
           <span className="font-mono">
-            {done > 0 ? `средн. ${avgCorrect}/${avgMax}` : "средн. —"}
+            {done > 0
+              ? `средний балл ${avgCorrect}/${avgMax}`
+              : "средний балл —"}
           </span>
         </div>
       </div>

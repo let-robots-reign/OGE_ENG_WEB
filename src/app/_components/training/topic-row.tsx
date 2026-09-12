@@ -49,7 +49,7 @@ export function TopicRow({ topic, meta, href }: TopicRowProps) {
         {score !== null ? (
           <div>
             <div className="text-ink-3 mb-1 flex justify-between text-[12px]">
-              <span>средний</span>
+              <span>средний балл</span>
               <span className="text-ink font-mono font-medium">
                 {score}/{items}
               </span>

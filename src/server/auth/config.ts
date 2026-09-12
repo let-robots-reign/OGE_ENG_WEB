@@ -106,7 +106,12 @@ export const authConfig = {
     VkProvider({
       clientId: process.env.VK_CLIENT_ID,
       clientSecret: process.env.VK_CLIENT_SECRET,
-      checks: ["state", "pkce"],
+      // VK ID (id.vk.ru) does not round-trip Auth.js's long encoded `state`
+      // verbatim, so the state check fails with
+      // `unexpected "state" response parameter value`. PKCE is mandatory for
+      // VK ID and provides the CSRF protection state would (it binds the auth
+      // code to the code_verifier in our httpOnly cookie), so we rely on it.
+      checks: ["pkce"],
       authorization: {
         url: "https://id.vk.ru/authorize",
         params: { scope: "email", response_type: "code" },
