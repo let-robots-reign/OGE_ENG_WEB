@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => ({
   mockSignUpAction: vi.fn(),
   mockPush: vi.fn(),
   mockReplace: vi.fn(),
+  mockRefresh: vi.fn(),
   callbackUrl: null as string | null,
 }));
 
@@ -25,7 +26,7 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({
     push: mocks.mockPush,
     replace: mocks.mockReplace,
-    refresh: vi.fn(),
+    refresh: mocks.mockRefresh,
   }),
 }));
 
@@ -100,6 +101,7 @@ describe("Authentication Views Suite", () => {
         expect(mocks.mockReplace).toHaveBeenCalledWith(
           "/classes/join/invite-token",
         );
+        expect(mocks.mockRefresh).toHaveBeenCalled();
       });
     });
 
